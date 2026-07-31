@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Filter, Search } from 'lucide-react'
 
 import { LearnFiltersPanel } from './filters-modal/LearnFiltersPanel'
+import { LearnTabSwitcher } from './LearnTabSwitcher'
 import { useDebouncedCommit } from './useDebouncedCommit'
 import { pushLearnEvent } from '../shared/learnAnalytics'
 import type {
@@ -20,22 +21,14 @@ import { MasaiSelectDropdown } from '@/components/ui/masai-select-dropdown'
 import { MasaiButton } from '@/components/masai-button'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
 import { MasaiInput } from '@/components/ui/masai-input'
-import { MasaiTab } from '@/components/ui/masai-tab'
+import { SlotPortal } from '@/components/common/SlotPortal'
+import { LEARN_TIER2_TABS_SLOT_ID } from '@/components/features/layout/learnTier2Slots'
 
 /** Debounce before committing the search term to the URL (keeps typing smooth). */
 const SEARCH_DEBOUNCE_MS = 1000
 
 /** Shorter debounce for module checkboxes — ticks apply optimistically, fetch follows. */
 const MODULE_DEBOUNCE_MS = 400
-
-const LEARN_TAB_ICON_URL =
-  'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/tab-icon.svg'
-
-const LEARN_TAB_ITEMS: ReadonlyArray<{ value: LearnTab; label: string }> = [
-  { value: 'lectures', label: 'Lectures' },
-  { value: 'assignments', label: 'Assignments' },
-  { value: 'resources', label: 'Resources' },
-]
 
 const SEARCH_PLACEHOLDER_BY_TAB: Record<LearnTab, string> = {
   lectures: 'Search lectures',
@@ -153,32 +146,21 @@ export function LearnControlsSection({
   // Tabs stack above the controls on small screens; one row from `md` up.
   return (
     <section className="py-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div
-        role="tablist"
-        aria-label="Learning content type"
-        className="flex flex-wrap items-center gap-4"
-      >
-        {LEARN_TAB_ITEMS.map((tab) => (
-          <MasaiTab
-            key={tab.value}
-            label={tab.label}
-            selected={activeTab === tab.value}
-            onClick={() => {
-              pushLearnEvent('l_learn_tab_change', { tab: tab.value })
-              onTabChange(tab.value)
-            }}
-            iconLeft={
-              <img
-                src={LEARN_TAB_ICON_URL}
-                alt=""
-                width={24}
-                height={24}
-                className="size-6 shrink-0 object-contain"
-              />
-            }
-          />
-        ))}
-      </div>
+      {/* Lectures/Assignments/Resources: inline on mobile (no Tier 2 nav there
+          yet); portaled into the desktop navbar's Tier 2 row on `lg`+, where
+          the inline copy is hidden via the ancestor's `max-lg:hidden`. */}
+      <LearnTabSwitcher
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        className="lg:hidden"
+      />
+      <SlotPortal slotId={LEARN_TIER2_TABS_SLOT_ID}>
+        <LearnTabSwitcher
+          activeTab={activeTab}
+          onTabChange={onTabChange}
+          variant="tier2"
+        />
+      </SlotPortal>
 
       {/* Search takes the full first line below `sm` so module + filter never
           squeeze off-screen at 320px. */}

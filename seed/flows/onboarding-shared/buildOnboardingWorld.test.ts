@@ -241,7 +241,10 @@ describe('buildOnboardingWorld', () => {
 
     expect(hoisted.createProfile).toHaveBeenCalledWith(
       expect.objectContaining({
-        meta: { profile_pic: 'https://example.com/profile-photo.jpg' },
+        meta: {
+          profile_pic:
+            'https://api.dicebear.com/10.x/lorelei/svg?seed=dummyprofiep',
+        },
       }),
     )
   })

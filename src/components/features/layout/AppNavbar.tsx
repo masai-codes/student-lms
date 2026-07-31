@@ -8,21 +8,18 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import {
-  Book,
-  Bookmark,
-  BriefcaseBusiness,
-  Bug,
-  CalendarDays,
-  CircleHelp,
-  Gift,
-  LogOutIcon,
   Megaphone,
+  Bookmark,
+  Bug,
+  Gift,
+  GraduationCap,
+  Headphones,
+  LogOutIcon,
   MessagesSquare,
-  Sparkles,
+  Smartphone,
   UserCircle,
-  Users,
 } from 'lucide-react'
-import type { MouseEventHandler } from 'react'
+import type { MouseEventHandler, ReactNode } from 'react'
 
 import type {
   NavbarActionItem,
@@ -31,12 +28,15 @@ import type {
   NavbarProfile,
   NavbarProfileMenuItem,
 } from '@/components/navbar'
-import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
 import { Navbar } from '@/components/navbar'
+import { NavbarTrailingActions } from '@/components/navbar/navbar-trailing-actions'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
-import { NextActionBanner } from '@/components/features/layout/NextActionBanner'
+import {
+  LEARN_TIER2_PROGRAM_SLOT_ID,
+  LEARN_TIER2_TABS_SLOT_ID,
+} from '@/components/features/layout/learnTier2Slots'
 import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
 import { isMigratedRoute } from '@/utils/migratedRoutes'
@@ -44,7 +44,6 @@ import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
 import { logout } from '@/server/auth/logout'
-import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import {
   getOldStudentUiUrlForPath,
   getPostLogoutRedirectUrl,
@@ -110,7 +109,7 @@ function oldStudentUiLink(path: string): NavbarActivation {
 }
 
 /** In-app route a primary nav tab can point to when it stays in the new LMS. */
-type InternalNavPath = '/' | '/learn'
+type InternalNavPath = '/' | '/learn' | '/masaiverse'
 
 /**
  * Declarative config for a primary nav tab. The single `stayInNew` flag decides
@@ -142,7 +141,7 @@ export default function AppNavbar() {
       const match = s.matches.find(
         (m) => m.routeId === '/(protected)/_layout/lectures_/$lectureId',
       )
-      const detail = match?.loaderData as LectureDetailPayload | undefined
+      const detail = match?.loaderData
       return Boolean(
         detail && !detail.restriction && detail.hasRecording && detail.videoUrl,
       )
@@ -170,33 +169,6 @@ export default function AppNavbar() {
     refetchIntervalInBackground: false,
     retry: 1,
   })
-
-  // MasaiVerse Community access is per-user and stable for the session, so cache
-  // it the same way the masaiverse route loader does. Admins always have access.
-  const { data: masaiverseAccess, isLoading: isMasaiverseAccessLoading } =
-    useQuery({
-      queryKey: ['masaiverse-access', user.id],
-      queryFn: () =>
-        getMasaiverseAccessDebugServer({ data: { userId: user.id } }),
-      staleTime: 5 * 60 * 1000,
-      enabled: user.role !== 'admin',
-    })
-
-  // Until the per-user access check resolves we don't yet know whether to show
-  // "MasaiVerse" or "Refer & Earn", so we withhold the either/or item entirely.
-  // Rendering it early defaults to the "Refer & Earn" branch and then swaps to
-  // "MasaiVerse" once the query resolves — the fraction-of-a-second flicker.
-  // Admins short-circuit (query is disabled), so they never wait.
-  const isMasaiverseAccessResolved =
-    user.role === 'admin' || !isMasaiverseAccessLoading
-
-  // When the CTA is active we surface "MasaiVerse Community" in the main desktop
-  // nav (replacing "Refer & Earn") and move "Refer & Earn" into the profile
-  // dropdown. Otherwise the nav keeps "Refer & Earn" and the dropdown keeps
-  // "MasaiVerse Community" as-is.
-  const showMasaiverseCta =
-    !hideMasaiExtras &&
-    (user.role === 'admin' || masaiverseAccess?.canShowMasaiverse === true)
 
   const handleLevelupClick = useCallback(
     async (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -276,16 +248,6 @@ export default function AppNavbar() {
     [navigate],
   )
 
-  // Opens the onboarding guided tour on the dashboard — works from any page and
-  // regardless of whether onboarding is already complete.
-  const handleGuidedTourClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault()
-      void navigate({ to: '/', search: { guidedTour: 'open' } })
-    },
-    [navigate],
-  )
-
   const handleAnnouncementsClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
@@ -330,111 +292,172 @@ export default function AppNavbar() {
       to: '/learn',
       isActive: activeNavId === 'learn',
     }),
-    buildPrimaryNavTab({
-      id: 'support',
-      label: 'Support',
-      stayInNew: false,
-      oldUiPath: OLD_STUDENT_UI_NAV_PATHS.support,
-    }),
-    buildPrimaryNavTab({
-      id: 'discussions',
-      label: 'Discussions',
-      stayInNew: false,
-      oldUiPath: OLD_STUDENT_UI_NAV_PATHS.discussions,
-    }),
-    // Non-Masai portals (iHub, IIT Jodhpur) hide the MasaiVerse CTA and the
-    // Refer & Earn (changemakers) link entirely; Masai keeps the existing
-    // either/or behaviour. We also wait for the access check to resolve to
-    // avoid flickering between the two labels.
-    ...(hideMasaiExtras || !isMasaiverseAccessResolved
+    // Community and Interviews are Masai-only surfaces (MasaiVerse/Chat/
+    // Practice Interviews all live behind the same `hideMasaiExtras` gate on
+    // iHub/IIT Jodhpur, same as before).
+    ...(hideMasaiExtras
       ? []
       : [
-          showMasaiverseCta
-            ? {
-                id: 'masaiverse-nav',
-                label: 'MasaiVerse',
-                href: '/masaiverse',
-                openInNewTab: false,
-                isActive: activeNavId === 'masaiverse',
-              }
-            : {
-                id: 'refer',
-                label: 'Refer & Earn',
-                href: '#',
-                openInNewTab: false,
-                onClick: handleReferAndEarnClick,
-              },
+          buildPrimaryNavTab({
+            id: 'community',
+            label: 'Community',
+            stayInNew: true,
+            to: '/masaiverse',
+            isActive: activeNavId === 'community',
+          }),
+          buildPrimaryNavTab({
+            id: 'interviews',
+            label: 'Interviews',
+            stayInNew: false,
+            oldUiPath: '/practice-interview',
+            isActive: activeNavId === 'interviews',
+          }),
         ]),
   ]
 
+  // Tier 1 right icon cluster: Announcements, then Bookmarks — a standalone
+  // utility, not a Learn concept, so it lives here rather than in Learn's
+  // Tier 2. (Calendar and the onboarding "Get started" entry aren't part of
+  // the global chrome anymore; Calendar's covered by Home's aggregated
+  // schedule.)
   const trailingActions: Array<NavbarActionItem> = useMemo(
     () => [
-      // Download App is hidden on iHub only (iHub has no mobile app) — Masai and
-      // IIT Jodhpur both keep it. Chat + the guided-tour icon are Masai-only.
-      ...(isIHub
-        ? []
-        : [
-            {
-              id: 'download-app',
-              type: 'image' as const,
-              src: 'https://students.masaischool.com/static/media/download-app.394dce64e9e436e88052.png',
-              alt: 'Download app',
-              tooltip: 'Download App',
-              href: '#',
-              imageClassName: 'h-[40px]',
-              onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
-                e.preventDefault()
-                setDownloadAppOpen(true)
-              },
-            },
-          ]),
-      {
-        id: 'calendar',
-        type: 'icon',
-        icon: <CalendarDays className="size-7" />,
-        ariaLabel: 'Calendar',
-        ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.calendar),
-      },
-      ...(hideMasaiExtras
-        ? []
-        : [
-            {
-              id: 'chat',
-              type: 'icon' as const,
-              icon: <MessagesSquare className="size-7" />,
-              ariaLabel: 'Chat',
-              ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.chat),
-            },
-            {
-              id: 'guided-tour',
-              type: 'icon' as const,
-              icon: <CircleHelp className="size-7" />,
-              ariaLabel: 'Onboarding steps',
-              tooltip: 'Onboarding steps',
-              href: '/',
-              openInNewTab: false,
-              onClick: handleGuidedTourClick,
-            },
-          ]),
       {
         id: 'announcements',
         type: 'icon',
-        icon: <Megaphone className="size-7 -scale-x-100" />,
+        icon: <Megaphone />,
         ariaLabel: 'Announcements',
+        tooltip: 'Announcements',
         href: '/announcements',
         openInNewTab: false,
         notificationCount: unreadCount,
         onClick: handleAnnouncementsClick,
       },
+      {
+        id: 'bookmarks',
+        type: 'icon',
+        icon: <Bookmark />,
+        ariaLabel: 'Bookmarks',
+        tooltip: 'Bookmarks',
+        href: '/bookmarks',
+        openInNewTab: false,
+        isActive: pathname.startsWith('/bookmarks'),
+      },
     ],
-    [
-      handleAnnouncementsClick,
-      handleGuidedTourClick,
-      hideMasaiExtras,
-      isIHub,
-      unreadCount,
-    ],
+    [handleAnnouncementsClick, pathname, unreadCount],
   )
+
+  // Tier 1 right: "Get the app" — desktop/mobile-web only (hidden on iHub,
+  // which has no mobile app; never shown from inside the native app shell).
+  const primaryRowActions: Array<NavbarActionItem> = useMemo(
+    () =>
+      isIHub
+        ? []
+        : [
+            {
+              id: 'download-app',
+              type: 'text',
+              variant: 'pill',
+              label: 'Get the app',
+              icon: <Smartphone />,
+              href: '#',
+              onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+                e.preventDefault()
+                setDownloadAppOpen(true)
+              },
+            },
+          ],
+    [isIHub],
+  )
+
+  // Tier 1 right: Refer & Earn is now a persistent link (no longer traded off
+  // against a MasaiVerse CTA — Community is its own fixed Tier 1 tab). Still
+  // Masai-only.
+  const secondaryRowLinks: Array<NavbarActionItem> = useMemo(
+    () =>
+      hideMasaiExtras
+        ? []
+        : [
+            {
+              id: 'refer',
+              type: 'text',
+              label: 'Refer & Earn',
+              icon: <Gift />,
+              href: '#',
+              openInNewTab: false,
+              onClick: handleReferAndEarnClick,
+            },
+          ],
+    [handleReferAndEarnClick, hideMasaiExtras],
+  )
+
+  // Tier 2: contextual per-module sub-nav. Learn's left side is the
+  // Lectures/Assignments/Resources tab switcher (portaled in from the Learn
+  // page itself — see `LEARN_TIER2_TABS_SLOT_ID` — so its state stays owned by
+  // the page's URL search params) plus a divider and Discussions (the one
+  // Learn-scoped utility that doesn't live on the page). Bookmarks isn't a
+  // Learn concept — it moved to the Tier 1 icon cluster above. The right side
+  // is the program/course switcher, also portaled in, and only appears once
+  // the Learn page finds the student has more than one enrolled program —
+  // with one program the slot simply stays empty (nothing to portal).
+  // Community surfaces Chat first, then MasaiVerse; "Masai Live" has no route
+  // yet, so it's omitted rather than linked to nothing. Home and Interviews
+  // have no Tier 2 at all.
+  const tier2: ReactNode = useMemo(() => {
+    if (activeNavId === 'learn') {
+      return (
+        <>
+          <div className="flex min-w-0 items-stretch gap-3">
+            <div
+              id={LEARN_TIER2_TABS_SLOT_ID}
+              className="flex items-stretch gap-4"
+            />
+            <span
+              aria-hidden="true"
+              className="h-5 w-px shrink-0 self-center bg-border"
+            />
+            <NavbarTrailingActions
+              items={[
+                {
+                  id: 'discussions',
+                  type: 'iconText',
+                  icon: <MessagesSquare />,
+                  label: 'Discussions',
+                  ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.discussions),
+                },
+              ]}
+            />
+          </div>
+          <div id={LEARN_TIER2_PROGRAM_SLOT_ID} className="flex items-center" />
+        </>
+      )
+    }
+    if (activeNavId === 'community') {
+      return (
+        <NavbarTrailingActions
+          items={[
+            {
+              id: 'chat-tab',
+              type: 'text',
+              label: 'Chat',
+              href: '/chat',
+              openInNewTab: false,
+              isActive: pathname.startsWith('/chat'),
+            },
+            {
+              id: 'masaiverse-tab',
+              type: 'text',
+              label: 'MasaiVerse',
+              href: '/masaiverse',
+              openInNewTab: false,
+              isActive: pathname.startsWith('/masaiverse'),
+            },
+          ]}
+        />
+      )
+    }
+    return undefined
+  }, [activeNavId, pathname])
 
   const profileMenuItems: Array<NavbarProfileMenuItem> = useMemo(
     () => [
@@ -448,48 +471,20 @@ export default function AppNavbar() {
       {
         id: 'courses',
         label: 'My Programs',
-        icon: <Book className="size-4" />,
+        icon: <GraduationCap className="size-4" />,
         href: '/my-courses',
         openInNewTab: false,
       },
+      // Support is a guaranteed fallback here (the floating support button is
+      // suppressed during lecture playback / interviews) — always visible,
+      // not gated by portal.
       {
-        id: 'bookmark',
-        label: 'Bookmark',
-        icon: <Bookmark className="size-4" />,
-        href: '/bookmarks',
+        id: 'support',
+        label: 'Support',
+        icon: <Headphones className="size-4" />,
+        href: '/support',
         openInNewTab: false,
       },
-      // MasaiVerse Community / Refer & Earn and Practice Interviews are
-      // Masai-only and dropped from the non-Masai (iHub, IIT Jodhpur) profile
-      // menu. Withhold the either/or item until the access check resolves to
-      // avoid the flicker.
-      ...(hideMasaiExtras || !isMasaiverseAccessResolved
-        ? []
-        : [
-            showMasaiverseCta
-              ? {
-                  id: 'refer-menu',
-                  label: 'Refer & Earn',
-                  icon: <Gift className="size-4" />,
-                  href: '#',
-                  openInNewTab: false,
-                  onClick: handleReferAndEarnClick,
-                }
-              : {
-                  id: 'masaiverse-menu',
-                  label: 'MasaiVerse',
-                  icon: <Users className="size-4" />,
-                  href: '/masaiverse',
-                  openInNewTab: false,
-                  isActive: activeNavId === 'masaiverse',
-                },
-            {
-              id: 'practice-interview',
-              label: 'Practice Interviews',
-              icon: <BriefcaseBusiness className="size-4" />,
-              ...oldStudentUiLink('/practice-interview'),
-            },
-          ]),
       {
         id: 'report-bug',
         label: 'Report a Bug',
@@ -518,13 +513,6 @@ export default function AppNavbar() {
             },
           ]),
       {
-        id: 'product-updates',
-        label: 'Product Updates',
-        icon: <Sparkles className="size-4" />,
-        href: '/whats-new',
-        openInNewTab: false,
-      },
-      {
         id: 'sign-out',
         label: 'Sign out',
         icon: <LogOutIcon className="size-4" />,
@@ -533,16 +521,7 @@ export default function AppNavbar() {
         },
       },
     ],
-    [
-      activeNavId,
-      handleLevelupClick,
-      handleReferAndEarnClick,
-      handleSignOut,
-      hideMasaiExtras,
-      isLevelupLoading,
-      isMasaiverseAccessResolved,
-      showMasaiverseCta,
-    ],
+    [handleLevelupClick, handleSignOut, hideMasaiExtras, isLevelupLoading],
   )
 
   const profile: NavbarProfile = useMemo(
@@ -570,10 +549,10 @@ export default function AppNavbar() {
           onClick: handleHomeClick,
         }}
         navItems={navItems}
-        centerSlot={
-          <NextActionBanner className="max-w-[180px] xl:max-w-[260px] 2xl:max-w-[340px]" />
-        }
         trailingActions={trailingActions}
+        primaryRowActions={primaryRowActions}
+        secondaryRowLinks={secondaryRowLinks}
+        tier2={tier2}
         actionsSlot={
           showTryNew && !user.hideSwitchOption && isMigratedRoute(pathname) ? (
             <TryNewToggle initialEnabled={user.newLmsPagesEnabled} />

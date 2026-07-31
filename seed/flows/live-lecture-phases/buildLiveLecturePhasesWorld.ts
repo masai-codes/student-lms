@@ -215,6 +215,7 @@ export async function buildLiveLecturePhasesWorld(
     program: 'SDE',
     duration: '30 weeks',
     starting: formatMysqlDate(offsetFromNow({ daysAgo: 7 })),
+    meta: { show_masaiverse: true },
   })
 
   const section = await createSection({

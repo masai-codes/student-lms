@@ -123,11 +123,20 @@ export type OnboardingEntities = {
   profile: typeof profiles.$inferSelect | null
 }
 
+export type MasaiverseAccessEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  section: typeof sections.$inferSelect
+  enrollment: typeof sectionUser.$inferSelect
+}
+
 export type SeedFlowEntities =
   | LoginAndJoinLectureEntities
   | LiveLecturePhasesEntities
   | OnboardingEntities
   | DashboardHomeEntities
+  | MasaiverseAccessEntities
 
 export type SeedFlowResult = {
   flowId: string

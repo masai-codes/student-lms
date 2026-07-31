@@ -17,22 +17,51 @@ import { cn } from '@/lib/utils'
  */
 const FORCE_DARK_THEME_ID = 'midnight'
 
+/** Hairline vertical rule separating groups inside a row. */
+function RowDivider({ className }: { className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn('h-6 w-px shrink-0 bg-border', className)}
+    />
+  )
+}
+
+/**
+ * Two-tier app navbar (Masai IA v1).
+ *
+ * Row 1 (Tier 1, global, 56px): logo + primary `navItems` (Home/Learn/
+ * Community/Interviews) on the left; the icon cluster (`trailingActions` —
+ * Announcements), `secondaryRowLinks` (Refer & Earn), `primaryRowActions`
+ * (Get the app), `actionsSlot` and the profile menu on the right.
+ *
+ * Row 2 (Tier 2, per-module, 44px): `tier2` renders below a hairline divider
+ * only when the active module has sub-nav (Learn, Community). Home and
+ * Interviews pass no `tier2`, so the row is omitted entirely rather than
+ * shown empty.
+ */
 export function Navbar({
   logo,
   navItems,
   profile,
   trailingActions,
-  centerSlot,
+  primaryRowActions,
+  secondaryRowLinks,
+  tier2,
   actionsSlot,
   className,
   forceDark,
 }: NavbarProps) {
+  const hasSecondaryLinks = Boolean(secondaryRowLinks?.length)
+  const hasIconCluster = Boolean(trailingActions?.length)
+
   return (
     <header
       data-app-navbar
+      data-testid="navbar"
       data-theme={forceDark ? FORCE_DARK_THEME_ID : undefined}
       className={cn(
-        'sticky top-0 z-[210] flex w-full flex-col bg-surface shadow-[0_1px_2px_0_rgb(0_0_0/0.05)] rounded-b-[32px] lg:px-6',
+        'sticky top-0 z-[210] flex w-full flex-col border-b border-border bg-surface shadow-sm lg:px-6',
         // Forced-dark navbar sits over a light page, so the rounded bottom
         // corners would otherwise reveal the light page as white slivers. Keep
         // the rounded look but back the header with a square dark layer (the
@@ -42,32 +71,44 @@ export function Navbar({
         className,
       )}
     >
+      {/* Row 1 (Tier 1): logo + primary nav, icon cluster + CTAs + profile. */}
       <div
+        data-testid="navbar-row-primary"
         className={cn(
           LAYOUT_NAVBAR_INNER_CLASSES,
-          'justify-between py-3 lg:py-4',
+          'h-14 items-stretch justify-between gap-3',
         )}
       >
-        <div className="flex min-w-0 flex-1 items-center gap-4 xl:gap-8 2xl:gap-12">
+        <div className="flex min-w-0 flex-1 items-stretch gap-4 xl:gap-8 2xl:gap-12">
           <NavbarLogo logo={logo} />
           <NavbarNavItems items={navItems} />
         </div>
 
-        <div className="flex min-w-0 shrink items-center gap-2 xl:gap-4">
-          {/* Only the center badge is allowed to shrink/truncate; the icon
-              cluster, toggle, theme switcher and avatar stay a fixed size so
-              they never overlap or wrap when the badge + toggle are both live. */}
-          {centerSlot ? (
-            <div className="flex min-w-0 shrink items-center">{centerSlot}</div>
+        <div className="flex shrink-0 items-center gap-2 xl:gap-3">
+          <NavbarTrailingActions items={trailingActions ?? []} />
+          {hasSecondaryLinks && hasIconCluster ? <RowDivider /> : null}
+          <NavbarTrailingActions items={secondaryRowLinks ?? []} />
+          {primaryRowActions?.length ? (
+            <NavbarTrailingActions items={primaryRowActions} />
           ) : null}
-          <div className="flex shrink-0 items-center gap-2 xl:gap-4">
-            <NavbarTrailingActions items={trailingActions ?? []} />
-            {actionsSlot ?? null}
-            {/* <ThemeSwitcher /> */}
-            <NavbarProfileMenu profile={profile} />
-          </div>
+          {actionsSlot ?? null}
+          {/* <ThemeSwitcher /> */}
+          <NavbarProfileMenu profile={profile} />
         </div>
       </div>
+
+      {/* Row 2 (Tier 2): omitted entirely when the active module has none. */}
+      {tier2 ? (
+        <div
+          data-testid="navbar-row-tier2"
+          className={cn(
+            LAYOUT_NAVBAR_INNER_CLASSES,
+            'h-11 items-stretch justify-between gap-3 border-t border-border',
+          )}
+        >
+          {tier2}
+        </div>
+      ) : null}
     </header>
   )
 }

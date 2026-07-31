@@ -77,6 +77,7 @@ import { Route as protectedLayoutSupportIndexRouteImport } from './routes/(prote
 import { Route as protectedLayoutProfileIndexRouteImport } from './routes/(protected)/_layout/profile/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
+import { Route as protectedLayoutChatIndexRouteImport } from './routes/(protected)/_layout/chat/index'
 import { Route as protectedLayoutBookmarksIndexRouteImport } from './routes/(protected)/_layout/bookmarks/index'
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
@@ -564,6 +565,12 @@ const protectedLayoutLearnIndexRoute =
   protectedLayoutLearnIndexRouteImport.update({
     id: '/learn/',
     path: '/learn/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutChatIndexRoute =
+  protectedLayoutChatIndexRouteImport.update({
+    id: '/chat/',
+    path: '/chat/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutBookmarksIndexRoute =
@@ -1424,6 +1431,7 @@ export interface FileRoutesByFullPath {
   '/v2/login/': typeof authV2LoginIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
+  '/chat/': typeof protectedLayoutChatIndexRoute
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/profile/': typeof protectedLayoutProfileIndexRoute
@@ -1614,6 +1622,7 @@ export interface FileRoutesByTo {
   '/v2/login': typeof authV2LoginIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmarks': typeof protectedLayoutBookmarksIndexRoute
+  '/chat': typeof protectedLayoutChatIndexRoute
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
   '/profile': typeof protectedLayoutProfileIndexRoute
@@ -1807,6 +1816,7 @@ export interface FileRoutesById {
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/(protected)/_layout/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
+  '/(protected)/_layout/chat/': typeof protectedLayoutChatIndexRoute
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/(protected)/_layout/profile/': typeof protectedLayoutProfileIndexRoute
@@ -2000,6 +2010,7 @@ export interface FileRouteTypes {
     | '/v2/login/'
     | '/announcements/'
     | '/bookmarks/'
+    | '/chat/'
     | '/learn/'
     | '/masaiverse/'
     | '/profile/'
@@ -2190,6 +2201,7 @@ export interface FileRouteTypes {
     | '/v2/login'
     | '/announcements'
     | '/bookmarks'
+    | '/chat'
     | '/learn'
     | '/masaiverse'
     | '/profile'
@@ -2382,6 +2394,7 @@ export interface FileRouteTypes {
     | '/(auth)/v2/login/'
     | '/(protected)/_layout/announcements/'
     | '/(protected)/_layout/bookmarks/'
+    | '/(protected)/_layout/chat/'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
     | '/(protected)/_layout/profile/'
@@ -3042,6 +3055,13 @@ declare module '@tanstack/react-router' {
       path: '/learn'
       fullPath: '/learn/'
       preLoaderRoute: typeof protectedLayoutLearnIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/chat/': {
+      id: '/(protected)/_layout/chat/'
+      path: '/chat'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof protectedLayoutChatIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/bookmarks/': {
@@ -3966,6 +3986,7 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutSupportContextRoute: typeof protectedLayoutSupportContextRoute
   protectedLayoutAnnouncementsIndexRoute: typeof protectedLayoutAnnouncementsIndexRoute
   protectedLayoutBookmarksIndexRoute: typeof protectedLayoutBookmarksIndexRoute
+  protectedLayoutChatIndexRoute: typeof protectedLayoutChatIndexRoute
   protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
   protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
   protectedLayoutSupportIndexRoute: typeof protectedLayoutSupportIndexRoute
@@ -3995,6 +4016,7 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutAnnouncementsIndexRoute:
     protectedLayoutAnnouncementsIndexRoute,
   protectedLayoutBookmarksIndexRoute: protectedLayoutBookmarksIndexRoute,
+  protectedLayoutChatIndexRoute: protectedLayoutChatIndexRoute,
   protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
   protectedLayoutProfileIndexRoute: protectedLayoutProfileIndexRoute,
   protectedLayoutSupportIndexRoute: protectedLayoutSupportIndexRoute,

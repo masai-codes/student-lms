@@ -11,6 +11,7 @@ type NavbarLogoProps = {
 export function NavbarLogo({ logo, className }: NavbarLogoProps) {
   return (
     <NavbarAnchor
+      data-testid="navbar-logo"
       href={logo.href}
       openInNewTab={logo.openInNewTab}
       onClick={logo.onClick}
@@ -23,7 +24,7 @@ export function NavbarLogo({ logo, className }: NavbarLogoProps) {
           <img
             src={logo.src}
             alt={logo.alt}
-            className="h-8 w-auto max-w-[160px] object-contain dark:hidden"
+            className="h-7 w-auto max-w-[140px] object-contain dark:hidden"
             loading="eager"
             decoding="async"
             suppressHydrationWarning
@@ -31,7 +32,7 @@ export function NavbarLogo({ logo, className }: NavbarLogoProps) {
           <img
             src={logo.darkSrc}
             alt={logo.alt}
-            className="hidden h-8 w-auto max-w-[160px] object-contain dark:block"
+            className="hidden h-7 w-auto max-w-[140px] object-contain dark:block"
             loading="eager"
             decoding="async"
             suppressHydrationWarning
@@ -41,7 +42,7 @@ export function NavbarLogo({ logo, className }: NavbarLogoProps) {
         <img
           src={logo.src}
           alt={logo.alt}
-          className="h-8 w-auto max-w-[160px] object-contain"
+          className="h-7 w-auto max-w-[140px] object-contain"
           loading="eager"
           decoding="async"
           suppressHydrationWarning

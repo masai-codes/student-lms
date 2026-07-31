@@ -1,6 +1,7 @@
 import { loginAndJoinLectureConfig } from './flows/login-and-join-lecture/config'
 import { liveLecturePhasesConfig } from './flows/live-lecture-phases/config'
 import { dashboardHomeConfig } from './flows/dashboard-home/config'
+import { masaiverseAccessConfig } from './flows/masaiverse-access/config'
 import {
   createOnboardingFlowMeta,
   ONBOARDING_FLOW_IDS,
@@ -16,6 +17,7 @@ const flowConfigs: SeedFlowMeta[] = [
   loginAndJoinLectureConfig,
   liveLecturePhasesConfig,
   dashboardHomeConfig,
+  masaiverseAccessConfig,
   ...onboardingConfigs,
 ]
 
@@ -40,12 +42,18 @@ async function loadFlowModule(id: string): Promise<SeedFlowModule> {
       return { meta: loginAndJoinLectureConfig, seed: seedLoginAndJoinLecture }
     }
     case liveLecturePhasesConfig.id: {
-      const { seedLiveLecturePhases } = await import('./flows/live-lecture-phases/seed')
+      const { seedLiveLecturePhases } =
+        await import('./flows/live-lecture-phases/seed')
       return { meta: liveLecturePhasesConfig, seed: seedLiveLecturePhases }
     }
     case dashboardHomeConfig.id: {
       const { seedDashboardHome } = await import('./flows/dashboard-home/seed')
       return { meta: dashboardHomeConfig, seed: seedDashboardHome }
+    }
+    case masaiverseAccessConfig.id: {
+      const { seedMasaiverseAccess } =
+        await import('./flows/masaiverse-access/seed')
+      return { meta: masaiverseAccessConfig, seed: seedMasaiverseAccess }
     }
     default: {
       const known = flowConfigs.map((flow) => flow.id).join(', ')

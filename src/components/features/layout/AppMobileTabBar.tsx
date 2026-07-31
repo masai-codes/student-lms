@@ -2,18 +2,10 @@
 
 import { useMemo } from 'react'
 import { useNavigate, useRouterState } from '@tanstack/react-router'
-import {
-  Headphones,
-  Home,
-  LayoutGrid,
-  MessageSquare,
-  MonitorPlay,
-  Users,
-} from 'lucide-react'
+import { BriefcaseBusiness, Home, MonitorPlay, User, Users } from 'lucide-react'
 
 import { TabNavbar } from '@/components/tab-navbar'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
-import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 import { hidesMasaiOnlyFeatures } from '@/utils/portal'
 
@@ -29,12 +21,15 @@ function oldUiNavigate(path: string) {
   if (url) window.location.assign(url)
 }
 
+/**
+ * Mobile Tier 1: Home · Learn · Community · Interviews · Profile, mirroring
+ * the desktop navbar's primary nav (Masai IA v1). Community and Interviews
+ * are Masai-only surfaces, same gate as the desktop navbar.
+ */
 export default function AppMobileTabBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const navigate = useNavigate()
   const activeId = activeAppNavIdForPathname(pathname)
-  // Chat is a Masai-only surface — dropped from non-Masai (iHub, IIT Jodhpur)
-  // mobile tab bars.
   const hideMasaiExtras = hidesMasaiOnlyFeatures()
 
   const items = useMemo(
@@ -64,54 +59,46 @@ export default function AppMobileTabBar() {
           void navigate({ to: '/learn', search: {} })
         },
       },
-      {
-        id: 'support',
-        label: 'Support',
-        icon: (
-          <Headphones
-            strokeWidth={1.75}
-            className="size-6 shrink-0 text-current"
-          />
-        ),
-        isActive: false,
-        onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.support),
-      },
       ...(hideMasaiExtras
         ? []
         : [
             {
-              id: 'chat',
-              label: 'Chat',
+              id: 'community',
+              label: 'Community',
               icon: (
-                <MessageSquare
+                <Users
+                  strokeWidth={1.75}
+                  className="size-6 shrink-0 text-current"
+                />
+              ),
+              isActive: activeId === 'community',
+              onClick: () => {
+                void navigate({ to: '/masaiverse' })
+              },
+            },
+            {
+              id: 'interviews',
+              label: 'Interviews',
+              icon: (
+                <BriefcaseBusiness
                   strokeWidth={1.75}
                   className="size-6 shrink-0 text-current"
                 />
               ),
               isActive: false,
-              onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.chat),
+              onClick: () => oldUiNavigate('/practice-interview'),
             },
           ]),
       {
-        id: 'forum',
-        label: 'Forum',
+        id: 'profile',
+        label: 'Profile',
         icon: (
-          <Users strokeWidth={1.75} className="size-6 shrink-0 text-current" />
+          <User strokeWidth={1.75} className="size-6 shrink-0 text-current" />
         ),
         isActive: false,
-        onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.discussions),
-      },
-      {
-        id: 'more',
-        label: 'More',
-        icon: (
-          <LayoutGrid
-            strokeWidth={1.75}
-            className="size-6 shrink-0 text-current"
-          />
-        ),
-        isActive: false,
-        onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.profileSettings),
+        onClick: () => {
+          void navigate({ to: '/profile', search: { tab: 'profile-details' } })
+        },
       },
     ],
     [activeId, hideMasaiExtras, navigate],

@@ -1,5 +1,5 @@
 /** Primary nav ids shared by top navbar and mobile tab bar. */
-export type AppNavItemId = 'home' | 'learn' | 'masaiverse'
+export type AppNavItemId = 'home' | 'learn' | 'community' | 'interviews'
 
 /**
  * Which primary nav item matches the current in-app route.
@@ -10,7 +10,7 @@ export function activeAppNavIdForPathname(
 ): AppNavItemId | undefined {
   if (pathname === '/' || pathname === '') return 'home'
   if (pathname.startsWith('/learn')) return 'learn'
-  if (pathname.startsWith('/masaiverse')) return 'masaiverse'
+  if (pathname.startsWith('/masaiverse')) return 'community'
   if (
     pathname.startsWith('/assignments') ||
     pathname.startsWith('/lectures') ||
@@ -18,5 +18,6 @@ export function activeAppNavIdForPathname(
   ) {
     return 'learn'
   }
+  if (pathname.startsWith('/chat')) return 'community'
   return undefined
 }

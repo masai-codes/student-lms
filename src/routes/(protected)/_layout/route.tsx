@@ -175,11 +175,15 @@ function RouteComponent() {
   // Lecture detail spans the full viewport width (no centered container), so
   // every hero state is edge-to-edge like the recording video.
   const isLectureDetail = /^\/lectures\/[^/]+/.test(renderedPathname)
-  const mainClasses = renderedPathname.startsWith('/masaiverse')
-    ? layoutMainClassesFullWidth
-    : isLectureDetail
-      ? lectureDetailMainClasses
-      : layoutMainClasses
+  // Chat is a single full-bleed iframe (connect.masaischool.com) — it wants
+  // the full viewport width/height, same as Masaiverse and lecture detail.
+  const isChatRoute = renderedPathname.startsWith('/chat')
+  const mainClasses =
+    renderedPathname.startsWith('/masaiverse') || isChatRoute
+      ? layoutMainClassesFullWidth
+      : isLectureDetail
+        ? lectureDetailMainClasses
+        : layoutMainClasses
 
   useEffect(() => {
     initClarity()

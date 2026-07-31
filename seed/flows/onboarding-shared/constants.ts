@@ -6,7 +6,7 @@ export const ONBOARDING_LMS_APP_VIDEO_URL =
 
 export const ONBOARDING_ID_CARD_URL = 'https://example.com/id-card.pdf'
 export const ONBOARDING_PROFILE_PHOTO_URL =
-  'https://example.com/profile-photo.jpg'
+  'https://api.dicebear.com/10.x/lorelei/svg?seed=dummyprofiep'
 export const ONBOARDING_PAYMENT_URL = 'https://example.com/pay-fees'
 export const ONBOARDING_KIT_TRACKING_URL = 'https://tracking.example.com/ABC123'
 
