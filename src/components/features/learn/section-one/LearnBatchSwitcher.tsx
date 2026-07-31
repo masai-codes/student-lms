@@ -146,17 +146,19 @@ export function LearnBatchSwitcher({
           })}
         </DropdownMenuContent>
       </DropdownMenu>
-      <Tooltip>
-        <TooltipContent>View Program Details</TooltipContent>
-        <TooltipTrigger>
-          <a
-            href={getOldStudentUiUrlForPath(`/new-courses/${selectedBatch}`)}
-            target="_blank"
-          >
-            <ExternalLink size={18} />
-          </a>
-        </TooltipTrigger>
-      </Tooltip>
+      {selectedBatchOption?.showBatchDetails && (
+        <Tooltip>
+          <TooltipContent>View Program Details</TooltipContent>
+          <TooltipTrigger>
+            <a
+              href={getOldStudentUiUrlForPath(`/new-courses/${selectedBatch}`)}
+              target="_blank"
+            >
+              <ExternalLink size={18} />
+            </a>
+          </TooltipTrigger>
+        </Tooltip>
+      )}
     </>
   )
 }
