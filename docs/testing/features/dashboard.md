@@ -126,6 +126,7 @@ tabs (My Schedule + Pending Tasks) and the welcome greeting (name via
 - `DASH-052` - Module: `computeDeadlineCountdown` - Case: whole days remaining (>= 1 day, singular/plural); ceil hours under a day; null when no deadline or already passed - Status: Covered
 - `DASH-053` - Module: `buildLearnListingCardCtas` (deadline) - Case: sets `assignmentDeadlineLabel` from the concludes countdown for assignments; null for lectures/resources - Status: Covered
 - `DASH-054` - Module: `LearnContentCard` (assignment deadline) - Case: shows the `assignmentDeadlineLabel` for assignments when present; absent for lectures / when null (shared with `/learn`) - Status: Covered
+- `DASH-055` - Module: `handleGetDashboardPendingTasks` (handler) - Case: wraps `getDashboardPendingTasks` into `{ pendingTasks }`, requires auth, and maps unexpected failures to a 500 - Status: Covered
 - `DASH-047` - Module: `ScheduleSection` (Pending Tasks tab) - Case: badges `pendingTasks.length` (hidden when zero); the tasks tab renders the reused cards; empty state when none - Status: Covered
 - `DASH-043` - Module: `LearnContentCard` (shared, dashboard reuse) - Case: renders the optional `courseName` after the date when present; unaffected on `/learn` when absent - Status: Covered (via `ScheduleSection`/`scheduleMapping`)
 
