@@ -66,6 +66,11 @@ function mapToLegacyPath(pathname: string): string {
   return pathname
 }
 
+/** Lecture, assignment, and resource detail pages use in-header Raise Ticket instead. */
+function isLearnDetailRoute(pathname: string): boolean {
+  return /^\/(lectures|assignments|resources)\/[^/]+/.test(pathname)
+}
+
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ location }) => {
     const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
@@ -194,11 +199,13 @@ function RouteComponent() {
 
   const showFloatingChat =
     ENABLE_SUPPORT_FLOATER && !isMasaiverseRoute && !isSupportRoute
+  const showFloatingChatSphere =
+    showFloatingChat && !isLearnDetailRoute(renderedPathname)
 
   // `data-app-shell`: hook target for the lecture page viewport lock (styles.css).
   const layout = (
     <div data-app-shell className={LAYOUT_APP_SHELL_CLASSES}>
-      <TryNewTour hasSeen={user.hasSeenTryNewTour} />
+      <TryNewTour hasSeen={user.hasSeenTryNewTour || user.hideSwitchOption} />
       <AppNavbar />
       {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
       <main
@@ -224,42 +231,12 @@ function RouteComponent() {
   return (
     <ModalProvider>
       {showFloatingChat ? (
-        <FloatingChatProvider>{layout}</FloatingChatProvider>
+        <FloatingChatProvider showSphere={showFloatingChatSphere}>
+          {layout}
+        </FloatingChatProvider>
       ) : (
         layout
       )}
-      {/* `data-app-shell`: the hook target for the lecture page's viewport lock
-          (styles.css) — that page pins this shell to the viewport so its two
-          columns can scroll independently. */}
-      <div data-app-shell className={LAYOUT_APP_SHELL_CLASSES}>
-        {/* The tour spotlights the "Try New" CTA — pointless when that CTA is
-            hidden for this user, so skip it entirely rather than let it poll for
-            a target that will never render. */}
-        <TryNewTour
-          hasSeen={user.hasSeenTryNewTour || user.hideSwitchOption}
-        />
-        <AppNavbar />
-        {/* Mobile-only greeting header for the dashboard home; the desktop
-            navbar (with the same announcements + onboarding actions) is hidden
-            on mobile. */}
-        {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
-        <main
-          className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
-        >
-          <Outlet />
-        </main>
-        {isMasaiverseRoute ? (
-          <MasaiverseMobileTabBar />
-        ) : !isApp ? (
-          <AppMobileTabBar />
-        ) : null}
-        {/* Floating support entry — shown only on the dashboard home for now. */}
-        {pathname === '/' && !isMasaiverseRoute && !isSupportRoute ? (
-          <SupportChatButton />
-        ) : null}
-        {/* Central modal system — announcement popups check on every page. */}
-        <AnnouncementModalController />
-      </div>
     </ModalProvider>
   )
 }
