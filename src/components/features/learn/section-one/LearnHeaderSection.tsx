@@ -1,11 +1,12 @@
 import { useMemo } from 'react'
 
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, MessagesSquare } from 'lucide-react'
 
 import type { EnrolledSection } from '@/server/learn/types'
 import { MasaiSelectDropdown } from '@/components/ui/masai-select-dropdown'
 import { pushLearnEvent } from '../shared/learnAnalytics'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
+import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { SlotPortal } from '@/components/common/SlotPortal'
 import { LEARN_TIER2_PROGRAM_SLOT_ID } from '@/components/features/layout/learnTier2Slots'
 import type { LearnBatchOption } from './LearnBatchSwitcher'
@@ -61,20 +62,36 @@ export function LearnHeaderSection({
   const courseDetailsHref = selectedBatchOption?.showBatchDetails
     ? getOldStudentUiUrlForPath(`/new-courses/${selectedBatch}`)
     : undefined
+  const discussionsHref = getOldStudentUiUrlForPath(
+    OLD_STUDENT_UI_NAV_PATHS.discussions,
+  )
 
   return (
     <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
-        {/* Program picker: page-header title style, inline only on mobile (no
-            Tier 2 nav there yet) — desktop gets the compact navbar version
-            below, portaled into the navbar's Tier 2 row, and only when there's
-            more than one program to choose from. */}
-        <div className="lg:hidden">
+        {/* Program picker: compact pill/dropdown style, inline only on mobile
+            (no Tier 2 nav there yet) — desktop gets the same compact navbar
+            version below, portaled into the navbar's Tier 2 row, and only
+            when there's more than one program to choose from. A Discussions
+            icon sits alongside it on mobile since there's no Tier 2 row to
+            host it there. */}
+        <div className="flex items-center justify-between gap-2 lg:hidden">
           <LearnBatchSwitcher
             selectedBatch={selectedBatch}
             batches={batches}
             onBatchChange={onBatchChange}
+            compact
           />
+          {discussionsHref ? (
+            <a
+              href={discussionsHref}
+              aria-label="Discussions"
+              title="Discussions"
+              className="flex size-8 shrink-0 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface-muted hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-[17px]"
+            >
+              <MessagesSquare aria-hidden />
+            </a>
+          ) : null}
         </div>
         {batches.length > 1 ? (
           <SlotPortal slotId={LEARN_TIER2_PROGRAM_SLOT_ID}>
