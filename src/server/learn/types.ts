@@ -205,6 +205,13 @@ export interface DiscussionListItem {
   threads: Array<LearnDiscussionThreadItem>
 }
 
+/** A discussion in the batch-wide `/learn/discussions` feed, with its source content attached. */
+export interface LearnDiscussionListItem extends DiscussionListItem {
+  contentType: 'lecture' | 'assignment' | 'resource'
+  contentId: number
+  contentTitle: string
+}
+
 /**
  * Presentation payload for /lectures/:id, /assignments/:id, /resources/:id.
  * Mirrors listing card fields — all strings/arrays are finalized on the server.

@@ -112,7 +112,7 @@ function BannerContent({
       </a>
     ) : (
       <Link
-        to="/lectures/$lectureId"
+        to="/learn/lectures/$lectureId"
         params={{ lectureId: String(event.id) }}
         onClick={handleCtaClick}
         className={contentClass}

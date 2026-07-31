@@ -6,6 +6,7 @@ import type {
   sectionUser,
   sections,
   userBatchAdmissionData,
+  userDeviceTokens,
   users,
 } from '@/db/schema'
 
@@ -131,6 +132,15 @@ export type MasaiverseAccessEntities = {
   enrollment: typeof sectionUser.$inferSelect
 }
 
+export type AppInstalledEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  section: typeof sections.$inferSelect
+  enrollment: typeof sectionUser.$inferSelect
+  deviceToken: typeof userDeviceTokens.$inferSelect
+}
+
 export type MultiProgramStudentEntities = LiveLecturePhasesEntities & {
   secondBatch: typeof batches.$inferSelect
   secondSection: typeof sections.$inferSelect
@@ -145,6 +155,7 @@ export type SeedFlowEntities =
   | DashboardHomeEntities
   | MasaiverseAccessEntities
   | MultiProgramStudentEntities
+  | AppInstalledEntities
 
 export type SeedFlowResult = {
   flowId: string

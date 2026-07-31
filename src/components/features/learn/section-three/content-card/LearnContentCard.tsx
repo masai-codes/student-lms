@@ -113,7 +113,10 @@ export function LearnContentCard({
   const id = String(item.id)
   const linkProps =
     item.type === 'lecture'
-      ? ({ to: '/lectures/$lectureId', params: { lectureId: id } } as const)
+      ? ({
+          to: '/learn/lectures/$lectureId',
+          params: { lectureId: id },
+        } as const)
       : item.type === 'assignment'
         ? ({
             to: '/assignments/$assignmentId',

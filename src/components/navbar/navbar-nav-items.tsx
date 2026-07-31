@@ -25,7 +25,7 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
       data-testid="navbar-nav-links"
       className={cn('flex min-w-0 items-stretch self-stretch', className)}
     >
-      <ul className="flex min-w-0 flex-nowrap items-stretch gap-5 xl:gap-6">
+      <ul className="flex min-w-0 flex-nowrap items-stretch gap-0 xl:gap-0">
         {items.map((item, index) => (
           <li
             key={item.id ?? `${item.href}-${item.label}-${index}`}
@@ -37,14 +37,14 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
               onClick={item.onClick}
               aria-current={item.isActive ? 'page' : undefined}
               data-testid={navLinkTestId(item)}
-              className="relative flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+              className="relative flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 pl-2 pr-4"
             >
               <span
                 className={cn(
-                  'inline-flex items-center gap-1.5 subpixel-antialiased cursor-pointer whitespace-nowrap font-poppins text-[14px] leading-5 transition-colors',
+                  'inline-flex items-center gap-1.5 subpixel-antialiased cursor-pointer whitespace-nowrap font-poppins text-[14px] leading-5 transition-colors font-medium',
                   item.isActive
-                    ? 'font-semibold text-brand'
-                    : 'font-medium text-foreground-muted hover:text-brand',
+                    ? 'text-brand'
+                    : 'text-foreground-muted hover:text-brand',
                 )}
               >
                 {item.icon ? (

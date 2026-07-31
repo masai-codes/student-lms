@@ -10,6 +10,7 @@ import type {
 import { Navbar } from '@/components/navbar'
 import { NavbarTrailingActions } from '@/components/navbar/navbar-trailing-actions'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
+import { LearnTier2Fallback } from '@/components/features/layout/LearnTier2Fallback'
 import {
   LEARN_TIER2_PROGRAM_SLOT_ID,
   LEARN_TIER2_TABS_SLOT_ID,
@@ -176,20 +177,35 @@ export default function AppNavbar() {
 
   const { primary, secondary } = resolveNavItemPriority(rightItems)
 
-  const isLearnActive = pathname.startsWith('/learn')
+  // Same set of routes the old `activeAppNavIdForPathname` mapped to "learn":
+  // the listing page itself plus every detail page and the Discussions feed.
+  const isLearnActive =
+    pathname.startsWith('/learn') ||
+    pathname.startsWith('/assignments') ||
+    pathname.startsWith('/resources')
+  const isLearnListingPage = pathname === '/learn'
 
   const tier2 = isLearnActive ? (
     <>
       <div className="flex min-w-0 items-stretch gap-3">
-        <div
-          id={LEARN_TIER2_TABS_SLOT_ID}
-          className="flex items-stretch gap-4"
-        />
-        <span
-          aria-hidden="true"
-          className="h-5 w-px shrink-0 self-center bg-border"
-        />
-        <div id={LEARN_TIER2_PROGRAM_SLOT_ID} className="flex items-center" />
+        {isLearnListingPage ? (
+          <>
+            <div
+              id={LEARN_TIER2_TABS_SLOT_ID}
+              className="flex items-stretch gap-4"
+            />
+            <span
+              aria-hidden="true"
+              className="h-5 w-px shrink-0 self-center bg-border"
+            />
+            <div
+              id={LEARN_TIER2_PROGRAM_SLOT_ID}
+              className="flex items-center"
+            />
+          </>
+        ) : (
+          <LearnTier2Fallback />
+        )}
       </div>
       <NavbarTrailingActions
         items={[

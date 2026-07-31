@@ -35,8 +35,8 @@ interface LearnBatchSwitcherProps {
 /**
  * Program/course picker. Rendered twice — once inline as a page-header title
  * (mobile, no Tier 2 nav yet) and once `compact` in the desktop navbar's
- * Tier 2 row (only when the student has more than one enrolled program —
- * callers should skip rendering entirely otherwise).
+ * Tier 2 row. Always rendered, even for a student with a single enrolled
+ * program — the picker doubles as the current-program indicator.
  */
 export function LearnBatchSwitcher({
   selectedBatch,

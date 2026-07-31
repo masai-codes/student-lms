@@ -77,6 +77,7 @@ import { Route as protectedLayoutSupportIndexRouteImport } from './routes/(prote
 import { Route as protectedLayoutProfileIndexRouteImport } from './routes/(protected)/_layout/profile/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
+import { Route as protectedLayoutInterviewsIndexRouteImport } from './routes/(protected)/_layout/interviews/index'
 import { Route as protectedLayoutChatIndexRouteImport } from './routes/(protected)/_layout/chat/index'
 import { Route as protectedLayoutBookmarksIndexRouteImport } from './routes/(protected)/_layout/bookmarks/index'
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
@@ -152,6 +153,7 @@ import { Route as protectedLayoutMasaiverseHomeRouteImport } from './routes/(pro
 import { Route as protectedLayoutMasaiverseEventsRouteImport } from './routes/(protected)/_layout/masaiverse/events'
 import { Route as protectedLayoutMasaiverseDiscussionsRouteImport } from './routes/(protected)/_layout/masaiverse/discussions'
 import { Route as protectedLayoutMasaiverseClubsRouteImport } from './routes/(protected)/_layout/masaiverse/clubs'
+import { Route as protectedLayoutLearnDiscussionsRouteImport } from './routes/(protected)/_layout/learn/discussions'
 import { Route as authV2LoginVerifyOtpRouteImport } from './routes/(auth)/v2/login/verify-otp'
 import { Route as authV2LoginRequestOtpRouteImport } from './routes/(auth)/v2/login/request-otp'
 import { Route as authV2AuthUseAccountRouteImport } from './routes/(auth)/v2/auth/use-account'
@@ -196,6 +198,7 @@ import { Route as ApiAiTutorChatFeedbackMigrateRatingsRouteImport } from './rout
 import { Route as ApiAiTutorChatConversationsChatIdRouteImport } from './routes/api/ai-tutor/chat/conversations/$chatId'
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
 import { Route as protectedLayoutMasaiverseClubClubIdRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId'
+import { Route as protectedLayoutLearnLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/learn/lectures_/$lectureId/route'
 import { Route as ApiLearnAssignmentsAssignmentIdProblemsProblemIdRouteImport } from './routes/api/learn/assignments/$assignmentId/problems/$problemId'
 import { Route as ApiCacheTranscriptBatchIdSectionIdLectureIdRouteImport } from './routes/api/cache/transcript/$batchId/$sectionId/$lectureId'
 import { Route as protectedLayoutMasaiverseClubClubIdGalleryRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId_.gallery'
@@ -565,6 +568,12 @@ const protectedLayoutLearnIndexRoute =
   protectedLayoutLearnIndexRouteImport.update({
     id: '/learn/',
     path: '/learn/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutInterviewsIndexRoute =
+  protectedLayoutInterviewsIndexRouteImport.update({
+    id: '/interviews/',
+    path: '/interviews/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutChatIndexRoute =
@@ -1002,6 +1011,12 @@ const protectedLayoutMasaiverseClubsRoute =
     path: '/clubs',
     getParentRoute: () => protectedLayoutMasaiverseRouteRoute,
   } as any)
+const protectedLayoutLearnDiscussionsRoute =
+  protectedLayoutLearnDiscussionsRouteImport.update({
+    id: '/learn/discussions',
+    path: '/learn/discussions',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const authV2LoginVerifyOtpRoute = authV2LoginVerifyOtpRouteImport.update({
   id: '/(auth)/v2/login/verify-otp',
   path: '/v2/login/verify-otp',
@@ -1263,6 +1278,12 @@ const protectedLayoutMasaiverseClubClubIdRoute =
     path: '/club/$clubId',
     getParentRoute: () => protectedLayoutMasaiverseRouteRoute,
   } as any)
+const protectedLayoutLearnLecturesLectureIdRouteRoute =
+  protectedLayoutLearnLecturesLectureIdRouteRouteImport.update({
+    id: '/learn/lectures_/$lectureId',
+    path: '/learn/lectures/$lectureId',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute =
   ApiLearnAssignmentsAssignmentIdProblemsProblemIdRouteImport.update({
     id: '/problems/$problemId',
@@ -1357,6 +1378,7 @@ export interface FileRoutesByFullPath {
   '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
+  '/learn/discussions': typeof protectedLayoutLearnDiscussionsRoute
   '/masaiverse/clubs': typeof protectedLayoutMasaiverseClubsRoute
   '/masaiverse/discussions': typeof protectedLayoutMasaiverseDiscussionsRoute
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
@@ -1432,6 +1454,7 @@ export interface FileRoutesByFullPath {
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
   '/chat/': typeof protectedLayoutChatIndexRoute
+  '/interviews/': typeof protectedLayoutInterviewsIndexRoute
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/profile/': typeof protectedLayoutProfileIndexRoute
@@ -1444,6 +1467,7 @@ export interface FileRoutesByFullPath {
   '/api/profile/certificates/': typeof ApiProfileCertificatesIndexRoute
   '/api/profile/email-preferences/': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
+  '/learn/lectures/$lectureId': typeof protectedLayoutLearnLecturesLectureIdRouteRoute
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
@@ -1548,6 +1572,7 @@ export interface FileRoutesByTo {
   '/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
+  '/learn/discussions': typeof protectedLayoutLearnDiscussionsRoute
   '/masaiverse/clubs': typeof protectedLayoutMasaiverseClubsRoute
   '/masaiverse/discussions': typeof protectedLayoutMasaiverseDiscussionsRoute
   '/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
@@ -1623,6 +1648,7 @@ export interface FileRoutesByTo {
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
   '/bookmarks': typeof protectedLayoutBookmarksIndexRoute
   '/chat': typeof protectedLayoutChatIndexRoute
+  '/interviews': typeof protectedLayoutInterviewsIndexRoute
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
   '/profile': typeof protectedLayoutProfileIndexRoute
@@ -1635,6 +1661,7 @@ export interface FileRoutesByTo {
   '/api/profile/certificates': typeof ApiProfileCertificatesIndexRoute
   '/api/profile/email-preferences': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id': typeof ApiWhatsNewIdIndexRoute
+  '/learn/lectures/$lectureId': typeof protectedLayoutLearnLecturesLectureIdRouteRoute
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
@@ -1742,6 +1769,7 @@ export interface FileRoutesById {
   '/(auth)/v2/auth/use-account': typeof authV2AuthUseAccountRoute
   '/(auth)/v2/login/request-otp': typeof authV2LoginRequestOtpRoute
   '/(auth)/v2/login/verify-otp': typeof authV2LoginVerifyOtpRoute
+  '/(protected)/_layout/learn/discussions': typeof protectedLayoutLearnDiscussionsRoute
   '/(protected)/_layout/masaiverse/clubs': typeof protectedLayoutMasaiverseClubsRoute
   '/(protected)/_layout/masaiverse/discussions': typeof protectedLayoutMasaiverseDiscussionsRoute
   '/(protected)/_layout/masaiverse/events': typeof protectedLayoutMasaiverseEventsRoute
@@ -1817,6 +1845,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
   '/(protected)/_layout/bookmarks/': typeof protectedLayoutBookmarksIndexRoute
   '/(protected)/_layout/chat/': typeof protectedLayoutChatIndexRoute
+  '/(protected)/_layout/interviews/': typeof protectedLayoutInterviewsIndexRoute
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
   '/(protected)/_layout/profile/': typeof protectedLayoutProfileIndexRoute
@@ -1829,6 +1858,7 @@ export interface FileRoutesById {
   '/api/profile/certificates/': typeof ApiProfileCertificatesIndexRoute
   '/api/profile/email-preferences/': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
+  '/(protected)/_layout/learn/lectures_/$lectureId': typeof protectedLayoutLearnLecturesLectureIdRouteRoute
   '/(protected)/_layout/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
@@ -1936,6 +1966,7 @@ export interface FileRouteTypes {
     | '/v2/auth/use-account'
     | '/v2/login/request-otp'
     | '/v2/login/verify-otp'
+    | '/learn/discussions'
     | '/masaiverse/clubs'
     | '/masaiverse/discussions'
     | '/masaiverse/events'
@@ -2011,6 +2042,7 @@ export interface FileRouteTypes {
     | '/announcements/'
     | '/bookmarks/'
     | '/chat/'
+    | '/interviews/'
     | '/learn/'
     | '/masaiverse/'
     | '/profile/'
@@ -2023,6 +2055,7 @@ export interface FileRouteTypes {
     | '/api/profile/certificates/'
     | '/api/profile/email-preferences/'
     | '/api/whats-new/$id/'
+    | '/learn/lectures/$lectureId'
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
@@ -2127,6 +2160,7 @@ export interface FileRouteTypes {
     | '/v2/auth/use-account'
     | '/v2/login/request-otp'
     | '/v2/login/verify-otp'
+    | '/learn/discussions'
     | '/masaiverse/clubs'
     | '/masaiverse/discussions'
     | '/masaiverse/events'
@@ -2202,6 +2236,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/bookmarks'
     | '/chat'
+    | '/interviews'
     | '/learn'
     | '/masaiverse'
     | '/profile'
@@ -2214,6 +2249,7 @@ export interface FileRouteTypes {
     | '/api/profile/certificates'
     | '/api/profile/email-preferences'
     | '/api/whats-new/$id'
+    | '/learn/lectures/$lectureId'
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
@@ -2320,6 +2356,7 @@ export interface FileRouteTypes {
     | '/(auth)/v2/auth/use-account'
     | '/(auth)/v2/login/request-otp'
     | '/(auth)/v2/login/verify-otp'
+    | '/(protected)/_layout/learn/discussions'
     | '/(protected)/_layout/masaiverse/clubs'
     | '/(protected)/_layout/masaiverse/discussions'
     | '/(protected)/_layout/masaiverse/events'
@@ -2395,6 +2432,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/announcements/'
     | '/(protected)/_layout/bookmarks/'
     | '/(protected)/_layout/chat/'
+    | '/(protected)/_layout/interviews/'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
     | '/(protected)/_layout/profile/'
@@ -2407,6 +2445,7 @@ export interface FileRouteTypes {
     | '/api/profile/certificates/'
     | '/api/profile/email-preferences/'
     | '/api/whats-new/$id/'
+    | '/(protected)/_layout/learn/lectures_/$lectureId'
     | '/(protected)/_layout/masaiverse/club/$clubId'
     | '/(protected)/_layout/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
@@ -3057,6 +3096,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutLearnIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
+    '/(protected)/_layout/interviews/': {
+      id: '/(protected)/_layout/interviews/'
+      path: '/interviews'
+      fullPath: '/interviews/'
+      preLoaderRoute: typeof protectedLayoutInterviewsIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
     '/(protected)/_layout/chat/': {
       id: '/(protected)/_layout/chat/'
       path: '/chat'
@@ -3582,6 +3628,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutMasaiverseClubsRouteImport
       parentRoute: typeof protectedLayoutMasaiverseRouteRoute
     }
+    '/(protected)/_layout/learn/discussions': {
+      id: '/(protected)/_layout/learn/discussions'
+      path: '/learn/discussions'
+      fullPath: '/learn/discussions'
+      preLoaderRoute: typeof protectedLayoutLearnDiscussionsRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
     '/(auth)/v2/login/verify-otp': {
       id: '/(auth)/v2/login/verify-otp'
       path: '/v2/login/verify-otp'
@@ -3890,6 +3943,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutMasaiverseClubClubIdRouteImport
       parentRoute: typeof protectedLayoutMasaiverseRouteRoute
     }
+    '/(protected)/_layout/learn/lectures_/$lectureId': {
+      id: '/(protected)/_layout/learn/lectures_/$lectureId'
+      path: '/learn/lectures/$lectureId'
+      fullPath: '/learn/lectures/$lectureId'
+      preLoaderRoute: typeof protectedLayoutLearnLecturesLectureIdRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
     '/api/learn/assignments/$assignmentId/problems/$problemId': {
       id: '/api/learn/assignments/$assignmentId/problems/$problemId'
       path: '/problems/$problemId'
@@ -3983,14 +4043,16 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutMessagesIdRouteRoute: typeof protectedLayoutMessagesIdRouteRoute
   protectedLayoutResourcesResourceIdRouteRoute: typeof protectedLayoutResourcesResourceIdRouteRoute
   protectedLayoutWhatsNewIdRouteRoute: typeof protectedLayoutWhatsNewIdRouteRoute
-  protectedLayoutSupportContextRoute: typeof protectedLayoutSupportContextRoute
+  protectedLayoutLearnDiscussionsRoute: typeof protectedLayoutLearnDiscussionsRoute
   protectedLayoutAnnouncementsIndexRoute: typeof protectedLayoutAnnouncementsIndexRoute
   protectedLayoutBookmarksIndexRoute: typeof protectedLayoutBookmarksIndexRoute
   protectedLayoutChatIndexRoute: typeof protectedLayoutChatIndexRoute
+  protectedLayoutInterviewsIndexRoute: typeof protectedLayoutInterviewsIndexRoute
   protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
   protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
   protectedLayoutSupportIndexRoute: typeof protectedLayoutSupportIndexRoute
   protectedLayoutWhatsNewIndexRoute: typeof protectedLayoutWhatsNewIndexRoute
+  protectedLayoutLearnLecturesLectureIdRouteRoute: typeof protectedLayoutLearnLecturesLectureIdRouteRoute
   protectedLayoutSupportSupportIdIndexRoute: typeof protectedLayoutSupportSupportIdIndexRoute
 }
 
@@ -4013,14 +4075,18 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
     protectedLayoutResourcesResourceIdRouteRoute,
   protectedLayoutWhatsNewIdRouteRoute: protectedLayoutWhatsNewIdRouteRoute,
   protectedLayoutSupportContextRoute: protectedLayoutSupportContextRoute,
+  protectedLayoutLearnDiscussionsRoute: protectedLayoutLearnDiscussionsRoute,
   protectedLayoutAnnouncementsIndexRoute:
     protectedLayoutAnnouncementsIndexRoute,
   protectedLayoutBookmarksIndexRoute: protectedLayoutBookmarksIndexRoute,
   protectedLayoutChatIndexRoute: protectedLayoutChatIndexRoute,
+  protectedLayoutInterviewsIndexRoute: protectedLayoutInterviewsIndexRoute,
   protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
   protectedLayoutProfileIndexRoute: protectedLayoutProfileIndexRoute,
   protectedLayoutSupportIndexRoute: protectedLayoutSupportIndexRoute,
   protectedLayoutWhatsNewIndexRoute: protectedLayoutWhatsNewIndexRoute,
+  protectedLayoutLearnLecturesLectureIdRouteRoute:
+    protectedLayoutLearnLecturesLectureIdRouteRoute,
   protectedLayoutSupportSupportIdIndexRoute:
     protectedLayoutSupportSupportIdIndexRoute,
 }

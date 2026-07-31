@@ -32,6 +32,7 @@ import {
 import { fetchLevelupSso } from '@/utils/levelupSso'
 import { fetchReferralLmsLoginRedirectUrl } from '@/utils/referralLmsLogin'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
+import { UsersThreeIcon } from '@phosphor-icons/react'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -171,7 +172,7 @@ export function useAppNavItems() {
         type: 'internal-link',
         to: '/masaiverse',
         label: 'MasaiVerse',
-        icon: Gift,
+        icon: UsersThreeIcon,
         uiType: 'primary',
         isActive: pathname.startsWith('/masaiverse'),
       })
@@ -197,7 +198,7 @@ export function useAppNavItems() {
   const rightItems: NavItem[] = useMemo(() => {
     const items: NavItem[] = []
 
-    if (!gating.isIHub && !gating.isAppInstalled) {
+    if (!gating.isIHub) {
       items.push({
         id: 'download-app',
         type: 'action',
@@ -205,7 +206,7 @@ export function useAppNavItems() {
         label: 'Get the app',
         icon: Smartphone,
         tooltip: 'Get the app',
-        uiType: 'primary',
+        uiType: gating.isAppInstalled ? 'secondary' : 'primary',
       })
     }
 
@@ -324,7 +325,7 @@ export function useAppNavItems() {
   const lectureHasRecording = useRouterState({
     select: (s) => {
       const match = s.matches.find(
-        (m) => m.routeId === '/(protected)/_layout/lectures_/$lectureId',
+        (m) => m.routeId === '/(protected)/_layout/learn/lectures_/$lectureId',
       )
       const detail = match?.loaderData as
         | { restriction?: unknown; hasRecording?: boolean; videoUrl?: string }

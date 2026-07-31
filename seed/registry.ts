@@ -3,6 +3,7 @@ import { liveLecturePhasesConfig } from './flows/live-lecture-phases/config'
 import { dashboardHomeConfig } from './flows/dashboard-home/config'
 import { masaiverseAccessConfig } from './flows/masaiverse-access/config'
 import { multiProgramStudentConfig } from './flows/multi-program-student/config'
+import { appInstalledConfig } from './flows/app-installed/config'
 import {
   createOnboardingFlowMeta,
   ONBOARDING_FLOW_IDS,
@@ -20,6 +21,7 @@ const flowConfigs: SeedFlowMeta[] = [
   dashboardHomeConfig,
   masaiverseAccessConfig,
   multiProgramStudentConfig,
+  appInstalledConfig,
   ...onboardingConfigs,
 ]
 
@@ -64,6 +66,10 @@ async function loadFlowModule(id: string): Promise<SeedFlowModule> {
         meta: multiProgramStudentConfig,
         seed: seedMultiProgramStudent,
       }
+    }
+    case appInstalledConfig.id: {
+      const { seedAppInstalled } = await import('./flows/app-installed/seed')
+      return { meta: appInstalledConfig, seed: seedAppInstalled }
     }
     default: {
       const known = flowConfigs.map((flow) => flow.id).join(', ')
