@@ -13,10 +13,7 @@ vi.mock('@/components/ui/masai-drawer', () => ({
   MasaiDrawer: () => null,
 }))
 
-function renderHeader(
-  showBatchDetails: boolean,
-  { showSectionDropdown = true }: { showSectionDropdown?: boolean } = {},
-) {
+function renderHeader(showBatchDetails: boolean) {
   render(
     <LearnHeaderSection
       selectedBatch="133"
@@ -26,23 +23,16 @@ function renderHeader(
           label: 'Full Stack Web',
           courseLogo: null,
           showBatchDetails,
-          showSectionDropdown,
+          showSectionDropdown: false,
         },
       ]}
       onBatchChange={() => {}}
-      sections={[{ sectionId: 7, name: 'Section A' }]}
-      selectedSectionId={null}
-      onSectionChange={() => {}}
     />,
   )
 }
 
 function courseDetailsLink() {
   return screen.queryByRole('link', { name: /program details/i })
-}
-
-function sectionDropdown() {
-  return screen.queryByRole('button', { name: /filter by course/i })
 }
 
 describe('LearnHeaderSection — Course Details link', () => {
@@ -84,24 +74,5 @@ describe('LearnHeaderSection — Course Details link', () => {
     renderHeader(true)
 
     expect(courseDetailsLink()).toBeNull()
-  })
-})
-
-describe('LearnHeaderSection — section filter', () => {
-  afterEach(() => {
-    cleanup()
-    vi.clearAllMocks()
-  })
-
-  it('renders the section filter when the batch has showSectionDropdown = true', () => {
-    renderHeader(false, { showSectionDropdown: true })
-
-    expect(sectionDropdown()).not.toBeNull()
-  })
-
-  it('hides the section filter when the batch has showSectionDropdown = false', () => {
-    renderHeader(false, { showSectionDropdown: false })
-
-    expect(sectionDropdown()).toBeNull()
   })
 })

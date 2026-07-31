@@ -178,7 +178,7 @@ export function LearnLayout({
 
   return (
     <div className="w-full">
-      <div className="relative ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip">
+      <div className="relative lg:sticky pl-28 top-25.5 z-10 ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip -mt-6 bg-surface shadow-2xs py-4">
         <div
           className={`animate-dash-rise relative mx-auto w-full ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X}`}
         >
@@ -194,9 +194,6 @@ export function LearnLayout({
             onBatchChange={(value) => {
               onBatchChange(Number(value))
             }}
-            sections={sections}
-            selectedSectionId={sectionId ?? null}
-            onSectionChange={onSectionChange}
           />
 
           <LearnControlsSection
@@ -214,6 +211,10 @@ export function LearnLayout({
             onApplyModalFilters={setModalFilters}
             horizon={horizon}
             onHorizonChange={setHorizon}
+            showSectionDropdown={showSectionDropdown}
+            sections={sections}
+            selectedSectionId={sectionId ?? null}
+            onSectionChange={onSectionChange}
           />
         </div>
       </div>

@@ -148,6 +148,16 @@ export type MultiProgramStudentEntities = LiveLecturePhasesEntities & {
   secondBatchLecture: typeof lectures.$inferSelect
 }
 
+export type SectionDropdownBatchEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  sections: Array<typeof sections.$inferSelect>
+  enrollments: Array<typeof sectionUser.$inferSelect>
+  lectures: Array<typeof lectures.$inferSelect>
+  assignments: Array<typeof import('@/db/schema').assignments.$inferSelect>
+}
+
 export type SeedFlowEntities =
   | LoginAndJoinLectureEntities
   | LiveLecturePhasesEntities
@@ -156,6 +166,7 @@ export type SeedFlowEntities =
   | MasaiverseAccessEntities
   | MultiProgramStudentEntities
   | AppInstalledEntities
+  | SectionDropdownBatchEntities
 
 export type SeedFlowResult = {
   flowId: string
