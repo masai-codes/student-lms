@@ -52,6 +52,7 @@ import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/das
 import { Route as ApiDashboardT0FlowDocumentsRouteImport } from './routes/api/dashboard/t0-flow-documents'
 import { Route as ApiDashboardProfilePhotoRouteImport } from './routes/api/dashboard/profile-photo'
 import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
+import { Route as ApiDashboardOverviewAppRouteImport } from './routes/api/dashboard/overview-app'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
 import { Route as ApiBookmarksFilterOptionsRouteImport } from './routes/api/bookmarks/filter-options'
@@ -428,6 +429,11 @@ const ApiDashboardPendingTasksRoute =
     path: '/api/dashboard/pending-tasks',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiDashboardOverviewAppRoute = ApiDashboardOverviewAppRouteImport.update({
+  id: '/api/dashboard/overview-app',
+  path: '/api/dashboard/overview-app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDashboardOverviewRoute = ApiDashboardOverviewRouteImport.update({
   id: '/api/dashboard/overview',
   path: '/api/dashboard/overview',
@@ -1313,6 +1319,7 @@ export interface FileRoutesByFullPath {
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/overview-app': typeof ApiDashboardOverviewAppRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
   '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
@@ -1504,6 +1511,7 @@ export interface FileRoutesByTo {
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/overview-app': typeof ApiDashboardOverviewAppRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
   '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
@@ -1698,6 +1706,7 @@ export interface FileRoutesById {
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/overview-app': typeof ApiDashboardOverviewAppRoute
   '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
   '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
@@ -1892,6 +1901,7 @@ export interface FileRouteTypes {
     | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/overview-app'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/profile-photo'
     | '/api/dashboard/t0-flow-documents'
@@ -2083,6 +2093,7 @@ export interface FileRouteTypes {
     | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/overview-app'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/profile-photo'
     | '/api/dashboard/t0-flow-documents'
@@ -2276,6 +2287,7 @@ export interface FileRouteTypes {
     | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/overview-app'
     | '/api/dashboard/pending-tasks'
     | '/api/dashboard/profile-photo'
     | '/api/dashboard/t0-flow-documents'
@@ -2466,6 +2478,7 @@ export interface RootRouteChildren {
   ApiBookmarksFilterOptionsRoute: typeof ApiBookmarksFilterOptionsRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
+  ApiDashboardOverviewAppRoute: typeof ApiDashboardOverviewAppRoute
   ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
   ApiDashboardProfilePhotoRoute: typeof ApiDashboardProfilePhotoRoute
   ApiDashboardT0FlowDocumentsRoute: typeof ApiDashboardT0FlowDocumentsRoute
@@ -2552,11 +2565,11 @@ export interface RootRouteChildren {
   ApiMessageIdReplyRoute: typeof ApiMessageIdReplyRoute
   ApiProfileAccountActivitySignOutAllRoute: typeof ApiProfileAccountActivitySignOutAllRoute
   ApiSupportCallbackCreateRoute: typeof ApiSupportCallbackCreateRoute
+  ApiSupportFloatingChatContextRoute: typeof ApiSupportFloatingChatContextRoute
+  ApiSupportFloatingChatInboxRoute: typeof ApiSupportFloatingChatInboxRoute
   ApiWebhooksAdmissionsCancelEnrolmentRoute: typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   ApiWebhooksAdmissionsCreateEnrolmentRoute: typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
   ApiWebhooksAdmissionsEventsRoute: typeof ApiWebhooksAdmissionsEventsRoute
-  ApiSupportFloatingChatContextRoute: typeof ApiSupportFloatingChatContextRoute
-  ApiSupportFloatingChatInboxRoute: typeof ApiSupportFloatingChatInboxRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
   ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
@@ -2881,6 +2894,13 @@ declare module '@tanstack/react-router' {
       path: '/api/dashboard/pending-tasks'
       fullPath: '/api/dashboard/pending-tasks'
       preLoaderRoute: typeof ApiDashboardPendingTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/overview-app': {
+      id: '/api/dashboard/overview-app'
+      path: '/api/dashboard/overview-app'
+      fullPath: '/api/dashboard/overview-app'
+      preLoaderRoute: typeof ApiDashboardOverviewAppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/overview': {
@@ -4255,6 +4275,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBookmarksFilterOptionsRoute: ApiBookmarksFilterOptionsRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
+  ApiDashboardOverviewAppRoute: ApiDashboardOverviewAppRoute,
   ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
   ApiDashboardProfilePhotoRoute: ApiDashboardProfilePhotoRoute,
   ApiDashboardT0FlowDocumentsRoute: ApiDashboardT0FlowDocumentsRoute,
@@ -4346,13 +4367,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProfileAccountActivitySignOutAllRoute:
     ApiProfileAccountActivitySignOutAllRoute,
   ApiSupportCallbackCreateRoute: ApiSupportCallbackCreateRoute,
+  ApiSupportFloatingChatContextRoute: ApiSupportFloatingChatContextRoute,
+  ApiSupportFloatingChatInboxRoute: ApiSupportFloatingChatInboxRoute,
   ApiWebhooksAdmissionsCancelEnrolmentRoute:
     ApiWebhooksAdmissionsCancelEnrolmentRoute,
   ApiWebhooksAdmissionsCreateEnrolmentRoute:
     ApiWebhooksAdmissionsCreateEnrolmentRoute,
   ApiWebhooksAdmissionsEventsRoute: ApiWebhooksAdmissionsEventsRoute,
-  ApiSupportFloatingChatContextRoute: ApiSupportFloatingChatContextRoute,
-  ApiSupportFloatingChatInboxRoute: ApiSupportFloatingChatInboxRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,

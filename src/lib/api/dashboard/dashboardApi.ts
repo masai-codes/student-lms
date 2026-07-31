@@ -1,4 +1,5 @@
 import type { DashboardOverview } from '@/server/api/dashboard/getDashboardOverview.service'
+import type { DashboardOverviewApp } from '@/server/api/dashboard/getDashboardOverviewApp.service'
 import type { DashboardScheduleItem } from '@/server/api/dashboard/schedule/scheduleTypes'
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { NavbarPillEvent } from '@/server/api/dashboard/getNavbarPill.service'
@@ -17,6 +18,11 @@ import { fetchJson } from '@/lib/api/fetchJson'
  */
 export async function fetchDashboardOverview(): Promise<DashboardOverview> {
   return fetchJson<DashboardOverview>(DASHBOARD_API.overview)
+}
+
+/** Slim overview for the mobile app (pending tasks + transfer/start banners). */
+export async function fetchDashboardOverviewApp(): Promise<DashboardOverviewApp> {
+  return fetchJson<DashboardOverviewApp>(DASHBOARD_API.overviewApp)
 }
 
 export async function fetchDashboardPendingTasks(): Promise<{
