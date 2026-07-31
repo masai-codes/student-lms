@@ -51,6 +51,9 @@ export function LearnBatchSwitcher({
     [batches, selectedBatch],
   )
   const selectedBatchLabel = selectedBatchOption?.label ?? 'Select batch'
+  const programUrl =
+    selectedBatchOption?.showBatchDetails &&
+    getOldStudentUiUrlForPath(`/new-courses/${selectedBatch}`)
 
   return (
     <>
@@ -146,13 +149,15 @@ export function LearnBatchSwitcher({
           })}
         </DropdownMenuContent>
       </DropdownMenu>
-      {selectedBatchOption?.showBatchDetails && (
+      {programUrl && (
         <Tooltip>
           <TooltipContent>View Program Details</TooltipContent>
           <TooltipTrigger>
             <a
-              href={getOldStudentUiUrlForPath(`/new-courses/${selectedBatch}`)}
+              href={programUrl}
               target="_blank"
+              data-testid="program-details-link"
+              rel="noopener noreferrer"
             >
               <ExternalLink size={18} />
             </a>

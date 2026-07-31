@@ -32,7 +32,7 @@ function renderHeader(showBatchDetails: boolean) {
 }
 
 function courseDetailsLink() {
-  return screen.queryByRole('link', { name: /program details/i })
+  return screen.queryByTestId('program-details-link')
 }
 
 describe('LearnHeaderSection — Course Details link', () => {
