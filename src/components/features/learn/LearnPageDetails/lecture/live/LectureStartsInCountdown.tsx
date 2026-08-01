@@ -61,7 +61,7 @@ function CountdownTile({ value, label }: { value: number; label: string }) {
           fits inside the card at 320px viewports. */}
       <div className="relative flex h-14 w-12 items-center justify-center overflow-hidden rounded-2xl border border-white/70 bg-surface/80 shadow-sm shadow-primary/5 backdrop-blur-sm min-[400px]:h-16 min-[400px]:w-14 sm:h-[4.5rem] sm:w-16">
         {/* Faint divider that hints at a split-flap clock. */}
-        <span className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-foreground/5" />
+        <span className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-foreground/0" />
         <span
           // Remounting on value change replays the flip animation each tick.
           key={padded}
@@ -70,7 +70,7 @@ function CountdownTile({ value, label }: { value: number; label: string }) {
           {padded}
         </span>
       </div>
-      <span className="type-caption uppercase tracking-[0.14em] text-foreground-muted">
+      <span className="type-caption uppercase tracking-[0.14em] text-foreground-muted absolute -bottom-5">
         {label}
       </span>
     </div>
@@ -122,13 +122,7 @@ export function LectureStartsInCountdown({
   const isImminent = remainingMs <= UNLOCK_LEAD_MS
 
   return (
-    <div
-      data-testid="lecture-starts-in-countdown"
-      className="animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-2 duration-500 relative w-full max-w-sm overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-b from-primary/10 via-primary/5 to-transparent p-5 shadow-lg shadow-primary/5"
-    >
-      {/* Sweeping sheen across the card. */}
-      <span className="pointer-events-none absolute inset-y-0 left-0 w-1/3 animate-countdown-sheen bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-
+    <div data-testid="lecture-starts-in-countdown">
       <div className="relative flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
           {/* Pulsing "live" dot with an expanding ring. */}
@@ -145,12 +139,12 @@ export function LectureStartsInCountdown({
           {units.map((unit, index) => (
             <div
               key={unit.key}
-              className="flex items-end gap-1 min-[400px]:gap-1.5"
+              className="flex items-center gap-1 min-[400px]:gap-1.5"
             >
               <CountdownTile value={unit.value} label={unit.label} />
               {index < units.length - 1 ? (
                 <span
-                  className="type-h4 animate-countdown-pulse pb-6 font-semibold text-primary/50 min-[400px]:pb-7"
+                  className="type-h4 animate-countdown-pulse font-semibold text-primary/50"
                   aria-hidden
                 >
                   :
