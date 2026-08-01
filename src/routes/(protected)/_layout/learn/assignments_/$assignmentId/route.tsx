@@ -5,7 +5,6 @@ import {
   LearnPageDetailError,
   LearningDetailMasaiBreadcrumb,
 } from '@/components/features/learn/LearnPageDetails'
-import { detailRouteInnerClasses } from '@/lib/layout'
 import { fetchAssignmentLearningDetailFromApi } from '@/lib/api/learn/learnApi'
 
 export const Route = createFileRoute(
@@ -26,7 +25,7 @@ function RouteComponent() {
   const detail = Route.useLoaderData()
 
   return (
-    <div className={detailRouteInnerClasses}>
+    <div className="w-full py-6">
       <LearningDetailMasaiBreadcrumb currentLabel={detail.title} />
       <AssignmentDetailPage detail={detail} />
     </div>

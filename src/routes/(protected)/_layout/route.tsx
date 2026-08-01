@@ -16,12 +16,6 @@ import { TryNewTour } from '@/components/features/layout/TryNewTour'
 import { AnnouncementModalController, ModalProvider } from '@/components/modals'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
-import {
-  layoutMainClasses,
-  layoutMainClassesFullWidth,
-  lectureDetailMainClasses,
-  LAYOUT_APP_SHELL_CLASSES,
-} from '@/lib/layout'
 import { ME_QUERY_KEY } from '@/query/me/meCache'
 import { meQuery } from '@/query/me/meQuery'
 import { bootstrapLoginWithToken } from '@/server/auth/bootstrapLogin'
@@ -189,10 +183,10 @@ function RouteComponent() {
   const isDashboard = renderedPathname === '/'
   const mainClasses =
     renderedPathname.startsWith('/masaiverse') || isChatRoute || isDashboard
-      ? layoutMainClassesFullWidth
+      ? 'layout-full-width-main'
       : isLectureDetail
-        ? lectureDetailMainClasses
-        : layoutMainClasses
+        ? 'layout-lecture-main'
+        : 'layout-page'
 
   useEffect(() => {
     initClarity()
@@ -217,7 +211,7 @@ function RouteComponent() {
 
   // `data-app-shell`: hook target for the lecture page viewport lock (styles.css).
   const layout = (
-    <div data-app-shell className={LAYOUT_APP_SHELL_CLASSES}>
+    <div data-app-shell className="layout-app-shell">
       <TryNewTour hasSeen={user.hasSeenTryNewTour || user.hideSwitchOption} />
       <AppNavbar />
       {pathname === '/' && !isApp ? <AppMobileHeader /> : null}

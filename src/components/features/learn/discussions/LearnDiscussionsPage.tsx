@@ -2,7 +2,6 @@ import { Link, useRouteContext } from '@tanstack/react-router'
 import { MessageSquare } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { LearnDiscussionListItem } from '@/server/learn/types'
-import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 import { MasaiInput } from '@/components/ui/masai-input'
 import { Switch } from '@/components/ui/switch'
 import {
@@ -209,9 +208,7 @@ export function LearnDiscussionsPage({
   return (
     <div className="w-full">
       <div className="relative ml-[calc(50%-50vw)] w-screen max-w-[100vw]">
-        <div
-          className={`mx-auto w-full ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X}`}
-        >
+        <div className="layout-max-w layout-gutter-x mx-auto w-full">
           <h1 className="type-h4 mb-4 font-semibold text-foreground">
             Discussions
           </h1>

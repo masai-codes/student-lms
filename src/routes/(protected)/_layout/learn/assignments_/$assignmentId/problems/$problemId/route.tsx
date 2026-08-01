@@ -5,7 +5,6 @@ import {
   LearningDetailMasaiBreadcrumb,
   ProblemDetailPage,
 } from '@/components/features/learn/LearnPageDetails'
-import { layoutMainClasses } from '@/lib/layout'
 import { fetchProblemDetailFromApi } from '@/lib/api/learn/learnApi'
 
 export const Route = createFileRoute(
@@ -32,7 +31,7 @@ function RouteComponent() {
   const detail = Route.useLoaderData()
 
   return (
-    <div className={layoutMainClasses}>
+    <div className="layout-page">
       <LearningDetailMasaiBreadcrumb currentLabel={detail.problemTitle} />
       <ProblemDetailPage detail={detail} />
     </div>

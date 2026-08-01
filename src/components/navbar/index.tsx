@@ -6,7 +6,6 @@ import { NavbarProfileMenu } from './navbar-profile-menu'
 import { NavbarTrailingActions } from './navbar-trailing-actions'
 import type { NavbarProps } from './types'
 
-import { LAYOUT_NAVBAR_INNER_CLASSES } from '@/lib/layout'
 import { cn } from '@/lib/utils'
 // import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher'
 
@@ -75,7 +74,7 @@ export function Navbar({
       <div
         data-testid="navbar-row-primary"
         className={cn(
-          LAYOUT_NAVBAR_INNER_CLASSES,
+          'layout-max-w mx-auto flex w-full flex-row items-center',
           'h-14 items-stretch justify-between gap-3 lg:px-6',
         )}
       >
@@ -107,12 +106,11 @@ export function Navbar({
           <div
             data-testid="navbar-row-tier2"
             className={cn(
-              LAYOUT_NAVBAR_INNER_CLASSES,
+              'layout-max-w mx-auto flex w-full flex-row items-center',
               'h-11 items-stretch lg:px-6',
             )}
           >
             <div className="flex min-w-0 flex-1 items-stretch gap-4 xl:gap-8 2xl:gap-12">
-              <NavbarLogo logo={logo} decorative />
               <div className="flex min-w-0 flex-1 items-stretch justify-between gap-3">
                 {tier2}
               </div>

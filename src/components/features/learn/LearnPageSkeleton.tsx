@@ -1,14 +1,11 @@
 import { LearnContentListSkeleton } from './section-three/LearnContentListSkeleton'
-import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 
 /** Initial-load placeholder for `/learn` — mirrors the header, controls and list. */
 export function LearnPageSkeleton() {
   return (
     <div className="mt-[-24px] w-full">
       <div className="ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip rounded-b-[32px] bg-surface">
-        <div
-          className={`mx-auto w-full pt-[20px] ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X}`}
-        >
+        <div className="layout-max-w layout-gutter-x mx-auto w-full pt-[20px]">
           <div className="dash-skeleton h-7 w-56 max-w-full rounded-md" />
 
           {/* Mirrors LearnControlsSection: tabs above the controls on small

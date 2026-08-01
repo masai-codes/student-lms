@@ -4,7 +4,6 @@ import {
   LearnPageDetailError,
   LectureDetailPage,
 } from '@/components/features/learn/LearnPageDetails'
-import { lectureDetailRouteClasses } from '@/lib/layout'
 import { fetchLectureLearningDetailFromApi } from '@/lib/api/learn/learnApi'
 
 export const Route = createFileRoute(
@@ -25,7 +24,7 @@ function RouteComponent() {
   const detail = Route.useLoaderData()
 
   return (
-    <div className={lectureDetailRouteClasses}>
+    <div className="w-full lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
       <LectureDetailPage detail={detail} />
     </div>
   )

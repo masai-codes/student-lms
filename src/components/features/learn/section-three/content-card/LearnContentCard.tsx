@@ -129,7 +129,7 @@ export function LearnContentCard({
               : 'learn_listing',
         })
       }
-      className="group bg-blue-100/20 rounded-lg border border-border p-3 block transition-colors duration-200 hover:border-brand/35 hover:bg-surface-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group rounded-lg border border-border p-3 block transition-colors duration-200 hover:border-brand/35 hover:bg-surface-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div
         className={cn(

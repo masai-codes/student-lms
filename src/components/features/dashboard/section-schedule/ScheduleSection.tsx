@@ -182,10 +182,7 @@ function ScheduleDay({ day, index }: { day: ScheduleDayRow; index: number }) {
           </div>
         ) : (
           day.items.map((item) => (
-            <div
-              key={`${item.learningType}-${item.id}`}
-              className="dash-lift rounded-xl"
-            >
+            <div key={`${item.learningType}-${item.id}`} className="rounded-xl">
               <LearnContentCard
                 item={scheduleItemToLearnContent(item, {
                   includeDeadlineLabel: false,
@@ -282,11 +279,7 @@ function PendingTasksFeed({
       className="flex flex-col gap-3"
     >
       {tasks.map((item, index) => (
-        <div
-          key={`${item.learningType}-${item.id}`}
-          className="dash-lift animate-dash-row-in rounded-xl"
-          style={{ '--dash-delay': `${index * 0.05}s` } as React.CSSProperties}
-        >
+        <div key={`${item.learningType}-${item.id}`}>
           <LearnContentCard
             item={scheduleItemToLearnContent(item, {
               includeDeadlineLabel: true,
