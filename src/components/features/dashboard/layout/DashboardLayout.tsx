@@ -67,7 +67,7 @@ export function DashboardLayout({
       <div
         data-testid="dashboard-content"
         className={cn(
-          'relative flex flex-col gap-6 overflow-hidden',
+          'relative flex flex-col gap-4 overflow-hidden',
           // Square top so it meets the banner seamlessly when one is shown.
           showOnboardingBanner && 'rounded-t-none',
         )}
@@ -86,7 +86,7 @@ export function DashboardLayout({
           />
         </div>
 
-        <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="relative grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="animate-dash-rise min-w-0 [--dash-delay:0.08s]">
             <ScheduleSection
               schedule={overview.schedule}
