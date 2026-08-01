@@ -1,17 +1,22 @@
+import { CommonIcon } from '@/components/common/Icon'
 import { pushLearnEvent } from '../shared/learnAnalytics'
 import type { LearnTab } from '../shared/types'
 
-const LEARN_TAB_ITEMS: ReadonlyArray<{ value: LearnTab; label: string }> = [
-  { value: 'lectures', label: 'Lectures' },
-  { value: 'assignments', label: 'Assignments' },
-  { value: 'resources', label: 'Resources' },
+const LEARN_TAB_ITEMS: ReadonlyArray<{
+  value: LearnTab
+  label: string
+  icon: 'lecture' | 'assignment' | 'resource'
+}> = [
+  { value: 'lectures', label: 'Lectures', icon: 'lecture' },
+  { value: 'assignments', label: 'Assignments', icon: 'assignment' },
+  { value: 'resources', label: 'Resources', icon: 'resource' },
 ]
 
 /** Matches `TEXT_CLASSES` in `navbar-trailing-actions.tsx` — same plain-text
  * tab look as Discussions/Bookmarks, so all five Tier 2 items read as one
  * consistent set. */
 const TIER2_TAB_CLASSES =
-  'cursor-pointer whitespace-nowrap rounded-md px-2 py-1.5 font-poppins text-[13px] font-medium shadow-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0'
+  'cursor-pointer whitespace-nowrap rounded-md px-2 py-1.5 font-poppins text-[12px] md:text-[13px] font-medium shadow-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0'
 
 interface LearnTabSwitcherProps {
   activeTab: LearnTab | undefined
@@ -44,7 +49,7 @@ export function LearnTabSwitcher({
 
   const containerClasses =
     variant === 'tier2'
-      ? `flex flex-wrap items-stretch gap-1 ${className ?? ''}`.trim()
+      ? `flex flex-wrap items-stretch gap-0 ${className ?? ''}`.trim()
       : `flex flex-wrap items-stretch gap-4 ${className ?? ''}`.trim()
 
   return (
@@ -62,12 +67,11 @@ export function LearnTabSwitcher({
             role="tab"
             aria-selected={isActive}
             onClick={() => handleChange(tab.value)}
-            className={`relative inline-flex items-center ${TIER2_TAB_CLASSES} ${
-              isActive
-                ? 'text-brand font-semibold'
-                : 'text-foreground-muted hover:text-brand'
+            className={`pl-2 pr-3 md:pl-4 md:pr-6 relative inline-flex items-center ${TIER2_TAB_CLASSES} ${
+              isActive ? 'text-brand' : 'text-foreground-muted hover:text-brand'
             }`}
           >
+            <CommonIcon name={tab.icon} className="size-4 mr-2" />
             {tab.label}
             {/* Matches the Tier 1 active-tab underline (navbar-nav-items.tsx)
                 so both rows read as the same tab pattern. */}

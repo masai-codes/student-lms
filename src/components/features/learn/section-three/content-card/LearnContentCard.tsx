@@ -13,21 +13,7 @@ import {
 } from '@/lib/learn/listingCardPresentation'
 import { cn } from '@/lib/utils'
 import { BookIcon, CirclePlayIcon, NotepadTextIcon } from 'lucide-react'
-
-const LEARN_TYPE_ICON_SRC: Record<LearnContentType, string> = {
-  lecture:
-    'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/lecture.svg',
-  assignment:
-    'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/assignment.svg',
-  resource:
-    'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/resource.svg',
-}
-
-const LEARN_TYPE_ICON_ALT: Record<LearnContentType, string> = {
-  lecture: 'Lecture',
-  assignment: 'Assignment',
-  resource: 'Resource',
-}
+import { CommonIcon } from '@/components/common/Icon'
 
 const learnContentTagChipPalette = {
   backgroundClassName: 'bg-surface-muted',
@@ -76,19 +62,15 @@ function LearnAssignmentWeightageChip({
 }
 
 function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
-  const Icon =
-    type === 'lecture'
-      ? CirclePlayIcon
-      : type === 'assignment'
-        ? NotepadTextIcon
-        : BookIcon
   const color =
     type === 'lecture'
       ? '#3F83F8'
       : type === 'assignment'
         ? '#16BDCA'
         : '#FF8A4C'
-  return <Icon className="size-6 md:size-8" style={{ color }} />
+  return (
+    <CommonIcon className="size-6 md:size-8" style={{ color }} name={type} />
+  )
 }
 
 export function LearnContentCard({

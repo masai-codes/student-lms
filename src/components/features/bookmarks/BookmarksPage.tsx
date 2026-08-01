@@ -94,29 +94,7 @@ export function BookmarksPage() {
   }
 
   return (
-    <div className="mx-4 mb-6 mt-4 md:mx-8 flex flex-col gap-4">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link
-                to="/"
-                className="text-sm text-foreground-muted hover:text-foreground"
-              >
-                Home
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <span className="text-sm text-foreground font-medium">
-              Bookmarks
-            </span>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
+    <div className="mx-4 mb-6 md:mx-8 flex flex-col gap-4">
       <h1 className="text-2xl font-bold text-foreground">Bookmarks</h1>
 
       {/* Tabs row + search/filter */}

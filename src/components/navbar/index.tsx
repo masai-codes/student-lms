@@ -61,7 +61,7 @@ export function Navbar({
       data-testid="navbar"
       data-theme={forceDark ? FORCE_DARK_THEME_ID : undefined}
       className={cn(
-        'sticky top-0 z-[210] flex w-full flex-col border-b border-border bg-surface shadow-sm lg:px-6',
+        'sticky top-0 z-[210] flex w-full flex-col border-b border-border bg-surface shadow-sm',
         // Forced-dark navbar sits over a light page, so the rounded bottom
         // corners would otherwise reveal the light page as white slivers. Keep
         // the rounded look but back the header with a square dark layer (the
@@ -76,7 +76,7 @@ export function Navbar({
         data-testid="navbar-row-primary"
         className={cn(
           LAYOUT_NAVBAR_INNER_CLASSES,
-          'h-14 items-stretch justify-between gap-3',
+          'h-14 items-stretch justify-between gap-3 lg:px-6',
         )}
       >
         <div className="flex min-w-0 flex-1 items-stretch gap-4 xl:gap-8 2xl:gap-12">
@@ -106,7 +106,10 @@ export function Navbar({
         <div className="w-full border-t border-border">
           <div
             data-testid="navbar-row-tier2"
-            className={cn(LAYOUT_NAVBAR_INNER_CLASSES, 'h-11 items-stretch')}
+            className={cn(
+              LAYOUT_NAVBAR_INNER_CLASSES,
+              'h-11 items-stretch lg:px-6',
+            )}
           >
             <div className="flex min-w-0 flex-1 items-stretch gap-4 xl:gap-8 2xl:gap-12">
               <NavbarLogo logo={logo} decorative />
