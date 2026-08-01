@@ -122,7 +122,7 @@ export function LectureStartsInCountdown({
   const isImminent = remainingMs <= UNLOCK_LEAD_MS
 
   return (
-    <div data-testid="lecture-starts-in-countdown">
+    <div data-testid="lecture-starts-in-countdown" className="pb-4">
       <div className="relative flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
           {/* Pulsing "live" dot with an expanding ring. */}

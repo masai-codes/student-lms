@@ -12,6 +12,7 @@ import {
   shouldShowAssignmentStatusChip,
 } from '@/lib/learn/listingCardPresentation'
 import { cn } from '@/lib/utils'
+import { BookIcon, CirclePlayIcon, NotepadTextIcon } from 'lucide-react'
 
 const LEARN_TYPE_ICON_SRC: Record<LearnContentType, string> = {
   lecture:
@@ -75,17 +76,19 @@ function LearnAssignmentWeightageChip({
 }
 
 function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
-  return (
-    <img
-      src={LEARN_TYPE_ICON_SRC[type]}
-      alt={LEARN_TYPE_ICON_ALT[type]}
-      width={40}
-      height={40}
-      className="size-10 shrink-0 object-contain transition-transform duration-200 group-hover:scale-110"
-      loading="lazy"
-      decoding="async"
-    />
-  )
+  const Icon =
+    type === 'lecture'
+      ? CirclePlayIcon
+      : type === 'assignment'
+        ? NotepadTextIcon
+        : BookIcon
+  const color =
+    type === 'lecture'
+      ? '#3F83F8'
+      : type === 'assignment'
+        ? '#16BDCA'
+        : '#FF8A4C'
+  return <Icon className="size-6 md:size-8" style={{ color }} />
 }
 
 export function LearnContentCard({
@@ -119,11 +122,11 @@ export function LearnContentCard({
         } as const)
       : item.type === 'assignment'
         ? ({
-            to: '/assignments/$assignmentId',
+            to: '/learn/assignments/$assignmentId',
             params: { assignmentId: id },
           } as const)
         : ({
-            to: '/resources/$resourceId',
+            to: '/learn/resources/$resourceId',
             params: { resourceId: id },
           } as const)
 
@@ -144,7 +147,7 @@ export function LearnContentCard({
               : 'learn_listing',
         })
       }
-      className="group bg-surface rounded-[8px] border border-border p-3 block transition-colors duration-200 hover:border-brand/35 hover:bg-surface-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group bg-surface rounded-lg border border-border p-3 block transition-colors duration-200 hover:border-brand/35 hover:bg-surface-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div
         className={cn(

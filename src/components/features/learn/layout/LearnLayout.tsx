@@ -14,7 +14,7 @@ import type {
 } from '@/server/learn/types'
 import { learnScheduleHorizonToDays } from '../shared/types'
 import { fetchLearnPageDataFromApi } from '@/lib/api/learn/learnApi'
-import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
+import { LAYOUT_MAIN_PADDING_X } from '@/lib/layout'
 import { mapLearningItemToContent } from '../shared/mapLearningItemToContent'
 import { getLastSelectedSectionIdForUser } from '@/lib/learnSectionSelection'
 
@@ -180,7 +180,7 @@ export function LearnLayout({
     <div className="w-full">
       <div className="relative lg:sticky lg:pl-28 lg:top-25.5 z-10 ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip -mt-6 bg-surface shadow-2xs py-4">
         <div
-          className={`animate-dash-rise relative mx-auto w-full ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X}`}
+          className={`animate-dash-rise relative mx-auto w-full  ${LAYOUT_MAIN_PADDING_X}`}
         >
           <LearnHeaderSection
             selectedBatch={selectedBatchId.toString()}

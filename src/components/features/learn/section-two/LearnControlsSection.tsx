@@ -176,7 +176,7 @@ export function LearnControlsSection({
 
   // Tabs stack above the controls on small screens; one row from `md` up.
   return (
-    <section className="flex flex-col gap-2 py-0 md:flex-row md:items-center md:justify-between">
+    <section className="flex flex-col gap-2 py-0 items-start lg:flex-row lg:items-center lg:justify-between">
       {/* Lectures/Assignments/Resources: inline on mobile (no Tier 2 nav there
           yet); portaled into the desktop navbar's Tier 2 row on `lg`+, where
           the inline copy is hidden via the ancestor's `max-lg:hidden`. */}
@@ -203,7 +203,7 @@ export function LearnControlsSection({
           onChange={(event) => setSearchInput(event.target.value)}
           placeholder={SEARCH_PLACEHOLDER_BY_TAB[activeTab]}
           iconLeft={<Search className="size-4 shrink-0" strokeWidth={2} />}
-          className="h-8 min-h-0 w-full min-w-0 rounded-full px-3 py-0 text-sm sm:w-[260px]"
+          className="h-8 min-h-0 w-full min-w-0 rounded-full px-3 py-0 text-sm sm:w-65"
         />
 
         {showSectionDropdown ? (
@@ -222,7 +222,7 @@ export function LearnControlsSection({
               })
               onSectionChange?.(nextSectionId)
             }}
-            className="min-w-[120px] flex-1 sm:w-[160px] sm:flex-none"
+            className="min-w-30 flex-1 sm:w-40 sm:flex-none"
             triggerClassName="h-8 min-h-0 min-w-0 w-full gap-1.5 rounded-full px-3 py-0 text-sm"
             chevronVariant="plain"
           />

@@ -186,8 +186,9 @@ function RouteComponent() {
   // Chat is a single full-bleed iframe (connect.masaischool.com) — it wants
   // the full viewport width/height, same as Masaiverse and lecture detail.
   const isChatRoute = renderedPathname.startsWith('/chat')
+  const isDashboard = renderedPathname === '/'
   const mainClasses =
-    renderedPathname.startsWith('/masaiverse') || isChatRoute
+    renderedPathname.startsWith('/masaiverse') || isChatRoute || isDashboard
       ? layoutMainClassesFullWidth
       : isLectureDetail
         ? lectureDetailMainClasses

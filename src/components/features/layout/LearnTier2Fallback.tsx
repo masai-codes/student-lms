@@ -26,6 +26,13 @@ export function LearnTier2Fallback() {
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const isDiscussions = pathname.startsWith('/learn/discussions')
+  const activeTab: LearnTab | undefined = isDiscussions
+    ? undefined
+    : pathname.startsWith('/learn/assignments')
+      ? 'assignments'
+      : pathname.startsWith('/learn/resources')
+        ? 'resources'
+        : 'lectures'
 
   const lastSelectedBatchId = getLastSelectedBatchIdForUser(user.id)
   const lastSelectedBatchIdNumber = lastSelectedBatchId
@@ -76,7 +83,7 @@ export function LearnTier2Fallback() {
     <>
       <div className="flex min-w-0 items-stretch gap-3">
         <LearnTabSwitcher
-          activeTab="lectures"
+          activeTab={activeTab}
           onTabChange={handleTabChange}
           variant="tier2"
         />

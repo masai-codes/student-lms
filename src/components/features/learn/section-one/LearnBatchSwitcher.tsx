@@ -1,7 +1,12 @@
 import { useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
 
-import { Check, ChevronDown, ExternalLink } from 'lucide-react'
+import {
+  Check,
+  ChevronDown,
+  ExternalLink,
+  GraduationCapIcon,
+} from 'lucide-react'
 
 import {
   DropdownMenu,
@@ -65,7 +70,10 @@ export function LearnBatchSwitcher({
               aria-label="Open program selection"
               className="group flex h-8 min-w-0 max-w-[220px] cursor-pointer items-center gap-1.5 rounded-full border border-border bg-surface px-3 text-sm font-medium text-foreground transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <span className="min-w-0 truncate">{selectedBatchLabel}</span>
+              <span className="min-w-0 truncate">
+                <GraduationCapIcon className="inline size-4 mr-1" />{' '}
+                {selectedBatchLabel}
+              </span>
               <ChevronDown
                 className={`size-4 shrink-0 text-foreground-muted transition-transform duration-200 ${
                   isBatchMenuOpen ? 'rotate-180' : ''

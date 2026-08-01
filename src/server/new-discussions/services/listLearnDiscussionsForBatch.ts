@@ -93,17 +93,38 @@ export async function listLearnDiscussionsForBatch(
   }
 
   const ids = rows.map((row) => row.id)
-  const threadCountRows = await db
-    .select({ discussionId: threads.discussionId, id: threads.id })
+  const threadRows = await db
+    .select({
+      discussionId: threads.discussionId,
+      id: threads.id,
+      readAt: threads.readAt,
+      authorId: threads.userId,
+    })
     .from(threads)
     .where(and(inArray(threads.discussionId, ids), isNull(threads.deletedAt)))
 
+  const ownerByDiscussionId = new Map<number, number>()
+  for (const row of rows) {
+    ownerByDiscussionId.set(row.id, row.authorId)
+  }
+
   const threadCountById = new Map<number, number>()
-  for (const row of threadCountRows) {
+  const unreadByDiscussionId = new Map<number, number>()
+  for (const row of threadRows) {
     threadCountById.set(
       row.discussionId,
       (threadCountById.get(row.discussionId) ?? 0) + 1,
     )
+
+    // Unread replies matter only to the discussion owner, and only for
+    // replies written by someone else that have not been marked read.
+    const isOwner = ownerByDiscussionId.get(row.discussionId) === viewerUserId
+    if (isOwner && row.readAt === null && row.authorId !== viewerUserId) {
+      unreadByDiscussionId.set(
+        row.discussionId,
+        (unreadByDiscussionId.get(row.discussionId) ?? 0) + 1,
+      )
+    }
   }
 
   return rows.flatMap((row): Array<LearnDiscussionListItem> => {
@@ -121,7 +142,12 @@ export async function listLearnDiscussionsForBatch(
 
     return [
       {
-        ...toDiscussionListItem(row, threadCountById.get(row.id) ?? 0),
+        ...toDiscussionListItem(
+          row,
+          threadCountById.get(row.id) ?? 0,
+          [],
+          unreadByDiscussionId.get(row.id) ?? 0,
+        ),
         contentType,
         contentId: row.entityId,
         contentTitle: source.title,

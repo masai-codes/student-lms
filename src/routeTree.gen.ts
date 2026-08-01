@@ -198,11 +198,14 @@ import { Route as ApiAiTutorChatFeedbackMigrateRatingsRouteImport } from './rout
 import { Route as ApiAiTutorChatConversationsChatIdRouteImport } from './routes/api/ai-tutor/chat/conversations/$chatId'
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
 import { Route as protectedLayoutMasaiverseClubClubIdRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId'
+import { Route as protectedLayoutLearnResourcesResourceIdRouteRouteImport } from './routes/(protected)/_layout/learn/resources_/$resourceId/route'
 import { Route as protectedLayoutLearnLecturesLectureIdRouteRouteImport } from './routes/(protected)/_layout/learn/lectures_/$lectureId/route'
+import { Route as protectedLayoutLearnAssignmentsAssignmentIdRouteRouteImport } from './routes/(protected)/_layout/learn/assignments_/$assignmentId/route'
 import { Route as ApiLearnAssignmentsAssignmentIdProblemsProblemIdRouteImport } from './routes/api/learn/assignments/$assignmentId/problems/$problemId'
 import { Route as ApiCacheTranscriptBatchIdSectionIdLectureIdRouteImport } from './routes/api/cache/transcript/$batchId/$sectionId/$lectureId'
 import { Route as protectedLayoutMasaiverseClubClubIdGalleryRouteImport } from './routes/(protected)/_layout/masaiverse/club.$clubId_.gallery'
 import { Route as protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRouteImport } from './routes/(protected)/_layout/assignments_/$assignmentId/problems/$problemId/route'
+import { Route as protectedLayoutLearnAssignmentsAssignmentIdProblemsProblemIdRouteRouteImport } from './routes/(protected)/_layout/learn/assignments_/$assignmentId/problems/$problemId/route'
 
 const NotesPreviewV2Route = NotesPreviewV2RouteImport.update({
   id: '/notes-preview-v2',
@@ -1278,10 +1281,22 @@ const protectedLayoutMasaiverseClubClubIdRoute =
     path: '/club/$clubId',
     getParentRoute: () => protectedLayoutMasaiverseRouteRoute,
   } as any)
+const protectedLayoutLearnResourcesResourceIdRouteRoute =
+  protectedLayoutLearnResourcesResourceIdRouteRouteImport.update({
+    id: '/learn/resources_/$resourceId',
+    path: '/learn/resources/$resourceId',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const protectedLayoutLearnLecturesLectureIdRouteRoute =
   protectedLayoutLearnLecturesLectureIdRouteRouteImport.update({
     id: '/learn/lectures_/$lectureId',
     path: '/learn/lectures/$lectureId',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutLearnAssignmentsAssignmentIdRouteRoute =
+  protectedLayoutLearnAssignmentsAssignmentIdRouteRouteImport.update({
+    id: '/learn/assignments_/$assignmentId',
+    path: '/learn/assignments/$assignmentId',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute =
@@ -1308,6 +1323,15 @@ const protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRoute =
       id: '/problems/$problemId',
       path: '/problems/$problemId',
       getParentRoute: () => protectedLayoutAssignmentsAssignmentIdRouteRoute,
+    } as any,
+  )
+const protectedLayoutLearnAssignmentsAssignmentIdProblemsProblemIdRouteRoute =
+  protectedLayoutLearnAssignmentsAssignmentIdProblemsProblemIdRouteRouteImport.update(
+    {
+      id: '/problems/$problemId',
+      path: '/problems/$problemId',
+      getParentRoute: () =>
+        protectedLayoutLearnAssignmentsAssignmentIdRouteRoute,
     } as any,
   )
 
@@ -1467,7 +1491,9 @@ export interface FileRoutesByFullPath {
   '/api/profile/certificates/': typeof ApiProfileCertificatesIndexRoute
   '/api/profile/email-preferences/': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
+  '/learn/assignments/$assignmentId': typeof protectedLayoutLearnAssignmentsAssignmentIdRouteRouteWithChildren
   '/learn/lectures/$lectureId': typeof protectedLayoutLearnLecturesLectureIdRouteRoute
+  '/learn/resources/$resourceId': typeof protectedLayoutLearnResourcesResourceIdRouteRoute
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
@@ -1505,6 +1531,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
   '/api/cache/transcript/$batchId/$sectionId/$lectureId': typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRoute
   '/api/learn/assignments/$assignmentId/problems/$problemId': typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
+  '/learn/assignments/$assignmentId/problems/$problemId': typeof protectedLayoutLearnAssignmentsAssignmentIdProblemsProblemIdRouteRoute
 }
 export interface FileRoutesByTo {
   '/notes-preview-v2': typeof NotesPreviewV2Route
@@ -1661,7 +1688,9 @@ export interface FileRoutesByTo {
   '/api/profile/certificates': typeof ApiProfileCertificatesIndexRoute
   '/api/profile/email-preferences': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id': typeof ApiWhatsNewIdIndexRoute
+  '/learn/assignments/$assignmentId': typeof protectedLayoutLearnAssignmentsAssignmentIdRouteRouteWithChildren
   '/learn/lectures/$lectureId': typeof protectedLayoutLearnLecturesLectureIdRouteRoute
+  '/learn/resources/$resourceId': typeof protectedLayoutLearnResourcesResourceIdRouteRoute
   '/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
@@ -1699,6 +1728,7 @@ export interface FileRoutesByTo {
   '/masaiverse/club/$clubId/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
   '/api/cache/transcript/$batchId/$sectionId/$lectureId': typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRoute
   '/api/learn/assignments/$assignmentId/problems/$problemId': typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
+  '/learn/assignments/$assignmentId/problems/$problemId': typeof protectedLayoutLearnAssignmentsAssignmentIdProblemsProblemIdRouteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1858,7 +1888,9 @@ export interface FileRoutesById {
   '/api/profile/certificates/': typeof ApiProfileCertificatesIndexRoute
   '/api/profile/email-preferences/': typeof ApiProfileEmailPreferencesIndexRoute
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
+  '/(protected)/_layout/learn/assignments_/$assignmentId': typeof protectedLayoutLearnAssignmentsAssignmentIdRouteRouteWithChildren
   '/(protected)/_layout/learn/lectures_/$lectureId': typeof protectedLayoutLearnLecturesLectureIdRouteRoute
+  '/(protected)/_layout/learn/resources_/$resourceId': typeof protectedLayoutLearnResourcesResourceIdRouteRoute
   '/(protected)/_layout/masaiverse/club/$clubId': typeof protectedLayoutMasaiverseClubClubIdRoute
   '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
@@ -1896,6 +1928,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/club/$clubId_/gallery': typeof protectedLayoutMasaiverseClubClubIdGalleryRoute
   '/api/cache/transcript/$batchId/$sectionId/$lectureId': typeof ApiCacheTranscriptBatchIdSectionIdLectureIdRoute
   '/api/learn/assignments/$assignmentId/problems/$problemId': typeof ApiLearnAssignmentsAssignmentIdProblemsProblemIdRoute
+  '/(protected)/_layout/learn/assignments_/$assignmentId/problems/$problemId': typeof protectedLayoutLearnAssignmentsAssignmentIdProblemsProblemIdRouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -2055,7 +2088,9 @@ export interface FileRouteTypes {
     | '/api/profile/certificates/'
     | '/api/profile/email-preferences/'
     | '/api/whats-new/$id/'
+    | '/learn/assignments/$assignmentId'
     | '/learn/lectures/$lectureId'
+    | '/learn/resources/$resourceId'
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
@@ -2093,6 +2128,7 @@ export interface FileRouteTypes {
     | '/masaiverse/club/$clubId/gallery'
     | '/api/cache/transcript/$batchId/$sectionId/$lectureId'
     | '/api/learn/assignments/$assignmentId/problems/$problemId'
+    | '/learn/assignments/$assignmentId/problems/$problemId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/notes-preview-v2'
@@ -2249,7 +2285,9 @@ export interface FileRouteTypes {
     | '/api/profile/certificates'
     | '/api/profile/email-preferences'
     | '/api/whats-new/$id'
+    | '/learn/assignments/$assignmentId'
     | '/learn/lectures/$lectureId'
+    | '/learn/resources/$resourceId'
     | '/masaiverse/club/$clubId'
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
@@ -2287,6 +2325,7 @@ export interface FileRouteTypes {
     | '/masaiverse/club/$clubId/gallery'
     | '/api/cache/transcript/$batchId/$sectionId/$lectureId'
     | '/api/learn/assignments/$assignmentId/problems/$problemId'
+    | '/learn/assignments/$assignmentId/problems/$problemId'
   id:
     | '__root__'
     | '/notes-preview-v2'
@@ -2445,7 +2484,9 @@ export interface FileRouteTypes {
     | '/api/profile/certificates/'
     | '/api/profile/email-preferences/'
     | '/api/whats-new/$id/'
+    | '/(protected)/_layout/learn/assignments_/$assignmentId'
     | '/(protected)/_layout/learn/lectures_/$lectureId'
+    | '/(protected)/_layout/learn/resources_/$resourceId'
     | '/(protected)/_layout/masaiverse/club/$clubId'
     | '/(protected)/_layout/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
@@ -2483,6 +2524,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/club/$clubId_/gallery'
     | '/api/cache/transcript/$batchId/$sectionId/$lectureId'
     | '/api/learn/assignments/$assignmentId/problems/$problemId'
+    | '/(protected)/_layout/learn/assignments_/$assignmentId/problems/$problemId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -3943,11 +3985,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof protectedLayoutMasaiverseClubClubIdRouteImport
       parentRoute: typeof protectedLayoutMasaiverseRouteRoute
     }
+    '/(protected)/_layout/learn/resources_/$resourceId': {
+      id: '/(protected)/_layout/learn/resources_/$resourceId'
+      path: '/learn/resources/$resourceId'
+      fullPath: '/learn/resources/$resourceId'
+      preLoaderRoute: typeof protectedLayoutLearnResourcesResourceIdRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
     '/(protected)/_layout/learn/lectures_/$lectureId': {
       id: '/(protected)/_layout/learn/lectures_/$lectureId'
       path: '/learn/lectures/$lectureId'
       fullPath: '/learn/lectures/$lectureId'
       preLoaderRoute: typeof protectedLayoutLearnLecturesLectureIdRouteRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/learn/assignments_/$assignmentId': {
+      id: '/(protected)/_layout/learn/assignments_/$assignmentId'
+      path: '/learn/assignments/$assignmentId'
+      fullPath: '/learn/assignments/$assignmentId'
+      preLoaderRoute: typeof protectedLayoutLearnAssignmentsAssignmentIdRouteRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/api/learn/assignments/$assignmentId/problems/$problemId': {
@@ -3977,6 +4033,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/assignments/$assignmentId/problems/$problemId'
       preLoaderRoute: typeof protectedLayoutAssignmentsAssignmentIdProblemsProblemIdRouteRouteImport
       parentRoute: typeof protectedLayoutAssignmentsAssignmentIdRouteRoute
+    }
+    '/(protected)/_layout/learn/assignments_/$assignmentId/problems/$problemId': {
+      id: '/(protected)/_layout/learn/assignments_/$assignmentId/problems/$problemId'
+      path: '/problems/$problemId'
+      fullPath: '/learn/assignments/$assignmentId/problems/$problemId'
+      preLoaderRoute: typeof protectedLayoutLearnAssignmentsAssignmentIdProblemsProblemIdRouteRouteImport
+      parentRoute: typeof protectedLayoutLearnAssignmentsAssignmentIdRouteRoute
     }
   }
 }
@@ -4031,6 +4094,21 @@ const protectedLayoutAssignmentsAssignmentIdRouteRouteWithChildren =
     protectedLayoutAssignmentsAssignmentIdRouteRouteChildren,
   )
 
+interface protectedLayoutLearnAssignmentsAssignmentIdRouteRouteChildren {
+  protectedLayoutLearnAssignmentsAssignmentIdProblemsProblemIdRouteRoute: typeof protectedLayoutLearnAssignmentsAssignmentIdProblemsProblemIdRouteRoute
+}
+
+const protectedLayoutLearnAssignmentsAssignmentIdRouteRouteChildren: protectedLayoutLearnAssignmentsAssignmentIdRouteRouteChildren =
+  {
+    protectedLayoutLearnAssignmentsAssignmentIdProblemsProblemIdRouteRoute:
+      protectedLayoutLearnAssignmentsAssignmentIdProblemsProblemIdRouteRoute,
+  }
+
+const protectedLayoutLearnAssignmentsAssignmentIdRouteRouteWithChildren =
+  protectedLayoutLearnAssignmentsAssignmentIdRouteRoute._addFileChildren(
+    protectedLayoutLearnAssignmentsAssignmentIdRouteRouteChildren,
+  )
+
 interface protectedLayoutRouteRouteChildren {
   protectedLayoutMasaiverseRouteRoute: typeof protectedLayoutMasaiverseRouteRouteWithChildren
   protectedLayoutMyCoursesRoute: typeof protectedLayoutMyCoursesRoute
@@ -4053,7 +4131,9 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
   protectedLayoutSupportIndexRoute: typeof protectedLayoutSupportIndexRoute
   protectedLayoutWhatsNewIndexRoute: typeof protectedLayoutWhatsNewIndexRoute
+  protectedLayoutLearnAssignmentsAssignmentIdRouteRoute: typeof protectedLayoutLearnAssignmentsAssignmentIdRouteRouteWithChildren
   protectedLayoutLearnLecturesLectureIdRouteRoute: typeof protectedLayoutLearnLecturesLectureIdRouteRoute
+  protectedLayoutLearnResourcesResourceIdRouteRoute: typeof protectedLayoutLearnResourcesResourceIdRouteRoute
   protectedLayoutSupportSupportIdIndexRoute: typeof protectedLayoutSupportSupportIdIndexRoute
 }
 
@@ -4086,8 +4166,12 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutProfileIndexRoute: protectedLayoutProfileIndexRoute,
   protectedLayoutSupportIndexRoute: protectedLayoutSupportIndexRoute,
   protectedLayoutWhatsNewIndexRoute: protectedLayoutWhatsNewIndexRoute,
+  protectedLayoutLearnAssignmentsAssignmentIdRouteRoute:
+    protectedLayoutLearnAssignmentsAssignmentIdRouteRouteWithChildren,
   protectedLayoutLearnLecturesLectureIdRouteRoute:
     protectedLayoutLearnLecturesLectureIdRouteRoute,
+  protectedLayoutLearnResourcesResourceIdRouteRoute:
+    protectedLayoutLearnResourcesResourceIdRouteRoute,
   protectedLayoutSupportSupportIdIndexRoute:
     protectedLayoutSupportSupportIdIndexRoute,
 }

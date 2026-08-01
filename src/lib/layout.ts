@@ -5,7 +5,7 @@ export const LAYOUT_MAX_WIDTH_CLASS = 'max-w-[1440px]'
 
 // Comfortable gutters on phones/tablets so cards never touch the viewport edge
 // (matches the legacy LMS column padding).
-export const LAYOUT_MAIN_PADDING_X = 'px-4 md:px-6'
+export const LAYOUT_MAIN_PADDING_X = 'px-2 lg:px-6'
 
 export const LAYOUT_MAIN_PADDING_Y = 'py-6 md:pt-[24px]'
 

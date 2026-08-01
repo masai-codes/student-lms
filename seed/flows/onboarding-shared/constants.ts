@@ -31,10 +31,7 @@ export const PROGRAM_LECTURE_TITLES = [
   'Complete your student kit',
 ] as const
 
-export function flowScopedEmail(
-  flowId: string,
-  role: 'admin' | 'student',
-): string {
+export function flowScopedEmail(flowId: string, role: string): string {
   return `${flowId}.${role}@example.com`
 }
 

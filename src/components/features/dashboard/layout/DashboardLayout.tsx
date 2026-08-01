@@ -40,7 +40,7 @@ export function DashboardLayout({
   const { now } = useServerTime()
 
   return (
-    <div data-testid="dashboard-root" className="mb-8 mt-0">
+    <div data-testid="dashboard-root" className="mb-8 mt-2 container mx-auto">
       {overview.feePaymentBanners.length > 0 ? (
         <div className="mb-4">
           <FeePaymentBanners banners={overview.feePaymentBanners} />
@@ -67,7 +67,7 @@ export function DashboardLayout({
       <div
         data-testid="dashboard-content"
         className={cn(
-          'relative flex flex-col gap-6 overflow-hidden rounded-2xl',
+          'relative flex flex-col gap-6 overflow-hidden',
           // Square top so it meets the banner seamlessly when one is shown.
           showOnboardingBanner && 'rounded-t-none',
         )}

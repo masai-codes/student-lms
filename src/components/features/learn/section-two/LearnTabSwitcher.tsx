@@ -14,7 +14,7 @@ const TIER2_TAB_CLASSES =
   'cursor-pointer whitespace-nowrap rounded-md px-2 py-1.5 font-poppins text-[13px] font-medium shadow-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0'
 
 interface LearnTabSwitcherProps {
-  activeTab: LearnTab
+  activeTab: LearnTab | undefined
   onTabChange: (tab: LearnTab) => void
   className?: string
   /**

@@ -42,9 +42,13 @@ export type LoginAndJoinLectureEntities = {
 export type LiveLecturePhasesEntities = {
   admin: typeof users.$inferSelect
   student: typeof users.$inferSelect
+  student2: typeof users.$inferSelect
+  student3: typeof users.$inferSelect
   batch: typeof batches.$inferSelect
   section: typeof sections.$inferSelect
   enrollment: typeof sectionUser.$inferSelect
+  enrollmentStudent2: typeof sectionUser.$inferSelect
+  enrollmentStudent3: typeof sectionUser.$inferSelect
   sections: {
     recordingAttendanceOff: typeof sections.$inferSelect
     recordingAttendanceOn: typeof sections.$inferSelect
@@ -78,6 +82,15 @@ export type LiveLecturePhasesEntities = {
     associatedLecture: typeof lectures.$inferSelect
     associatedNotesLecture: typeof lectures.$inferSelect
     associatedAssignment: typeof import('@/db/schema').assignments.$inferSelect
+  }
+  discussions: {
+    onLecture: typeof import('@/db/schema').discussions.$inferSelect
+    onLectureThreads: Array<typeof import('@/db/schema').threads.$inferSelect>
+    onAssignment: typeof import('@/db/schema').discussions.$inferSelect
+    onResource: typeof import('@/db/schema').discussions.$inferSelect
+    onResourceThreads: Array<typeof import('@/db/schema').threads.$inferSelect>
+    onLectureByStudent2: typeof import('@/db/schema').discussions.$inferSelect
+    onAssignmentByStudent3: typeof import('@/db/schema').discussions.$inferSelect
   }
 }
 
