@@ -12,7 +12,7 @@ import { RadioIcon } from 'lucide-react'
 type LectureStatePanelProps = {
   icon?: 'clock' | 'video' | 'live'
   title: string | ReactNode
-  description: ReactNode
+  description?: ReactNode
   action?: ReactNode
   className?: string
   /**
@@ -49,14 +49,14 @@ export function LectureStatePanel({
       </span>
       <div className="animate-dash-rise max-w-md space-y-2">
         <h2 className="type-h5 text-foreground">{title}</h2>
-        <div className="type-b2-regular text-foreground-muted">
-          {description}
-        </div>
+        {description ? (
+          <div className="type-b2-regular text-foreground-muted">
+            {description}
+          </div>
+        ) : null}
       </div>
       {action ? (
-        <div className="animate-dash-rise mt-2 [--dash-delay:0.08s]">
-          {action}
-        </div>
+        <div className="animate-dash-rise [--dash-delay:0.08s]">{action}</div>
       ) : null}
     </div>
   )

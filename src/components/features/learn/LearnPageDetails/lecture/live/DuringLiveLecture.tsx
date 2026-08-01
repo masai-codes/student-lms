@@ -26,8 +26,7 @@ export function DuringLiveLecture({
   return (
     <LectureStatePanel
       icon="live"
-      title={'Live session in progress'}
-      description="Join the live classroom while the session is running."
+      title={'Live session'}
       action={
         <div className="flex w-full flex-col items-center gap-5">
           {/* Keep the countdown running down to 00:00:00 next to the join CTA;
