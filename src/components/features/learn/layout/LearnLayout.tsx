@@ -95,9 +95,21 @@ export function LearnLayout({
   // `staleTime` marks it fresh on creation — show it without refetching. Other keys
   // start empty and fetch their own data (keepPreviousData keeps the old list
   // visible under a skeleton meanwhile).
+  //
+  // `Route.useLoaderData()` can itself lag: navigating back to `/learn` with a new
+  // `tab` after visiting a detail page updates `useSearch()` (and so `learningType`)
+  // immediately, but the router can replay the *previous* visit's cached loader data
+  // for a render or two before the fresh loader result lands. Trusting that stale
+  // `pageData` here would seed this tab's cache with the wrong content type and mark
+  // it fresh, permanently masking the real fetch. Guard by checking the seeded
+  // page's items actually match the tab we're about to render.
   const queryKeyString = JSON.stringify(queryKey)
   const seededKeyRef = useRef(queryKeyString)
-  const isSeededKey = queryKeyString === seededKeyRef.current
+  const pageDataMatchesTab =
+    pageData.learningItems.length === 0 ||
+    pageData.learningItems.every((item) => item.learningType === learningType)
+  const isSeededKey =
+    queryKeyString === seededKeyRef.current && pageDataMatchesTab
 
   const { data: queryData, isFetching } = useQuery({
     queryKey,
