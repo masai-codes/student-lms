@@ -136,6 +136,7 @@ import { Route as ApiLearnLecturesLectureIdRouteImport } from './routes/api/lear
 import { Route as ApiLearnAssignmentsAssignmentIdRouteImport } from './routes/api/learn/assignments/$assignmentId'
 import { Route as ApiLearnAiTutorLimitRouteImport } from './routes/api/learn/ai-tutor/limit'
 import { Route as ApiLearnAiTutorEndRouteImport } from './routes/api/learn/ai-tutor/end'
+import { Route as ApiInterviewsSessionsStreamRouteImport } from './routes/api/interviews/sessions/stream'
 import { Route as ApiDashboardAgreementViewRouteImport } from './routes/api/dashboard/agreement/view'
 import { Route as ApiDashboardAgreementSubmitRouteImport } from './routes/api/dashboard/agreement/submit'
 import { Route as ApiDashboardAgreementSaveRouteImport } from './routes/api/dashboard/agreement/save'
@@ -920,6 +921,12 @@ const ApiLearnAiTutorEndRoute = ApiLearnAiTutorEndRouteImport.update({
   path: '/api/learn/ai-tutor/end',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiInterviewsSessionsStreamRoute =
+  ApiInterviewsSessionsStreamRouteImport.update({
+    id: '/api/interviews/sessions/stream',
+    path: '/api/interviews/sessions/stream',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiDashboardAgreementViewRoute =
   ApiDashboardAgreementViewRouteImport.update({
     id: '/api/dashboard/agreement/view',
@@ -1465,6 +1472,7 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/agreement/save': typeof ApiDashboardAgreementSaveRoute
   '/api/dashboard/agreement/submit': typeof ApiDashboardAgreementSubmitRoute
   '/api/dashboard/agreement/view': typeof ApiDashboardAgreementViewRoute
+  '/api/interviews/sessions/stream': typeof ApiInterviewsSessionsStreamRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1668,6 +1676,7 @@ export interface FileRoutesByTo {
   '/api/dashboard/agreement/save': typeof ApiDashboardAgreementSaveRoute
   '/api/dashboard/agreement/submit': typeof ApiDashboardAgreementSubmitRoute
   '/api/dashboard/agreement/view': typeof ApiDashboardAgreementViewRoute
+  '/api/interviews/sessions/stream': typeof ApiInterviewsSessionsStreamRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -1874,6 +1883,7 @@ export interface FileRoutesById {
   '/api/dashboard/agreement/save': typeof ApiDashboardAgreementSaveRoute
   '/api/dashboard/agreement/submit': typeof ApiDashboardAgreementSubmitRoute
   '/api/dashboard/agreement/view': typeof ApiDashboardAgreementViewRoute
+  '/api/interviews/sessions/stream': typeof ApiInterviewsSessionsStreamRoute
   '/api/learn/ai-tutor/end': typeof ApiLearnAiTutorEndRoute
   '/api/learn/ai-tutor/limit': typeof ApiLearnAiTutorLimitRoute
   '/api/learn/assignments/$assignmentId': typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -2080,6 +2090,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/agreement/save'
     | '/api/dashboard/agreement/submit'
     | '/api/dashboard/agreement/view'
+    | '/api/interviews/sessions/stream'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -2283,6 +2294,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/agreement/save'
     | '/api/dashboard/agreement/submit'
     | '/api/dashboard/agreement/view'
+    | '/api/interviews/sessions/stream'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -2488,6 +2500,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/agreement/save'
     | '/api/dashboard/agreement/submit'
     | '/api/dashboard/agreement/view'
+    | '/api/interviews/sessions/stream'
     | '/api/learn/ai-tutor/end'
     | '/api/learn/ai-tutor/limit'
     | '/api/learn/assignments/$assignmentId'
@@ -2674,6 +2687,7 @@ export interface RootRouteChildren {
   ApiDashboardAgreementSaveRoute: typeof ApiDashboardAgreementSaveRoute
   ApiDashboardAgreementSubmitRoute: typeof ApiDashboardAgreementSubmitRoute
   ApiDashboardAgreementViewRoute: typeof ApiDashboardAgreementViewRoute
+  ApiInterviewsSessionsStreamRoute: typeof ApiInterviewsSessionsStreamRoute
   ApiLearnAiTutorEndRoute: typeof ApiLearnAiTutorEndRoute
   ApiLearnAiTutorLimitRoute: typeof ApiLearnAiTutorLimitRoute
   ApiLearnAssignmentsAssignmentIdRoute: typeof ApiLearnAssignmentsAssignmentIdRouteWithChildren
@@ -3630,6 +3644,13 @@ declare module '@tanstack/react-router' {
       path: '/api/learn/ai-tutor/end'
       fullPath: '/api/learn/ai-tutor/end'
       preLoaderRoute: typeof ApiLearnAiTutorEndRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/interviews/sessions/stream': {
+      id: '/api/interviews/sessions/stream'
+      path: '/api/interviews/sessions/stream'
+      fullPath: '/api/interviews/sessions/stream'
+      preLoaderRoute: typeof ApiInterviewsSessionsStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/agreement/view': {
@@ -4598,6 +4619,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardAgreementSaveRoute: ApiDashboardAgreementSaveRoute,
   ApiDashboardAgreementSubmitRoute: ApiDashboardAgreementSubmitRoute,
   ApiDashboardAgreementViewRoute: ApiDashboardAgreementViewRoute,
+  ApiInterviewsSessionsStreamRoute: ApiInterviewsSessionsStreamRoute,
   ApiLearnAiTutorEndRoute: ApiLearnAiTutorEndRoute,
   ApiLearnAiTutorLimitRoute: ApiLearnAiTutorLimitRoute,
   ApiLearnAssignmentsAssignmentIdRoute:

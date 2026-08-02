@@ -80,7 +80,6 @@ describe('handleSubmitInterviewTurn', () => {
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.submitInterviewTurn.mockResolvedValueOnce({
       status: 'in_progress',
-      transcript: 'hi',
       nextQuestion: 'next?',
     })
     const { handleSubmitInterviewTurn } = await import('../submitTurn.handler')
@@ -98,7 +97,6 @@ describe('handleSubmitInterviewTurn', () => {
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.submitInterviewTurn.mockResolvedValueOnce({
       status: 'in_progress',
-      transcript: 'hi',
       nextQuestion: 'next?',
     })
     const { handleSubmitInterviewTurn } = await import('../submitTurn.handler')

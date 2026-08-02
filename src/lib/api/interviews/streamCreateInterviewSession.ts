@@ -1,24 +1,23 @@
-import type { SubmitInterviewAnswerInput } from '@/lib/api/interviews/interviewsApi'
 import { INTERVIEWS_API } from '@/lib/api/interviews/interviewsPaths'
 import { createSseFrameBuffer } from '@/lib/api/sse/sseFrameBuffer'
-import type { SubmitInterviewTurnResult } from '@/server/api/interviews/services/submitInterviewTurn.service'
+import type { CreateInterviewSessionResult } from '@/server/api/interviews/services/interviewSession.service'
 
-/** Wire events emitted by `POST /api/interviews/sessions/$sessionId/turns/stream`. */
-export type InterviewTurnStreamEvent =
+/** Wire events emitted by `POST /api/interviews/sessions/stream`. */
+export type CreateInterviewSessionStreamEvent =
   | { type: 'audio-delta'; data: string }
-  | { type: 'done'; result: SubmitInterviewTurnResult }
+  | { type: 'done'; result: CreateInterviewSessionResult }
   | { type: 'error'; code: string }
 
-export type StreamSubmitInterviewTurnHandlers = {
+export type StreamCreateInterviewSessionHandlers = {
   onAudioDelta: (data: string) => void
-  onDone: (result: SubmitInterviewTurnResult) => void
+  onDone: (result: CreateInterviewSessionResult) => void
   onError: (code: string) => void
 }
 
 /** Synthetic code surfaced when the transport (not the server) failed. */
-const STREAM_GENERIC_ERROR = 'INTERVIEW_TURN_STREAM_FAILED'
+const STREAM_GENERIC_ERROR = 'INTERVIEW_SESSION_CREATE_STREAM_FAILED'
 
-function parseEvent(payload: string): InterviewTurnStreamEvent | null {
+function parseEvent(payload: string): CreateInterviewSessionStreamEvent | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(payload)
@@ -40,7 +39,10 @@ function parseEvent(payload: string): InterviewTurnStreamEvent | null {
     }
   }
   if (record.type === 'done') {
-    return { type: 'done', result: record.result as SubmitInterviewTurnResult }
+    return {
+      type: 'done',
+      result: record.result as CreateInterviewSessionResult,
+    }
   }
   if (record.type === 'error') {
     return {
@@ -65,44 +67,36 @@ async function parseErrorCode(response: Response): Promise<string> {
   return STREAM_GENERIC_ERROR
 }
 
-function toFormData(answer: SubmitInterviewAnswerInput): FormData {
-  const form = new FormData()
-  if (answer.kind === 'audio') {
-    form.append('audio', answer.blob, 'answer.wav')
-  } else {
-    form.append('typedAnswer', answer.text)
-  }
-  return form
-}
-
 /**
- * Opens the interview-turn SSE stream and dispatches audio-delta/done/error
- * events. Returns a function that aborts the in-flight stream (callbacks stop
- * firing).
+ * Opens the create-session SSE stream and dispatches audio-delta/done/error
+ * events — the opening greeting/question is generated AND spoken by the
+ * model, streamed the same way a turn's response is. Returns a function that
+ * aborts the in-flight stream (callbacks stop firing).
  */
-export function streamSubmitInterviewTurn(
-  sessionId: number | string,
-  answer: SubmitInterviewAnswerInput,
-  handlers: StreamSubmitInterviewTurnHandlers,
+export function streamCreateInterviewSession(
+  topicId: string,
+  handlers: StreamCreateInterviewSessionHandlers,
 ): () => void {
   const controller = new AbortController()
-  void runStream(sessionId, answer, handlers, controller.signal)
+  void runStream(topicId, handlers, controller.signal)
   return () => controller.abort()
 }
 
 async function runStream(
-  sessionId: number | string,
-  answer: SubmitInterviewAnswerInput,
-  handlers: StreamSubmitInterviewTurnHandlers,
+  topicId: string,
+  handlers: StreamCreateInterviewSessionHandlers,
   signal: AbortSignal,
 ): Promise<void> {
   let response: Response
   try {
-    response = await fetch(INTERVIEWS_API.submitTurnStream(sessionId), {
+    response = await fetch(INTERVIEWS_API.createSessionStream, {
       method: 'POST',
       credentials: 'same-origin',
-      headers: { Accept: 'text/event-stream' },
-      body: toFormData(answer),
+      headers: {
+        Accept: 'text/event-stream',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ topicId }),
       signal,
     })
   } catch {

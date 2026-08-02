@@ -71,17 +71,16 @@ describe('handleStreamSubmitInterviewTurn', () => {
     })
   })
 
-  it('streams question-delta then done as SSE events', async () => {
+  it('streams audio-delta then done as SSE events', async () => {
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.submitInterviewTurnStream.mockReturnValueOnce(
       fakeGenerator([
-        { type: 'question-delta', text: 'How do ' },
-        { type: 'question-delta', text: 'you handle it?' },
+        { type: 'audio-delta', data: 'QUJD' },
+        { type: 'audio-delta', data: 'REVG' },
         {
           type: 'done',
           result: {
             status: 'in_progress',
-            transcript: 'answer',
             nextQuestion: 'How do you handle it?',
           },
         },
@@ -99,13 +98,12 @@ describe('handleStreamSubmitInterviewTurn', () => {
 
     const events = await readSseEvents(res)
     expect(events).toEqual([
-      { type: 'question-delta', text: 'How do ' },
-      { type: 'question-delta', text: 'you handle it?' },
+      { type: 'audio-delta', data: 'QUJD' },
+      { type: 'audio-delta', data: 'REVG' },
       {
         type: 'done',
         result: {
           status: 'in_progress',
-          transcript: 'answer',
           nextQuestion: 'How do you handle it?',
         },
       },
@@ -117,8 +115,8 @@ describe('handleStreamSubmitInterviewTurn', () => {
     const { ApiError } = await import('@/server/api/http/apiError')
     hoisted.submitInterviewTurnStream.mockReturnValueOnce(
       fakeGenerator(
-        [{ type: 'question-delta', text: 'partial' }],
-        new ApiError(422, 'INTERVIEW_TRANSCRIPT_EMPTY'),
+        [{ type: 'audio-delta', data: 'QUJD' }],
+        new ApiError(422, 'INTERVIEW_RESPONSE_EMPTY'),
       ),
     )
     const { handleStreamSubmitInterviewTurn } =
@@ -132,8 +130,8 @@ describe('handleStreamSubmitInterviewTurn', () => {
 
     const events = await readSseEvents(res)
     expect(events).toEqual([
-      { type: 'question-delta', text: 'partial' },
-      { type: 'error', code: 'INTERVIEW_TRANSCRIPT_EMPTY' },
+      { type: 'audio-delta', data: 'QUJD' },
+      { type: 'error', code: 'INTERVIEW_RESPONSE_EMPTY' },
     ])
   })
 })

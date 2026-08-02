@@ -15,17 +15,19 @@ const answeredTurns = [
     index: 0,
     question: 'Q1?',
     transcript: 'A1',
-    answerSource: 'voice' as const,
+    answerAudioBase64: null,
+    answerSource: 'typed' as const,
     askedAt: '',
-    answeredAt: '',
+    answeredAt: '2024-01-01T00:00:00.000Z',
   },
   {
     index: 1,
     question: 'Q2?',
     transcript: 'A2',
-    answerSource: 'voice' as const,
+    answerAudioBase64: null,
+    answerSource: 'typed' as const,
     askedAt: '',
-    answeredAt: '',
+    answeredAt: '2024-01-01T00:00:00.000Z',
   },
 ]
 
@@ -96,5 +98,31 @@ describe('InterviewTimeline', () => {
       />,
     )
     expect(screen.getByText('DSA · Question 3 of 5')).toBeTruthy()
+  })
+
+  it('plays back the recorded answer audio for voice-answered turns instead of showing a transcript', () => {
+    render(
+      <InterviewTimeline
+        topicLabel="DSA"
+        questionNumber={2}
+        totalQuestions={5}
+        question="Q2?"
+        answeredTurns={[
+          {
+            index: 0,
+            question: 'Q1?',
+            transcript: '',
+            answerAudioBase64: 'QUJD',
+            answerSource: 'voice' as const,
+            askedAt: '',
+            answeredAt: '2024-01-01T00:00:00.000Z',
+          },
+        ]}
+      />,
+    )
+
+    const audio = document.querySelector('audio')
+    expect(audio).not.toBeNull()
+    expect(audio?.getAttribute('src')).toBe('data:audio/wav;base64,QUJD')
   })
 })

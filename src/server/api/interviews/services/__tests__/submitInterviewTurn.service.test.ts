@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
   row: null as any,
-  requestInterviewAudioChatTurn: vi.fn(),
+  requestInterviewTurnAudioStream: vi.fn(),
   generateInterviewReport: vi.fn(),
   updateCalls: [] as Array<Record<string, unknown>>,
 }))
@@ -24,7 +24,7 @@ vi.mock('@/server/api/interviews/services/interviewSession.service', () => ({
 }))
 
 vi.mock('@/server/api/interviews/clients/openRouterAudioChat', () => ({
-  requestInterviewAudioChatTurn: hoisted.requestInterviewAudioChatTurn,
+  requestInterviewTurnAudioStream: hoisted.requestInterviewTurnAudioStream,
 }))
 
 vi.mock(
@@ -47,6 +47,7 @@ function baseRow(overrides: Partial<Record<string, unknown>> = {}) {
         index: 0,
         question: 'What is a hash map?',
         transcript: '',
+        answerAudioBase64: null,
         answerSource: 'voice',
         askedAt: '',
         answeredAt: '',
@@ -57,6 +58,14 @@ function baseRow(overrides: Partial<Record<string, unknown>> = {}) {
   }
 }
 
+async function* fakeAudioStream(
+  events: Array<
+    { type: 'audio'; data: string } | { type: 'final'; spokenText: string }
+  >,
+) {
+  for (const event of events) yield event
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
   hoisted.updateCalls = []
@@ -65,10 +74,12 @@ beforeEach(() => {
 describe('submitInterviewTurn', () => {
   it('advances to the next question when more remain', async () => {
     hoisted.row = baseRow()
-    hoisted.requestInterviewAudioChatTurn.mockResolvedValueOnce({
-      transcript: 'A hash map maps keys to values.',
-      nextQuestion: 'How do you handle collisions?',
-    })
+    hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
+      fakeAudioStream([
+        { type: 'audio', data: 'QUJD' },
+        { type: 'final', spokenText: 'How do you handle collisions?' },
+      ]),
+    )
 
     const { submitInterviewTurn } =
       await import('../submitInterviewTurn.service')
@@ -80,40 +91,66 @@ describe('submitInterviewTurn', () => {
 
     expect(result).toEqual({
       status: 'in_progress',
-      transcript: 'A hash map maps keys to values.',
       nextQuestion: 'How do you handle collisions?',
     })
     const updatedTurns = hoisted.updateCalls[0].turns as Array<any>
     expect(updatedTurns).toHaveLength(2)
     expect(updatedTurns[0].transcript).toBe('A hash map maps keys to values.')
+    expect(updatedTurns[0].answeredAt).not.toBe('')
     expect(updatedTurns[1].question).toBe('How do you handle collisions?')
   })
 
+  it('stores the raw answer audio (not a transcript) for voice answers', async () => {
+    hoisted.row = baseRow()
+    hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
+      fakeAudioStream([{ type: 'final', spokenText: 'Next question?' }]),
+    )
+
+    const { submitInterviewTurn } =
+      await import('../submitInterviewTurn.service')
+    await submitInterviewTurn({
+      userId: 1,
+      sessionId: 7,
+      answer: { kind: 'audio', base64: 'ANSWERAUDIO', format: 'wav' },
+    })
+
+    const updatedTurns = hoisted.updateCalls[0].turns as Array<any>
+    expect(updatedTurns[0].answerAudioBase64).toBe('ANSWERAUDIO')
+    expect(updatedTurns[0].transcript).toBe('')
+    expect(updatedTurns[0].answerSource).toBe('voice')
+  })
+
   it('generates the report and completes the session on the final question', async () => {
+    // INTERVIEW_TOTAL_QUESTIONS is 5 — completion is now purely turn-count
+    // driven, so the fixture needs 4 answered turns + 1 pending (the 5th).
+    const answeredPriorTurns = Array.from({ length: 4 }, (_, i) => ({
+      index: i,
+      question: `Q${i + 1}?`,
+      transcript: `A${i + 1}`,
+      answerAudioBase64: null,
+      answerSource: 'typed' as const,
+      askedAt: '',
+      answeredAt: '2024-01-01T00:00:00.000Z',
+    }))
     hoisted.row = baseRow({
       turns: [
+        ...answeredPriorTurns,
         {
-          index: 0,
-          question: 'Q1?',
-          transcript: 'A1',
-          answerSource: 'voice',
-          askedAt: '',
-          answeredAt: '',
-        },
-        {
-          index: 1,
-          question: 'Q2?',
+          index: 4,
+          question: 'Q5?',
           transcript: '',
+          answerAudioBase64: null,
           answerSource: 'voice',
           askedAt: '',
           answeredAt: '',
         },
       ],
     })
-    hoisted.requestInterviewAudioChatTurn.mockResolvedValueOnce({
-      transcript: 'Final answer',
-      nextQuestion: null,
-    })
+    hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
+      fakeAudioStream([
+        { type: 'final', spokenText: 'Thanks, that concludes the interview.' },
+      ]),
+    )
     const report = {
       overallScore: 90,
       rubric: [],
@@ -131,11 +168,7 @@ describe('submitInterviewTurn', () => {
       answer: { kind: 'typed', text: 'Final answer' },
     })
 
-    expect(result).toEqual({
-      status: 'completed',
-      transcript: 'Final answer',
-      report,
-    })
+    expect(result).toEqual({ status: 'completed', report })
     expect(hoisted.updateCalls[0].status).toBe('completed')
     expect(hoisted.updateCalls[0].report).toEqual(report)
   })
@@ -154,12 +187,11 @@ describe('submitInterviewTurn', () => {
     ).rejects.toMatchObject({ code: 'INTERVIEW_SESSION_NOT_IN_PROGRESS' })
   })
 
-  it('does not persist and throws INTERVIEW_TRANSCRIPT_EMPTY when transcription is empty', async () => {
+  it('does not persist and throws INTERVIEW_RESPONSE_EMPTY when the model has nothing to say', async () => {
     hoisted.row = baseRow()
-    hoisted.requestInterviewAudioChatTurn.mockResolvedValueOnce({
-      transcript: '   ',
-      nextQuestion: 'next?',
-    })
+    hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
+      fakeAudioStream([{ type: 'final', spokenText: '' }]),
+    )
 
     const { submitInterviewTurn } =
       await import('../submitInterviewTurn.service')
@@ -169,7 +201,7 @@ describe('submitInterviewTurn', () => {
         sessionId: 7,
         answer: { kind: 'audio', base64: 'abc', format: 'wav' },
       }),
-    ).rejects.toMatchObject({ code: 'INTERVIEW_TRANSCRIPT_EMPTY' })
+    ).rejects.toMatchObject({ code: 'INTERVIEW_RESPONSE_EMPTY' })
     expect(hoisted.updateCalls).toHaveLength(0)
   })
 })

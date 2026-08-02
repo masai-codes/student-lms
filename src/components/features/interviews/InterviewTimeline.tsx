@@ -23,11 +23,19 @@ function QuestionBubble({
   )
 }
 
-function AnswerBubble({ children }: { children: string }) {
+function AnswerBubble({ turn }: { turn: InterviewTurn }) {
   return (
     <div className="flex justify-end">
       <div className="max-w-[85%] rounded-2xl rounded-tr-sm border border-border bg-background p-4 text-sm leading-relaxed text-foreground sm:text-base">
-        {children}
+        {turn.answerAudioBase64 ? (
+          <audio
+            controls
+            src={`data:audio/wav;base64,${turn.answerAudioBase64}`}
+            className="h-10 max-w-full"
+          />
+        ) : (
+          turn.transcript
+        )}
       </div>
     </div>
   )
@@ -72,13 +80,10 @@ export function InterviewTimeline({
   }, [question, answeredTurns.length])
 
   return (
-    <div
-      ref={containerRef}
-      onScroll={handleScroll}
-      className="h-[65vh] min-h-[320px] overflow-y-auto"
-    >
-      <p className="mb-4 text-xs font-medium uppercase tracking-wide text-foreground-muted">
-        {topicLabel} · Question {questionNumber} of {totalQuestions}
+    <div ref={containerRef} onScroll={handleScroll} className="overflow-y-auto">
+      <h1 className="text-2xl md:text-4xl mb-2">{topicLabel}</h1>
+      <p className="mb-4 text-base font-medium uppercase tracking-wide text-foreground-muted">
+        Question {questionNumber} of {totalQuestions}
       </p>
 
       <div className="flex flex-col gap-4 pb-2 font-serif">
@@ -90,7 +95,7 @@ export function InterviewTimeline({
             <QuestionBubble label={`Question ${turn.index + 1}`}>
               {turn.question}
             </QuestionBubble>
-            <AnswerBubble>{turn.transcript}</AnswerBubble>
+            <AnswerBubble turn={turn} />
           </div>
         ))}
 

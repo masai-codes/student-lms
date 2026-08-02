@@ -1,25 +1,15 @@
-import { ApiError, isApiError } from '@/server/api/http/apiError'
+import { isApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
+import { parseTopicId } from '@/server/api/interviews/handlers/parseCreateSessionRequest'
 import { createInterviewSession } from '@/server/api/interviews/services/interviewSession.service'
-
-type CreateSessionBody = { topicId?: unknown }
-
-function parseTopicId(body: CreateSessionBody | null): string {
-  const topicId = typeof body?.topicId === 'string' ? body.topicId.trim() : ''
-  if (!topicId) throw new ApiError(400, 'INTERVIEW_TOPIC_INVALID')
-  return topicId
-}
 
 export async function handleCreateInterviewSession(
   request: Request,
 ): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
-    const body = (await request
-      .json()
-      .catch(() => null)) as CreateSessionBody | null
-    const topicId = parseTopicId(body)
+    const topicId = await parseTopicId(request)
 
     const result = await createInterviewSession(userId, topicId)
     return jsonOk(result, { status: 201 })

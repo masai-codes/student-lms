@@ -1,11 +1,17 @@
 // @vitest-environment jsdom
 import type { ReactNode } from 'react'
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useInterviewSession } from '../useInterviewSession'
 import { streamSubmitInterviewTurn } from '@/lib/api/interviews/streamSubmitInterviewTurn'
 import { fetchInterviewSession } from '@/lib/api/interviews/interviewsApi'
+
+const hoisted = vi.hoisted(() => ({
+  pushChunk: vi.fn(),
+  finish: vi.fn(),
+  cancel: vi.fn(),
+}))
 
 vi.mock('@/lib/api/interviews/streamSubmitInterviewTurn', () => ({
   streamSubmitInterviewTurn: vi.fn(),
@@ -16,6 +22,14 @@ vi.mock('@/lib/api/interviews/interviewsApi', () => ({
     turns: [],
     status: 'in_progress',
   })),
+}))
+
+vi.mock('@/lib/audio/interviewAudioPlayer', () => ({
+  createInterviewAudioPlayer: () => ({
+    pushChunk: hoisted.pushChunk,
+    finish: hoisted.finish,
+    cancel: hoisted.cancel,
+  }),
 }))
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -36,44 +50,15 @@ beforeEach(() => {
 })
 
 describe('useInterviewSession', () => {
-  it('accumulates streamingQuestion from onQuestionDelta and clears it on done', async () => {
+  it('plays streamed audio deltas and finishes the player on done', async () => {
     vi.mocked(streamSubmitInterviewTurn).mockImplementation(
       (_sessionId, _answer, handlers) => {
-        handlers.onQuestionDelta('How do ')
-        handlers.onQuestionDelta('you handle it?')
+        handlers.onAudioDelta('QUJD')
+        handlers.onAudioDelta('REVG')
         handlers.onDone({
           status: 'in_progress',
-          transcript: 'a',
           nextQuestion: 'How do you handle it?',
         })
-        return () => {}
-      },
-    )
-
-    const { result } = renderHook(() => useInterviewSession(1), { wrapper })
-
-    let submitPromise!: Promise<void>
-    act(() => {
-      submitPromise = result.current.submitAnswer({
-        kind: 'typed',
-        text: 'answer',
-      })
-    })
-
-    await act(async () => {
-      await submitPromise
-    })
-
-    expect(result.current.streamingQuestion).toBe('')
-    expect(result.current.isSubmitting).toBe(false)
-    expect(result.current.error).toBeNull()
-  })
-
-  it('sets a friendly error message and clears streamingQuestion on error', async () => {
-    vi.mocked(streamSubmitInterviewTurn).mockImplementation(
-      (_sessionId, _answer, handlers) => {
-        handlers.onQuestionDelta('partial')
-        handlers.onError('INTERVIEW_TRANSCRIPT_EMPTY')
         return () => {}
       },
     )
@@ -84,9 +69,33 @@ describe('useInterviewSession', () => {
       await result.current.submitAnswer({ kind: 'typed', text: 'answer' })
     })
 
-    expect(result.current.streamingQuestion).toBe('')
+    expect(hoisted.pushChunk).toHaveBeenNthCalledWith(1, 'QUJD')
+    expect(hoisted.pushChunk).toHaveBeenNthCalledWith(2, 'REVG')
+    expect(hoisted.finish).toHaveBeenCalledTimes(1)
+    expect(hoisted.cancel).not.toHaveBeenCalled()
+    expect(result.current.isSubmitting).toBe(false)
+    expect(result.current.error).toBeNull()
+  })
+
+  it('cancels the player and sets a friendly error message on error', async () => {
+    vi.mocked(streamSubmitInterviewTurn).mockImplementation(
+      (_sessionId, _answer, handlers) => {
+        handlers.onAudioDelta('QUJD')
+        handlers.onError('INTERVIEW_RESPONSE_EMPTY')
+        return () => {}
+      },
+    )
+
+    const { result } = renderHook(() => useInterviewSession(1), { wrapper })
+
+    await act(async () => {
+      await result.current.submitAnswer({ kind: 'typed', text: 'answer' })
+    })
+
+    expect(hoisted.cancel).toHaveBeenCalledTimes(1)
+    expect(hoisted.finish).not.toHaveBeenCalled()
     expect(result.current.error).toBe(
-      "We couldn't make out your answer — please re-record and try again.",
+      "The interviewer didn't respond — please try again.",
     )
   })
 
@@ -105,47 +114,5 @@ describe('useInterviewSession', () => {
     })
 
     expect(result.current.error).toBe('Something went wrong. Please try again.')
-  })
-
-  it('shows the live streamingQuestion text while the turn is in flight', async () => {
-    let capturedOnDelta!: (text: string) => void
-    let resolveDone!: () => void
-    vi.mocked(streamSubmitInterviewTurn).mockImplementation(
-      (_sessionId, _answer, handlers) => {
-        capturedOnDelta = handlers.onQuestionDelta
-        resolveDone = () =>
-          handlers.onDone({
-            status: 'in_progress',
-            transcript: 'a',
-            nextQuestion: 'Q',
-          })
-        return () => {}
-      },
-    )
-
-    const { result } = renderHook(() => useInterviewSession(1), { wrapper })
-
-    let submitPromise!: Promise<void>
-    act(() => {
-      submitPromise = result.current.submitAnswer({
-        kind: 'typed',
-        text: 'answer',
-      })
-    })
-
-    act(() => capturedOnDelta('Tell me a'))
-    await waitFor(() =>
-      expect(result.current.streamingQuestion).toBe('Tell me a'),
-    )
-    act(() => capturedOnDelta('bout X'))
-    await waitFor(() =>
-      expect(result.current.streamingQuestion).toBe('Tell me about X'),
-    )
-
-    act(() => resolveDone())
-    await act(async () => {
-      await submitPromise
-    })
-    expect(result.current.streamingQuestion).toBe('')
   })
 })

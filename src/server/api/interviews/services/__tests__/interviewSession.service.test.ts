@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const hoisted = vi.hoisted(() => ({
   selectResults: [] as Array<Array<Record<string, unknown>>>,
   insertResults: [] as Array<Array<{ insertId: number }>>,
-  requestOpenRouterText: vi.fn(),
+  requestInterviewTurnAudioStream: vi.fn(),
   resolveInterviewTopicSelection: vi.fn(),
 }))
 
@@ -25,8 +25,8 @@ vi.mock('@/db', () => {
   return { db: chain }
 })
 
-vi.mock('@/server/api/interviews/clients/openRouterTextChat', () => ({
-  requestOpenRouterText: hoisted.requestOpenRouterText,
+vi.mock('@/server/api/interviews/clients/openRouterAudioChat', () => ({
+  requestInterviewTurnAudioStream: hoisted.requestInterviewTurnAudioStream,
 }))
 
 vi.mock(
@@ -35,6 +35,14 @@ vi.mock(
     resolveInterviewTopicSelection: hoisted.resolveInterviewTopicSelection,
   }),
 )
+
+async function* fakeAudioStream(
+  events: Array<
+    { type: 'audio'; data: string } | { type: 'final'; spokenText: string }
+  >,
+) {
+  for (const event of events) yield event
+}
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -49,18 +57,28 @@ beforeEach(() => {
 })
 
 describe('createInterviewSession', () => {
-  it('creates a session and returns the generated first question', async () => {
+  it('creates a session and returns the spoken greeting + first question', async () => {
     hoisted.selectResults = [[]] // under daily limit
     hoisted.insertResults = [[{ insertId: 7 }]]
-    hoisted.requestOpenRouterText.mockResolvedValueOnce(
-      '  What is a hash map?  ',
+    hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
+      fakeAudioStream([
+        { type: 'audio', data: 'QUJD' },
+        {
+          type: 'final',
+          spokenText:
+            '  Hi, welcome! Today we’ll cover DSA. What is a hash map?  ',
+        },
+      ]),
     )
 
     const { createInterviewSession } =
       await import('../interviewSession.service')
     const result = await createInterviewSession(1, 'dsa')
 
-    expect(result).toEqual({ sessionId: 7, question: 'What is a hash map?' })
+    expect(result).toEqual({
+      sessionId: 7,
+      question: 'Hi, welcome! Today we’ll cover DSA. What is a hash map?',
+    })
   })
 
   it('throws INTERVIEW_DAILY_LIMIT once the daily session cap is reached', async () => {
@@ -75,9 +93,11 @@ describe('createInterviewSession', () => {
     })
   })
 
-  it('throws INTERVIEW_QUESTION_GENERATION_FAILED when the model returns nothing', async () => {
+  it('throws INTERVIEW_QUESTION_GENERATION_FAILED when the model has nothing to say', async () => {
     hoisted.selectResults = [[]]
-    hoisted.requestOpenRouterText.mockResolvedValueOnce('   ')
+    hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
+      fakeAudioStream([{ type: 'final', spokenText: '   ' }]),
+    )
 
     const { createInterviewSession } =
       await import('../interviewSession.service')

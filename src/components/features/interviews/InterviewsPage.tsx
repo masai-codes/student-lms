@@ -3,7 +3,8 @@ import { useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Check } from 'lucide-react'
 import type { InterviewTopic } from '@/server/api/interviews/types/interviewSession'
-import { createInterviewSession } from '@/lib/api/interviews/interviewsApi'
+import { streamCreateInterviewSession } from '@/lib/api/interviews/streamCreateInterviewSession'
+import { createInterviewAudioPlayer } from '@/lib/audio/interviewAudioPlayer'
 import { interviewTopicsQuery } from '@/query/interviews/interviewTopicsQuery'
 import { toast } from '@/lib/toast'
 import { getTopicIcon } from './topicIcons'
@@ -48,7 +49,7 @@ function TopicButton({
         <span className="type-b1-md block font-medium text-foreground">
           {topic.label}
         </span>
-        <span className="block truncate text-xs text-foreground-muted">
+        <span className="text-xs line-clamp-2 lg:line-clamp-2 text-foreground-muted">
           {topic.blurb}
         </span>
       </span>
@@ -113,20 +114,41 @@ export function InterviewsPage() {
   async function handleSelect(topic: InterviewTopic) {
     if (creatingTopicId) return
     setCreatingTopicId(topic.id)
-    try {
-      const { sessionId } = await createInterviewSession(topic.id)
+
+    // Plays the interviewer's spoken greeting/opening question as it streams
+    // in — intentionally not cancelled on success so it keeps playing
+    // through the navigation to the session page below.
+    const player = createInterviewAudioPlayer()
+
+    const outcome = await new Promise<
+      { status: 'done'; sessionId: number } | { status: 'error' }
+    >((resolve) => {
+      streamCreateInterviewSession(topic.id, {
+        onAudioDelta: (data) => player.pushChunk(data),
+        onDone: (result) => {
+          player.finish()
+          resolve({ status: 'done', sessionId: result.sessionId })
+        },
+        onError: () => {
+          player.cancel()
+          resolve({ status: 'error' })
+        },
+      })
+    })
+
+    if (outcome.status === 'done') {
       await navigate({
         to: '/interviews/$sessionId',
-        params: { sessionId: String(sessionId) },
+        params: { sessionId: String(outcome.sessionId) },
       })
-    } catch {
+    } else {
       toast.error('Could not start the interview. Please try again.')
       setCreatingTopicId(null)
     }
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl py-8">
+    <div className="mx-auto w-full pb-8">
       <h1 className="type-h4 mb-1 font-semibold text-foreground">
         Practice Interviews
       </h1>
@@ -143,20 +165,20 @@ export function InterviewsPage() {
       ) : null}
 
       {data ? (
-        <>
-          <TopicGroup
-            title="Recommended for your program"
-            topics={data.catalogTopics}
-            creatingTopicId={creatingTopicId}
-            onSelect={(topic) => void handleSelect(topic)}
-          />
+        <div className="grid md:grid-cols-2 gap-2 md:gap-6">
           <TopicGroup
             title="From your coursework"
             topics={data.curriculumTopics}
             creatingTopicId={creatingTopicId}
             onSelect={(topic) => void handleSelect(topic)}
           />
-        </>
+          <TopicGroup
+            title="Recommended for your program"
+            topics={data.catalogTopics}
+            creatingTopicId={creatingTopicId}
+            onSelect={(topic) => void handleSelect(topic)}
+          />
+        </div>
       ) : null}
     </div>
   )

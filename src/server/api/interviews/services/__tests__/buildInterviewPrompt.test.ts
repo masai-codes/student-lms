@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
-  buildFirstQuestionPrompt,
   buildInterviewMessages,
   buildInterviewSystemPrompt,
+  buildOpeningTurnMessages,
+  buildOpeningTurnSystemPrompt,
 } from '../buildInterviewPrompt'
 
 describe('buildInterviewSystemPrompt', () => {
@@ -30,9 +31,9 @@ describe('buildInterviewSystemPrompt', () => {
   })
 })
 
-describe('buildFirstQuestionPrompt', () => {
-  it('includes topic, domain, and rubric focus', () => {
-    const prompt = buildFirstQuestionPrompt({
+describe('buildOpeningTurnSystemPrompt', () => {
+  it('includes topic, domain, and rubric focus, and instructs a spoken greeting', () => {
+    const prompt = buildOpeningTurnSystemPrompt({
       topicLabel: 'DSA',
       domain: 'software-development',
       rubricFocus: ['Complexity'],
@@ -41,33 +42,78 @@ describe('buildFirstQuestionPrompt', () => {
     expect(prompt).toContain('DSA')
     expect(prompt).toContain('software-development')
     expect(prompt).toContain('Complexity')
+    expect(prompt).toContain('greeting')
+    expect(prompt).toContain('question 1 of 5')
+  })
+})
+
+describe('buildOpeningTurnMessages', () => {
+  it('sends the system prompt plus a minimal kickoff user message', () => {
+    const messages = buildOpeningTurnMessages('sys')
+    expect(messages).toEqual([
+      { role: 'system', content: 'sys' },
+      { role: 'user', content: 'Begin the interview.' },
+    ])
   })
 })
 
 describe('buildInterviewMessages', () => {
-  const priorTurns = [
+  const typedPriorTurns = [
     {
       index: 0,
       question: 'Q1?',
       transcript: 'A1',
-      answerSource: 'voice' as const,
+      answerAudioBase64: null,
+      answerSource: 'typed' as const,
       askedAt: '',
-      answeredAt: '',
+      answeredAt: '2024-01-01T00:00:00.000Z',
     },
   ]
 
-  it('projects prior turns as assistant/user text pairs', () => {
+  it('projects a typed prior turn as an assistant/user text pair', () => {
     const messages = buildInterviewMessages({
       systemPrompt: 'sys',
-      priorTurns,
+      priorTurns: typedPriorTurns,
       currentQuestion: 'Q2?',
       answer: { kind: 'typed', text: 'A2' },
     })
 
     expect(messages[0]).toEqual({ role: 'system', content: 'sys' })
     expect(messages[1]).toEqual({ role: 'assistant', content: 'Q1?' })
-    expect(messages[2]).toEqual({ role: 'user', content: 'A1' })
+    expect(messages[2]).toEqual({
+      role: 'user',
+      content: [{ type: 'text', text: 'A1' }],
+    })
     expect(messages[3]).toEqual({ role: 'assistant', content: 'Q2?' })
+  })
+
+  it('replays a voice prior turn as raw audio, not text', () => {
+    const messages = buildInterviewMessages({
+      systemPrompt: 'sys',
+      priorTurns: [
+        {
+          index: 0,
+          question: 'Q1?',
+          transcript: '',
+          answerAudioBase64: 'PRIORAUDIO',
+          answerSource: 'voice' as const,
+          askedAt: '',
+          answeredAt: '2024-01-01T00:00:00.000Z',
+        },
+      ],
+      currentQuestion: 'Q2?',
+      answer: { kind: 'typed', text: 'A2' },
+    })
+
+    expect(messages[2]).toEqual({
+      role: 'user',
+      content: [
+        {
+          type: 'input_audio',
+          input_audio: { data: 'PRIORAUDIO', format: 'wav' },
+        },
+      ],
+    })
   })
 
   it('sends a text-only content part for typed answers', () => {
@@ -84,18 +130,22 @@ describe('buildInterviewMessages', () => {
     })
   })
 
-  it('sends a text + input_audio content part for voice answers', () => {
+  it('sends an input_audio content part for voice answers', () => {
     const messages = buildInterviewMessages({
       systemPrompt: 'sys',
       priorTurns: [],
       currentQuestion: 'Q1?',
       answer: { kind: 'audio', base64: 'BASE64DATA', format: 'wav' },
     })
-    const last = messages.at(-1) as { content: Array<Record<string, unknown>> }
-    expect(last.content[0].type).toBe('text')
-    expect(last.content[1]).toEqual({
-      type: 'input_audio',
-      input_audio: { data: 'BASE64DATA', format: 'wav' },
+    const last = messages.at(-1)
+    expect(last).toEqual({
+      role: 'user',
+      content: [
+        {
+          type: 'input_audio',
+          input_audio: { data: 'BASE64DATA', format: 'wav' },
+        },
+      ],
     })
   })
 })

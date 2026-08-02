@@ -46,13 +46,13 @@ export function InterviewSessionPage({ sessionId }: { sessionId: number }) {
     )
   }
 
-  const answeredTurns = session.turns.filter((turn) => turn.transcript !== '')
+  const answeredTurns = session.turns.filter((turn) => turn.answeredAt !== '')
   const pendingTurn =
-    session.turns.find((turn) => turn.transcript === '') ?? session.turns.at(-1)
+    session.turns.find((turn) => turn.answeredAt === '') ?? session.turns.at(-1)
   const questionNumber = (pendingTurn?.index ?? 0) + 1
 
   return (
-    <div className="mx-auto w-full max-w-3xl py-6 pb-28 md:pb-6">
+    <div className="mx-auto w-full max-w-3xl md:pb-0">
       <InterviewTimeline
         topicLabel={session.topicLabel}
         questionNumber={questionNumber}
@@ -64,8 +64,8 @@ export function InterviewSessionPage({ sessionId }: { sessionId: number }) {
       {/* Fixed to the viewport bottom, ChatGPT-style — above the mobile tab
           bar (`4.5rem` + safe-area, matching `.layout-page`'s own offset) on
           small screens, flush to the bottom on desktop where there's no tab bar. */}
-      <div className="relative inset-x-0 z-20  md:bottom-0">
-        <div className="mx-auto max-w-3xl px-2 py-4 lg:px-2 flex justify-end">
+      <div className="sticky bottom-0 inset-x-0 z-20 bg-surface-muted rounded-lg">
+        <div className="mx-auto max-w-3xl px-0 py-4 lg:px-0 flex justify-end">
           {error ? (
             <div className="mb-3 rounded-lg border border-danger-subtle bg-danger-subtle p-3 text-sm text-danger-subtle-foreground">
               {error}

@@ -27,20 +27,10 @@ export type OpenRouterChatMessage = {
   content: string | Array<OpenRouterContentPart>
 }
 
-export type OpenRouterJsonSchemaFormat = {
-  type: 'json_schema'
-  json_schema: {
-    name: string
-    strict: true
-    schema: Record<string, unknown>
-  }
-}
-
 /** Posts to OpenRouter and returns the raw assistant message content string. */
 export async function requestOpenRouterChatCompletion(input: {
   messages: Array<OpenRouterChatMessage>
   model: string
-  responseFormat?: OpenRouterJsonSchemaFormat
 }): Promise<string> {
   const apiKey = process.env.OPENROUTER_API_KEY?.trim()
   if (!apiKey) {
@@ -60,9 +50,6 @@ export async function requestOpenRouterChatCompletion(input: {
       body: JSON.stringify({
         model: input.model,
         messages: input.messages,
-        ...(input.responseFormat
-          ? { response_format: input.responseFormat }
-          : {}),
       }),
       signal: controller.signal,
     })
@@ -97,31 +84,15 @@ export async function requestOpenRouterChatCompletion(input: {
   }
 }
 
-function extractStreamedContent(payload: string): string | null {
-  if (payload === '[DONE]') return null
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(payload)
-  } catch {
-    return null
-  }
-  const content = (
-    parsed as { choices?: Array<{ delta?: { content?: string } }> }
-  )?.choices?.[0]?.delta?.content
-  return typeof content === 'string' && content.length > 0 ? content : null
-}
-
 /**
- * Posts to OpenRouter with `stream: true` and yields assistant message
- * content deltas as they arrive — lets callers (e.g. the interview turn
- * flow) show/speak partial output well before the full completion lands,
- * instead of waiting on one blocking round trip.
+ * Shared POST + SSE-frame-parsing loop for both the text-delta stream and the
+ * audio-delta stream below — same auth/timeout/error handling, only what's
+ * extracted from each frame differs.
  */
-export async function* requestOpenRouterChatCompletionStream(input: {
-  messages: Array<OpenRouterChatMessage>
-  model: string
-  responseFormat?: OpenRouterJsonSchemaFormat
-}): AsyncGenerator<string> {
+async function* streamOpenRouterFrames(
+  body: Record<string, unknown>,
+  extract: (payload: string) => string | null,
+): AsyncGenerator<string> {
   const apiKey = process.env.OPENROUTER_API_KEY?.trim()
   if (!apiKey) {
     throw new Error('INTERVIEW_OPENROUTER_NOT_CONFIGURED')
@@ -138,14 +109,7 @@ export async function* requestOpenRouterChatCompletionStream(input: {
         Authorization: `Bearer ${apiKey}`,
         Accept: 'text/event-stream',
       },
-      body: JSON.stringify({
-        model: input.model,
-        messages: input.messages,
-        stream: true,
-        ...(input.responseFormat
-          ? { response_format: input.responseFormat }
-          : {}),
-      }),
+      body: JSON.stringify(body),
       signal: controller.signal,
     })
 
@@ -170,7 +134,7 @@ export async function* requestOpenRouterChatCompletionStream(input: {
         for (const line of rawFrame.split('\n')) {
           if (!line.startsWith('data:')) continue // skip SSE comments/keep-alives
           const payload = line.slice('data:'.length).replace(/^ /, '')
-          const content = extractStreamedContent(payload)
+          const content = extract(payload)
           if (content) {
             sawContent = true
             yield content
@@ -200,4 +164,99 @@ export async function* requestOpenRouterChatCompletionStream(input: {
   } finally {
     clearTimeout(timeout)
   }
+}
+
+function extractStreamedContent(payload: string): string | null {
+  if (payload === '[DONE]') return null
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(payload)
+  } catch {
+    return null
+  }
+  const content = (
+    parsed as { choices?: Array<{ delta?: { content?: string } }> }
+  )?.choices?.[0]?.delta?.content
+  return typeof content === 'string' && content.length > 0 ? content : null
+}
+
+/**
+ * Posts to OpenRouter with `stream: true` and yields assistant message
+ * content deltas as they arrive.
+ */
+export async function* requestOpenRouterChatCompletionStream(input: {
+  messages: Array<OpenRouterChatMessage>
+  model: string
+}): AsyncGenerator<string> {
+  yield* streamOpenRouterFrames(
+    {
+      model: input.model,
+      messages: input.messages,
+      stream: true,
+    },
+    extractStreamedContent,
+  )
+}
+
+export type OpenRouterAudioStreamEvent =
+  | { type: 'audio'; data: string }
+  | { type: 'transcript'; text: string }
+
+/**
+ * Posts to OpenRouter requesting spoken audio output (`modalities:
+ * ['text','audio']` — OpenAI only accepts `['text']` or `['text','audio']`,
+ * never `['audio']` alone — and audio output requires `stream: true`).
+ * Yields both the base64 PCM16 audio chunks and the accompanying spoken-text
+ * deltas as they arrive; callers that only want the audio can filter.
+ */
+export async function* requestOpenRouterAudioStream(input: {
+  messages: Array<OpenRouterChatMessage>
+  model: string
+  voice: string
+  format: 'pcm16'
+}): AsyncGenerator<OpenRouterAudioStreamEvent> {
+  for await (const raw of streamOpenRouterFrames(
+    {
+      model: input.model,
+      messages: input.messages,
+      modalities: ['text', 'audio'],
+      audio: { voice: input.voice, format: input.format },
+      stream: true,
+    },
+    extractAudioFrame,
+  )) {
+    const event = JSON.parse(raw) as OpenRouterAudioStreamEvent
+    yield event
+  }
+}
+
+/**
+ * Audio deltas and transcript deltas arrive as distinct delta shapes on the
+ * same stream — re-serialize whichever is present as a small tagged JSON
+ * string so it can flow through the shared string-yielding frame loop above,
+ * then get parsed back into a typed event by the caller.
+ */
+function extractAudioFrame(payload: string): string | null {
+  if (payload === '[DONE]') return null
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(payload)
+  } catch {
+    return null
+  }
+  const delta = (
+    parsed as {
+      choices?: Array<{
+        delta?: { audio?: { data?: string; transcript?: string } }
+      }>
+    }
+  )?.choices?.[0]?.delta?.audio
+
+  if (typeof delta?.data === 'string' && delta.data.length > 0) {
+    return JSON.stringify({ type: 'audio', data: delta.data })
+  }
+  if (typeof delta?.transcript === 'string' && delta.transcript.length > 0) {
+    return JSON.stringify({ type: 'transcript', text: delta.transcript })
+  }
+  return null
 }

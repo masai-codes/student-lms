@@ -1,11 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import {
-  requestInterviewAudioChatTurn,
-  requestInterviewAudioChatTurnStream,
-} from '../openRouterAudioChat'
+import { requestInterviewTurnAudioStream } from '../openRouterAudioChat'
 
-describe('requestInterviewAudioChatTurn', () => {
+describe('requestInterviewTurnAudioStream', () => {
   const originalKey = process.env.OPENROUTER_API_KEY
 
   beforeEach(() => {
@@ -19,41 +16,81 @@ describe('requestInterviewAudioChatTurn', () => {
     else process.env.OPENROUTER_API_KEY = originalKey
   })
 
-  function mockOpenRouter(content: string | null, ok = true) {
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok,
-      json: () => Promise.resolve({ choices: [{ message: { content } }] }),
-    } as Response)
-  }
-
   const baseInput = {
     messages: [{ role: 'system' as const, content: 's' }],
     model: 'test/model',
   }
 
-  it('returns the parsed transcript and nextQuestion on success', async () => {
-    mockOpenRouter(
-      JSON.stringify({ transcript: 'hello there', nextQuestion: 'and then?' }),
-    )
-    await expect(requestInterviewAudioChatTurn(baseInput)).resolves.toEqual({
-      transcript: 'hello there',
-      nextQuestion: 'and then?',
+  function sseBodyFromFrames(
+    frames: Array<string>,
+  ): ReadableStream<Uint8Array> {
+    const encoder = new TextEncoder()
+    return new ReadableStream({
+      start(controller) {
+        for (const frame of frames) {
+          controller.enqueue(encoder.encode(`data: ${frame}\n\n`))
+        }
+        controller.close()
+      },
     })
+  }
+
+  function audioFrame(data: string) {
+    return JSON.stringify({ choices: [{ delta: { audio: { data } } }] })
+  }
+  function transcriptFrame(transcript: string) {
+    return JSON.stringify({ choices: [{ delta: { audio: { transcript } } }] })
+  }
+
+  async function collect(
+    gen: AsyncGenerator<{ type: string; data?: string; spokenText?: string }>,
+  ) {
+    const events: Array<{ type: string; data?: string; spokenText?: string }> =
+      []
+    for await (const event of gen) events.push(event)
+    return events
+  }
+
+  it('yields audio chunks as they arrive, then a final spokenText from the transcript deltas', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      body: sseBodyFromFrames([
+        transcriptFrame('How do you '),
+        audioFrame('QUJD'),
+        transcriptFrame('handle collisions?'),
+        audioFrame('REVG'),
+        '[DONE]',
+      ]),
+    } as Response)
+
+    const events = await collect(requestInterviewTurnAudioStream(baseInput))
+    expect(events).toEqual([
+      { type: 'audio', data: 'QUJD' },
+      { type: 'audio', data: 'REVG' },
+      { type: 'final', spokenText: 'How do you handle collisions?' },
+    ])
   })
 
-  it('accepts a null nextQuestion (end of interview)', async () => {
-    mockOpenRouter(
-      JSON.stringify({ transcript: 'final answer', nextQuestion: null }),
-    )
-    await expect(requestInterviewAudioChatTurn(baseInput)).resolves.toEqual({
-      transcript: 'final answer',
-      nextQuestion: null,
-    })
+  it('yields an empty spokenText when only audio (no transcript) arrives', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      body: sseBodyFromFrames([audioFrame('QUJD'), '[DONE]']),
+    } as Response)
+
+    const events = await collect(requestInterviewTurnAudioStream(baseInput))
+    expect(events).toEqual([
+      { type: 'audio', data: 'QUJD' },
+      { type: 'final', spokenText: '' },
+    ])
   })
 
   it('sends the model, messages, and Bearer auth header', async () => {
-    mockOpenRouter(JSON.stringify({ transcript: 'a', nextQuestion: null }))
-    await requestInterviewAudioChatTurn(baseInput)
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      body: sseBodyFromFrames([audioFrame('QUJD')]),
+    } as Response)
+
+    await collect(requestInterviewTurnAudioStream(baseInput))
 
     const call = vi.mocked(fetch).mock.calls[0]
     expect(call[0]).toBe('https://openrouter.ai/api/v1/chat/completions')
@@ -67,45 +104,37 @@ describe('requestInterviewAudioChatTurn', () => {
 
   it('throws INTERVIEW_OPENROUTER_NOT_CONFIGURED without an API key', async () => {
     delete process.env.OPENROUTER_API_KEY
-    await expect(requestInterviewAudioChatTurn(baseInput)).rejects.toThrow(
-      'INTERVIEW_OPENROUTER_NOT_CONFIGURED',
-    )
+    await expect(
+      collect(requestInterviewTurnAudioStream(baseInput)),
+    ).rejects.toThrow('INTERVIEW_OPENROUTER_NOT_CONFIGURED')
     expect(fetch).not.toHaveBeenCalled()
   })
 
   it('throws INTERVIEW_OPENROUTER_REQUEST_FAILED for non-2xx responses', async () => {
-    mockOpenRouter(null, false)
-    await expect(requestInterviewAudioChatTurn(baseInput)).rejects.toThrow(
-      'INTERVIEW_OPENROUTER_REQUEST_FAILED',
-    )
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false,
+      body: null,
+    } as Response)
+    await expect(
+      collect(requestInterviewTurnAudioStream(baseInput)),
+    ).rejects.toThrow('INTERVIEW_OPENROUTER_REQUEST_FAILED')
   })
 
-  it('throws INTERVIEW_OPENROUTER_EMPTY_RESPONSE when content is empty', async () => {
-    mockOpenRouter('   ')
-    await expect(requestInterviewAudioChatTurn(baseInput)).rejects.toThrow(
-      'INTERVIEW_OPENROUTER_EMPTY_RESPONSE',
-    )
-  })
-
-  it('throws INTERVIEW_OPENROUTER_INVALID_RESPONSE for non-JSON content', async () => {
-    mockOpenRouter('not json at all')
-    await expect(requestInterviewAudioChatTurn(baseInput)).rejects.toThrow(
-      'INTERVIEW_OPENROUTER_INVALID_RESPONSE',
-    )
-  })
-
-  it('throws INTERVIEW_OPENROUTER_INVALID_RESPONSE when the schema does not match', async () => {
-    mockOpenRouter(JSON.stringify({ transcript: 123, nextQuestion: null }))
-    await expect(requestInterviewAudioChatTurn(baseInput)).rejects.toThrow(
-      'INTERVIEW_OPENROUTER_INVALID_RESPONSE',
-    )
+  it('throws INTERVIEW_OPENROUTER_EMPTY_RESPONSE when no deltas arrive', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      body: sseBodyFromFrames(['[DONE]']),
+    } as Response)
+    await expect(
+      collect(requestInterviewTurnAudioStream(baseInput)),
+    ).rejects.toThrow('INTERVIEW_OPENROUTER_EMPTY_RESPONSE')
   })
 
   it('wraps generic fetch failures as INTERVIEW_OPENROUTER_REQUEST_FAILED', async () => {
     vi.mocked(fetch).mockRejectedValueOnce(new Error('network down'))
-    await expect(requestInterviewAudioChatTurn(baseInput)).rejects.toThrow(
-      'INTERVIEW_OPENROUTER_REQUEST_FAILED',
-    )
+    await expect(
+      collect(requestInterviewTurnAudioStream(baseInput)),
+    ).rejects.toThrow('INTERVIEW_OPENROUTER_REQUEST_FAILED')
   })
 
   it('throws INTERVIEW_OPENROUTER_TIMEOUT on AbortError', async () => {
@@ -114,82 +143,8 @@ describe('requestInterviewAudioChatTurn', () => {
       err.name = 'AbortError'
       return Promise.reject(err)
     })
-    await expect(requestInterviewAudioChatTurn(baseInput)).rejects.toThrow(
-      'INTERVIEW_OPENROUTER_TIMEOUT',
-    )
-  })
-
-  describe('requestInterviewAudioChatTurnStream', () => {
-    function mockOpenRouterStream(contentChunks: Array<string>) {
-      const encoder = new TextEncoder()
-      const body = new ReadableStream<Uint8Array>({
-        start(controller) {
-          for (const content of contentChunks) {
-            const frame = JSON.stringify({ choices: [{ delta: { content } }] })
-            controller.enqueue(encoder.encode(`data: ${frame}\n\n`))
-          }
-          controller.enqueue(encoder.encode('data: [DONE]\n\n'))
-          controller.close()
-        },
-      })
-      vi.mocked(fetch).mockResolvedValueOnce({ ok: true, body } as Response)
-    }
-
-    async function collect(
-      gen: AsyncGenerator<{ type: string; text?: string; result?: unknown }>,
-    ) {
-      const events: Array<{ type: string; text?: string; result?: unknown }> =
-        []
-      for await (const event of gen) events.push(event)
-      return events
-    }
-
-    it('streams nextQuestion deltas then a final validated result', async () => {
-      mockOpenRouterStream([
-        '{"nextQuestion": "Hi! Could you explain the difference between',
-        ' an array and a linked list?", "transcript": "the answer"}',
-      ])
-
-      const events = await collect(
-        requestInterviewAudioChatTurnStream(baseInput),
-      )
-      const deltas = events
-        .filter((e) => e.type === 'delta')
-        .map((e) => e.text)
-        .join('')
-      expect(deltas).toBe(
-        'Hi! Could you explain the difference between an array and a linked list?',
-      )
-      expect(events.at(-1)).toEqual({
-        type: 'result',
-        result: {
-          nextQuestion:
-            'Hi! Could you explain the difference between an array and a linked list?',
-          transcript: 'the answer',
-        },
-      })
-    })
-
-    it('yields no deltas and a null nextQuestion on the final turn', async () => {
-      mockOpenRouterStream([
-        '{"nextQuestion": null, "transcript": "final answer"}',
-      ])
-
-      const events = await collect(
-        requestInterviewAudioChatTurnStream(baseInput),
-      )
-      expect(events.filter((e) => e.type === 'delta')).toHaveLength(0)
-      expect(events.at(-1)).toEqual({
-        type: 'result',
-        result: { nextQuestion: null, transcript: 'final answer' },
-      })
-    })
-
-    it('throws INTERVIEW_OPENROUTER_INVALID_RESPONSE for a malformed final document', async () => {
-      mockOpenRouterStream(['not json at all'])
-      await expect(
-        collect(requestInterviewAudioChatTurnStream(baseInput)),
-      ).rejects.toThrow('INTERVIEW_OPENROUTER_INVALID_RESPONSE')
-    })
+    await expect(
+      collect(requestInterviewTurnAudioStream(baseInput)),
+    ).rejects.toThrow('INTERVIEW_OPENROUTER_TIMEOUT')
   })
 })

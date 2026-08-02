@@ -195,7 +195,7 @@ export function mapThrownErrorToResponse(error: unknown): Response {
         return jsonError(404, error.message)
       case 'INTERVIEW_SESSION_NOT_IN_PROGRESS':
         return jsonError(409, error.message)
-      case 'INTERVIEW_TRANSCRIPT_EMPTY':
+      case 'INTERVIEW_RESPONSE_EMPTY':
         return jsonError(422, error.message)
       case 'INTERVIEW_DAILY_LIMIT':
         return jsonError(429, error.message)

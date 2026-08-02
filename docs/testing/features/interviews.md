@@ -1,26 +1,45 @@
 # Mock interview practice (`/interviews`)
 
-Last updated: 2026-08-01
+Last updated: 2026-08-02
 
 ## Scope
 
 - `GET /api/interviews/topics` — personalized topic list: catalog topics for the
   student's resolved program domain + topics derived from their coursework.
-- `POST /api/interviews/sessions` — starts a session for a topic, generates
-  question 1 via Claude.
+- `POST /api/interviews/sessions/stream` (SSE, what the UI uses) /
+  `POST /api/interviews/sessions` (blocking, kept for API completeness) —
+  starts a session for a topic. One audio-out call to the audio-capable model
+  generates AND speaks the opening greeting + question 1 together (a brief,
+  warm greeting mentioning the topic, then the question) — there's no prior
+  answer to respond to yet, so this is a kickoff trigger rather than a real
+  turn. Streamed as `audio-delta` SSE events the same way a turn's response
+  is, then a terminal `done` event with `{ sessionId, question }` once the
+  session row is created.
 - `GET /api/interviews/sessions/:sessionId` — session state (turns, status,
   report once completed).
-- `POST /api/interviews/sessions/:sessionId/turns` — `multipart/form-data`
-  submission of one answer (`audio` file or `typedAnswer` text). The audio
-  goes to an OpenRouter audio-input chat model that transcribes AND asks the
-  follow-up in one call; on the final question a separate text-only Claude
-  call scores the transcript and produces the report.
+- `POST /api/interviews/sessions/:sessionId/turns/stream` (SSE, what the UI
+  actually uses) / `POST .../turns` (blocking, kept for API completeness) —
+  `multipart/form-data` submission of one answer (`audio` file or
+  `typedAnswer` text). One audio-in/audio-out call to the audio-capable model
+  (`INTERVIEW_AUDIO_MODEL`) hears (or reads) the answer and speaks its
+  response directly — either the next question or a closing remark on the
+  final turn — streamed to the client as `audio-delta` SSE events and played
+  in the browser. Whether the interview continues is decided server-side by
+  turn count against `INTERVIEW_TOTAL_QUESTIONS`, not by the model. On the
+  final turn, a separate call to the same audio-capable model grades the
+  interview directly from the raw per-turn answer audio and produces the
+  report.
 
 ## Data sources
 
 - `interview_sessions` — one row per session; `turns` (JSON array of
-  `{ index, question, transcript, answerSource, askedAt, answeredAt }`) and
-  `report` (JSON, set on completion) are the durable record.
+  `{ index, question, transcript, answerAudioBase64, answerSource, askedAt, answeredAt }`)
+  and `report` (JSON, set on completion) are the durable record. `answeredAt
+=== ''` is the "still pending" sentinel. Voice-answered turns store the raw
+  base64 WAV in `answerAudioBase64` (no text transcript exists for them — the
+  model never transcribes, it just responds) and replay it as conversation
+  memory on later turns and as grading input for the final report; typed
+  turns instead keep their literal text in `transcript`.
 - `batches.programDomain` / `batches.program` — keyword-matched to an
   `InterviewDomain` (`resolveInterviewDomain.ts`) from the student's most
   recently enrolled active batch.
@@ -30,26 +49,33 @@ Last updated: 2026-08-01
 
 ## Request/response shapes
 
-`POST /api/interviews/sessions` body: `{ "topicId": "dsa" }` (catalog id, or
-`curriculum:<slug>` for a coursework-derived topic — validated against the
-user's own resolved topics, never trusted from the client label).
-Response: `{ "sessionId": 42, "question": "..." }`.
+`POST /api/interviews/sessions` / `.../sessions/stream` body: `{ "topicId":
+"dsa" }` (catalog id, or `curriculum:<slug>` for a coursework-derived topic —
+validated against the user's own resolved topics, never trusted from the
+client label). The stream route emits `audio-delta` (`{ data: base64 pcm16
+}`) events as the greeting/question is spoken, then a terminal `done` event
+with `{ "result": { "sessionId": 42, "question": "..." } }` — `question` here
+is the full spoken text (greeting included), not just the question sentence.
+The blocking route returns `{ "sessionId": 42, "question": "..." }` directly
+(same shape, no audio).
 
-`POST .../turns` form fields: `audio` (wav file) **or** `typedAnswer` (string).
-Response while more questions remain:
-`{ "status": "in_progress", "transcript": "...", "nextQuestion": "..." }`.
-Response on the last question:
-`{ "status": "completed", "transcript": "...", "report": { overallScore, rubric, strengths, improvements, summary } }`.
+`POST .../turns` / `.../turns/stream` form fields: `audio` (wav file) **or**
+`typedAnswer` (string). The stream route emits `audio-delta` (`{ data: base64
+pcm16 }`) events as the spoken response is generated, then a terminal `done`
+event whose `result` is:
+while more questions remain: `{ "status": "in_progress", "nextQuestion": "..." }`;
+on the last question: `{ "status": "completed", "report": { overallScore, rubric, strengths, improvements, summary } }`.
+There is no `transcript` field in the result anymore — voice answers are
+never transcribed to text, only spoken to and answered by the model.
 
 ## Environment
 
-Everything routes through OpenRouter's OpenAI-compatible endpoint — one
-`OPENROUTER_API_KEY` covers all three model calls; no separate
-`ANTHROPIC_API_KEY` is needed for this feature.
+Everything routes through OpenRouter's OpenAI-compatible endpoint, all through
+one audio-capable model — one `OPENROUTER_API_KEY` covers it; no separate
+text model or `ANTHROPIC_API_KEY` is needed for this feature anymore.
 
 - `OPENROUTER_API_KEY` — required.
-- `INTERVIEW_AUDIO_MODEL` — optional; defaults to `google/gemini-3.5-flash` (turn submission: audio/typed → transcript + next question).
-- `INTERVIEW_TEXT_MODEL` — optional; defaults to `anthropic/claude-haiku-4.5` (opening question + final report scoring).
+- `INTERVIEW_AUDIO_MODEL` — optional; defaults to `openai/gpt-audio-mini`. Must support `input_audio` content parts and spoken `audio` output (`modalities: ['text','audio']`, `stream: true` — OpenAI only accepts `['text']` or `['text','audio']`, and audio output requires streaming). Used for the opening greeting/question, every turn (spoken response, streamed), and final report grading (plain-text output over the turns' raw audio — this model doesn't support `json_schema` structured output, so the report is parsed out of a delimited plain-text convention instead).
 - `INTERVIEW_MAX_ANSWER_SECONDS` — optional; defaults to `120` (also bounds the server-side audio size cap).
 
 ## Retrieval / case behavior
@@ -60,13 +86,13 @@ Everything routes through OpenRouter's OpenAI-compatible endpoint — one
 | IV-TOP-002  | No enrolled batch                     | `domain: "general"`, catalog-only (never empty)                                     |
 | IV-SES-001  | Unknown/foreign `topicId`             | `400 INTERVIEW_TOPIC_INVALID`                                                       |
 | IV-SES-002  | Daily session cap reached             | `429 INTERVIEW_DAILY_LIMIT`                                                         |
-| IV-SES-003  | Valid topic                           | Session row created; question 1 returned                                            |
+| IV-SES-003  | Valid topic                           | Session row created; spoken greeting + question 1 returned                          |
 | IV-GET-001  | Session owned by another user         | `403 INTERVIEW_SESSION_FORBIDDEN` (true 404/403 status travels via `x-true-status`) |
 | IV-GET-002  | Unknown session id                    | `404 INTERVIEW_SESSION_NOT_FOUND`                                                   |
 | IV-TURN-001 | Neither audio nor typedAnswer present | `400 INTERVIEW_ANSWER_EMPTY`                                                        |
 | IV-TURN-002 | Audio over the size cap               | `400 INTERVIEW_ANSWER_AUDIO_TOO_LARGE`                                              |
 | IV-TURN-003 | Session already completed             | `409 INTERVIEW_SESSION_NOT_IN_PROGRESS`                                             |
-| IV-TURN-004 | Model returns an empty transcript     | `422 INTERVIEW_TRANSCRIPT_EMPTY`; turn NOT persisted                                |
+| IV-TURN-004 | Model has nothing to say              | `422 INTERVIEW_RESPONSE_EMPTY`; turn NOT persisted                                  |
 | IV-TURN-005 | More questions remain                 | Turn appended; next question returned                                               |
 | IV-TURN-006 | Final question answered               | Report generated; session marked `completed`                                        |
 
@@ -84,6 +110,15 @@ mono downmix averaging, resample length, PCM clipping.
 announcements voice-note composer (`MessageDetailPage.tsx`) so there's one
 implementation instead of two; `MessageDetailPage.test.tsx` is the regression
 check that the voice-note flow still records and uploads after the extraction.
+
+## Client-side audio playback
+
+The interviewer's spoken response is real synthesized speech from the model
+(not browser TTS) — `src/lib/audio/interviewAudioPlayer.ts` decodes each
+base64 24kHz mono PCM16 `audio-delta` chunk and schedules it on a single
+`AudioContext` back-to-back with the previous chunk for gapless playback as
+the response streams in, rather than waiting for the full response first.
+No-ops (SSR/jsdom/unsupported browsers) when `AudioContext` isn't available.
 
 ## Seed data
 

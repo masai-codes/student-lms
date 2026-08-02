@@ -9,9 +9,13 @@ export type InterviewAnswerSource = 'voice' | 'typed'
 export type InterviewTurn = {
   index: number
   question: string
+  /** Verbatim typed answer text; '' for voice-answered or not-yet-answered turns. */
   transcript: string
+  /** Raw base64 WAV of a voice answer — replayed as conversation memory and fed into report scoring; null for typed or not-yet-answered turns. */
+  answerAudioBase64: string | null
   answerSource: InterviewAnswerSource
   askedAt: string
+  /** '' means this turn is still pending — the canonical "answered" sentinel. */
   answeredAt: string
 }
 

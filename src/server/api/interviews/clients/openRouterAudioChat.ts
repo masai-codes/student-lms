@@ -1,112 +1,42 @@
 import type { OpenRouterChatMessage } from '@/server/api/interviews/clients/openRouterClient'
-import {
-  requestOpenRouterChatCompletion,
-  requestOpenRouterChatCompletionStream,
-} from '@/server/api/interviews/clients/openRouterClient'
-import { createIncrementalJsonStringExtractor } from '@/server/api/interviews/clients/jsonStringFieldExtractor'
+import { requestOpenRouterAudioStream } from '@/server/api/interviews/clients/openRouterClient'
 
 export type InterviewAudioChatMessage = OpenRouterChatMessage
 
-export type InterviewAudioChatResult = {
-  transcript: string
-  nextQuestion: string | null
-}
+/** Fixed interviewer voice — not user-configurable, matches product intent of a single consistent interviewer persona. */
+const INTERVIEW_VOICE = 'alloy'
 
-export type InterviewAudioChatStreamEvent =
-  | { type: 'delta'; text: string }
-  | { type: 'result'; result: InterviewAudioChatResult }
-
-// `nextQuestion` is declared first — the only field callers show/speak live
-// — so a strict-JSON-schema model emits it before the (silent) `transcript`
-// field, minimizing how much of the stream we scan before deltas start.
-const RESPONSE_FORMAT = {
-  type: 'json_schema',
-  json_schema: {
-    name: 'interview_turn',
-    strict: true,
-    schema: {
-      type: 'object',
-      properties: {
-        nextQuestion: { type: ['string', 'null'] },
-        transcript: { type: 'string' },
-      },
-      required: ['nextQuestion', 'transcript'],
-      additionalProperties: false,
-    },
-  },
-} as const
-
-function parseInterviewTurnResult(
-  value: unknown,
-): InterviewAudioChatResult | null {
-  if (!value || typeof value !== 'object') return null
-  const obj = value as Record<string, unknown>
-  if (typeof obj.transcript !== 'string') return null
-  if (obj.nextQuestion !== null && typeof obj.nextQuestion !== 'string') {
-    return null
-  }
-  return { transcript: obj.transcript, nextQuestion: obj.nextQuestion ?? null }
-}
-
-export async function requestInterviewAudioChatTurn(input: {
-  messages: Array<InterviewAudioChatMessage>
-  model: string
-}): Promise<InterviewAudioChatResult> {
-  const content = await requestOpenRouterChatCompletion({
-    messages: input.messages,
-    model: input.model,
-    responseFormat: RESPONSE_FORMAT,
-  })
-
-  let parsedJson: unknown
-  try {
-    parsedJson = JSON.parse(content)
-  } catch {
-    throw new Error('INTERVIEW_OPENROUTER_INVALID_RESPONSE')
-  }
-
-  const result = parseInterviewTurnResult(parsedJson)
-  if (!result) {
-    throw new Error('INTERVIEW_OPENROUTER_INVALID_RESPONSE')
-  }
-  return result
-}
+export type InterviewTurnAudioEvent =
+  | { type: 'audio'; data: string }
+  | { type: 'final'; spokenText: string }
 
 /**
- * Streaming counterpart of `requestInterviewAudioChatTurn` — yields
- * `nextQuestion` text deltas as the model generates them (see
- * `jsonStringFieldExtractor`), then a final validated `result` once the full
- * JSON document has arrived. The final `result` is always the source of
- * truth (from a real `JSON.parse`); the deltas are only a live preview.
+ * Single audio-in/audio-out call: the model hears the candidate's answer (or
+ * reads their typed answer) and speaks its response directly — either the
+ * next question or a closing remark on the final turn. Streams the spoken
+ * audio as it's generated; the accompanying spoken-text deltas (required
+ * alongside audio by the API, but never shown to the candidate) are
+ * accumulated server-side into a final `spokenText`, which becomes the next
+ * turn's stored question text.
  */
-export async function* requestInterviewAudioChatTurnStream(input: {
+export async function* requestInterviewTurnAudioStream(input: {
   messages: Array<InterviewAudioChatMessage>
   model: string
-}): AsyncGenerator<InterviewAudioChatStreamEvent> {
-  const extractor = createIncrementalJsonStringExtractor('nextQuestion')
-  let raw = ''
+}): AsyncGenerator<InterviewTurnAudioEvent> {
+  let spokenText = ''
 
-  for await (const chunk of requestOpenRouterChatCompletionStream({
+  for await (const event of requestOpenRouterAudioStream({
     messages: input.messages,
     model: input.model,
-    responseFormat: RESPONSE_FORMAT,
+    voice: INTERVIEW_VOICE,
+    format: 'pcm16',
   })) {
-    raw += chunk
-    for (const event of extractor.push(chunk)) {
-      if (event.type === 'delta') yield { type: 'delta', text: event.text }
+    if (event.type === 'audio') {
+      yield { type: 'audio', data: event.data }
+    } else {
+      spokenText += event.text
     }
   }
 
-  let parsedJson: unknown
-  try {
-    parsedJson = JSON.parse(raw)
-  } catch {
-    throw new Error('INTERVIEW_OPENROUTER_INVALID_RESPONSE')
-  }
-
-  const result = parseInterviewTurnResult(parsedJson)
-  if (!result) {
-    throw new Error('INTERVIEW_OPENROUTER_INVALID_RESPONSE')
-  }
-  yield { type: 'result', result }
+  yield { type: 'final', spokenText: spokenText.trim() }
 }

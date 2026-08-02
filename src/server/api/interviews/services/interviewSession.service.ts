@@ -2,13 +2,16 @@ import { and, desc, eq, gte } from 'drizzle-orm'
 import { db } from '@/db'
 import { interviewSessions } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
-import { requestOpenRouterText } from '@/server/api/interviews/clients/openRouterTextChat'
+import { requestInterviewTurnAudioStream } from '@/server/api/interviews/clients/openRouterAudioChat'
 import {
   INTERVIEW_DAILY_SESSION_LIMIT,
   INTERVIEW_TOTAL_QUESTIONS,
-  getInterviewTextModel,
+  getInterviewAudioModel,
 } from '@/server/api/interviews/constants'
-import { buildFirstQuestionPrompt } from '@/server/api/interviews/services/buildInterviewPrompt'
+import {
+  buildOpeningTurnMessages,
+  buildOpeningTurnSystemPrompt,
+} from '@/server/api/interviews/services/buildInterviewPrompt'
 import { resolveInterviewTopicSelection } from '@/server/api/interviews/services/resolveInterviewTopicSelection'
 import type {
   InterviewSession,
@@ -61,25 +64,45 @@ export type CreateInterviewSessionResult = {
   question: string
 }
 
-export async function createInterviewSession(
+export type CreateInterviewSessionStreamEvent =
+  | { type: 'audio-delta'; data: string }
+  | { type: 'done'; result: CreateInterviewSessionResult }
+
+/**
+ * One audio-out model call generates AND speaks the greeting + opening
+ * question together (no prior answer exists yet, so this is a kickoff
+ * trigger rather than a real conversation turn) — streamed to the client the
+ * same way a normal turn's response is, then the session row is created only
+ * once the question text is known.
+ */
+export async function* createInterviewSessionStream(
   userId: number,
   topicId: string,
-): Promise<CreateInterviewSessionResult> {
+): AsyncGenerator<CreateInterviewSessionStreamEvent> {
   await assertUnderDailySessionLimit(userId)
 
   const selection = await resolveInterviewTopicSelection(userId, topicId)
 
-  const text = await requestOpenRouterText({
-    model: getInterviewTextModel(),
-    prompt: buildFirstQuestionPrompt({
-      topicLabel: selection.topicLabel,
-      domain: selection.domain,
-      rubricFocus: selection.rubricFocus,
-      totalQuestions: INTERVIEW_TOTAL_QUESTIONS,
-    }),
+  const systemPrompt = buildOpeningTurnSystemPrompt({
+    topicLabel: selection.topicLabel,
+    domain: selection.domain,
+    rubricFocus: selection.rubricFocus,
+    totalQuestions: INTERVIEW_TOTAL_QUESTIONS,
   })
 
-  const question = text.trim()
+  let spokenText = ''
+  for await (const event of requestInterviewTurnAudioStream({
+    messages: buildOpeningTurnMessages(systemPrompt),
+    model: getInterviewAudioModel(),
+  })) {
+    if (event.type === 'audio') {
+      yield { type: 'audio-delta', data: event.data }
+    } else {
+      spokenText = event.spokenText
+    }
+  }
+
+  const question = spokenText.trim()
   if (!question) {
     throw new ApiError(503, 'INTERVIEW_QUESTION_GENERATION_FAILED')
   }
@@ -89,6 +112,7 @@ export async function createInterviewSession(
     index: 0,
     question,
     transcript: '',
+    answerAudioBase64: null,
     answerSource: 'voice',
     askedAt: now,
     answeredAt: '',
@@ -108,7 +132,27 @@ export async function createInterviewSession(
     throw new ApiError(503, 'INTERVIEW_SESSION_CREATE_FAILED')
   }
 
-  return { sessionId, question }
+  yield { type: 'done', result: { sessionId, question } }
+}
+
+/**
+ * Blocking counterpart — kept for API completeness, but the UI always uses
+ * the streaming route since spoken audio output requires `stream: true`.
+ * Drains the streaming generator and discards the audio chunks, returning
+ * only the final result.
+ */
+export async function createInterviewSession(
+  userId: number,
+  topicId: string,
+): Promise<CreateInterviewSessionResult> {
+  let result: CreateInterviewSessionResult | null = null
+  for await (const event of createInterviewSessionStream(userId, topicId)) {
+    if (event.type === 'done') result = event.result
+  }
+  if (!result) {
+    throw new Error('INTERVIEW_OPENROUTER_INVALID_RESPONSE')
+  }
+  return result
 }
 
 export async function getInterviewSessionRowForUser(

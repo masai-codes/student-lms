@@ -10,35 +10,66 @@ export function buildInterviewSystemPrompt(input: {
 }): string {
   const isLastQuestion = input.questionNumber >= input.totalQuestions
   const continuation = isLastQuestion
-    ? 'This is the FINAL question of the interview. After transcribing the answer, set "nextQuestion" to null to end the interview — do not ask another question.'
-    : `After transcribing the answer, ask question ${input.questionNumber + 1} of ${input.totalQuestions} as "nextQuestion" — a natural follow-up that adapts to what the candidate actually said (go deeper on a vague or weak answer, move on if it was strong).`
+    ? 'This is the FINAL question of the interview. Do not ask another question — instead, briefly and warmly thank the candidate and let them know the interview is now complete.'
+    : `Ask question ${input.questionNumber + 1} of ${input.totalQuestions} next — a natural follow-up that adapts to what the candidate actually said (go deeper on a vague or weak answer, move on if it was strong).`
 
-  return `You are a professional interviewer conducting a mock interview on "${input.topicLabel}" for a candidate in the ${input.domain} track.
+  return `You are a professional interviewer conducting a live spoken mock interview on "${input.topicLabel}" for a candidate in the ${input.domain} track.
 
-Rules:
+This is a real-time voice conversation — everything you say will be spoken aloud to the candidate. Speak naturally, like a human interviewer:
+- No written formatting: no markdown, no headers, no bullet lists, no numbering.
+- Do not summarize, repeat, or transcribe the candidate's answer back to them.
+- A brief natural acknowledgement ("Got it", "Interesting") is fine, but keep it short — spend your words on what you say next, not on recapping what they said.
 - Ask exactly one question at a time. Never answer on the candidate's behalf.
-- Focus areas for this topic: ${input.rubricFocus.join(', ')}.
-- The candidate's answer arrives as spoken audio (or, if their microphone is unavailable, as typed text). Transcribe it VERBATIM — the candidate's exact words, no summarizing, no cleaning up filler words, in whatever language they spoke. This transcript is shown back to the candidate as a fairness check, so accuracy matters more than polish. For typed answers, "transcript" is simply the typed text unchanged.
-- This is question ${input.questionNumber} of ${input.totalQuestions} total questions for this session.
-- ${continuation}
-- Respond ONLY with a JSON object matching the required schema: { "transcript": string, "nextQuestion": string | null }.`
+
+Focus areas for this topic: ${input.rubricFocus.join(', ')}.
+This is question ${input.questionNumber} of ${input.totalQuestions} total questions for this session.
+${continuation}`
 }
 
-/** Text-only prompt used once, at session creation, to generate the opening question. */
-export function buildFirstQuestionPrompt(input: {
+/** Spoken system prompt used once, at session creation, for the greeting + opening question. */
+export function buildOpeningTurnSystemPrompt(input: {
   topicLabel: string
   domain: string
   rubricFocus: Array<string>
   totalQuestions: number
 }): string {
-  return `You are a professional interviewer conducting a mock interview on "${input.topicLabel}" for a candidate in the ${input.domain} track. This session will have ${input.totalQuestions} questions total, focused on: ${input.rubricFocus.join(', ')}.
+  return `You are a professional interviewer about to start a live spoken mock interview on "${input.topicLabel}" for a candidate in the ${input.domain} track. This session will have ${input.totalQuestions} questions total, focused on: ${input.rubricFocus.join(', ')}.
 
-Write ONLY the opening interview question — a single, clear, welcoming question that starts the interview on this topic. No preamble, no numbering, just the question text itself.`
+This is a real-time voice conversation — everything you say will be spoken aloud to the candidate. Speak naturally, like a human interviewer:
+- No written formatting: no markdown, no headers, no bullet lists, no numbering.
+- Start with a brief, warm, natural greeting — one short sentence — and mention the topic you'll be interviewing them on.
+- Then ask your first question, question 1 of ${input.totalQuestions}.
+- Keep the whole thing concise: greeting plus one question, nothing else.`
+}
+
+/** No prior answer exists yet at session creation — this is just a minimal kickoff trigger, never shown to the candidate. */
+export function buildOpeningTurnMessages(
+  systemPrompt: string,
+): Array<InterviewAudioChatMessage> {
+  return [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: 'Begin the interview.' },
+  ]
 }
 
 export type InterviewAnswerInput =
   | { kind: 'audio'; base64: string; format: 'wav' }
   | { kind: 'typed'; text: string }
+
+/** Replays a turn's answer as conversation memory — raw audio for voice answers, plain text for typed ones. */
+function answeredTurnContent(
+  turn: InterviewTurn,
+): InterviewAudioChatMessage['content'] {
+  if (turn.answerAudioBase64) {
+    return [
+      {
+        type: 'input_audio',
+        input_audio: { data: turn.answerAudioBase64, format: 'wav' },
+      },
+    ]
+  }
+  return [{ type: 'text', text: turn.transcript }]
+}
 
 export function buildInterviewMessages(input: {
   systemPrompt: string
@@ -52,34 +83,26 @@ export function buildInterviewMessages(input: {
 
   for (const turn of input.priorTurns) {
     messages.push({ role: 'assistant', content: turn.question })
-    messages.push({ role: 'user', content: turn.transcript })
+    messages.push({ role: 'user', content: answeredTurnContent(turn) })
   }
 
   messages.push({ role: 'assistant', content: input.currentQuestion })
 
-  if (input.answer.kind === 'typed') {
-    messages.push({
-      role: 'user',
-      content: [{ type: 'text', text: input.answer.text }],
-    })
-  } else {
-    messages.push({
-      role: 'user',
-      content: [
-        {
-          type: 'text',
-          text: 'The candidate answered by voice. Transcribe verbatim, then continue the interview.',
-        },
-        {
-          type: 'input_audio',
-          input_audio: {
-            data: input.answer.base64,
-            format: input.answer.format,
-          },
-        },
-      ],
-    })
-  }
+  messages.push({
+    role: 'user',
+    content:
+      input.answer.kind === 'typed'
+        ? [{ type: 'text', text: input.answer.text }]
+        : [
+            {
+              type: 'input_audio',
+              input_audio: {
+                data: input.answer.base64,
+                format: input.answer.format,
+              },
+            },
+          ],
+  })
 
   return messages
 }

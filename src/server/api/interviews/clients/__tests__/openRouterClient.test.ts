@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { requestOpenRouterChatCompletionStream } from '../openRouterClient'
+import {
+  requestOpenRouterAudioStream,
+  requestOpenRouterChatCompletionStream,
+} from '../openRouterClient'
 
 function sseBodyFromFrames(frames: Array<string>): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder()
@@ -57,34 +60,19 @@ describe('requestOpenRouterChatCompletionStream', () => {
     expect(chunks).toEqual(['{"nextQuestion": "Hi', ' there"}'])
   })
 
-  it('sends stream:true and the response_format when provided', async () => {
+  it('sends stream:true', async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       body: sseBodyFromFrames([chunkFrame('x')]),
     } as Response)
 
-    const format = {
-      type: 'json_schema' as const,
-      json_schema: {
-        name: 'x',
-        strict: true as const,
-        schema: { type: 'object' },
-      },
-    }
-    await collect(
-      requestOpenRouterChatCompletionStream({
-        ...baseInput,
-        responseFormat: format,
-      }),
-    )
+    await collect(requestOpenRouterChatCompletionStream(baseInput))
 
     const call = vi.mocked(fetch).mock.calls[0]
     const body = JSON.parse(String((call[1] as RequestInit).body)) as {
       stream?: boolean
-      response_format?: unknown
     }
     expect(body.stream).toBe(true)
-    expect(body.response_format).toEqual(format)
   })
 
   it('throws INTERVIEW_OPENROUTER_NOT_CONFIGURED without an API key', async () => {
@@ -131,5 +119,89 @@ describe('requestOpenRouterChatCompletionStream', () => {
     await expect(
       collect(requestOpenRouterChatCompletionStream(baseInput)),
     ).rejects.toThrow('INTERVIEW_OPENROUTER_TIMEOUT')
+  })
+})
+
+describe('requestOpenRouterAudioStream', () => {
+  const originalKey = process.env.OPENROUTER_API_KEY
+  const baseInput = {
+    messages: [{ role: 'system' as const, content: 's' }],
+    model: 'test/model',
+    voice: 'alloy',
+    format: 'pcm16' as const,
+  }
+
+  beforeEach(() => {
+    process.env.OPENROUTER_API_KEY = 'test-key'
+    vi.stubGlobal('fetch', vi.fn())
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    if (originalKey === undefined) delete process.env.OPENROUTER_API_KEY
+    else process.env.OPENROUTER_API_KEY = originalKey
+  })
+
+  function audioFrame(data: string) {
+    return JSON.stringify({ choices: [{ delta: { audio: { data } } }] })
+  }
+  function transcriptFrame(transcript: string) {
+    return JSON.stringify({ choices: [{ delta: { audio: { transcript } } }] })
+  }
+
+  async function collectEvents(
+    gen: AsyncGenerator<{ type: string; data?: string; text?: string }>,
+  ) {
+    const events: Array<{ type: string; data?: string; text?: string }> = []
+    for await (const event of gen) events.push(event)
+    return events
+  }
+
+  it('yields audio and transcript deltas in order', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      body: sseBodyFromFrames([
+        transcriptFrame('Hi'),
+        audioFrame('QUJD'),
+        audioFrame('REVG'),
+        '[DONE]',
+      ]),
+    } as Response)
+
+    const events = await collectEvents(requestOpenRouterAudioStream(baseInput))
+    expect(events).toEqual([
+      { type: 'transcript', text: 'Hi' },
+      { type: 'audio', data: 'QUJD' },
+      { type: 'audio', data: 'REVG' },
+    ])
+  })
+
+  it('sends modalities, audio config, and stream:true', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      body: sseBodyFromFrames([audioFrame('QUJD')]),
+    } as Response)
+
+    await collectEvents(requestOpenRouterAudioStream(baseInput))
+
+    const call = vi.mocked(fetch).mock.calls[0]
+    const body = JSON.parse(String((call[1] as RequestInit).body)) as {
+      stream?: boolean
+      modalities?: Array<string>
+      audio?: { voice: string; format: string }
+    }
+    expect(body.stream).toBe(true)
+    expect(body.modalities).toEqual(['text', 'audio'])
+    expect(body.audio).toEqual({ voice: 'alloy', format: 'pcm16' })
+  })
+
+  it('throws INTERVIEW_OPENROUTER_EMPTY_RESPONSE when no audio/transcript deltas arrive', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      body: sseBodyFromFrames(['[DONE]']),
+    } as Response)
+    await expect(
+      collectEvents(requestOpenRouterAudioStream(baseInput)),
+    ).rejects.toThrow('INTERVIEW_OPENROUTER_EMPTY_RESPONSE')
   })
 })
