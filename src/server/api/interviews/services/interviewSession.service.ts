@@ -15,6 +15,8 @@ import {
 import { resolveInterviewTopicSelection } from '@/server/api/interviews/services/resolveInterviewTopicSelection'
 import type {
   InterviewSession,
+  InterviewSessionStatus,
+  InterviewSessionSummary,
   InterviewTurn,
 } from '@/server/api/interviews/types/interviewSession'
 
@@ -180,4 +182,25 @@ export async function getInterviewSession(
 ): Promise<InterviewSession> {
   const row = await getInterviewSessionRowForUser(userId, sessionId)
   return mapRowToSession(row)
+}
+
+export async function listInterviewSessions(
+  userId: number,
+): Promise<Array<InterviewSessionSummary>> {
+  const rows = await db
+    .select({
+      id: interviewSessions.id,
+      topicLabel: interviewSessions.topicLabel,
+      status: interviewSessions.status,
+      createdAt: interviewSessions.createdAt,
+      completedAt: interviewSessions.completedAt,
+    })
+    .from(interviewSessions)
+    .where(eq(interviewSessions.userId, userId))
+    .orderBy(desc(interviewSessions.id))
+
+  return rows.map((row) => ({
+    ...row,
+    status: row.status as InterviewSessionStatus,
+  }))
 }

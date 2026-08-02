@@ -6,6 +6,12 @@ Last updated: 2026-08-02
 
 - `GET /api/interviews/topics` — personalized topic list: catalog topics for the
   student's resolved program domain + topics derived from their coursework.
+- `GET /api/interviews/sessions` — lightweight summaries (`id`, `topicLabel`,
+  `status`, `createdAt`, `completedAt`) of every session the current user has
+  started, newest first. Rendered on `/interviews` as "Your sessions" above the
+  topic picker — completed sessions show a check icon, `in_progress`/`abandoned`
+  a dashed-circle icon, and each row's relative start time comes from
+  `dayjs(...).fromNow()`. Clicking a row navigates to `/interviews/:sessionId`.
 - `POST /api/interviews/sessions/stream` (SSE, what the UI uses) /
   `POST /api/interviews/sessions` (blocking, kept for API completeness) —
   starts a session for a topic. One audio-out call to the audio-capable model
@@ -89,6 +95,8 @@ text model or `ANTHROPIC_API_KEY` is needed for this feature anymore.
 | IV-SES-003  | Valid topic                           | Session row created; spoken greeting + question 1 returned                          |
 | IV-GET-001  | Session owned by another user         | `403 INTERVIEW_SESSION_FORBIDDEN` (true 404/403 status travels via `x-true-status`) |
 | IV-GET-002  | Unknown session id                    | `404 INTERVIEW_SESSION_NOT_FOUND`                                                   |
+| IV-LIST-001 | Authenticated request                 | Session summaries for the caller only, newest first                                 |
+| IV-LIST-002 | No sessions started yet               | Empty array; "Your sessions" section hidden                                         |
 | IV-TURN-001 | Neither audio nor typedAnswer present | `400 INTERVIEW_ANSWER_EMPTY`                                                        |
 | IV-TURN-002 | Audio over the size cap               | `400 INTERVIEW_ANSWER_AUDIO_TOO_LARGE`                                              |
 | IV-TURN-003 | Session already completed             | `409 INTERVIEW_SESSION_NOT_IN_PROGRESS`                                             |
@@ -139,3 +147,8 @@ npm run seed multi-program-student
 ```bash
 npm run test -- src/server/api/interviews src/lib/audio src/hooks/__tests__/useInterviewRecorder.test.tsx
 ```
+
+## Data-testid selectors
+
+- `interview-session-list` — container for the "Your sessions" rows on `/interviews`.
+- `interview-session-item` (`data-session-id`, `data-status`) — one row per past/in-progress session.

@@ -40,17 +40,6 @@ export function LearnHeaderSection({
             <span>Discussions</span>
           </a>
         </div>
-
-        <SlotPortal slotId={LEARN_TIER2_PROGRAM_SLOT_ID}>
-          <div className="flex items-center gap-3">
-            <LearnBatchSwitcher
-              selectedBatch={selectedBatch}
-              batches={batches}
-              onBatchChange={onBatchChange}
-              compact
-            />
-          </div>
-        </SlotPortal>
       </div>
     </section>
   )

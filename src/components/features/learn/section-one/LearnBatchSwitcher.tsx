@@ -19,6 +19,11 @@ import { pushLearnEvent } from '../shared/learnAnalytics'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 import { Tooltip, TooltipContent } from '@/components/ui/tooltip'
 import { TooltipTrigger } from '@radix-ui/react-tooltip'
+import { getLastSelectedBatchIdForUser } from '@/lib/learnBatchSelection'
+import { getRouteApi, useNavigate } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { fetchLearnPageDataFromApi } from '@/lib/api/learn/learnApi'
+import { LearnTab } from '../shared/types'
 
 export interface LearnBatchOption {
   value: string
@@ -30,12 +35,11 @@ export interface LearnBatchOption {
 }
 
 interface LearnBatchSwitcherProps {
-  selectedBatch: string
-  batches: Array<LearnBatchOption>
-  onBatchChange: (batch: string) => void
   /** `true` renders the compact navbar Tier 2 pill instead of the page-header title style. */
   compact?: boolean
 }
+
+const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
 /**
  * Program/course picker. Rendered twice — once inline as a page-header title
@@ -44,17 +48,52 @@ interface LearnBatchSwitcherProps {
  * program — the picker doubles as the current-program indicator.
  */
 export function LearnBatchSwitcher({
-  selectedBatch,
-  batches,
-  onBatchChange,
   compact = false,
 }: LearnBatchSwitcherProps) {
-  const [isBatchMenuOpen, setIsBatchMenuOpen] = useState(false)
+  const { user } = layoutRouteApi.useRouteContext()
+  const navigate = useNavigate()
 
+  const [isBatchMenuOpen, setIsBatchMenuOpen] = useState(false)
+  const lastSelectedBatchId = getLastSelectedBatchIdForUser(user.id)
+  const lastSelectedBatchIdNumber = lastSelectedBatchId
+    ? Number(lastSelectedBatchId)
+    : undefined
+  const { data } = useQuery({
+    queryKey: ['learn-tier2-fallback-batches', lastSelectedBatchIdNumber],
+    queryFn: () =>
+      fetchLearnPageDataFromApi({
+        batchId: lastSelectedBatchIdNumber,
+        learningType: 'lecture',
+        page: 1,
+      }),
+    staleTime: 5 * 60 * 1000,
+  })
+  const batches = data?.batches.map((batch) => ({
+    value: batch.batchId.toString(),
+    label: batch.courseTitle,
+    courseLogo: batch.courseLogo,
+    showBatchDetails: batch.showBatchDetails,
+    showSectionDropdown: batch.showSectionDropdown,
+  }))
+
+  const selectedBatch = (data?.selectedBatchId ?? '').toString()
   const selectedBatchOption = useMemo(
-    () => batches.find((batch) => batch.value === selectedBatch),
+    () => batches?.find((batch) => batch.value === selectedBatch),
     [batches, selectedBatch],
   )
+  if (!data) return null
+
+  const onBatchChange = (batchId: string) => {
+    // if (isDiscussions) {
+    //   void navigate({
+    //     to: '/learn/discussions',
+    //     search: { batchId: Number(batchId) },
+    //   })
+    //   return
+    // }
+    void navigate({ to: '/learn', search: { batchId: Number(batchId) } })
+  }
+
   const selectedBatchLabel = selectedBatchOption?.label ?? 'Select batch'
   const programUrl =
     selectedBatchOption?.showBatchDetails &&

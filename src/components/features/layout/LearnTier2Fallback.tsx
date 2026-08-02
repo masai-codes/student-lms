@@ -22,61 +22,35 @@ const layoutRouteApi = getRouteApi('/(protected)/_layout')
  * functional standalone version instead of leaving them empty.
  */
 export function LearnTier2Fallback() {
-  const { user } = layoutRouteApi.useRouteContext()
   const navigate = useNavigate()
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const isDiscussions = pathname.startsWith('/learn/discussions')
-  const activeTab: LearnTab | undefined = isDiscussions
-    ? undefined
-    : pathname.startsWith('/learn/assignments')
-      ? 'assignments'
-      : pathname.startsWith('/learn/resources')
-        ? 'resources'
-        : 'lectures'
-
+  const { user } = layoutRouteApi.useRouteContext()
   const lastSelectedBatchId = getLastSelectedBatchIdForUser(user.id)
   const lastSelectedBatchIdNumber = lastSelectedBatchId
     ? Number(lastSelectedBatchId)
     : undefined
-
-  const { data } = useQuery({
-    queryKey: ['learn-tier2-fallback-batches', lastSelectedBatchIdNumber],
-    queryFn: () =>
-      fetchLearnPageDataFromApi({
-        batchId: lastSelectedBatchIdNumber,
-        learningType: 'lecture',
-        page: 1,
-      }),
-    staleTime: 5 * 60 * 1000,
-  })
-
-  if (!data) return null
-
-  const batches = data.batches.map((batch) => ({
-    value: batch.batchId.toString(),
-    label: batch.courseTitle,
-    courseLogo: batch.courseLogo,
-    showBatchDetails: batch.showBatchDetails,
-    showSectionDropdown: batch.showSectionDropdown,
-  }))
-  const selectedBatch = (data.selectedBatchId ?? '').toString()
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const learnItems: LearnTab[] = ['assignments', 'resources', 'lectures']
+  const tabQuery = useRouterState({ select: (s) => s.location.search.tab })
+  const selectedTab: LearnTab | undefined =
+    tabQuery && learnItems.map((i) => i as string).includes(tabQuery)
+      ? (tabQuery as LearnTab)
+      : undefined
+  const isDiscussions = pathname.startsWith('/learn/discussions')
+  const activeTab: LearnTab | undefined = isDiscussions
+    ? undefined
+    : selectedTab
+      ? selectedTab
+      : pathname.startsWith('/learn/assignments')
+        ? 'assignments'
+        : pathname.startsWith('/learn/resources')
+          ? 'resources'
+          : 'lectures'
 
   const handleTabChange = (tab: LearnTab) => {
     void navigate({
       to: '/learn',
-      search: { tab, batchId: data.selectedBatchId ?? undefined },
+      search: { tab, batchId: lastSelectedBatchIdNumber ?? undefined },
     })
-  }
-
-  const handleBatchChange = (batchId: string) => {
-    if (isDiscussions) {
-      void navigate({
-        to: '/learn/discussions',
-        search: { batchId: Number(batchId) },
-      })
-      return
-    }
-    void navigate({ to: '/learn', search: { batchId: Number(batchId) } })
   }
 
   return (
@@ -87,22 +61,6 @@ export function LearnTier2Fallback() {
           onTabChange={handleTabChange}
           variant="tier2"
         />
-        {batches.length ? (
-          <>
-            <span
-              aria-hidden="true"
-              className="h-5 w-px shrink-0 self-center bg-border"
-            />
-            <div className="flex items-center">
-              <LearnBatchSwitcher
-                selectedBatch={selectedBatch}
-                batches={batches}
-                onBatchChange={handleBatchChange}
-                compact
-              />
-            </div>
-          </>
-        ) : null}
       </div>
     </>
   )

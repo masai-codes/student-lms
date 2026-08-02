@@ -49,6 +49,14 @@ export type InterviewSession = {
   completedAt: string | null
 }
 
+export type InterviewSessionSummary = {
+  id: number
+  topicLabel: string
+  status: InterviewSessionStatus
+  createdAt: string | null
+  completedAt: string | null
+}
+
 export type InterviewTopic = {
   id: string
   label: string

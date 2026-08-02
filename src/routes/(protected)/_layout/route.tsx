@@ -62,8 +62,11 @@ function mapToLegacyPath(pathname: string): string {
 }
 
 /** Lecture, assignment, and resource detail pages use in-header Raise Ticket instead. */
-function isLearnDetailRoute(pathname: string): boolean {
-  return /^\/learn\/(lectures|assignments|resources)\/[^/]+/.test(pathname)
+function shouldHideSupportIcon(pathname: string): boolean {
+  return (
+    /^\/learn\/(lectures|assignments|resources)\/[^/]+/.test(pathname) ||
+    /^\/(interviews\/|chat)/.test(pathname)
+  )
 }
 
 export const Route = createFileRoute('/(protected)/_layout')({
@@ -207,7 +210,7 @@ function RouteComponent() {
   const showFloatingChat =
     ENABLE_SUPPORT_FLOATER && !isMasaiverseRoute && !isSupportRoute
   const showFloatingChatSphere =
-    showFloatingChat && !isLearnDetailRoute(renderedPathname)
+    showFloatingChat && !shouldHideSupportIcon(renderedPathname)
 
   // `data-app-shell`: hook target for the lecture page viewport lock (styles.css).
   const layout = (

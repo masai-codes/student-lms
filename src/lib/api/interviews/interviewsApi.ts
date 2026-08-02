@@ -2,6 +2,7 @@ import type { CreateInterviewSessionResult } from '@/server/api/interviews/servi
 import type { SubmitInterviewTurnResult } from '@/server/api/interviews/services/submitInterviewTurn.service'
 import type {
   InterviewSession,
+  InterviewSessionSummary,
   InterviewTopicsForUser,
 } from '@/server/api/interviews/types/interviewSession'
 import { fetchJson } from '@/lib/api/fetchJson'
@@ -9,6 +10,12 @@ import { INTERVIEWS_API } from '@/lib/api/interviews/interviewsPaths'
 
 export async function fetchInterviewTopics(): Promise<InterviewTopicsForUser> {
   return fetchJson<InterviewTopicsForUser>(INTERVIEWS_API.topics)
+}
+
+export async function fetchInterviewSessions(): Promise<
+  Array<InterviewSessionSummary>
+> {
+  return fetchJson<Array<InterviewSessionSummary>>(INTERVIEWS_API.sessions)
 }
 
 export async function createInterviewSession(

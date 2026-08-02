@@ -1,13 +1,23 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { Check } from 'lucide-react'
-import type { InterviewTopic } from '@/server/api/interviews/types/interviewSession'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { Check, CircleDashed, LoaderCircleIcon } from 'lucide-react'
+import type {
+  InterviewSessionSummary,
+  InterviewTopic,
+} from '@/server/api/interviews/types/interviewSession'
 import { streamCreateInterviewSession } from '@/lib/api/interviews/streamCreateInterviewSession'
 import { createInterviewAudioPlayer } from '@/lib/audio/interviewAudioPlayer'
 import { interviewTopicsQuery } from '@/query/interviews/interviewTopicsQuery'
+import { interviewSessionsQuery } from '@/query/interviews/interviewSessionsQuery'
 import { toast } from '@/lib/toast'
 import { getTopicIcon } from './topicIcons'
+import { SpinnerIcon } from '@phosphor-icons/react'
+import { cn } from '@/lib/utils'
+
+dayjs.extend(relativeTime)
 
 function TopicButton({
   topic,
@@ -43,7 +53,10 @@ function TopicButton({
         }`}
         aria-hidden
       >
-        <Icon className="size-4" />
+        <Icon className={cn('size-4', isSelected && 'opacity-25')} />
+        <LoaderCircleIcon
+          className={cn('animate-spin absolute', !isSelected && 'hidden')}
+        />
       </span>
       <span className="flex-1 min-w-0">
         <span className="type-b1-md block font-medium text-foreground">
@@ -87,6 +100,113 @@ function TopicGroup({
             isDisabled={creatingTopicId !== null}
             onSelect={() => onSelect(topic)}
           />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SessionStatusIcon({
+  status,
+}: {
+  status: InterviewSessionSummary['status']
+}) {
+  if (status === 'completed') {
+    return (
+      <span
+        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-success-subtle text-success-subtle-foreground"
+        aria-hidden
+      >
+        <Check className="size-4" />
+      </span>
+    )
+  }
+
+  if (status === 'in_progress') {
+    return (
+      <span
+        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-warning-subtle text-warning-subtle-foreground"
+        aria-hidden
+      >
+        <CircleDashed className="size-4 group-hover:animate-spin [animation-duration:2s]" />
+      </span>
+    )
+  }
+
+  return (
+    <span
+      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-muted text-foreground-muted"
+      aria-hidden
+    >
+      <CircleDashed className="size-4" />
+    </span>
+  )
+}
+
+function sessionStatusLabel(status: InterviewSessionSummary['status']) {
+  if (status === 'completed') return 'Completed'
+  if (status === 'in_progress') return 'In progress'
+  return 'Abandoned'
+}
+
+function SessionRow({ session }: { session: InterviewSessionSummary }) {
+  const navigate = useNavigate()
+  const startedAt = session.createdAt ? dayjs(session.createdAt) : null
+
+  return (
+    <button
+      type="button"
+      data-testid="interview-session-item"
+      data-session-id={session.id}
+      data-status={session.status}
+      onClick={() =>
+        void navigate({
+          to: '/interviews/$sessionId',
+          params: { sessionId: String(session.id) },
+        })
+      }
+      className="group flex w-full items-center gap-3 rounded-xl border border-border bg-surface p-4 text-left transition-colors hover:bg-surface-muted"
+    >
+      <SessionStatusIcon status={session.status} />
+      <span className="flex-1 min-w-0">
+        <span className="type-b1-md block truncate font-medium text-foreground">
+          {session.topicLabel}
+        </span>
+        <span className="text-xs text-foreground-muted">
+          {sessionStatusLabel(session.status)}
+          {startedAt ? ` · ${startedAt.fromNow()}` : null}
+        </span>
+      </span>
+    </button>
+  )
+}
+
+function SessionsSection() {
+  const { data, isPending, isError } = useQuery(interviewSessionsQuery())
+
+  if (isPending) {
+    return (
+      <div className="mb-6 flex flex-col gap-2">
+        {[0, 1].map((i) => (
+          <div
+            key={i}
+            className="h-[68px] animate-pulse rounded-xl bg-surface-muted"
+          />
+        ))}
+      </div>
+    )
+  }
+
+  if (isError || !data || data.length === 0) return null
+
+  return (
+    <div className="mb-6">
+      <h2 className="type-b2-md mb-2 font-semibold text-foreground-muted">
+        Your sessions
+      </h2>
+      <div data-testid="interview-session-list" className="flex flex-col gap-2">
+        {data.map((session) => (
+          <SessionRow key={session.id} session={session} />
         ))}
       </div>
     </div>
@@ -165,19 +285,26 @@ export function InterviewsPage() {
       ) : null}
 
       {data ? (
-        <div className="grid md:grid-cols-2 gap-2 md:gap-6">
-          <TopicGroup
-            title="From your coursework"
-            topics={data.curriculumTopics}
-            creatingTopicId={creatingTopicId}
-            onSelect={(topic) => void handleSelect(topic)}
-          />
-          <TopicGroup
-            title="Recommended for your program"
-            topics={data.catalogTopics}
-            creatingTopicId={creatingTopicId}
-            onSelect={(topic) => void handleSelect(topic)}
-          />
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
+          <div className="order-1">
+            <TopicGroup
+              title="From your coursework"
+              topics={data.curriculumTopics}
+              creatingTopicId={creatingTopicId}
+              onSelect={(topic) => void handleSelect(topic)}
+            />
+          </div>
+          <div className="order-3">
+            <TopicGroup
+              title="Recommended for your program"
+              topics={data.catalogTopics}
+              creatingTopicId={creatingTopicId}
+              onSelect={(topic) => void handleSelect(topic)}
+            />
+          </div>
+          <div className="order-4">
+            <SessionsSection />
+          </div>
         </div>
       ) : null}
     </div>

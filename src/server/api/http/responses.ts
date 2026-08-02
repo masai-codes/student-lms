@@ -212,6 +212,7 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_CREATING_INTERVIEW_SESSION':
       case 'SERVER_ERROR_FETCHING_INTERVIEW_SESSION':
       case 'SERVER_ERROR_SUBMITTING_INTERVIEW_TURN':
+      case 'SERVER_ERROR_LISTING_INTERVIEW_SESSIONS':
         return jsonError(500, error.message)
       case 'CHATBOT_INVALID_LECTURE_ID':
       case 'CHATBOT_INVALID_SESSION_PAYLOAD':

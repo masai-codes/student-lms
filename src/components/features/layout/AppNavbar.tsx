@@ -24,6 +24,7 @@ import type { NavItem } from '@/lib/navigation/navItemConfig'
 import { resolveNavItemPriority } from '@/lib/navigation/resolveNavItemPriority'
 import { useAppNavItems } from '@/lib/navigation/useAppNavItems'
 import { MessagesSquare } from 'lucide-react'
+import { LearnBatchSwitcher } from '../learn/section-one/LearnBatchSwitcher'
 
 function profileInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -176,52 +177,35 @@ export default function AppNavbar() {
   const showTryNew = useTryNewCtaVisible()
 
   const { primary, secondary } = resolveNavItemPriority(rightItems)
+  const isLearn = pathname.includes('/learn')
 
-  // Same set of routes the old `activeAppNavIdForPathname` mapped to "learn":
-  // the listing page itself plus every detail page and the Discussions feed.
-  const isLearnActive =
-    pathname.startsWith('/learn') ||
-    pathname.startsWith('/assignments') ||
-    pathname.startsWith('/resources')
-  const isLearnListingPage = pathname === '/learn'
-
-  const tier2 = isLearnActive ? (
+  const tier2 = isLearn ? (
     <>
       <div className="flex min-w-0 items-stretch gap-3">
-        {isLearnListingPage ? (
-          <>
-            <div
-              id={LEARN_TIER2_TABS_SLOT_ID}
-              className="flex items-stretch gap-4"
-            />
-            <span
-              aria-hidden="true"
-              className="h-5 w-px shrink-0 self-center bg-border"
-            />
-            <div
-              id={LEARN_TIER2_PROGRAM_SLOT_ID}
-              className="flex items-center"
-            />
-          </>
-        ) : (
-          <LearnTier2Fallback />
-        )}
+        <LearnTier2Fallback />
+        <span
+          aria-hidden="true"
+          className="h-5 w-px shrink-0 self-center bg-border"
+        />
+        <NavbarTrailingActions
+          items={[
+            {
+              id: 'discussions',
+              type: 'iconText',
+              icon: <MessagesSquare />,
+              label: 'Discussions',
+              href: '/learn/discussions',
+              openInNewTab: false,
+              isActive: pathname.startsWith('/learn/discussions'),
+            },
+          ]}
+        />
       </div>
-      <NavbarTrailingActions
-        items={[
-          {
-            id: 'discussions',
-            type: 'iconText',
-            icon: <MessagesSquare />,
-            label: 'Discussions',
-            href: '/learn/discussions',
-            openInNewTab: false,
-            isActive: pathname.startsWith('/learn/discussions'),
-          },
-        ]}
-      />
+      <div className="flex items-center">
+        <LearnBatchSwitcher compact />
+      </div>
     </>
-  ) : undefined
+  ) : null
 
   const profile: NavbarProfile = {
     ...(user.profileImageUrl ? { avatarSrc: user.profileImageUrl } : {}),

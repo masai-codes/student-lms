@@ -149,3 +149,54 @@ describe('getInterviewSession', () => {
     })
   })
 })
+
+describe('listInterviewSessions', () => {
+  it('returns the user session summaries newest first', async () => {
+    hoisted.selectResults = [
+      [
+        {
+          id: 8,
+          topicLabel: 'System Design',
+          status: 'in_progress',
+          createdAt: '2026-08-02 10:00:00',
+          completedAt: null,
+        },
+        {
+          id: 7,
+          topicLabel: 'DSA',
+          status: 'completed',
+          createdAt: '2026-08-01 09:00:00',
+          completedAt: '2026-08-01 09:20:00',
+        },
+      ],
+    ]
+
+    const { listInterviewSessions } =
+      await import('../interviewSession.service')
+    const result = await listInterviewSessions(1)
+
+    expect(result).toEqual([
+      {
+        id: 8,
+        topicLabel: 'System Design',
+        status: 'in_progress',
+        createdAt: '2026-08-02 10:00:00',
+        completedAt: null,
+      },
+      {
+        id: 7,
+        topicLabel: 'DSA',
+        status: 'completed',
+        createdAt: '2026-08-01 09:00:00',
+        completedAt: '2026-08-01 09:20:00',
+      },
+    ])
+  })
+
+  it('returns an empty array when the user has no sessions', async () => {
+    hoisted.selectResults = [[]]
+    const { listInterviewSessions } =
+      await import('../interviewSession.service')
+    await expect(listInterviewSessions(1)).resolves.toEqual([])
+  })
+})
