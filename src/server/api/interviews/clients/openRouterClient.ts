@@ -96,3 +96,108 @@ export async function requestOpenRouterChatCompletion(input: {
     clearTimeout(timeout)
   }
 }
+
+function extractStreamedContent(payload: string): string | null {
+  if (payload === '[DONE]') return null
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(payload)
+  } catch {
+    return null
+  }
+  const content = (
+    parsed as { choices?: Array<{ delta?: { content?: string } }> }
+  )?.choices?.[0]?.delta?.content
+  return typeof content === 'string' && content.length > 0 ? content : null
+}
+
+/**
+ * Posts to OpenRouter with `stream: true` and yields assistant message
+ * content deltas as they arrive — lets callers (e.g. the interview turn
+ * flow) show/speak partial output well before the full completion lands,
+ * instead of waiting on one blocking round trip.
+ */
+export async function* requestOpenRouterChatCompletionStream(input: {
+  messages: Array<OpenRouterChatMessage>
+  model: string
+  responseFormat?: OpenRouterJsonSchemaFormat
+}): AsyncGenerator<string> {
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim()
+  if (!apiKey) {
+    throw new Error('INTERVIEW_OPENROUTER_NOT_CONFIGURED')
+  }
+
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS)
+
+  try {
+    const response = await fetch(OPENROUTER_CHAT_COMPLETIONS_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+        Accept: 'text/event-stream',
+      },
+      body: JSON.stringify({
+        model: input.model,
+        messages: input.messages,
+        stream: true,
+        ...(input.responseFormat
+          ? { response_format: input.responseFormat }
+          : {}),
+      }),
+      signal: controller.signal,
+    })
+
+    if (!response.ok || !response.body) {
+      throw new Error('INTERVIEW_OPENROUTER_REQUEST_FAILED')
+    }
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    let sawContent = false
+
+    let readResult = await reader.read()
+    while (!readResult.done) {
+      buffer += decoder.decode(readResult.value, { stream: true })
+
+      let separatorIndex = buffer.indexOf('\n\n')
+      while (separatorIndex !== -1) {
+        const rawFrame = buffer.slice(0, separatorIndex)
+        buffer = buffer.slice(separatorIndex + 2)
+
+        for (const line of rawFrame.split('\n')) {
+          if (!line.startsWith('data:')) continue // skip SSE comments/keep-alives
+          const payload = line.slice('data:'.length).replace(/^ /, '')
+          const content = extractStreamedContent(payload)
+          if (content) {
+            sawContent = true
+            yield content
+          }
+        }
+
+        separatorIndex = buffer.indexOf('\n\n')
+      }
+
+      readResult = await reader.read()
+    }
+
+    if (!sawContent) {
+      throw new Error('INTERVIEW_OPENROUTER_EMPTY_RESPONSE')
+    }
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('INTERVIEW_OPENROUTER_TIMEOUT')
+    }
+    if (
+      error instanceof Error &&
+      OPENROUTER_KNOWN_ERROR_MESSAGES.has(error.message)
+    ) {
+      throw error
+    }
+    throw new Error('INTERVIEW_OPENROUTER_REQUEST_FAILED')
+  } finally {
+    clearTimeout(timeout)
+  }
+}

@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ApiClientError } from '@/lib/api/apiClientError'
 import type { SubmitInterviewAnswerInput } from '@/lib/api/interviews/interviewsApi'
-import { submitInterviewTurn } from '@/lib/api/interviews/interviewsApi'
+import { streamSubmitInterviewTurn } from '@/lib/api/interviews/streamSubmitInterviewTurn'
+import { createInterviewQuestionSpeaker } from '@/lib/speech/interviewQuestionSpeaker'
 import {
   interviewSessionQuery,
   interviewSessionQueryKey,
@@ -24,27 +24,60 @@ const DEFAULT_ERROR_MESSAGE = 'Something went wrong. Please try again.'
  * Session state itself (turns, status, report) is the query cache — after a
  * successful submit we simply invalidate it so the next question / report
  * comes from the DB, rather than hand-maintaining a parallel copy client-side.
+ *
+ * The submit itself streams the next question from the model as it's
+ * generated (`streamSubmitInterviewTurn`) instead of blocking on the full
+ * completion — `streamingQuestion` accumulates that live text so callers can
+ * show/speak it well before the turn (and the query invalidation) finishes.
  */
 export function useInterviewSession(sessionId: number) {
   const queryClient = useQueryClient()
   const query = useQuery(interviewSessionQuery(sessionId))
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [streamingQuestion, setStreamingQuestion] = useState('')
+  const speakerRef = useRef<ReturnType<
+    typeof createInterviewQuestionSpeaker
+  > | null>(null)
 
   async function submitAnswer(answer: SubmitInterviewAnswerInput) {
     setIsSubmitting(true)
     setError(null)
-    try {
-      await submitInterviewTurn(sessionId, answer)
+    setStreamingQuestion('')
+
+    speakerRef.current?.cancel()
+    const speaker = createInterviewQuestionSpeaker()
+    speakerRef.current = speaker
+
+    const outcome = await new Promise<
+      { status: 'done' } | { status: 'error'; code: string }
+    >((resolve) => {
+      streamSubmitInterviewTurn(sessionId, answer, {
+        onQuestionDelta: (text) => {
+          speaker.pushText(text)
+          setStreamingQuestion((prev) => prev + text)
+        },
+        onDone: () => {
+          speaker.finish()
+          resolve({ status: 'done' })
+        },
+        onError: (code) => {
+          speaker.cancel()
+          resolve({ status: 'error', code })
+        },
+      })
+    })
+
+    setStreamingQuestion('')
+    if (outcome.status === 'done') {
       await queryClient.invalidateQueries({
         queryKey: interviewSessionQueryKey(sessionId),
       })
-    } catch (err) {
-      const code = err instanceof ApiClientError ? err.code : null
-      setError((code && FRIENDLY_ERROR_MESSAGES[code]) ?? DEFAULT_ERROR_MESSAGE)
-    } finally {
-      setIsSubmitting(false)
+    } else {
+      setError(FRIENDLY_ERROR_MESSAGES[outcome.code] ?? DEFAULT_ERROR_MESSAGE)
     }
+
+    setIsSubmitting(false)
   }
 
   return {
@@ -52,6 +85,7 @@ export function useInterviewSession(sessionId: number) {
     isLoading: query.isPending,
     isError: query.isError,
     isSubmitting,
+    streamingQuestion,
     error,
     submitAnswer,
     clearError: () => setError(null),

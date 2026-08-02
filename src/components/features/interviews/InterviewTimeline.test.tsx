@@ -1,0 +1,100 @@
+// @vitest-environment jsdom
+import { cleanup, render, screen } from '@testing-library/react'
+import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { InterviewTimeline } from './InterviewTimeline'
+
+beforeAll(() => {
+  // jsdom doesn't implement scrollIntoView.
+  Element.prototype.scrollIntoView = () => {}
+})
+
+afterEach(cleanup)
+
+const answeredTurns = [
+  {
+    index: 0,
+    question: 'Q1?',
+    transcript: 'A1',
+    answerSource: 'voice' as const,
+    askedAt: '',
+    answeredAt: '',
+  },
+  {
+    index: 1,
+    question: 'Q2?',
+    transcript: 'A2',
+    answerSource: 'voice' as const,
+    askedAt: '',
+    answeredAt: '',
+  },
+]
+
+describe('InterviewTimeline', () => {
+  it('renders past turns and the current question in chronological order', () => {
+    render(
+      <InterviewTimeline
+        topicLabel="DSA"
+        questionNumber={3}
+        totalQuestions={5}
+        question="Q3?"
+        answeredTurns={answeredTurns}
+      />,
+    )
+
+    const texts = screen
+      .getAllByText(/^(Q\d\?|A\d)$/)
+      .map((el) => el.textContent)
+    expect(texts).toEqual(['Q1?', 'A1', 'Q2?', 'A2', 'Q3?'])
+  })
+
+  it('dims past turns but keeps the current question at full opacity', () => {
+    render(
+      <InterviewTimeline
+        topicLabel="DSA"
+        questionNumber={3}
+        totalQuestions={5}
+        question="Q3?"
+        answeredTurns={answeredTurns}
+      />,
+    )
+
+    const pastQuestion = screen.getByText('Q1?')
+    expect(pastQuestion.closest('.opacity-45')).not.toBeNull()
+    // Hovering either half of a past pair should reveal both together.
+    expect(pastQuestion.closest('.opacity-45')?.className).toContain(
+      'hover:opacity-100',
+    )
+
+    const currentQuestion = screen.getByTestId('interview-question')
+    expect(currentQuestion.textContent).toContain('Q3?')
+    expect(currentQuestion.closest('.opacity-45')).toBeNull()
+  })
+
+  it('labels each question bubble with its own question number', () => {
+    render(
+      <InterviewTimeline
+        topicLabel="DSA"
+        questionNumber={3}
+        totalQuestions={5}
+        question="Q3?"
+        answeredTurns={answeredTurns}
+      />,
+    )
+    expect(screen.getByText('Question 1')).toBeTruthy()
+    expect(screen.getByText('Question 2')).toBeTruthy()
+    expect(screen.getByText('Question 3')).toBeTruthy()
+  })
+
+  it('shows the question progress header', () => {
+    render(
+      <InterviewTimeline
+        topicLabel="DSA"
+        questionNumber={3}
+        totalQuestions={5}
+        question="Q3?"
+        answeredTurns={answeredTurns}
+      />,
+    )
+    expect(screen.getByText('DSA · Question 3 of 5')).toBeTruthy()
+  })
+})

@@ -1,8 +1,12 @@
 import { AI_TUTOR_API } from '@/lib/api/ai-tutor/aiTutorPaths'
+import { createSseFrameBuffer } from '@/lib/api/sse/sseFrameBuffer'
+
+export { createSseFrameBuffer }
 
 /** Wire events emitted by `POST /api/ai-tutor/chat/stream`. */
 export type ChatStreamEvent =
-  { type: 'token'; content: string } | { type: 'done'; chatId: number }
+  | { type: 'token'; content: string }
+  | { type: 'done'; chatId: number }
 
 export type LectureAiChatPlatform = 'web-desktop' | 'web-mobile'
 
@@ -26,46 +30,6 @@ export type StreamLectureAiChatHandlers = {
 
 /** Synthetic code surfaced when the transport (not the server) failed. */
 const STREAM_GENERIC_ERROR = 'AI_TUTOR_CHAT_STREAM_FAILED'
-
-/**
- * Pure buffer that reassembles SSE frames (delimited by a blank line) even when
- * a single frame is split across multiple network chunks. `push` returns the
- * `data:` payloads that became complete with this chunk. Kept side-effect free
- * so it can be unit-tested in isolation.
- */
-export function createSseFrameBuffer() {
-  let buffer = ''
-
-  return {
-    push(chunk: string): Array<string> {
-      buffer += chunk
-      const payloads: Array<string> = []
-
-      let separatorIndex = buffer.indexOf('\n\n')
-      while (separatorIndex !== -1) {
-        const rawFrame = buffer.slice(0, separatorIndex)
-        buffer = buffer.slice(separatorIndex + 2)
-        const payload = extractDataPayload(rawFrame)
-        if (payload !== null) payloads.push(payload)
-        separatorIndex = buffer.indexOf('\n\n')
-      }
-
-      return payloads
-    },
-  }
-}
-
-/** Join the `data:` lines of one SSE frame (the spec allows several per event). */
-function extractDataPayload(rawFrame: string): string | null {
-  const dataLines = rawFrame
-    .split('\n')
-    .map((line) => line.replace(/\r$/, ''))
-    .filter((line) => line.startsWith('data:'))
-    .map((line) => line.slice('data:'.length).replace(/^ /, ''))
-
-  if (dataLines.length === 0) return null
-  return dataLines.join('\n')
-}
 
 function parseEvent(payload: string): ChatStreamEvent | null {
   let parsed: unknown

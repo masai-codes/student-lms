@@ -7,14 +7,32 @@ export interface UseInterviewRecorderResult {
   state: InterviewRecorderState
   seconds: number
   audioBlob: Blob | null
+  /** The live mic stream while `state === 'recording'` — null otherwise. Lets
+   * callers draw a real-time waveform/visualizer during recording, before the
+   * post-recording preview (rendered into `waveformRef`) exists. */
+  mediaStream: MediaStream | null
   permissionDenied: boolean
   isPlaying: boolean
   waveformRef: React.RefObject<HTMLDivElement | null>
-  startRecording: () => Promise<void>
+  /** Resolves `true` once recording has actually started, `false` on a
+   * `getUserMedia` rejection — lets callers react to permission denial
+   * inline instead of watching `permissionDenied` through an effect. */
+  startRecording: () => Promise<boolean>
   stopRecording: () => void
   discardRecording: () => void
   togglePlayback: () => void
+  /** Stops recording and resolves with the final blob once the recorder has
+   * flushed its last chunk — skips the `recorded` preview state entirely, for
+   * callers (like the interview answer flow) that submit immediately on stop
+   * rather than showing a play/discard preview first. Resolves `null` if not
+   * currently recording. */
+  stopAndSubmit: () => Promise<Blob | null>
+  /** Stops recording (if any) and throws the audio away immediately, without
+   * passing through the `recorded` preview state. */
+  stopAndDiscard: () => void
 }
+
+type StopIntent = 'preview' | 'discard' | 'submit'
 
 /**
  * Record → stop → preview (waveform) → discard/re-record state machine,
@@ -26,6 +44,7 @@ export function useInterviewRecorder(): UseInterviewRecorderResult {
   const [state, setState] = useState<InterviewRecorderState>('idle')
   const [seconds, setSeconds] = useState(0)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null)
   const [permissionDenied, setPermissionDenied] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
 
@@ -35,6 +54,10 @@ export function useInterviewRecorder(): UseInterviewRecorderResult {
   const waveformRef = useRef<HTMLDivElement>(null)
   const waveSurferRef = useRef<InstanceType<typeof WaveSurfer> | null>(null)
   const blobUrlRef = useRef<string | null>(null)
+  const stopIntentRef = useRef<StopIntent>('preview')
+  const stopSubmitResolveRef = useRef<((blob: Blob | null) => void) | null>(
+    null,
+  )
 
   useEffect(() => {
     if (!audioBlob || !waveformRef.current) return
@@ -72,11 +95,12 @@ export function useInterviewRecorder(): UseInterviewRecorderResult {
     }
   }, [])
 
-  async function startRecording() {
+  async function startRecording(): Promise<boolean> {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       const recorder = new MediaRecorder(stream)
       chunksRef.current = []
+      stopIntentRef.current = 'preview'
 
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data)
@@ -85,35 +109,75 @@ export function useInterviewRecorder(): UseInterviewRecorderResult {
         const blob = new Blob(chunksRef.current, {
           type: recorder.mimeType || 'audio/webm',
         })
-        setAudioBlob(blob)
-        setState('recorded')
         stream.getTracks().forEach((track) => track.stop())
         if (timerRef.current) clearInterval(timerRef.current)
+        setMediaStream(null)
+
+        const intent = stopIntentRef.current
+        if (intent === 'submit') {
+          stopSubmitResolveRef.current?.(blob)
+          stopSubmitResolveRef.current = null
+          setAudioBlob(null)
+          setState('idle')
+          setSeconds(0)
+        } else if (intent === 'discard') {
+          setAudioBlob(null)
+          setState('idle')
+          setSeconds(0)
+        } else {
+          setAudioBlob(blob)
+          setState('recorded')
+        }
       }
 
       mediaRecorderRef.current = recorder
       recorder.start()
       setState('recording')
       setSeconds(0)
+      setMediaStream(stream)
       timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000)
+      return true
     } catch {
       setPermissionDenied(true)
+      return false
     }
   }
 
   function stopRecording() {
+    stopIntentRef.current = 'preview'
     mediaRecorderRef.current?.stop()
     if (timerRef.current) clearInterval(timerRef.current)
   }
 
   function discardRecording() {
+    stopIntentRef.current = 'discard'
     mediaRecorderRef.current?.stop()
     setAudioBlob(null)
     setState('idle')
     setSeconds(0)
+    setMediaStream(null)
     setIsPlaying(false)
     waveSurferRef.current?.destroy()
     waveSurferRef.current = null
+  }
+
+  function stopAndDiscard() {
+    const recorder = mediaRecorderRef.current
+    if (!recorder || recorder.state !== 'recording') return
+    stopIntentRef.current = 'discard'
+    recorder.stop()
+  }
+
+  function stopAndSubmit(): Promise<Blob | null> {
+    const recorder = mediaRecorderRef.current
+    if (!recorder || recorder.state !== 'recording') {
+      return Promise.resolve(null)
+    }
+    stopIntentRef.current = 'submit'
+    return new Promise((resolve) => {
+      stopSubmitResolveRef.current = resolve
+      recorder.stop()
+    })
   }
 
   function togglePlayback() {
@@ -125,6 +189,7 @@ export function useInterviewRecorder(): UseInterviewRecorderResult {
     state,
     seconds,
     audioBlob,
+    mediaStream,
     permissionDenied,
     isPlaying,
     waveformRef,
@@ -132,5 +197,7 @@ export function useInterviewRecorder(): UseInterviewRecorderResult {
     stopRecording,
     discardRecording,
     togglePlayback,
+    stopAndSubmit,
+    stopAndDiscard,
   }
 }

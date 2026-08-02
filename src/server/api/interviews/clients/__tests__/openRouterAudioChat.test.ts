@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { requestInterviewAudioChatTurn } from '../openRouterAudioChat'
+import {
+  requestInterviewAudioChatTurn,
+  requestInterviewAudioChatTurnStream,
+} from '../openRouterAudioChat'
 
 describe('requestInterviewAudioChatTurn', () => {
   const originalKey = process.env.OPENROUTER_API_KEY
@@ -114,5 +117,79 @@ describe('requestInterviewAudioChatTurn', () => {
     await expect(requestInterviewAudioChatTurn(baseInput)).rejects.toThrow(
       'INTERVIEW_OPENROUTER_TIMEOUT',
     )
+  })
+
+  describe('requestInterviewAudioChatTurnStream', () => {
+    function mockOpenRouterStream(contentChunks: Array<string>) {
+      const encoder = new TextEncoder()
+      const body = new ReadableStream<Uint8Array>({
+        start(controller) {
+          for (const content of contentChunks) {
+            const frame = JSON.stringify({ choices: [{ delta: { content } }] })
+            controller.enqueue(encoder.encode(`data: ${frame}\n\n`))
+          }
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+          controller.close()
+        },
+      })
+      vi.mocked(fetch).mockResolvedValueOnce({ ok: true, body } as Response)
+    }
+
+    async function collect(
+      gen: AsyncGenerator<{ type: string; text?: string; result?: unknown }>,
+    ) {
+      const events: Array<{ type: string; text?: string; result?: unknown }> =
+        []
+      for await (const event of gen) events.push(event)
+      return events
+    }
+
+    it('streams nextQuestion deltas then a final validated result', async () => {
+      mockOpenRouterStream([
+        '{"nextQuestion": "Hi! Could you explain the difference between',
+        ' an array and a linked list?", "transcript": "the answer"}',
+      ])
+
+      const events = await collect(
+        requestInterviewAudioChatTurnStream(baseInput),
+      )
+      const deltas = events
+        .filter((e) => e.type === 'delta')
+        .map((e) => e.text)
+        .join('')
+      expect(deltas).toBe(
+        'Hi! Could you explain the difference between an array and a linked list?',
+      )
+      expect(events.at(-1)).toEqual({
+        type: 'result',
+        result: {
+          nextQuestion:
+            'Hi! Could you explain the difference between an array and a linked list?',
+          transcript: 'the answer',
+        },
+      })
+    })
+
+    it('yields no deltas and a null nextQuestion on the final turn', async () => {
+      mockOpenRouterStream([
+        '{"nextQuestion": null, "transcript": "final answer"}',
+      ])
+
+      const events = await collect(
+        requestInterviewAudioChatTurnStream(baseInput),
+      )
+      expect(events.filter((e) => e.type === 'delta')).toHaveLength(0)
+      expect(events.at(-1)).toEqual({
+        type: 'result',
+        result: { nextQuestion: null, transcript: 'final answer' },
+      })
+    })
+
+    it('throws INTERVIEW_OPENROUTER_INVALID_RESPONSE for a malformed final document', async () => {
+      mockOpenRouterStream(['not json at all'])
+      await expect(
+        collect(requestInterviewAudioChatTurnStream(baseInput)),
+      ).rejects.toThrow('INTERVIEW_OPENROUTER_INVALID_RESPONSE')
+    })
   })
 })
