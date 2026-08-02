@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import type { LearnContentItem, LearnContentType } from '../../shared/types'
+import type { LearnContentItem } from '../../shared/types'
 import { learnEntityEvent, pushLearnEvent } from '../../shared/learnAnalytics'
 import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
 import { LectureOptionalAttendanceInfo } from '@/components/features/learn/attendance/LectureOptionalAttendanceInfo'
@@ -12,7 +12,6 @@ import {
   shouldShowAssignmentStatusChip,
 } from '@/lib/learn/listingCardPresentation'
 import { cn } from '@/lib/utils'
-import { BookIcon, CirclePlayIcon, NotepadTextIcon } from 'lucide-react'
 import { CommonIcon } from '@/components/common/Icon'
 
 const learnContentTagChipPalette = {

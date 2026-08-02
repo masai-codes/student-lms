@@ -1,9 +1,5 @@
-import type { CSSProperties } from 'react'
 import type { LearnContentItem } from '../shared/types'
 import { LearnContentCard } from './content-card/LearnContentCard'
-
-/** Cap the cascade so long lists don't keep late rows invisible for seconds. */
-const MAX_STAGGER_STEPS = 8
 
 export function LearnContentListSection({
   items,

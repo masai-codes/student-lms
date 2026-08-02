@@ -2,7 +2,6 @@ import { Link, useRouteContext } from '@tanstack/react-router'
 import { MessageSquare } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { LearnDiscussionListItem } from '@/server/learn/types'
-import { MasaiInput } from '@/components/ui/masai-input'
 import { Switch } from '@/components/ui/switch'
 import {
   Select,

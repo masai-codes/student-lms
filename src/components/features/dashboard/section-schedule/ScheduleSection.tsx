@@ -278,7 +278,7 @@ function PendingTasksFeed({
       data-testid="dashboard-pending-tasks-feed"
       className="flex flex-col gap-3"
     >
-      {tasks.map((item, index) => (
+      {tasks.map((item) => (
         <div key={`${item.learningType}-${item.id}`}>
           <LearnContentCard
             item={scheduleItemToLearnContent(item, {

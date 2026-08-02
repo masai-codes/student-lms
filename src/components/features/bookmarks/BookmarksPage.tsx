@@ -1,15 +1,8 @@
-import { Link, getRouteApi, useNavigate } from '@tanstack/react-router'
+import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
 import { BOOKMARKS_PER_PAGE, BOOKMARK_TABS } from './bookmarksConfig'
 import type { BookmarkTab } from './bookmarksConfig'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
 import { MasaiInput } from '@/components/ui/masai-input'
 import AppPagination from '@/components/common/Pagination'
 import { fetchBookmarks } from '@/lib/api/bookmarks/bookmarksApi'
