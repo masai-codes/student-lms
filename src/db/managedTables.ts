@@ -38,6 +38,7 @@ export const MANAGED_TABLES = [
   'feedback',
   'feedback_blueprints',
   'help_faqs',
+  'interview_sessions',
   'lecture_feedback',
   'lecture_zoom_chat',
   'lectures',

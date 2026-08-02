@@ -15,7 +15,7 @@ Use this checklist in every PR that changes feature behavior, APIs, utilities, o
 
 ## If Applicable
 
-- [ ] Added new feature doc file in `docs/testing/features/<feature>.md`.
+- [x] Added new feature doc file in `docs/testing/features/<feature>.md`.
 - [ ] Added new test case IDs in sequence (do not reuse IDs).
 - [ ] Updated notes for known risk areas, edge cases, or intentional gaps.
 
