@@ -73,7 +73,7 @@ export function ScheduleSection({
           {pendingTasks.length > 0 && (
             <span
               data-testid="dashboard-pending-tasks-count"
-              className="animate-dash-pop inline-flex size-4 md:size-5 shrink-0 items-center justify-center rounded-full bg-danger text-[9px] md:text-[11px] font-semibold text-danger-foreground shadow-[0_0_0_3px_rgb(237_3_49_/_0.12)] [--dash-delay:0.5s]"
+              className="animate-dash-pop inline-flex size-4 md:size-4 shrink-0 items-center justify-center rounded-full bg-danger text-[9px] md:text-[11px] font-semibold text-danger-foreground shadow-[0_0_0_3px_rgb(237_3_49_/_0.12)] [--dash-delay:0.5s]"
             >
               {pendingTasks.length}
             </span>
