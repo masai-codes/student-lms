@@ -97,7 +97,12 @@ describe('InterviewTimeline', () => {
         answeredTurns={answeredTurns}
       />,
     )
-    expect(screen.getByText('DSA · Question 3 of 5')).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'DSA' })).toBeTruthy()
+    expect(
+      screen.getByText(
+        (_, element) => element?.textContent === 'Question 3 of 5',
+      ),
+    ).toBeTruthy()
   })
 
   it('plays back the recorded answer audio for voice-answered turns instead of showing a transcript', () => {
