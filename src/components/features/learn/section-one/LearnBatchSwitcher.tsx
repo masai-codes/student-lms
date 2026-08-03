@@ -90,7 +90,7 @@ export function LearnBatchSwitcher({
     getOldStudentUiUrlForPath(`/new-courses/${selectedBatch}`)
 
   return (
-    <>
+    <div className="inline-flex gap-2">
       <DropdownMenu open={isBatchMenuOpen} onOpenChange={setIsBatchMenuOpen}>
         <DropdownMenuTrigger asChild>
           {compact ? (
@@ -201,6 +201,6 @@ export function LearnBatchSwitcher({
           </TooltipTrigger>
         </Tooltip>
       )}
-    </>
+    </div>
   )
 }
