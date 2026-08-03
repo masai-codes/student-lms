@@ -174,27 +174,27 @@ export function LearnControlsSection({
 
   // Tabs stack above the controls on small screens; one row from `md` up.
   return (
-    <section className="flex flex-col gap-2 py-0 items-start lg:flex-row lg:items-center lg:justify-between">
+    <section className="flex flex-col gap-2 py-0 items-start lg:flex-row lg:items-center lg:justify-between mt-1">
       {/* Lectures/Assignments/Resources: inline on mobile (no Tier 2 nav there
           yet); portaled into the desktop navbar's Tier 2 row on `lg`+, where
-          the inline copy is hidden via the ancestor's `max-lg:hidden`. */}
-      <LearnTabSwitcher
-        activeTab={activeTab}
-        onTabChange={onTabChange}
-        className="lg:hidden"
-      />
+          the inline copy is hidden via the ancestor's `max-lg:hidden`. Border
+          matches the hairline that separates the desktop navbar's Tier 2 row
+          from this same controls row, so mobile reads the same way. */}
+      <div className="w-full border-b border-border lg:hidden">
+        <LearnTabSwitcher activeTab={activeTab} onTabChange={onTabChange} />
+      </div>
 
       {/* Search takes the full first line below `sm` so module + filter never
           squeeze off-screen at 320px. Triggers are sized to match the Tier 2
           navbar's compact program-picker pill (h-8, rounded-full, text-sm). */}
-      <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto md:justify-end">
+      <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto md:justify-end layout-gutter-x">
         <MasaiInput
           type="search"
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
           placeholder={SEARCH_PLACEHOLDER_BY_TAB[activeTab]}
           iconLeft={<Search className="size-4 shrink-0" strokeWidth={2} />}
-          className="h-8 min-h-0 w-full min-w-0 rounded-full px-3 py-0 text-sm sm:w-65"
+          className="h-8 min-h-0 w-full min-w-0 rounded-lg px-3 py-0 text-sm sm:w-65 bg-muted"
         />
 
         {showSectionDropdown ? (
@@ -214,7 +214,7 @@ export function LearnControlsSection({
               onSectionChange?.(nextSectionId)
             }}
             className="min-w-30 flex-1 sm:w-40 sm:flex-none"
-            triggerClassName="h-8 min-h-0 min-w-0 w-full gap-1.5 rounded-full px-3 py-0 text-sm"
+            triggerClassName="h-8 min-h-0 min-w-0 w-full gap-1.5 rounded-lg px-3 py-0 text-sm"
             chevronVariant="plain"
           />
         ) : null}
@@ -234,7 +234,7 @@ export function LearnControlsSection({
             onHorizonChange(nextHorizon)
           }}
           className="min-w-[120px] flex-1 sm:w-[160px] sm:flex-none"
-          triggerClassName="h-8 min-h-0 min-w-0 w-full gap-1.5 rounded-full px-3 py-0 text-sm"
+          triggerClassName="h-8 min-h-0 min-w-0 w-full gap-1.5 rounded-lg px-3 py-0 text-sm"
           chevronVariant="plain"
         />
 
@@ -246,11 +246,11 @@ export function LearnControlsSection({
           onValueChange={setSelectedModules}
           disabled={!hasModuleChoices}
           className="min-w-[110px] flex-1 sm:w-[140px] sm:flex-none"
-          triggerClassName="h-8 min-h-0 min-w-0 w-full gap-1.5 rounded-full px-3 py-0 text-sm"
+          triggerClassName="h-8 min-h-0 min-w-0 w-full gap-1.5 rounded-lg px-3 py-0 text-sm"
           chevronVariant="plain"
         />
 
-        <div className="relative shrink-0">
+        <div className="relative ml-auto shrink-0 grow flex justify-end">
           <MasaiButton
             type="tertiary"
             size="sm"
@@ -269,7 +269,7 @@ export function LearnControlsSection({
                 ? `Open filters, ${filterCount} active`
                 : 'Open filters'
             }
-            className="h-8 !rounded-full !border !border-border !text-foreground transition-all duration-200 hover:-translate-y-px hover:!border-brand/35 hover:!bg-surface-muted active:scale-95"
+            className="h-8 rounded-lg border! border-border! text-foreground! transition-all duration-200 hover:-translate-y-px hover:border-brand/35! hover:bg-surface-muted! active:scale-95"
           />
           {filterCount > 0 ? (
             <span

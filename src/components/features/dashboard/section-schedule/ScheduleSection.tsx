@@ -39,7 +39,7 @@ export function ScheduleSection({
   return (
     <section
       data-testid="dashboard-schedule-section"
-      className="flex h-full flex-col gap-5 rounded-2xl border border-border bg-surface py-2 px-2 md:p-4 transition-colors duration-300 hover:border-[#4F6BED]/25 sm:p-5"
+      className="flex h-full flex-col gap-5 rounded-2xl md:border border-border md:bg-surface py-2 px-2 md:p-4 transition-colors duration-300 hover:border-[#4F6BED]/25 sm:p-5"
     >
       <div className="flex items-center gap-2 sm:gap-3">
         <TabButton

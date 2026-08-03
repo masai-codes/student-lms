@@ -29,7 +29,7 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
         {items.map((item, index) => (
           <li
             key={item.id ?? `${item.href}-${item.label}-${index}`}
-            className="flex shrink-0 items-stretch"
+            className="flex shrink-0 items-stretch hover:bg-muted/50 transition-colors"
           >
             <NavbarAnchor
               href={item.href}

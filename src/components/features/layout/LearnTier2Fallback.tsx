@@ -53,11 +53,7 @@ export function LearnTier2Fallback() {
   return (
     <>
       <div className="flex min-w-0 items-stretch gap-3">
-        <LearnTabSwitcher
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          variant="tier2"
-        />
+        <LearnTabSwitcher activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
     </>
   )

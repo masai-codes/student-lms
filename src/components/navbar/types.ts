@@ -152,6 +152,7 @@ export type NavbarProps = {
    * (Refer & Earn).
    */
   secondaryRowLinks?: NavbarActionItem[]
+  upNext?: ReactNode
   /**
    * Tier 2: contextual per-module sub-nav rendered as a second row below row 1
    * (e.g. Learn's Discussions/Bookmarks, Community's MasaiVerse/Chat). Omit

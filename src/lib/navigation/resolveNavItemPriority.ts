@@ -11,8 +11,12 @@ export type ResolvedNavItems = {
  * (the first one in input order); every other `primary`-tagged item is
  * demoted to secondary (icon-only). Items already `secondary` or `tertiary`
  * pass through untouched. Order is preserved within each bucket.
+ * If there is an action up next, we display that in navbar
  */
-export function resolveNavItemPriority(items: NavItem[]): ResolvedNavItems {
+export function resolveNavItemPriority(
+  items: NavItem[],
+  hasUpNext: boolean = false,
+): ResolvedNavItems {
   const primary: NavItem[] = []
   const secondary: NavItem[] = []
   const tertiary: NavItem[] = []
@@ -25,7 +29,7 @@ export function resolveNavItemPriority(items: NavItem[]): ResolvedNavItems {
       continue
     }
 
-    if (item.uiType === 'primary' && !primaryClaimed) {
+    if (item.uiType === 'primary' && !primaryClaimed && !hasUpNext) {
       primaryClaimed = true
       primary.push(item)
       continue

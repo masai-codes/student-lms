@@ -67,8 +67,8 @@ function BannerContent({
   // in the hover tooltip below. Default view is just: icon · label · countdown/CTA.
   const inner = (
     <>
-      <div className="flex size-7 shrink-0 items-center justify-center rounded-[8px] bg-info">
-        <PlayCircle size={16} className="text-info-foreground" />
+      <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-brand/10">
+        <PlayCircle size={16} className="text-brand" />
       </div>
       <span
         className="min-w-0 truncate text-[12px] font-semibold text-foreground"
@@ -95,7 +95,7 @@ function BannerContent({
   )
 
   const contentClass = cn(
-    'flex w-fit min-w-0 items-center gap-2 rounded-[14px] bg-[#EBF5FF] px-2.5 py-1.5 transition-colors hover:bg-[#DBEAFE] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:bg-info-subtle dark:hover:bg-info-subtle',
+    'flex w-fit min-w-0 items-center gap-2 rounded-lg border border-border px-2.5 py-1.5 transition-colors hover:bg-muted bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:bg-info-subtle dark:hover:bg-info-subtle',
     className,
   )
 

@@ -1,6 +1,7 @@
 import { CommonIcon } from '@/components/common/Icon'
 import { pushLearnEvent } from '../shared/learnAnalytics'
 import type { LearnTab } from '../shared/types'
+import { cn } from '@/lib/utils'
 
 const LEARN_TAB_ITEMS: ReadonlyArray<{
   value: LearnTab
@@ -16,18 +17,12 @@ const LEARN_TAB_ITEMS: ReadonlyArray<{
  * tab look as Discussions/Bookmarks, so all five Tier 2 items read as one
  * consistent set. */
 const TIER2_TAB_CLASSES =
-  'cursor-pointer whitespace-nowrap rounded-md px-2 py-1.5 font-poppins text-[12px] md:text-[13px] font-medium shadow-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0'
+  'cursor-pointer whitespace-nowrap px-2 py-3 font-poppins text-[12px] md:text-[13px] font-medium shadow-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0'
 
 interface LearnTabSwitcherProps {
   activeTab: LearnTab | undefined
   onTabChange: (tab: LearnTab) => void
   className?: string
-  /**
-   * `default` (mobile, inline on the page) and `tier2` (portaled into the
-   * desktop navbar) both render the same plain-text underline style shared
-   * by Discussions/Bookmarks — only spacing differs between the two.
-   */
-  variant?: 'default' | 'tier2'
 }
 
 /**
@@ -40,23 +35,17 @@ export function LearnTabSwitcher({
   activeTab,
   onTabChange,
   className,
-  variant = 'default',
 }: LearnTabSwitcherProps) {
   const handleChange = (tab: LearnTab) => {
     pushLearnEvent('l_learn_tab_change', { tab })
     onTabChange(tab)
   }
 
-  const containerClasses =
-    variant === 'tier2'
-      ? `flex flex-wrap items-stretch gap-0 ${className ?? ''}`.trim()
-      : `flex flex-wrap items-stretch gap-4 ${className ?? ''}`.trim()
-
   return (
     <div
       role="tablist"
       aria-label="Learning content type"
-      className={containerClasses}
+      className={cn('flex flex-nowrap items-stretch gap-0', className)}
     >
       {LEARN_TAB_ITEMS.map((tab) => {
         const isActive = activeTab === tab.value
@@ -67,7 +56,7 @@ export function LearnTabSwitcher({
             role="tab"
             aria-selected={isActive}
             onClick={() => handleChange(tab.value)}
-            className={`pl-2 pr-3 md:pl-4 md:pr-6 relative inline-flex items-center ${TIER2_TAB_CLASSES} ${
+            className={`pl-2 pr-3 md:pl-4 md:pr-6 relative inline-flex items-center hover:bg-muted/50 rounded-none ${TIER2_TAB_CLASSES} ${
               isActive ? 'text-brand' : 'text-foreground-muted hover:text-brand'
             }`}
           >

@@ -1,6 +1,6 @@
 'use client'
 
-import type { MouseEvent } from 'react'
+import { useMemo, type MouseEvent } from 'react'
 import type {
   NavbarActionItem,
   NavbarLinkItem,
@@ -21,6 +21,7 @@ import { resolveNavItemPriority } from '@/lib/navigation/resolveNavItemPriority'
 import { useAppNavItems } from '@/lib/navigation/useAppNavItems'
 import { MessagesSquare } from 'lucide-react'
 import { LearnBatchSwitcher } from '../learn/section-one/LearnBatchSwitcher'
+import { NextActionBanner, useNextActionBannerView } from './NextActionBanner'
 
 function profileInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -171,8 +172,12 @@ export default function AppNavbar() {
     lectureHasRecording,
   } = useAppNavItems()
   const showTryNew = useTryNewCtaVisible()
+  const nextAction = useNextActionBannerView()
 
-  const { primary, secondary } = resolveNavItemPriority(rightItems)
+  const { primary, secondary } = useMemo(
+    () => resolveNavItemPriority(rightItems, !!nextAction),
+    [!!nextAction, rightItems],
+  )
   const isLearn = pathname.includes('/learn')
 
   const tier2 = isLearn ? (
@@ -229,6 +234,7 @@ export default function AppNavbar() {
         }}
         navItems={tier1.map((item) => toNavbarLinkItem(item, navigate))}
         trailingActions={secondary.map(toIconActionItem)}
+        upNext={nextAction ? <NextActionBanner /> : null}
         primaryRowActions={primary.map(toPillActionItem)}
         tier2={tier2}
         actionsSlot={

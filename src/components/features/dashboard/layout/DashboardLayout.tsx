@@ -40,7 +40,10 @@ export function DashboardLayout({
   const { now } = useServerTime()
 
   return (
-    <div data-testid="dashboard-root" className="mb-8 mt-2 container mx-auto">
+    <div
+      data-testid="dashboard-root"
+      className="mb-8 mt-2 md:mt-4 container mx-auto"
+    >
       {overview.feePaymentBanners.length > 0 ? (
         <div className="mb-4">
           <FeePaymentBanners banners={overview.feePaymentBanners} />
@@ -72,12 +75,6 @@ export function DashboardLayout({
           showOnboardingBanner && 'rounded-t-none',
         )}
       >
-        {/* Ambient aurora wash behind the content — pure decoration. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-64"
-        />
-
         <div className="animate-dash-rise relative">
           <WelcomeSection
             name={userName}

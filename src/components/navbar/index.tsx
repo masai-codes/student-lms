@@ -50,6 +50,7 @@ export function Navbar({
   actionsSlot,
   className,
   forceDark,
+  upNext,
 }: NavbarProps) {
   const hasSecondaryLinks = Boolean(secondaryRowLinks?.length)
   const hasIconCluster = Boolean(trailingActions?.length)
@@ -84,6 +85,7 @@ export function Navbar({
         </div>
 
         <div className="flex shrink-0 items-center gap-2 xl:gap-3">
+          {upNext}
           <NavbarTrailingActions items={secondaryRowLinks ?? []} />
           {primaryRowActions?.length ? (
             <NavbarTrailingActions items={primaryRowActions} />

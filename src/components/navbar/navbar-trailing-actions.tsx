@@ -91,7 +91,7 @@ export function NavbarTrailingActions({
               className={cn(
                 TEXT_CLASSES,
                 isPill
-                  ? 'inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-surface px-3 hover:bg-surface-muted'
+                  ? 'inline-flex h-8 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 hover:bg-surface-muted'
                   : 'relative inline-flex self-stretch items-center gap-1.5 rounded-md px-2 py-1.5',
                 item.isActive && 'text-brand font-semibold hover:text-brand',
               )}
@@ -132,7 +132,7 @@ export function NavbarTrailingActions({
               data-testid={testId}
               className={cn(
                 TEXT_CLASSES,
-                'inline-flex h-8 items-center gap-1.5 rounded-full px-2 hover:bg-surface-muted [&_svg]:size-[17px]',
+                'inline-flex h-8 items-center gap-1.5 rounded-lg px-2 hover:bg-surface-muted [&_svg]:size-[17px]',
                 item.isActive && 'text-brand font-semibold hover:text-brand',
               )}
             >

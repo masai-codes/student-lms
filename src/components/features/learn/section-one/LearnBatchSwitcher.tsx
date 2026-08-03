@@ -97,7 +97,7 @@ export function LearnBatchSwitcher({
             <button
               type="button"
               aria-label="Open program selection"
-              className="group flex h-8 min-w-0 max-w-[220px] cursor-pointer items-center gap-1.5 rounded-full border border-border bg-surface px-3 text-sm font-medium text-foreground transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group flex h-8 min-w-0 max-w-[220px] cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-sm font-medium text-foreground transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <span className="min-w-0 truncate">
                 <GraduationCapIcon className="inline size-4 mr-1" />{' '}
