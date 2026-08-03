@@ -32,6 +32,7 @@ const BASE_ROW = {
   profileImage: null,
   newLmsPagesEnabled: null,
   tryNewTourSeen: null,
+  hideSwitchOption: false,
 }
 
 describe('loadUserWithStatusById', () => {
@@ -56,6 +57,7 @@ describe('loadUserWithStatusById', () => {
       profileImageUrl: null,
       newLmsPagesEnabled: false,
       hasSeenTryNewTour: false,
+      hideSwitchOption: false,
     })
   })
 
