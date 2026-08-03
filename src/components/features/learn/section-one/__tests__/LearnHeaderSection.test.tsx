@@ -22,12 +22,15 @@ vi.mock('@/components/ui/masai-drawer', () => ({
 }))
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof TanstackRouter>()
+  const React = await import('react')
   return {
     ...actual,
     getRouteApi: () => ({
       useRouteContext: () => ({ user: { id: '1' } }),
     }),
     useNavigate: () => vi.fn(),
+    Link: ({ to, children, ...props }: any) =>
+      React.createElement('a', { href: to, ...props }, children),
   }
 })
 

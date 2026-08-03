@@ -187,7 +187,7 @@ export function LearnLayout({
 
   return (
     <div className="w-full">
-      <div className="relative lg:sticky lg:top-25.5 z-10 ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip -mt-6 bg-surface shadow-2xs py-2 md:py-4">
+      <div className="relative lg:sticky lg:top-25.5 z-10 ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip -mt-6 bg-surface shadow-2xs py-2">
         <div className="layout-max-w md:layout-gutter-x relative mx-auto w-full">
           <LearnHeaderSection />
 
