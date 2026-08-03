@@ -196,6 +196,7 @@ export async function generateInLectureQuizUrl(input: {
       liveProgressCallbackUrl,
       noTimeBound: true,
       skipSubjectiveGrading: false,
+      showInstantAnswer: true
     }),
   })
 
