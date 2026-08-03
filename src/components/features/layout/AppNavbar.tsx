@@ -11,10 +11,6 @@ import { Navbar } from '@/components/navbar'
 import { NavbarTrailingActions } from '@/components/navbar/navbar-trailing-actions'
 import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
 import { LearnTier2Fallback } from '@/components/features/layout/LearnTier2Fallback'
-import {
-  LEARN_TIER2_PROGRAM_SLOT_ID,
-  LEARN_TIER2_TABS_SLOT_ID,
-} from '@/components/features/layout/learnTier2Slots'
 import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
 import { isMigratedRoute } from '@/utils/migratedRoutes'

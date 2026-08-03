@@ -22,7 +22,6 @@ interface LearnLayoutProps {
   pageData: GetLearnPageDataResponse
   /** Signed-in user id — for per-batch section persistence. */
   userId: string | number
-  onBatchChange: (batchId: number) => void
   /** `null` selects "Any section". */
   onSectionChange: (sectionId: number | null) => void
 }
@@ -41,7 +40,6 @@ function toLearningType(tab: LearnTab): LearningType {
 export function LearnLayout({
   pageData,
   userId,
-  onBatchChange,
   onSectionChange,
 }: LearnLayoutProps) {
   const {
@@ -191,19 +189,7 @@ export function LearnLayout({
     <div className="w-full">
       <div className="relative lg:sticky lg:top-25.5 z-10 ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip -mt-6 bg-surface shadow-2xs py-4">
         <div className="animate-dash-rise layout-max-w layout-gutter-x relative mx-auto w-full">
-          <LearnHeaderSection
-            selectedBatch={selectedBatchId.toString()}
-            batches={enrolledBatches.map((batch) => ({
-              value: batch.batchId.toString(),
-              label: batch.courseTitle,
-              courseLogo: batch.courseLogo,
-              showBatchDetails: batch.showBatchDetails,
-              showSectionDropdown: batch.showSectionDropdown,
-            }))}
-            onBatchChange={(value) => {
-              onBatchChange(Number(value))
-            }}
-          />
+          <LearnHeaderSection />
 
           <LearnControlsSection
             activeTab={activeTab}

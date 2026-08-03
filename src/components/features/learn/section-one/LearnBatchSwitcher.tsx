@@ -23,16 +23,6 @@ import { getLastSelectedBatchIdForUser } from '@/lib/learnBatchSelection'
 import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { fetchLearnPageDataFromApi } from '@/lib/api/learn/learnApi'
-import { LearnTab } from '../shared/types'
-
-export interface LearnBatchOption {
-  value: string
-  label: string
-  courseLogo: string | null
-  showBatchDetails: boolean
-  /** `batches.meta.showSectionDropdown` — gates the section filter for this batch. */
-  showSectionDropdown: boolean
-}
 
 interface LearnBatchSwitcherProps {
   /** `true` renders the compact navbar Tier 2 pill instead of the page-header title style. */
@@ -151,7 +141,7 @@ export function LearnBatchSwitcher({
           <DropdownMenuLabel className="text-foreground">
             Select a program
           </DropdownMenuLabel>
-          {batches.map((batch, index) => {
+          {batches?.map((batch, index) => {
             const isSelected = batch.value === selectedBatch
             return (
               <DropdownMenuItem

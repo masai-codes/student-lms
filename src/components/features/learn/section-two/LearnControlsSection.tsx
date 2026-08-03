@@ -22,8 +22,6 @@ import { MasaiSelectDropdown } from '@/components/ui/masai-select-dropdown'
 import { MasaiButton } from '@/components/masai-button'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
 import { MasaiInput } from '@/components/ui/masai-input'
-import { SlotPortal } from '@/components/common/SlotPortal'
-import { LEARN_TIER2_TABS_SLOT_ID } from '@/components/features/layout/learnTier2Slots'
 
 /** Debounce before committing the search term to the URL (keeps typing smooth). */
 const SEARCH_DEBOUNCE_MS = 1000
@@ -185,13 +183,6 @@ export function LearnControlsSection({
         onTabChange={onTabChange}
         className="lg:hidden"
       />
-      <SlotPortal slotId={LEARN_TIER2_TABS_SLOT_ID}>
-        <LearnTabSwitcher
-          activeTab={activeTab}
-          onTabChange={onTabChange}
-          variant="tier2"
-        />
-      </SlotPortal>
 
       {/* Search takes the full first line below `sm` so module + filter never
           squeeze off-screen at 320px. Triggers are sized to match the Tier 2

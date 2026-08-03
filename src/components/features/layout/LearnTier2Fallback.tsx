@@ -1,15 +1,12 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
 import {
   getRouteApi,
   useNavigate,
   useRouterState,
 } from '@tanstack/react-router'
-import { LearnBatchSwitcher } from '@/components/features/learn/section-one/LearnBatchSwitcher'
 import { LearnTabSwitcher } from '@/components/features/learn/section-two/LearnTabSwitcher'
 import type { LearnTab } from '@/components/features/learn/shared/types'
-import { fetchLearnPageDataFromApi } from '@/lib/api/learn/learnApi'
 import { getLastSelectedBatchIdForUser } from '@/lib/learnBatchSelection'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')

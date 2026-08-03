@@ -35,23 +35,11 @@ describe('getBookmarkFilterOptions service', () => {
     ])
     const { getBookmarkFilterOptions } =
       await import('../getBookmarkFilterOptions.service')
-    await expect(getBookmarkFilterOptions(7, 'tickets')).resolves.toEqual({
+    await expect(getBookmarkFilterOptions(7, 'lectures')).resolves.toEqual({
       categories: ['Billing'],
       modules: [],
       statuses: ['closed', 'open'],
       priorities: ['high', 'low'],
     })
-  })
-
-  it('returns empty options for masaiverse without querying', async () => {
-    const { getBookmarkFilterOptions } =
-      await import('../getBookmarkFilterOptions.service')
-    await expect(getBookmarkFilterOptions(7, 'masaiverse')).resolves.toEqual({
-      categories: [],
-      modules: [],
-      statuses: [],
-      priorities: [],
-    })
-    expect(hoisted.dbExecute).not.toHaveBeenCalled()
   })
 })

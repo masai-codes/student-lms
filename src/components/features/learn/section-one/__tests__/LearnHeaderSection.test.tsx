@@ -13,22 +13,8 @@ vi.mock('@/components/ui/masai-drawer', () => ({
   MasaiDrawer: () => null,
 }))
 
-function renderHeader(showBatchDetails: boolean) {
-  render(
-    <LearnHeaderSection
-      selectedBatch="133"
-      batches={[
-        {
-          value: '133',
-          label: 'Full Stack Web',
-          courseLogo: null,
-          showBatchDetails,
-          showSectionDropdown: false,
-        },
-      ]}
-      onBatchChange={() => {}}
-    />,
-  )
+function renderHeader() {
+  render(<LearnHeaderSection />)
 }
 
 function courseDetailsLink() {
@@ -45,7 +31,7 @@ describe('LearnHeaderSection — Course Details link', () => {
     hoisted.getOldStudentUiUrlForPath.mockReturnValue(
       'https://old.example.com/new-courses/133',
     )
-    renderHeader(true)
+    renderHeader()
 
     expect(hoisted.getOldStudentUiUrlForPath).toHaveBeenCalledWith(
       '/new-courses/133',
@@ -62,7 +48,7 @@ describe('LearnHeaderSection — Course Details link', () => {
     hoisted.getOldStudentUiUrlForPath.mockReturnValue(
       'https://old.example.com/new-courses/133',
     )
-    renderHeader(false)
+    renderHeader()
 
     expect(courseDetailsLink()).toBeNull()
     // Gated before resolving the URL — the resolver is never consulted.
@@ -71,7 +57,7 @@ describe('LearnHeaderSection — Course Details link', () => {
 
   it('hides Course Details when the legacy URL is not configured', () => {
     hoisted.getOldStudentUiUrlForPath.mockReturnValue(undefined)
-    renderHeader(true)
+    renderHeader()
 
     expect(courseDetailsLink()).toBeNull()
   })

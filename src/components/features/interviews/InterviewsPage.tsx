@@ -14,7 +14,6 @@ import { interviewTopicsQuery } from '@/query/interviews/interviewTopicsQuery'
 import { interviewSessionsQuery } from '@/query/interviews/interviewSessionsQuery'
 import { toast } from '@/lib/toast'
 import { getTopicIcon } from './topicIcons'
-import { SpinnerIcon } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 dayjs.extend(relativeTime)
