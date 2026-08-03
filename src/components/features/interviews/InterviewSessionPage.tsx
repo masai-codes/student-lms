@@ -1,5 +1,8 @@
+import { useEffect } from 'react'
 import { useInterviewSession } from '@/hooks/useInterviewSession'
+import { getOrCreateInterviewSttToken } from '@/lib/api/interviews/sttTokenCache'
 import { INTERVIEW_TOTAL_QUESTIONS } from '@/lib/interviews/interviewConstants'
+import { USE_LIVE_STT } from '@/lib/interviews/liveSttConfig'
 import { AnswerRecorder } from './AnswerRecorder'
 import { InterviewReportCard } from './InterviewReportCard'
 import { InterviewTimeline } from './InterviewTimeline'
@@ -24,6 +27,17 @@ export function InterviewSessionPage({ sessionId }: { sessionId: number }) {
     submitAnswer,
     clearError,
   } = useInterviewSession(sessionId)
+
+  // Mints (or reuses a still-valid cached) STT client secret as soon as an
+  // in-progress session loads, so it's already available by the time the
+  // first answer is recorded instead of being fetched mid-turn.
+  useEffect(() => {
+    if (!USE_LIVE_STT) return
+    if (session?.status !== 'in_progress') return
+    getOrCreateInterviewSttToken(sessionId).catch((sttError: unknown) => {
+      console.error('Failed to prefetch interview STT token', sttError)
+    })
+  }, [session?.status, sessionId])
 
   if (isLoading) return <InterviewSessionSkeleton />
 
@@ -79,7 +93,11 @@ export function InterviewSessionPage({ sessionId }: { sessionId: number }) {
             </div>
           ) : null}
 
-          <AnswerRecorder isSubmitting={isSubmitting} onSubmit={submitAnswer} />
+          <AnswerRecorder
+            sessionId={sessionId}
+            isSubmitting={isSubmitting}
+            onSubmit={submitAnswer}
+          />
         </div>
       </div>
     </div>

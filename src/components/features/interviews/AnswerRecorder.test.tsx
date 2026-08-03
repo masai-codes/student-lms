@@ -1,4 +1,9 @@
 // @vitest-environment jsdom
+// `USE_LIVE_STT` is evaluated once at import time from
+// `VITE_INTERVIEW_STT_PROVIDER` — force it unset here so this suite (the
+// default flow) is deterministic regardless of the developer's local
+// `.env.local` (Vitest, like Vite, loads it automatically). See
+// AnswerRecorder.liveStt.test.tsx for the flag-enabled behavior.
 import {
   act,
   cleanup,
@@ -7,8 +12,17 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { AnswerRecorder } from './AnswerRecorder'
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
+import type { AnswerRecorder as AnswerRecorderComponent } from './AnswerRecorder'
 
 const hoisted = vi.hoisted(() => ({
   recorderState: {
@@ -40,6 +54,18 @@ vi.mock('@/lib/audio/encodeWav', () => ({
   encodeWavFromBlob: vi.fn(async (blob: Blob) => blob),
 }))
 
+let AnswerRecorder: typeof AnswerRecorderComponent
+
+beforeAll(async () => {
+  vi.resetModules()
+  vi.stubEnv('VITE_INTERVIEW_STT_PROVIDER', '')
+  ;({ AnswerRecorder } = await import('./AnswerRecorder'))
+})
+
+afterAll(() => {
+  vi.unstubAllEnvs()
+})
+
 beforeEach(() => {
   hoisted.recorderState.state = 'idle'
   hoisted.recorderState.mediaStream = null
@@ -56,19 +82,25 @@ describe('AnswerRecorder', () => {
     hoisted.recorderState.state = 'recording'
     hoisted.recorderState.mediaStream = {} as MediaStream
 
-    render(<AnswerRecorder isSubmitting={false} onSubmit={vi.fn()} />)
+    render(
+      <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={vi.fn()} />,
+    )
     expect(screen.getByTestId('live-waveform')).toBeTruthy()
   })
 
   it('does not show the live waveform when idle', () => {
-    render(<AnswerRecorder isSubmitting={false} onSubmit={vi.fn()} />)
+    render(
+      <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={vi.fn()} />,
+    )
     expect(screen.queryByTestId('live-waveform')).toBeNull()
   })
 
   it('falls back to typed mode when startRecording resolves false (permission denied)', async () => {
     hoisted.recorderState.startRecording = vi.fn(async () => false)
 
-    render(<AnswerRecorder isSubmitting={false} onSubmit={vi.fn()} />)
+    render(
+      <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={vi.fn()} />,
+    )
     await act(async () => {
       fireEvent.click(screen.getByTestId('interview-record-button'))
     })
@@ -81,7 +113,9 @@ describe('AnswerRecorder', () => {
     hoisted.recorderState.state = 'recording'
     hoisted.recorderState.mediaStream = {} as MediaStream
 
-    render(<AnswerRecorder isSubmitting={false} onSubmit={vi.fn()} />)
+    render(
+      <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={vi.fn()} />,
+    )
     fireEvent.click(screen.getByLabelText('Discard recording'))
     expect(hoisted.recorderState.stopAndDiscard).toHaveBeenCalledTimes(1)
   })
@@ -93,7 +127,9 @@ describe('AnswerRecorder', () => {
     hoisted.recorderState.stopAndSubmit = vi.fn(async () => blob)
     const onSubmit = vi.fn(async () => {})
 
-    render(<AnswerRecorder isSubmitting={false} onSubmit={onSubmit} />)
+    render(
+      <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={onSubmit} />,
+    )
     await act(async () => {
       fireEvent.click(screen.getByTestId('interview-submit-answer'))
     })
@@ -102,5 +138,33 @@ describe('AnswerRecorder', () => {
     await waitFor(() =>
       expect(onSubmit).toHaveBeenCalledWith({ kind: 'audio', blob }),
     )
+  })
+
+  it('enters the sending state immediately on click, before stopAndSubmit resolves', async () => {
+    hoisted.recorderState.state = 'recording'
+    hoisted.recorderState.mediaStream = {} as MediaStream
+    let resolveStopAndSubmit: (blob: Blob | null) => void = () => {}
+    hoisted.recorderState.stopAndSubmit = vi.fn(
+      () =>
+        new Promise<Blob | null>((resolve) => {
+          resolveStopAndSubmit = resolve
+        }),
+    )
+    const onSubmit = vi.fn(async () => {})
+
+    render(
+      <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={onSubmit} />,
+    )
+
+    fireEvent.click(screen.getByTestId('interview-submit-answer'))
+
+    // Still awaiting stopAndSubmit — the button must already reflect the
+    // sending state rather than looking untouched/clickable.
+    expect(screen.getByLabelText('Submitting')).toBeTruthy()
+    expect(screen.queryByLabelText('Send recording')).toBeNull()
+
+    await act(async () => {
+      resolveStopAndSubmit(new Blob(['x']))
+    })
   })
 })

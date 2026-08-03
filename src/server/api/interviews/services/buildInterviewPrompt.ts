@@ -55,6 +55,9 @@ export function buildOpeningTurnMessages(
 export type InterviewAnswerInput =
   | { kind: 'audio'; base64: string; format: 'wav' }
   | { kind: 'typed'; text: string }
+  /** Voice answer transcribed live client-side (e.g. gpt-4o-mini-transcribe) —
+   * delivered as text like `typed`, but still a spoken answer for `answerSource`. */
+  | { kind: 'transcribed'; text: string }
 
 /** Replays a turn's answer as conversation memory — raw audio for voice answers, plain text for typed ones. */
 function answeredTurnContent(
@@ -91,7 +94,7 @@ export function buildInterviewMessages(input: {
   messages.push({
     role: 'user',
     content:
-      input.answer.kind === 'typed'
+      input.answer.kind === 'typed' || input.answer.kind === 'transcribed'
         ? [{ type: 'text', text: input.answer.text }]
         : [
             {

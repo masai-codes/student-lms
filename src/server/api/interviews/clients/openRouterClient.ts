@@ -55,6 +55,11 @@ export async function requestOpenRouterChatCompletion(input: {
     })
 
     if (!response.ok) {
+      console.error(
+        'OpenRouter chat completion request failed',
+        response.status,
+        await response.text().catch(() => ''),
+      )
       throw new Error('INTERVIEW_OPENROUTER_REQUEST_FAILED')
     }
 

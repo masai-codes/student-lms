@@ -171,6 +171,35 @@ describe('submitInterviewTurnStream', () => {
     expect(hoisted.updateCalls[0].report).toEqual(report)
   })
 
+  it('stores a transcribed answer as a voice turn with its transcript populated', async () => {
+    hoisted.row = baseRow()
+    hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
+      fakeAudioStream([
+        { type: 'final', spokenText: 'How do you handle collisions?' },
+      ]),
+    )
+
+    const { submitInterviewTurnStream } =
+      await import('../submitInterviewTurn.service')
+    await collect(
+      submitInterviewTurnStream({
+        userId: 1,
+        sessionId: 7,
+        answer: {
+          kind: 'transcribed',
+          text: 'A hash map maps keys to values.',
+        },
+      }),
+    )
+
+    const updatedTurns = hoisted.updateCalls[0].turns as Array<any>
+    expect(updatedTurns[0]).toMatchObject({
+      transcript: 'A hash map maps keys to values.',
+      answerAudioBase64: null,
+      answerSource: 'voice',
+    })
+  })
+
   it('throws INTERVIEW_SESSION_NOT_IN_PROGRESS when the session is already completed', async () => {
     hoisted.row = baseRow({ status: 'completed' })
 

@@ -78,7 +78,7 @@ RUBRIC:
     })
   })
 
-  it('sends the turns as input_audio content for voice-answered turns', async () => {
+  it('sends a placeholder for voice-answered turns with no transcript, since the report model is text-only', async () => {
     hoisted.requestOpenRouterChatCompletion.mockResolvedValueOnce(
       VALID_REPORT_TEXT,
     )
@@ -91,9 +91,33 @@ RUBRIC:
     const userMessage = call.messages.find((m: any) => m.role === 'user')
     expect(userMessage.content).toEqual([
       {
-        type: 'input_audio',
-        input_audio: { data: 'BASE64WAV', format: 'wav' },
+        type: 'text',
+        text: '[Voice answer submitted — no transcript available]',
       },
+    ])
+  })
+
+  it('sends the transcript as text for a transcribed voice turn', async () => {
+    hoisted.requestOpenRouterChatCompletion.mockResolvedValueOnce(
+      VALID_REPORT_TEXT,
+    )
+
+    const { generateInterviewReport } =
+      await import('../generateInterviewReport.service')
+    await generateInterviewReport({
+      ...baseInput,
+      turns: [
+        {
+          ...baseInput.turns[0],
+          transcript: 'Arrays are contiguous memory blocks.',
+        },
+      ],
+    })
+
+    const call = hoisted.requestOpenRouterChatCompletion.mock.calls[0][0]
+    const userMessage = call.messages.find((m: any) => m.role === 'user')
+    expect(userMessage.content).toEqual([
+      { type: 'text', text: 'Arrays are contiguous memory blocks.' },
     ])
   })
 

@@ -9,4 +9,6 @@ export const INTERVIEWS_API = {
     `/api/interviews/sessions/${sessionId}/turns`,
   submitTurnStream: (sessionId: number | string) =>
     `/api/interviews/sessions/${sessionId}/turns/stream`,
+  sttToken: (sessionId: number | string) =>
+    `/api/interviews/sessions/${sessionId}/stt-token`,
 } as const

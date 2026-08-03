@@ -19,6 +19,7 @@ export async function parseAnswer(
 
   const audio = form.get('audio')
   const typedAnswer = form.get('typedAnswer')
+  const transcribedAnswer = form.get('transcribedAnswer')
 
   if (audio instanceof File && audio.size > 0) {
     if (audio.size > getInterviewMaxAudioBytes()) {
@@ -26,6 +27,10 @@ export async function parseAnswer(
     }
     const buffer = Buffer.from(await audio.arrayBuffer())
     return { kind: 'audio', base64: buffer.toString('base64'), format: 'wav' }
+  }
+
+  if (typeof transcribedAnswer === 'string' && transcribedAnswer.trim()) {
+    return { kind: 'transcribed', text: transcribedAnswer.trim() }
   }
 
   if (typeof typedAnswer === 'string' && typedAnswer.trim()) {

@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { KeyboardIcon, Loader2, Mic, X, SendHorizonal } from 'lucide-react'
 import { useInterviewRecorder } from '@/hooks/useInterviewRecorder'
+import { useLiveInterviewStt } from '@/hooks/useLiveInterviewStt'
 import { encodeWavFromBlob } from '@/lib/audio/encodeWav'
 import type { SubmitInterviewAnswerInput } from '@/lib/api/interviews/interviewsApi'
+import { USE_LIVE_STT } from '@/lib/interviews/liveSttConfig'
 import { LiveWaveform } from './LiveWaveform'
 import { Button } from '@/components/ui/button'
 
@@ -13,35 +15,84 @@ function formatDuration(totalSeconds: number): string {
 }
 
 export function AnswerRecorder({
+  sessionId,
   isSubmitting,
   onSubmit,
 }: {
+  sessionId: number | string
   isSubmitting: boolean
   onSubmit: (answer: SubmitInterviewAnswerInput) => Promise<void>
 }) {
   const recorder = useInterviewRecorder()
+  const liveStt = useLiveInterviewStt(sessionId)
   const [isEncoding, setIsEncoding] = useState(false)
+  const [isSending, setIsSending] = useState(false)
   const [typedMode, setTypedMode] = useState(false)
   const [typedAnswer, setTypedAnswer] = useState('')
   const [frozenSeconds, setFrozenSeconds] = useState(0)
+  const sttStartedRef = useRef(false)
 
-  const busy = isSubmitting || isEncoding
+  const busy = isSubmitting || isEncoding || isSending
+
+  // Starts the live STT session once the mic stream shows up on a render
+  // after `startRecording()` resolves — `recorder.mediaStream` is still null
+  // in the same tick `startRecording()` returns, so this can't just happen
+  // inline in `handleStartRecording`.
+  useEffect(() => {
+    if (!USE_LIVE_STT) return
+    if (recorder.state === 'recording' && recorder.mediaStream) {
+      if (sttStartedRef.current) return
+      sttStartedRef.current = true
+      liveStt.start(recorder.mediaStream).catch((error: unknown) => {
+        console.error('Failed to start live interview STT session', error)
+      })
+    } else {
+      sttStartedRef.current = false
+    }
+  }, [recorder.state, recorder.mediaStream, liveStt])
 
   async function handleStartRecording() {
     const started = await recorder.startRecording()
     if (!started) setTypedMode(true)
   }
 
+  async function handleDiscard() {
+    if (USE_LIVE_STT) liveStt.cancel()
+    recorder.stopAndDiscard()
+  }
+
   async function handleSend() {
+    if (busy) return
+    // Flips the button into its sending state synchronously, before any of
+    // the awaits below — otherwise the UI stays untouched (and clickable)
+    // while `stopAndSubmit`/`liveStt.stop()` are in flight, which is what let
+    // a click look like it did nothing (or let a second click race the first).
+    setIsSending(true)
     setFrozenSeconds(recorder.seconds)
-    const blob = await recorder.stopAndSubmit()
-    if (!blob) return
-    setIsEncoding(true)
+
     try {
-      const wavBlob = await encodeWavFromBlob(blob)
-      await onSubmit({ kind: 'audio', blob: wavBlob })
+      if (USE_LIVE_STT) {
+        // Order matters: `stop()` sends the commit and awaits the final
+        // transcript segment over the still-live mic track — only stop the
+        // MediaRecorder (which kills that same track) once that's done.
+        const transcript = await liveStt.stop()
+        await recorder.stopAndSubmit()
+        if (!transcript) return
+        await onSubmit({ kind: 'transcribed', text: transcript })
+        return
+      }
+
+      const blob = await recorder.stopAndSubmit()
+      if (!blob) return
+      setIsEncoding(true)
+      try {
+        const wavBlob = await encodeWavFromBlob(blob)
+        await onSubmit({ kind: 'audio', blob: wavBlob })
+      } finally {
+        setIsEncoding(false)
+      }
     } finally {
-      setIsEncoding(false)
+      setIsSending(false)
     }
   }
 
@@ -106,7 +157,7 @@ export function AnswerRecorder({
             variant="ghost"
             size="icon-sm"
             data-testid="interview-record-button"
-            onClick={() => recorder.stopAndDiscard()}
+            onClick={() => void handleDiscard()}
             disabled={busy}
             aria-label="Discard recording"
           >

@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { ApiError } from '@/server/api/http/apiError'
 import type { OpenRouterChatMessage } from '@/server/api/interviews/clients/openRouterClient'
 import { requestOpenRouterChatCompletion } from '@/server/api/interviews/clients/openRouterClient'
-import { getInterviewAudioModel } from '@/server/api/interviews/constants'
+import { getInterviewReportModel } from '@/server/api/interviews/constants'
 import type {
   InterviewReport,
   InterviewTurn,
@@ -39,7 +39,7 @@ function buildReportSystemPrompt(input: {
 }): string {
   return `You are grading a completed mock interview on "${input.topicLabel}" (${input.domain} track) against these rubric dimensions: ${input.rubricFocus.join(', ')}.
 
-You will receive the sequence of questions asked and the candidate's answers, as audio and/or text, in order.
+You will receive the sequence of questions asked and the candidate's answers, as text, in order.
 
 Respond in EXACTLY this plain-text format and nothing else — no markdown, no extra commentary:
 OVERALL_SCORE: <integer 0-100>
@@ -57,11 +57,16 @@ Include exactly one RUBRIC line per focus area listed above. Ground every streng
 }
 
 /**
- * Grading call over the raw per-turn audio (no transcript exists anymore) —
- * must use the audio-capable model, and since that model doesn't support
- * `json_schema` structured output, the response is parsed out of a plain-text
- * convention instead. Deliberately separate from the per-turn audio call so
- * it stays deterministic and re-runnable.
+ * Grading call over the per-turn transcript — uses a plain text model (not
+ * the audio-in/audio-out one turns are answered with), since that model
+ * doesn't support `json_schema` structured output either, so the response is
+ * parsed out of a plain-text convention instead. Deliberately separate from
+ * the per-turn audio call so it stays deterministic and re-runnable.
+ *
+ * Voice answers recorded before live transcription existed have no
+ * transcript and only raw audio, which a text-only model can't read — those
+ * are graded from a placeholder noting a transcript wasn't available, rather
+ * than failing the whole report.
  */
 function buildReportMessages(input: {
   topicLabel: string
@@ -80,14 +85,14 @@ function buildReportMessages(input: {
     })
     messages.push({
       role: 'user',
-      content: turn.answerAudioBase64
-        ? [
-            {
-              type: 'input_audio',
-              input_audio: { data: turn.answerAudioBase64, format: 'wav' },
-            },
-          ]
-        : [{ type: 'text', text: turn.transcript }],
+      content: [
+        {
+          type: 'text',
+          text:
+            turn.transcript ||
+            '[Voice answer submitted — no transcript available]',
+        },
+      ],
     })
   })
 
@@ -197,7 +202,7 @@ export async function generateInterviewReport(input: {
   let raw: string
   try {
     raw = await requestOpenRouterChatCompletion({
-      model: getInterviewAudioModel(),
+      model: getInterviewReportModel(),
       messages: buildReportMessages(input),
     })
   } catch (error) {

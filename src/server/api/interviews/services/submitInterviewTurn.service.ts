@@ -98,7 +98,10 @@ export async function* submitInterviewTurnStream(input: {
   const now = new Date().toISOString()
   const answeredTurn: InterviewTurn = {
     ...pendingTurn,
-    transcript: input.answer.kind === 'typed' ? input.answer.text.trim() : '',
+    transcript:
+      input.answer.kind === 'typed' || input.answer.kind === 'transcribed'
+        ? input.answer.text.trim()
+        : '',
     answerAudioBase64:
       input.answer.kind === 'audio' ? input.answer.base64 : null,
     answerSource: input.answer.kind === 'typed' ? 'typed' : 'voice',

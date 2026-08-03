@@ -37,6 +37,7 @@ export async function fetchInterviewSession(
 export type SubmitInterviewAnswerInput =
   | { kind: 'audio'; blob: Blob }
   | { kind: 'typed'; text: string }
+  | { kind: 'transcribed'; text: string }
 
 export async function submitInterviewTurn(
   sessionId: number | string,
@@ -45,6 +46,8 @@ export async function submitInterviewTurn(
   const form = new FormData()
   if (answer.kind === 'audio') {
     form.append('audio', answer.blob, 'answer.wav')
+  } else if (answer.kind === 'transcribed') {
+    form.append('transcribedAnswer', answer.text)
   } else {
     form.append('typedAnswer', answer.text)
   }
@@ -53,4 +56,18 @@ export async function submitInterviewTurn(
     INTERVIEWS_API.submitTurn(sessionId),
     { method: 'POST', body: form },
   )
+}
+
+export type InterviewSttToken = {
+  clientSecret: string
+  /** Seconds from the time this response was issued until it expires. */
+  expiresIn: number
+}
+
+export async function fetchInterviewSttToken(
+  sessionId: number | string,
+): Promise<InterviewSttToken> {
+  return fetchJson<InterviewSttToken>(INTERVIEWS_API.sttToken(sessionId), {
+    method: 'POST',
+  })
 }
