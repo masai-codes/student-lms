@@ -2,8 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
   selectQueue: [] as Array<Array<Record<string, unknown>>>,
-  insertValues: vi.fn(),
-  updateWhere: vi.fn(),
+  insertCalls: [] as Array<{
+    table: unknown
+    values: unknown
+    set?: unknown
+  }>,
+  updateCalls: [] as Array<{ table: unknown; set: unknown }>,
   ensureAccess: vi.fn(),
 }))
 
@@ -16,12 +20,36 @@ vi.mock('@/db', () => ({
         }),
       }),
     }),
-    insert: () => ({ values: hoisted.insertValues }),
-    update: () => ({ set: () => ({ where: hoisted.updateWhere }) }),
+    insert: (table: unknown) => ({
+      values: (values: unknown) => {
+        const call = { table, values, set: undefined as unknown }
+        hoisted.insertCalls.push(call)
+        return {
+          onDuplicateKeyUpdate: ({ set }: { set: unknown }) => {
+            call.set = set
+            return Promise.resolve(undefined)
+          },
+        }
+      },
+    }),
+    update: (table: unknown) => ({
+      set: (set: unknown) => ({
+        where: () => {
+          hoisted.updateCalls.push({ table, set })
+          return Promise.resolve(undefined)
+        },
+      }),
+    }),
   },
 }))
 
-vi.mock('@/db/schema', () => ({ lectureFeedback: {}, lectures: {} }))
+vi.mock('@/db/schema', () => ({
+  lectures: { __table: 'lectures' },
+  lectureFeedback: { __table: 'lectureFeedback' },
+  studentAttendances: { __table: 'studentAttendances' },
+  zefLmsMetaData: { __table: 'zefLmsMetaData' },
+  zefLmsFeedbackSubmissions: { __table: 'zefLmsFeedbackSubmissions' },
+}))
 
 vi.mock('@/server/learn/utils/ensureLearnEntityAccess', () => ({
   ensureUserCanAccessLearnHubEntity: hoisted.ensureAccess,
@@ -29,13 +57,22 @@ vi.mock('@/server/learn/utils/ensureLearnEntityAccess', () => ({
 
 const past = new Date(Date.now() - 60 * 60 * 1000).toISOString()
 const now = new Date().toISOString()
+const wayPast = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
 function openLectureRow(showFeedback = 1) {
   return {
     schedule: past,
     concludes: now,
     settings: { show_feedback: showFeedback },
-    batchId: 1,
+    sectionId: 2,
+  }
+}
+
+function longClosedLectureRow() {
+  return {
+    schedule: wayPast,
+    concludes: wayPast,
+    settings: { show_feedback: 1 },
     sectionId: 2,
   }
 }
@@ -44,50 +81,96 @@ describe('lectureFeedback.service', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     hoisted.selectQueue = []
-    hoisted.insertValues.mockResolvedValue(undefined)
-    hoisted.updateWhere.mockResolvedValue(undefined)
+    hoisted.insertCalls = []
+    hoisted.updateCalls = []
     hoisted.ensureAccess.mockResolvedValue(true)
   })
 
   describe('getLectureFeedbackRecord', () => {
-    it('returns nulls when no row exists', async () => {
-      hoisted.selectQueue = [[]]
+    it('zef mode: returns the saved rating, message and tags when meta exists and caller says attended', async () => {
+      // [meta lookup, zef submission lookup] — no attendance query: the
+      // caller (getLectureLearningDetailForUser) already supplies `attended`
+      // from the same summary that renders the "Present" badge.
+      hoisted.selectQueue = [
+        [{ id: 55 }],
+        [
+          {
+            rating: 4,
+            message: 'Great session',
+            followupTags: ['Great examples', 'Very engaging'],
+          },
+        ],
+      ]
       const { getLectureFeedbackRecord } =
         await import('../lectureFeedback.service')
 
-      await expect(getLectureFeedbackRecord(7, 572)).resolves.toEqual({
-        rating: null,
-        text: null,
-      })
-    })
-
-    it('returns the saved rating and feedback', async () => {
-      hoisted.selectQueue = [[{ rating: 4, feedback: 'Great session' }]]
-      const { getLectureFeedbackRecord } =
-        await import('../lectureFeedback.service')
-
-      await expect(getLectureFeedbackRecord(7, 572)).resolves.toEqual({
+      await expect(getLectureFeedbackRecord(7, 572, true)).resolves.toEqual({
+        mode: 'zef',
         rating: 4,
         text: 'Great session',
+        tags: ['Great examples', 'Very engaging'],
       })
     })
 
-    it('treats a 0 rating as not-yet-rated', async () => {
-      hoisted.selectQueue = [[{ rating: 0, feedback: null }]]
+    it('zef mode: nulls when a meta row exists but no submission yet', async () => {
+      hoisted.selectQueue = [[{ id: 55 }], []]
       const { getLectureFeedbackRecord } =
         await import('../lectureFeedback.service')
 
-      await expect(getLectureFeedbackRecord(7, 572)).resolves.toEqual({
+      await expect(getLectureFeedbackRecord(7, 572, true)).resolves.toEqual({
+        mode: 'zef',
         rating: null,
         text: null,
+        tags: [],
+      })
+    })
+
+    it('legacy mode: meta row exists but caller says not attended -> reads lecture_feedback without querying meta', async () => {
+      // `attended: false` short-circuits before the meta lookup entirely.
+      hoisted.selectQueue = [[{ rating: 2, feedback: 'meh' }]]
+      const { getLectureFeedbackRecord } =
+        await import('../lectureFeedback.service')
+
+      await expect(getLectureFeedbackRecord(7, 572, false)).resolves.toEqual({
+        mode: 'legacy',
+        rating: 2,
+        text: 'meh',
+        tags: [],
+      })
+    })
+
+    it('legacy mode: attended but no meta row -> reads lecture_feedback', async () => {
+      // [meta lookup (none), lecture_feedback lookup]
+      hoisted.selectQueue = [[], [{ rating: 3, feedback: 'ok' }]]
+      const { getLectureFeedbackRecord } =
+        await import('../lectureFeedback.service')
+
+      await expect(getLectureFeedbackRecord(7, 572, true)).resolves.toEqual({
+        mode: 'legacy',
+        rating: 3,
+        text: 'ok',
+        tags: [],
+      })
+    })
+
+    it('legacy mode: nulls when neither meta nor lecture_feedback rows exist', async () => {
+      hoisted.selectQueue = [[], []]
+      const { getLectureFeedbackRecord } =
+        await import('../lectureFeedback.service')
+
+      await expect(getLectureFeedbackRecord(7, 572, true)).resolves.toEqual({
+        mode: 'legacy',
+        rating: null,
+        text: null,
+        tags: [],
       })
     })
   })
 
   describe('submitLectureFeedback', () => {
-    it('inserts feedback when none exists and the window is open', async () => {
-      // [lecture row, existing-feedback lookup (none)]
-      hoisted.selectQueue = [[openLectureRow()], []]
+    it('zef mode: inserts into zef_lms_feedback_submissions and ignores the window entirely', async () => {
+      // [lecture row (window long closed), meta lookup (exists), attendance lookup (attended)]
+      hoisted.selectQueue = [[longClosedLectureRow()], [{ id: 55 }], [{ id: 1 }]]
       const { submitLectureFeedback } =
         await import('../lectureFeedback.service')
 
@@ -96,15 +179,87 @@ describe('lectureFeedback.service', () => {
         lectureId: 572,
         rating: 5,
         text: 'Loved it',
+        tags: ['Great examples'],
       })
 
-      expect(result).toEqual({ rating: 5, text: 'Loved it' })
-      expect(hoisted.insertValues).toHaveBeenCalledTimes(1)
-      expect(hoisted.updateWhere).not.toHaveBeenCalled()
+      expect(result).toEqual({
+        mode: 'zef',
+        rating: 5,
+        text: 'Loved it',
+        tags: ['Great examples'],
+      })
+      expect(hoisted.insertCalls).toHaveLength(1)
+      expect(hoisted.insertCalls[0].table).toEqual({
+        __table: 'zefLmsFeedbackSubmissions',
+      })
+      expect(hoisted.insertCalls[0].values).toMatchObject({
+        zefLmsMetaDataId: 55,
+        userId: 7,
+        rating: 5,
+        message: 'Loved it',
+        followupTags: ['Great examples'],
+        source: 'lms',
+      })
+      expect(hoisted.updateCalls).toHaveLength(0)
     })
 
-    it('updates feedback when a row already exists', async () => {
-      hoisted.selectQueue = [[openLectureRow()], [{ id: 11 }]]
+    it('legacy mode: meta row exists but the user did not attend -> falls back to lecture_feedback', async () => {
+      // [lecture row, meta lookup (exists), attendance lookup (none), existing-feedback lookup (none)]
+      hoisted.selectQueue = [[openLectureRow()], [{ id: 55 }], [], []]
+      const { submitLectureFeedback } =
+        await import('../lectureFeedback.service')
+
+      const result = await submitLectureFeedback({
+        userId: 7,
+        lectureId: 572,
+        rating: 5,
+        text: 'Loved it',
+        tags: ['Great examples'],
+      })
+
+      expect(result).toEqual({
+        mode: 'legacy',
+        rating: 5,
+        text: 'Loved it',
+        tags: [],
+      })
+      expect(hoisted.insertCalls).toHaveLength(1)
+      expect(hoisted.insertCalls[0].table).toEqual({ __table: 'lectureFeedback' })
+    })
+
+    it('legacy mode: no meta row, window open -> inserts into lecture_feedback', async () => {
+      // [lecture row, meta lookup (none), existing-feedback lookup (none)]
+      hoisted.selectQueue = [[openLectureRow()], [], []]
+      const { submitLectureFeedback } =
+        await import('../lectureFeedback.service')
+
+      const result = await submitLectureFeedback({
+        userId: 7,
+        lectureId: 572,
+        rating: 5,
+        text: 'Loved it',
+        tags: ['Great examples'],
+      })
+
+      expect(result).toEqual({
+        mode: 'legacy',
+        rating: 5,
+        text: 'Loved it',
+        tags: [],
+      })
+      expect(hoisted.insertCalls).toHaveLength(1)
+      expect(hoisted.insertCalls[0].table).toEqual({ __table: 'lectureFeedback' })
+      expect(hoisted.insertCalls[0].values).toMatchObject({
+        lectureId: 572,
+        userId: 7,
+        rating: 5,
+        feedback: 'Loved it',
+      })
+      expect(hoisted.updateCalls).toHaveLength(0)
+    })
+
+    it('legacy mode: no meta row, existing lecture_feedback row -> updates it', async () => {
+      hoisted.selectQueue = [[openLectureRow()], [], [{ id: 11 }]]
       const { submitLectureFeedback } =
         await import('../lectureFeedback.service')
 
@@ -113,10 +268,30 @@ describe('lectureFeedback.service', () => {
         lectureId: 572,
         rating: 3,
         text: null,
+        tags: [],
       })
 
-      expect(hoisted.updateWhere).toHaveBeenCalledTimes(1)
-      expect(hoisted.insertValues).not.toHaveBeenCalled()
+      expect(hoisted.updateCalls).toHaveLength(1)
+      expect(hoisted.updateCalls[0].table).toEqual({ __table: 'lectureFeedback' })
+      expect(hoisted.updateCalls[0].set).toMatchObject({ rating: 3, feedback: null })
+      expect(hoisted.insertCalls).toHaveLength(0)
+    })
+
+    it('legacy mode: no meta row, window closed -> throws', async () => {
+      hoisted.selectQueue = [[openLectureRow(0)], []]
+      const { submitLectureFeedback } =
+        await import('../lectureFeedback.service')
+
+      await expect(
+        submitLectureFeedback({
+          userId: 7,
+          lectureId: 572,
+          rating: 5,
+          text: null,
+          tags: [],
+        }),
+      ).rejects.toThrow('FEEDBACK_WINDOW_CLOSED')
+      expect(hoisted.insertCalls).toHaveLength(0)
     })
 
     it('throws when the lecture is missing', async () => {
@@ -130,6 +305,7 @@ describe('lectureFeedback.service', () => {
           lectureId: 1,
           rating: 5,
           text: null,
+          tags: [],
         }),
       ).rejects.toThrow('LEARN_DETAIL_NOT_FOUND')
     })
@@ -146,23 +322,9 @@ describe('lectureFeedback.service', () => {
           lectureId: 572,
           rating: 5,
           text: null,
+          tags: [],
         }),
       ).rejects.toThrow('LEARN_DETAIL_NOT_FOUND')
-    })
-
-    it('throws when the feedback window is closed', async () => {
-      hoisted.selectQueue = [[openLectureRow(0)]]
-      const { submitLectureFeedback } =
-        await import('../lectureFeedback.service')
-
-      await expect(
-        submitLectureFeedback({
-          userId: 7,
-          lectureId: 572,
-          rating: 5,
-          text: null,
-        }),
-      ).rejects.toThrow('FEEDBACK_WINDOW_CLOSED')
     })
   })
 })

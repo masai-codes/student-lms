@@ -30,12 +30,7 @@ export function createEmptyBookmarkFilters(): BookmarkFilters {
 }
 
 export type BookmarkFilterSection =
-  | 'category'
-  | 'module'
-  | 'type'
-  | 'status'
-  | 'priority'
-  | 'date'
+  'category' | 'module' | 'type' | 'status' | 'priority' | 'date'
 
 export const SECTION_LABELS: Record<BookmarkFilterSection, string> = {
   category: 'Category',

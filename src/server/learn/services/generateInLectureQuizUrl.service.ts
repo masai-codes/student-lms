@@ -1,61 +1,92 @@
 import { and, eq, isNull } from 'drizzle-orm'
 
 import { db } from '@/db'
-import { lectures, users } from '@/db/schema'
+import {
+  lectures,
+  users,
+  zefLmsMetaData,
+  zefLmsQuiz,
+  zefLmsQuizSubmission,
+} from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { buildInLectureQuizUniqueId } from '@/server/learn/utils/inLectureQuizUniqueId'
-import { parseLectureSettings } from '@/server/learn/utils/parseLectureSettings'
+import { requireAssessEnv } from '@/server/learn/utils/assessEnv'
 
 /**
- * Generates (via the Assess Platform) a ready-to-embed test URL for an
- * in-lecture popup quiz. The `assessmentTemplateId` is validated against the
- * lecture's own `settings.inLecturePopupQuiz` so a student can't mint a test
- * for an arbitrary template id.
+ * Pull the Assess report token out of a stored `html_report`. The report holds
+ * the admin report URL (`…/assessment-report?token=<TOKEN>`); we accept any
+ * `token=` param as a fallback. Returns `null` when none is present.
+ */
+function extractReportToken(htmlReport: string): string | null {
+  const match =
+    htmlReport.match(/assessment-report\?token=([A-Za-z0-9._-]+)/) ??
+    htmlReport.match(/[?&]token=([A-Za-z0-9._-]+)/)
+  return match ? match[1] : null
+}
+
+/**
+ * Exchange a report token for a ready-to-embed submission-view URL via the
+ * Assess Platform. Returns `null` on any failure so the caller can degrade
+ * gracefully (fall back to a fresh test) rather than hard-erroring.
+ */
+async function fetchSubmissionViewUrl(opts: {
+  base: string
+  adminAuthToken: string
+  clientId: string
+  reportToken: string
+}): Promise<string | null> {
+  const url = new URL(`${opts.base}/student/submissions/get-submission-view-url`)
+  url.searchParams.set('reportToken', opts.reportToken)
+
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      adminauthtoken: opts.adminAuthToken,
+      clientid: opts.clientId,
+    },
+  }).catch((err) => {
+    console.error('[in-lecture-quiz] get-submission-view-url request error', err)
+    return null
+  })
+
+  if (!response || !response.ok) {
+    console.error(
+      '[in-lecture-quiz] get-submission-view-url failed',
+      response?.status,
+    )
+    return null
+  }
+
+  const body = (await response.json().catch(() => ({}))) as { url?: string }
+  return body.url ?? null
+}
+
+/**
+ * Resolves the ready-to-embed Assess Platform URL for an in-lecture popup quiz.
+ *
+ * If the user already has a `zef_lms_quiz_submission` for this quiz, returns the
+ * read-only submission-view URL (`alreadySubmitted: true`) built from the report
+ * token stored in that row's `html_report`. Otherwise mints a fresh test via
+ * `generate-test` (`alreadySubmitted: false`).
+ *
+ * The `assessmentTemplateId` (the ZEF quiz's `assessment_id`) is validated
+ * against the lecture's active `zef_lms_quiz` rows so a student can't mint a test
+ * for an arbitrary assessment id.
  *
  * Required env: ASSESS_PLATFORM_URL, ASSESS_ADMIN_AUTH_TOKEN, ASSESS_CLIENT_ID,
  * ASSESS_CALLBACK_BASE_URL (public base the Assess Platform posts callbacks to).
  */
-function requireAssessEnv(): {
-  base: string
-  adminAuthToken: string
-  clientId: string
-  callbackBase: string
-} {
-  const base = process.env.ASSESS_PLATFORM_URL?.trim().replace(/\/$/, '')
-  const adminAuthToken = process.env.ASSESS_ADMIN_AUTH_TOKEN?.trim()
-  const clientId = process.env.ASSESS_CLIENT_ID?.trim()
-  const callbackBase = process.env.ASSESS_CALLBACK_BASE_URL?.trim().replace(
-    /\/$/,
-    '',
-  )
-
-  if (!base || !adminAuthToken || !clientId || !callbackBase) {
-    // Log presence (never the actual secret values) for each required var, so
-    // a prod failure names exactly which one is missing instead of a single
-    // generic error. Check with: pm2 logs student-lms (or
-    // /home/ubuntu/logs/app-error.log — this throws, so it lands there).
-    console.error('[in-lecture-quiz] ASSESS_QUIZ_NOT_CONFIGURED — env presence:', {
-      ASSESS_PLATFORM_URL: Boolean(base),
-      ASSESS_ADMIN_AUTH_TOKEN: Boolean(adminAuthToken),
-      ASSESS_CLIENT_ID: Boolean(clientId),
-      ASSESS_CALLBACK_BASE_URL: Boolean(callbackBase),
-    })
-    throw new ApiError(500, 'ASSESS_QUIZ_NOT_CONFIGURED')
-  }
-  return { base, adminAuthToken, clientId, callbackBase }
-}
-
 export async function generateInLectureQuizUrl(input: {
   userId: number
   lectureId: number
   assessmentTemplateId: string
-}): Promise<{ url: string }> {
+}): Promise<{ url: string; alreadySubmitted: boolean; token?: string }> {
   const { userId, lectureId, assessmentTemplateId } = input
   const { base, adminAuthToken, clientId, callbackBase } = requireAssessEnv()
 
   const rows = await db
-    .select({ sectionId: lectures.sectionId, settings: lectures.settings })
+    .select({ sectionId: lectures.sectionId })
     .from(lectures)
     .where(and(eq(lectures.id, lectureId), isNull(lectures.deletedAt)))
     .limit(1)
@@ -69,12 +100,64 @@ export async function generateInLectureQuizUrl(input: {
   )
   if (!allowed) throw new ApiError(404, 'LECTURE_NOT_FOUND')
 
-  // The requested template must be one this lecture actually configured.
-  const { inLecturePopupQuiz } = parseLectureSettings(lecture.settings)
-  const isConfigured = inLecturePopupQuiz.some(
-    (quiz) => quiz.assessmentTemplate === assessmentTemplateId,
-  )
-  if (!isConfigured) throw new ApiError(404, 'QUIZ_TEMPLATE_NOT_FOUND')
+  // The requested assessment must be an active in-lecture quiz configured for
+  // this lecture in the ZEF ⇆ LMS tables (`zef_lms_meta_data` → `zef_lms_quiz`),
+  // so a student can't mint a test for an arbitrary assessment id.
+  const quizRows = await db
+    .select({ id: zefLmsQuiz.id })
+    .from(zefLmsQuiz)
+    .innerJoin(
+      zefLmsMetaData,
+      eq(zefLmsQuiz.zefLmsMetaDataId, zefLmsMetaData.id),
+    )
+    .where(
+      and(
+        eq(zefLmsMetaData.lectureId, lectureId),
+        eq(zefLmsQuiz.assessmentId, assessmentTemplateId),
+        eq(zefLmsQuiz.status, 'active'),
+      ),
+    )
+    .limit(1)
+  if (quizRows.length === 0) throw new ApiError(404, 'QUIZ_TEMPLATE_NOT_FOUND')
+  const zefLmsQuizId = quizRows[0].id
+
+  // If the user already has a submission for this quiz, show their submitted
+  // response (read-only view) instead of minting a fresh test.
+  const submissionRows = await db
+    .select({ htmlReport: zefLmsQuizSubmission.htmlReport })
+    .from(zefLmsQuizSubmission)
+    .where(
+      and(
+        eq(zefLmsQuizSubmission.zefLmsQuizId, zefLmsQuizId),
+        eq(zefLmsQuizSubmission.userId, userId),
+      ),
+    )
+    .limit(1)
+
+  const submission = submissionRows[0]
+  if (submission) {
+    const reportToken = submission.htmlReport
+      ? extractReportToken(submission.htmlReport)
+      : null
+    if (reportToken) {
+      const viewUrl = await fetchSubmissionViewUrl({
+        base,
+        adminAuthToken,
+        clientId,
+        reportToken,
+      })
+      if (viewUrl) return { url: viewUrl, alreadySubmitted: true }
+      console.error(
+        '[in-lecture-quiz] submission exists but view url unavailable — falling back to a fresh test',
+        { zefLmsQuizId, userId },
+      )
+    } else {
+      console.error(
+        '[in-lecture-quiz] submission exists but no report token in html_report — falling back to a fresh test',
+        { zefLmsQuizId, userId },
+      )
+    }
+  }
 
   const userRows = await db
     .select({ email: users.email })
@@ -113,6 +196,7 @@ export async function generateInLectureQuizUrl(input: {
       liveProgressCallbackUrl,
       noTimeBound: true,
       skipSubjectiveGrading: false,
+      showInstantAnswer: true
     }),
   })
 
@@ -127,8 +211,13 @@ export async function generateInLectureQuizUrl(input: {
     )
   }
 
-  const body = (await response.json().catch(() => ({}))) as { url?: string }
+  const body = (await response.json().catch(() => ({}))) as {
+    url?: string
+    token?: string
+  }
   if (!body.url) throw new ApiError(502, 'ASSESS_QUIZ_URL_MISSING')
 
-  return { url: body.url }
+  // `token` powers the manual "Submit" (endassessment) — see
+  // endInLectureQuizAssessment.service.
+  return { url: body.url, alreadySubmitted: false, token: body.token }
 }
