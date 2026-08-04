@@ -96,25 +96,6 @@ export async function getBookmarkFilterOptions(
     }
   }
 
-  if (tab === 'tickets') {
-    const rows = rowsOf(
-      await db.execute(sql`
-        SELECT DISTINCT t.category AS category, t.status AS status,
-          t.priority AS priority
-        FROM bookmarks b
-        INNER JOIN tickets t ON t.id = b.entity_id
-        WHERE b.user_id = ${userId} AND b.entity_type = ${ENTITY.ticket}
-          AND b.is_bookmarked = 1 AND t.deleted_at IS NULL
-      `),
-    )
-    return {
-      ...EMPTY,
-      categories: distinct(rows, 'category'),
-      statuses: distinct(rows, 'status'),
-      priorities: distinct(rows, 'priority'),
-    }
-  }
-
   if (tab === 'announcements') {
     const rows = rowsOf(
       await db.execute(sql`

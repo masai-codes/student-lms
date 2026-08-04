@@ -1,6 +1,13 @@
 # Feature Test Matrix
 
-Last updated: 2026-07-02
+Last updated: 2026-08-01
+
+## Mock interview practice (`/interviews`)
+
+- Area: Personalized topic list (`getInterviewTopicsForUser`: domain from `resolveInterviewDomain` + coursework topics from `lectures.module`) → turn-based AI interview (`interview_sessions`, record/type answer → OpenRouter audio-input model transcribes + asks follow-up → Claude scores the final report); `useInterviewRecorder` extracted from the announcements voice-note composer and shared with `MessageDetailPage`; `encodeWav.ts` re-encodes `MediaRecorder` output to 16kHz mono PCM16 WAV client-side (OpenRouter doesn't accept webm/mp4).
+- Status: Covered (topic personalization + de-dupe, domain classification, session create/get, turn submission incl. daily-limit/transcript-empty/audio-too-large/not-in-progress failure modes, report generation, all 4 handlers, WAV header/resample/PCM encoding, recorder state machine, `MessageDetailPage` regression).
+- Test files: `src/server/api/interviews/**/__tests__/*.test.ts`, `src/lib/audio/__tests__/encodeWav.test.ts`, `src/hooks/__tests__/useInterviewRecorder.test.tsx`, `src/components/features/announcements/MessageDetailPage.test.tsx`
+- Notes: See `docs/testing/features/interviews.md`
 
 ## Structured logging
 
@@ -317,9 +324,9 @@ Last updated: 2026-07-02
 ## Admissions webhooks (create / cancel enrolment + batch events)
 
 - Area: `POST /api/webhooks/admissions/{create-enrolment,cancel-enrolment,events}` (`src/server/api/webhooks/admissions/**`). Each service runs its writes in one transaction, then invalidates the student's cached enrolment sets (`invalidatePortalEnrollmentCache` → `enrolledBatchIds:{userId}:{portal}`, `enrolledSectionIds:{userId}:{portal}` and the old LMS's `allowedBatchIds:{userId}:{portal}`) so pause/unpause/cancel/enrol take effect on the next request — in both this app and experience-ui — instead of after the 1h Redis TTL.
-- Status: Covered (all three services incl. cache invalidation + skip-on-failure, key builders, per-event appliers, handlers, schemas, batch_user lookup, section validation)
-- Test files: `src/server/api/webhooks/admissions/__tests__/{createEnrolment.service,cancelEnrolment.service,events.service,createEnrolment.schema,cancelEnrolment.schema,events.schema}.test.ts`, `src/server/api/webhooks/admissions/steps/__tests__/{applyTransferEvent,applyAdmissionDataEvent,findBatchUserByEnrolmentId,resolveValidSections}.test.ts`, `src/server/api/webhooks/admissions/handlers/__tests__/*.test.ts`, `src/server/batches/__tests__/portalEnrollmentCache.test.ts`
-- Notes: See `docs/testing/features/admissions-webhooks.md`
+- Status: Covered (all three services incl. cache invalidation + skip-on-failure, key builders, per-event appliers, handlers, schemas, batch_user lookup, section validation, iitj new-LMS-only meta defaults)
+- Test files: `src/server/api/webhooks/admissions/__tests__/{createEnrolment.service,cancelEnrolment.service,events.service,createEnrolment.schema,cancelEnrolment.schema,events.schema}.test.ts`, `src/server/api/webhooks/admissions/steps/__tests__/{applyTransferEvent,applyAdmissionDataEvent,applyPortalNewLmsDefaults,findBatchUserByEnrolmentId,resolveValidSections}.test.ts`, `src/server/api/webhooks/admissions/handlers/__tests__/*.test.ts`, `src/server/api/profile/__tests__/newLmsPreference.service.test.ts`, `src/server/batches/__tests__/portalEnrollmentCache.test.ts`
+- Notes: iitj enrolments default `users.meta.new_lms_pages_enabled` + `hide_switch_option` to true, hiding the old↔new switch in both LMSes. See `docs/testing/features/admissions-webhooks.md`
 
 ## Status Meaning
 

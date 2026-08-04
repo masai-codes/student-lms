@@ -802,6 +802,32 @@ export const helpFaqs = mysqlTable(
   ],
 )
 
+export const interviewSessions = mysqlTable(
+  'interview_sessions',
+  {
+    id: int({ unsigned: true }).autoincrement().notNull(),
+    userId: bigint('user_id', { mode: 'number', unsigned: true })
+      .notNull()
+      .references(() => users.id, {
+        onDelete: 'restrict',
+        onUpdate: 'cascade',
+      }),
+    topicId: varchar('topic_id', { length: 191 }).notNull(),
+    topicLabel: varchar('topic_label', { length: 255 }).notNull(),
+    domain: varchar({ length: 50 }).notNull(),
+    status: varchar({ length: 20 }).default('in_progress').notNull(),
+    turns: json().$type<Array<Record<string, any>>>().notNull(),
+    report: json().$type<Record<string, any>>(),
+    createdAt: timestamp('created_at', { mode: 'string' }),
+    updatedAt: timestamp('updated_at', { mode: 'string' }),
+    completedAt: timestamp('completed_at', { mode: 'string' }),
+  },
+  (table) => [
+    index('idx_interview_sessions_user_id').on(table.userId),
+    primaryKey({ columns: [table.id], name: 'interview_sessions_id' }),
+  ],
+)
+
 export const lectureFeedback = mysqlTable(
   'lecture_feedback',
   {

@@ -27,13 +27,6 @@ describe('getBookmarkFilterSections', () => {
       'type',
       'date',
     ])
-    expect(getBookmarkFilterSections('tickets')).toEqual([
-      'status',
-      'priority',
-      'category',
-      'date',
-    ])
-    expect(getBookmarkFilterSections('masaiverse')).toEqual(['date'])
   })
 })
 
@@ -41,7 +34,6 @@ describe('getTypeOptions', () => {
   it('returns fixed type options only for lectures and announcements', () => {
     expect(getTypeOptions('lectures')).toBe(LECTURE_TYPE_OPTIONS)
     expect(getTypeOptions('announcements')).toBe(ANNOUNCEMENT_TYPE_OPTIONS)
-    expect(getTypeOptions('tickets')).toEqual([])
     expect(getTypeOptions('assignments')).toEqual([])
   })
 })

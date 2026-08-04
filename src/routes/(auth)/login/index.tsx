@@ -14,12 +14,12 @@ import { Button } from '@/components/ui/button'
 // import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
+import { meQuery } from '@/query/me/meQuery'
 import { redirectToOldStudentUi } from '@/utils/authRedirect'
 
 export const Route = createFileRoute('/(auth)/login/')({
-  beforeLoad: async () => {
-    const user = await fetchCurrentUser()
+  beforeLoad: async ({ context }) => {
+    const user = await context.queryClient.ensureQueryData(meQuery())
     if (user) {
       throw redirect({ to: '/' })
     }

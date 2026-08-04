@@ -21,7 +21,7 @@ export function LectureDetailActions({
     <LearnDetailDefaultActions
       bookmark={bookmark}
       ticketCategory="lecture"
-      ticketEntityId={lectureId}
+      entityId={lectureId}
     />
   )
 }

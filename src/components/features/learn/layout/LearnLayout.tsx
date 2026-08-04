@@ -14,7 +14,6 @@ import type {
 } from '@/server/learn/types'
 import { learnScheduleHorizonToDays } from '../shared/types'
 import { fetchLearnPageDataFromApi } from '@/lib/api/learn/learnApi'
-import { LAYOUT_MAIN_PADDING_X, LAYOUT_MAX_WIDTH_CLASS } from '@/lib/layout'
 import { mapLearningItemToContent } from '../shared/mapLearningItemToContent'
 import { getLastSelectedSectionIdForUser } from '@/lib/learnSectionSelection'
 
@@ -23,7 +22,6 @@ interface LearnLayoutProps {
   pageData: GetLearnPageDataResponse
   /** Signed-in user id — for per-batch section persistence. */
   userId: string | number
-  onBatchChange: (batchId: number) => void
   /** `null` selects "Any section". */
   onSectionChange: (sectionId: number | null) => void
 }
@@ -42,7 +40,6 @@ function toLearningType(tab: LearnTab): LearningType {
 export function LearnLayout({
   pageData,
   userId,
-  onBatchChange,
   onSectionChange,
 }: LearnLayoutProps) {
   const {
@@ -95,9 +92,21 @@ export function LearnLayout({
   // `staleTime` marks it fresh on creation — show it without refetching. Other keys
   // start empty and fetch their own data (keepPreviousData keeps the old list
   // visible under a skeleton meanwhile).
+  //
+  // `Route.useLoaderData()` can itself lag: navigating back to `/learn` with a new
+  // `tab` after visiting a detail page updates `useSearch()` (and so `learningType`)
+  // immediately, but the router can replay the *previous* visit's cached loader data
+  // for a render or two before the fresh loader result lands. Trusting that stale
+  // `pageData` here would seed this tab's cache with the wrong content type and mark
+  // it fresh, permanently masking the real fetch. Guard by checking the seeded
+  // page's items actually match the tab we're about to render.
   const queryKeyString = JSON.stringify(queryKey)
   const seededKeyRef = useRef(queryKeyString)
-  const isSeededKey = queryKeyString === seededKeyRef.current
+  const pageDataMatchesTab =
+    pageData.learningItems.length === 0 ||
+    pageData.learningItems.every((item) => item.learningType === learningType)
+  const isSeededKey =
+    queryKeyString === seededKeyRef.current && pageDataMatchesTab
 
   const { data: queryData, isFetching } = useQuery({
     queryKey,
@@ -177,32 +186,10 @@ export function LearnLayout({
   }
 
   return (
-    <div className="w-full mt-[-24px]">
-      <div className="relative ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip bg-surface rounded-b-[32px]">
-        {/* Ambient aurora wash behind the hero band — pure decoration. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(52rem_14rem_at_12%_-4rem,rgb(79_70_229_/_0.07),transparent_70%),radial-gradient(44rem_12rem_at_88%_-6rem,rgb(63_131_248_/_0.07),transparent_70%)]"
-        />
-        <div
-          className={`animate-dash-rise relative pt-[20px]  mx-auto w-full ${LAYOUT_MAX_WIDTH_CLASS} ${LAYOUT_MAIN_PADDING_X}`}
-        >
-          <LearnHeaderSection
-            selectedBatch={selectedBatchId.toString()}
-            batches={enrolledBatches.map((batch) => ({
-              value: batch.batchId.toString(),
-              label: batch.courseTitle,
-              courseLogo: batch.courseLogo,
-              showBatchDetails: batch.showBatchDetails,
-              showSectionDropdown: batch.showSectionDropdown,
-            }))}
-            onBatchChange={(value) => {
-              onBatchChange(Number(value))
-            }}
-            sections={sections}
-            selectedSectionId={sectionId ?? null}
-            onSectionChange={onSectionChange}
-          />
+    <div className="w-full">
+      <div className="relative lg:sticky lg:top-25.5 z-10 ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip -mt-6 bg-surface shadow-2xs py-2">
+        <div className="layout-max-w md:layout-gutter-x relative mx-auto w-full">
+          <LearnHeaderSection />
 
           <LearnControlsSection
             activeTab={activeTab}
@@ -219,6 +206,10 @@ export function LearnLayout({
             onApplyModalFilters={setModalFilters}
             horizon={horizon}
             onHorizonChange={setHorizon}
+            showSectionDropdown={showSectionDropdown}
+            sections={sections}
+            selectedSectionId={sectionId ?? null}
+            onSectionChange={onSectionChange}
           />
         </div>
       </div>

@@ -6,6 +6,7 @@ import type {
   sectionUser,
   sections,
   userBatchAdmissionData,
+  userDeviceTokens,
   users,
 } from '@/db/schema'
 
@@ -41,9 +42,13 @@ export type LoginAndJoinLectureEntities = {
 export type LiveLecturePhasesEntities = {
   admin: typeof users.$inferSelect
   student: typeof users.$inferSelect
+  student2: typeof users.$inferSelect
+  student3: typeof users.$inferSelect
   batch: typeof batches.$inferSelect
   section: typeof sections.$inferSelect
   enrollment: typeof sectionUser.$inferSelect
+  enrollmentStudent2: typeof sectionUser.$inferSelect
+  enrollmentStudent3: typeof sectionUser.$inferSelect
   sections: {
     recordingAttendanceOff: typeof sections.$inferSelect
     recordingAttendanceOn: typeof sections.$inferSelect
@@ -77,6 +82,15 @@ export type LiveLecturePhasesEntities = {
     associatedLecture: typeof lectures.$inferSelect
     associatedNotesLecture: typeof lectures.$inferSelect
     associatedAssignment: typeof import('@/db/schema').assignments.$inferSelect
+  }
+  discussions: {
+    onLecture: typeof import('@/db/schema').discussions.$inferSelect
+    onLectureThreads: Array<typeof import('@/db/schema').threads.$inferSelect>
+    onAssignment: typeof import('@/db/schema').discussions.$inferSelect
+    onResource: typeof import('@/db/schema').discussions.$inferSelect
+    onResourceThreads: Array<typeof import('@/db/schema').threads.$inferSelect>
+    onLectureByStudent2: typeof import('@/db/schema').discussions.$inferSelect
+    onAssignmentByStudent3: typeof import('@/db/schema').discussions.$inferSelect
   }
 }
 
@@ -123,11 +137,49 @@ export type OnboardingEntities = {
   profile: typeof profiles.$inferSelect | null
 }
 
+export type MasaiverseAccessEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  section: typeof sections.$inferSelect
+  enrollment: typeof sectionUser.$inferSelect
+}
+
+export type AppInstalledEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  section: typeof sections.$inferSelect
+  enrollment: typeof sectionUser.$inferSelect
+  deviceToken: typeof userDeviceTokens.$inferSelect
+}
+
+export type MultiProgramStudentEntities = LiveLecturePhasesEntities & {
+  secondBatch: typeof batches.$inferSelect
+  secondSection: typeof sections.$inferSelect
+  secondEnrollment: typeof sectionUser.$inferSelect
+  secondBatchLecture: typeof lectures.$inferSelect
+}
+
+export type SectionDropdownBatchEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  sections: Array<typeof sections.$inferSelect>
+  enrollments: Array<typeof sectionUser.$inferSelect>
+  lectures: Array<typeof lectures.$inferSelect>
+  assignments: Array<typeof import('@/db/schema').assignments.$inferSelect>
+}
+
 export type SeedFlowEntities =
   | LoginAndJoinLectureEntities
   | LiveLecturePhasesEntities
   | OnboardingEntities
   | DashboardHomeEntities
+  | MasaiverseAccessEntities
+  | MultiProgramStudentEntities
+  | AppInstalledEntities
+  | SectionDropdownBatchEntities
 
 export type SeedFlowResult = {
   flowId: string
@@ -157,6 +209,12 @@ export function isOnboardingEntities(
   entities: SeedFlowEntities,
 ): entities is OnboardingEntities {
   return 'sections' in entities
+}
+
+export function isMultiProgramStudentEntities(
+  entities: SeedFlowEntities,
+): entities is MultiProgramStudentEntities {
+  return 'secondBatch' in entities && 'secondEnrollment' in entities
 }
 
 export function isDashboardHomeEntities(

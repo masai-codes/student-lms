@@ -102,4 +102,5 @@ export const startInstance = createStart(() => ({
   // CORS runs first so it can decorate the response on the way back out — even
   // if CSRF (or any later middleware) short-circuits with an error.
   requestMiddleware: [corsMiddleware, csrfMiddleware],
+  defaultSsr: false,
 }))
