@@ -18,6 +18,12 @@ export class V2AuthRequestError extends Error {
     public status: number,
     public code: string,
     message: string,
+    /**
+     * Whole `error` object from the response body, so callers can read the
+     * extra fields a specific code ships (e.g. PORTAL_MISMATCH →
+     * `portal` / `redirectUrl`). Empty when the body wasn't structured.
+     */
+    public details: Record<string, unknown> = {},
   ) {
     super(message)
     this.name = 'V2AuthRequestError'
@@ -69,7 +75,12 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
     const code = getErrorCode(parsed) ?? 'REQUEST_FAILED'
     const message =
       getErrorMessage(parsed) ?? (res.statusText || 'Request failed')
-    throw new V2AuthRequestError(resolveTrueStatus(res), code, message)
+    throw new V2AuthRequestError(
+      resolveTrueStatus(res),
+      code,
+      message,
+      getErrorObject(parsed) ?? {},
+    )
   }
   return parsed as T
 }
@@ -84,7 +95,12 @@ async function getJson<T>(path: string): Promise<T> {
     const code = getErrorCode(parsed) ?? 'REQUEST_FAILED'
     const message =
       getErrorMessage(parsed) ?? (res.statusText || 'Request failed')
-    throw new V2AuthRequestError(resolveTrueStatus(res), code, message)
+    throw new V2AuthRequestError(
+      resolveTrueStatus(res),
+      code,
+      message,
+      getErrorObject(parsed) ?? {},
+    )
   }
   return parsed as T
 }

@@ -31,6 +31,10 @@ import {
 } from '@/components/features/sign-in/signInMessages'
 import { getSignInSubmitError } from '@/components/features/sign-in/signInSubmit'
 import {
+  getPortalMismatch,
+  redirectToPortal,
+} from '@/components/features/sign-in/portalMismatchRedirect'
+import {
   V2AuthRequestError,
   v2FetchLinkedAccounts,
   v2ForgotPassword,
@@ -45,6 +49,20 @@ import {
 
 const FORGOT_GENERIC_OK =
   'If an account exists for that email, we have sent a reset link. Check your inbox and spam folder.'
+
+/**
+ * A student who signed in correctly but on the wrong portal's domain (masai /
+ * ihub / iitj) isn't an error case: the server tells us where their account
+ * lives, so hand the browser over instead of leaving them on a dead end. Returns
+ * true when a redirect is under way (the message shown meanwhile is the
+ * server's "Taking you to …").
+ */
+function startPortalRedirectIfMismatched(err: unknown): boolean {
+  const mismatch = getPortalMismatch(err)
+  if (!mismatch) return false
+  redirectToPortal(mismatch.redirectUrl)
+  return true
+}
 
 function formatAuthError(err: unknown): string {
   if (err instanceof V2AuthRequestError) {
@@ -213,6 +231,9 @@ export function SignInFlow() {
       }
       setSubmitBusy(true)
       dispatch({ type: 'email_clear_error' })
+      // Stays true through a portal redirect so the form can't be resubmitted
+      // in the beat before the browser leaves for the other portal.
+      let leavingForOtherPortal = false
       try {
         if (state.authMode === 'password') {
           const response = await v2LoginWithPassword({
@@ -236,9 +257,10 @@ export function SignInFlow() {
           state.authMode === 'password' ? 'email-password' : 'email-otp',
           e,
         )
+        leavingForOtherPortal = startPortalRedirectIfMismatched(e)
         dispatch({ type: 'email_set_error', message: formatAuthError(e) })
       } finally {
-        setSubmitBusy(false)
+        if (!leavingForOtherPortal) setSubmitBusy(false)
       }
       return
     }
@@ -249,6 +271,7 @@ export function SignInFlow() {
       }
       setSubmitBusy(true)
       dispatch({ type: 'phone_clear_error' })
+      let leavingForOtherPortal = false
       try {
         const response = await v2VerifyOtp({
           otpSessionId: state.otpSessionId,
@@ -264,9 +287,10 @@ export function SignInFlow() {
         completePhoneRedirect('phone-otp', response)
       } catch (e) {
         dispatchSignInFailureEvent('sso-v2', 'phone-otp', e)
+        leavingForOtherPortal = startPortalRedirectIfMismatched(e)
         dispatch({ type: 'phone_set_error', message: formatAuthError(e) })
       } finally {
-        setSubmitBusy(false)
+        if (!leavingForOtherPortal) setSubmitBusy(false)
       }
     }
   }, [completePhoneRedirect, completePrimarySignIn, rememberMe, state])

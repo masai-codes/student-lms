@@ -17,6 +17,7 @@ import {
   loginWithPassword,
 } from '@/server/auth/v2/loginWithPassword'
 import { canAccessPortal } from '@/server/auth/v2/portalGate'
+import { portalMismatchResponse } from '@/server/auth/v2/portalMismatchResponse'
 
 type PasswordLoginBody = {
   email?: unknown
@@ -75,11 +76,8 @@ async function handlePasswordLogin(request: Request): Promise<Response> {
 
     const allowed = await canAccessPortal({ user, request })
     if (!allowed) {
-      return errorResponse(
-        403,
-        'PORTAL_MISMATCH',
-        'This account cannot sign in from this portal.',
-      )
+      // Not an error the student can act on — send them to their own portal.
+      return portalMismatchResponse({ client: user.client, request })
     }
 
     const { activeToken, setCookieHeader } = await createSessions({

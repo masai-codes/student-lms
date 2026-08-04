@@ -92,6 +92,14 @@ export const Route = createFileRoute('/(protected)/_layout')({
       throw redirect({ to: '/signin' })
     }
 
+    // Right session, wrong portal domain (bookmark, shared link, old handoff):
+    // hand the student to the portal their `users.client` says they belong to.
+    // Runs before any legacy-redirect logic so we never bounce them through the
+    // wrong portal's old LMS on the way. Admins are exempt (resolved server-side).
+    if (user.portalRedirectUrl) {
+      throw redirect({ href: user.portalRedirectUrl })
+    }
+
     if (shouldRedirectToLegacy && isMasaiverseRoute && token) {
       const newStudentUiBase =
         import.meta.env.VITE_NEW_STUDENT_UI_URL?.trim().replace(/\/$/, '')

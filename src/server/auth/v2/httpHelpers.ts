@@ -4,6 +4,12 @@ export type ErrorBody = {
   error: {
     code: string
     message: string
+    /**
+     * Extra machine-readable context for the client (e.g. PORTAL_MISMATCH ships
+     * `portal` + `redirectUrl` so the sign-in UI can bounce the student to
+     * their own portal). Never put anything here the user may not see.
+     */
+    [key: string]: unknown
   }
 }
 
@@ -21,8 +27,9 @@ export function errorResponse(
   status: number,
   code: string,
   message: string,
+  details?: Record<string, unknown>,
 ): Response {
-  const body: ErrorBody = { error: { code, message } }
+  const body: ErrorBody = { error: { code, message, ...details } }
   // Remap CloudFront-intercepted statuses (403/404) so the JSON body survives.
   return jsonResponse(body, cloudFrontSafeResponseInit(status))
 }
