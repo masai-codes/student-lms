@@ -11,8 +11,7 @@ import {
 // iHub lectures must hit the iHub experience-api host so the iHub session cookie
 // (scoped to `.ihubiitrcourses.org`) is sent to the join endpoint. Masai lectures
 // keep the host baked into the stored zoom_link. Mirrors zoomRedirect.service.
-const EXPERIENCE_API_IHUB_BASE_URL =
-  'https://experience-api.ihubiitrcourses.org'
+const EXPERIENCE_API_IHUB_BASE_URL = 'https://experience-api.ihubiitrcourses.org'
 
 /**
  * Returns the iHub experience-api base for iHub batches, or undefined otherwise

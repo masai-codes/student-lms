@@ -45,7 +45,11 @@ function AbsentTooltipContent({
     )
   }
 
-  return <p>You have not joined this session</p>
+  return (
+    <p>
+      You have not joined this session
+    </p>
+  )
 }
 
 function withTooltip(content: ReactNode, badge: ReactNode): ReactNode {

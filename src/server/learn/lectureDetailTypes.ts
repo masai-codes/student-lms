@@ -6,55 +6,6 @@ import type { WatchIntervalSegment } from '@/server/video-attendance/types'
 
 export type { InLecturePopupQuiz }
 
-/**
- * A single in-lecture popup quiz element, sourced from `zef_lms_quiz`.
- * `startSec` / `endSec` are the video-relative show window in whole seconds,
- * already derived from the element's absolute timestamps minus the parent
- * meta row's `scheduledAt` (video t=0) — see getInLecturePopupElements.service.
- */
-export type InLecturePopupQuizElement = {
-  id: number
-  assessmentId: string
-  status: 'active' | 'inactive'
-  startSec: number
-  endSec: number
-}
-
-/** A single in-lecture popup poll question, sourced from `zef_lms_polls_questions`. */
-export type InLecturePopupPollElement = {
-  id: number
-  question: string
-  options: unknown
-  status: 'active' | 'inactive'
-  startSec: number
-  endSec: number
-}
-
-/**
- * The lecture's `zef_lms_meta_data` row — the parent of its quiz/poll elements.
- * `scheduledAt` is the reference point for converting the elements' absolute
- * `startTimestamp` / `endTimestamp` into the video-relative show window.
- */
-export type InLecturePopupMetaData = {
-  id: number
-  lectureId: number
-  scheduledAt: string | null
-  source: 'zef' | 'lms'
-  createdAt: string | null
-  updatedAt: string | null
-}
-
-/**
- * In-lecture popup elements for a lecture, keyed by kind. `metaData` is `null`
- * and both arrays empty when the lecture has no `zef_lms_meta_data` row (i.e.
- * nothing configured).
- */
-export type InLecturePopupElements = {
-  metaData: InLecturePopupMetaData | null
-  quiz: Array<InLecturePopupQuizElement>
-  polls: Array<InLecturePopupPollElement>
-}
-
 export type LectureKind = 'live' | 'video'
 
 export type LectureVideoAttendanceState = {
@@ -104,21 +55,12 @@ export type LectureTranscriptPayload = {
 }
 
 export type LectureFeedbackState = {
-  /**
-   * `'zef'` when the lecture has a `zef_lms_meta_data` row — tagged feedback,
-   * always open, saved to `zef_lms_feedback_submissions`. `'legacy'`
-   * otherwise — the original rating+text flow, window-gated, no tags, saved
-   * to `lecture_feedback`.
-   */
-  mode: 'zef' | 'legacy'
-  /** Whether the feedback form is open for submission. Always true in `zef` mode. */
+  /** Whether the feedback form is open for submission (show_feedback + within window). */
   canSubmit: boolean
   /** Existing rating 1–5, or null when not yet submitted. */
   rating: number | null
   /** Existing free-text feedback, or null. */
   text: string | null
-  /** Existing follow-up tags chosen alongside the rating. Always empty in `legacy` mode. */
-  tags: Array<string>
 }
 
 export type LectureDetailTabContent = {
@@ -181,9 +123,8 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
   /** Lecture feedback window + the user's existing rating/text. */
   feedback: LectureFeedbackState
   /**
-   * In-lecture popup elements (quizzes + polls) to surface while the recording
-   * plays, sourced from the ZEF ⇆ LMS tables (`zef_lms_meta_data` → `zef_lms_quiz`
-   * / `zef_lms_polls_questions`). Both arrays empty when none are configured.
+   * Timestamped popup quizzes to surface while the recording plays, from
+   * `lectures.settings.inLecturePopupQuiz`. Empty when none are configured.
    */
-  inLecturePopupElements: InLecturePopupElements
+  inLecturePopupQuiz: Array<InLecturePopupQuiz>
 }

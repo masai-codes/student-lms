@@ -1,5 +1,4 @@
 import { markInLectureQuizGraded } from '@/server/learn/services/inLectureQuizGradedStore'
-import { saveInLectureQuizSubmission } from '@/server/learn/services/saveInLectureQuizSubmission.service'
 
 /**
  * Receives grading/event callbacks from the Assess Platform (the
@@ -34,16 +33,6 @@ export async function handleAssessmentCallback(
       if (eventType === 'gradeAssessment' && typeof uniqueID === 'string' && uniqueID) {
         await markInLectureQuizGraded(uniqueID)
         console.log('[assessment-callback] marked graded:', uniqueID)
-        // Persist the submission (best-effort — never fail the callback on a
-        // DB/persistence error, so the Assess Platform doesn't retry forever).
-        try {
-          await saveInLectureQuizSubmission(body)
-        } catch (err) {
-          console.error(
-            '[assessment-callback] failed to persist submission',
-            err,
-          )
-        }
       }
     }
 

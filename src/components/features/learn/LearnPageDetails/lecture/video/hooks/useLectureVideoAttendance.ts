@@ -363,30 +363,6 @@ export function useLectureVideoAttendance({
     [setTimer, updateIfNeeded],
   )
 
-  // Persist an explicit `[start, end]` range as watched, independent of the
-  // real-playback segment tracked by `startTimeRef`/`latestPlayedRef` above.
-  // Used when a quiz/poll's "Continue" skips the player past its window: the
-  // skipped range never becomes a real played segment (see `handleSeek`), so
-  // without this it would silently count against attendance. Reuses the same
-  // `video-progress` endpoint / `mergeIntervals` merge the normal save path
-  // uses, so it composes correctly with whatever's already stored.
-  const markIntervalWatched = useCallback(
-    (start: number, end: number) => {
-      const s = Math.round(start)
-      const e = Math.round(end)
-      if (!Number.isFinite(s) || !Number.isFinite(e) || e <= s) return
-      void (async () => {
-        const result = await storeLectureVideoProgressViaApi({
-          lectureId,
-          totalDuration: Math.round(totalDuration),
-          intervals: [{ start: s, end: e }],
-        })
-        if (result.ok) await router.invalidate()
-      })()
-    },
-    [lectureId, totalDuration, router],
-  )
-
   const handleVideoPlay = useCallback(() => {
     // Do NOT re-anchor startTimeRef here. The open segment is
     // [startTimeRef, latestPlayed]; resetting the start on every play would
@@ -565,7 +541,6 @@ export function useLectureVideoAttendance({
     mergedAttendanceIntervals,
     handleProgress,
     handleSeek,
-    markIntervalWatched,
     handleVideoPlay,
     handleVideoPause,
     handleVideoEnded,

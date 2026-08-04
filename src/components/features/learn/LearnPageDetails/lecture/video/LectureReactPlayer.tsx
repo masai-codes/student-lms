@@ -33,13 +33,12 @@ import { VideoPlaybackOverlays } from './VideoPlaybackOverlays'
 import { LectureVideoCaptionOverlay } from './LectureVideoCaptionOverlay'
 import { LectureVideoGestureLayer } from './LectureVideoGestureLayer'
 import { InLectureQuizModal, useInLectureQuiz } from './in-lecture-quiz'
-import { InLecturePollModal, useInLecturePoll } from './in-lecture-poll'
 import type { LectureChromePlayerRef } from './controls/lectureVideoChrome.utils'
 
 import './lectureReactPlayer.css'
 
 import type {
-  InLecturePopupElements,
+  InLecturePopupQuiz,
   LectureTranscriptSource,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
@@ -56,7 +55,7 @@ type LectureReactPlayerProps = {
   initialAttendance: LectureVideoAttendanceState | null
   /** Pointer to the transcript; the text is fetched only once CC is switched on. */
   transcript?: LectureTranscriptSource
-  inLecturePopupElements?: InLecturePopupElements
+  inLecturePopupQuiz?: Array<InLecturePopupQuiz>
   className?: string
   /** Reports the intrinsic video aspect ratio (w/h) once metadata loads. */
   onVideoAspectRatioChange?: (ratio: number) => void
@@ -67,7 +66,7 @@ export function LectureReactPlayer({
   src,
   initialAttendance,
   transcript,
-  inLecturePopupElements,
+  inLecturePopupQuiz,
   className,
   onVideoAspectRatioChange,
 }: LectureReactPlayerProps) {
@@ -92,25 +91,6 @@ export function LectureReactPlayer({
   // visible (object-fit: contain) frame instead of the wrapper edges.
   const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null)
 
-  // Portal target for the quiz/poll popups, tracked per fullscreen state:
-  // - fullscreen: the fullscreen root itself, so the popup stays a
-  //   descendant of the element the Fullscreen API renders (a `document.body`
-  //   portal would be a sibling of it and get hidden by the browser).
-  // - not fullscreen: `null`, which makes `FloatingPopupPanel` fall back to
-  //   `document.body` — nesting it inside the (possibly `overflow`-clipped)
-  //   player container instead would clip the popup and stop it from being
-  //   draggable across the whole page.
-  // Each quiz/poll modal below is remounted (via `key`) on this same
-  // transition, so it always opens fresh in whichever container is current
-  // rather than carrying over stale drag position / iframe state.
-  const [popupPortalContainer, setPopupPortalContainer] =
-    useState<HTMLElement | null>(null)
-  useEffect(() => {
-    setPopupPortalContainer(
-      isFullscreen ? fullscreenContainerRef.current : null,
-    )
-  }, [isFullscreen])
-
   useEffect(() => {
     if (!hasTranscript) setCaptionsOn(false)
   }, [hasTranscript])
@@ -124,32 +104,20 @@ export function LectureReactPlayer({
 
   const quiz = useInLectureQuiz({
     lectureId,
-    quizzes: inLecturePopupElements?.quiz ?? [],
+    quizzes: inLecturePopupQuiz ?? [],
     progressSeconds: attendance.progress,
     totalDuration: attendance.totalDuration,
     seekSignal: attendance.seekNonce,
-    onSkipToSeconds: (fromSeconds, toSeconds) => {
-      attendance.markIntervalWatched(fromSeconds, toSeconds)
-      attendance.handleSeek(toSeconds)
-      seekPlayerToSeconds(videoRef, toSeconds)
+    onSeekToSeconds: (seconds) => {
+      attendance.handleSeek(seconds)
+      seekPlayerToSeconds(videoRef, seconds)
     },
   })
 
-  const poll = useInLecturePoll({
-    polls: inLecturePopupElements?.polls ?? [],
-    progressSeconds: attendance.progress,
-    totalDuration: attendance.totalDuration,
-    onSkipToSeconds: (fromSeconds, toSeconds) => {
-      attendance.markIntervalWatched(fromSeconds, toSeconds)
-      attendance.handleSeek(toSeconds)
-      seekPlayerToSeconds(videoRef, toSeconds)
-    },
-  })
-
-  // While a quiz or poll card is open, suspend the global player keyboard
-  // shortcuts so arrow-key seeks / space-to-pause can't fire from that UI.
+  // While a quiz card is open, suspend the global player keyboard shortcuts so
+  // arrow-key seeks / space-to-pause can't fire from the quiz UI.
   const isQuizActiveRef = useRef(false)
-  isQuizActiveRef.current = quiz.activeQuiz !== null || poll.activePoll !== null
+  isQuizActiveRef.current = quiz.activeQuiz !== null
 
   // Surface the real video dimensions so mobile can size the player to the
   // actual aspect ratio instead of a fixed viewport slice.
@@ -474,25 +442,12 @@ export function LectureReactPlayer({
           />
           {quiz.activeQuiz ? (
             <InLectureQuizModal
-              // Remount fresh across the fullscreen boundary (see
-              // `popupPortalContainer` above) instead of carrying over drag
-              // position / iframe state into a mismatched portal container.
-              key={isFullscreen ? 'fullscreen' : 'inline'}
               lectureId={lectureId}
               quiz={quiz.activeQuiz}
+              progressSeconds={attendance.progress}
               isFullscreen={isFullscreen}
-              portalContainer={popupPortalContainer}
+              onResolve={quiz.resolveQuiz}
               onSkipToLecture={quiz.closeQuiz}
-            />
-          ) : null}
-          {poll.activePoll ? (
-            <InLecturePollModal
-              key={isFullscreen ? 'fullscreen' : 'inline'}
-              lectureId={lectureId}
-              poll={poll.activePoll}
-              isFullscreen={isFullscreen}
-              portalContainer={popupPortalContainer}
-              onSkipToLecture={poll.closePoll}
             />
           ) : null}
           {attendance.qualityLevels.length > 0 ? (

@@ -82,9 +82,7 @@ export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
       <button
         type="button"
         data-tour-target="try-new"
-        aria-label={
-          enabled ? 'Switch to the old experience' : 'Try the new experience'
-        }
+        aria-label={enabled ? 'Switch to the old experience' : 'Try the new experience'}
         title={label}
         disabled={isPending}
         onClick={handleClick}

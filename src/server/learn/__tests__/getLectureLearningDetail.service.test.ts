@@ -63,12 +63,7 @@ describe('getLectureLearningDetailForUser', () => {
     hoisted.videoAttendance.mockResolvedValue(null)
     hoisted.fetchAttendance.mockResolvedValue(new Map())
     hoisted.bookmarkState.mockResolvedValue(false)
-    hoisted.feedbackRecord.mockResolvedValue({
-      mode: 'legacy',
-      rating: null,
-      text: null,
-      tags: [],
-    })
+    hoisted.feedbackRecord.mockResolvedValue({ rating: null, text: null })
   })
 
   it('returns lecture detail payload for supported live lectures', async () => {
@@ -129,14 +124,6 @@ describe('getLectureLearningDetailForUser', () => {
           }),
         }),
       })
-      // zef_lms_meta_data select (getInLecturePopupElements) — no meta row
-      .mockReturnValueOnce({
-        from: () => ({
-          where: () => ({
-            limit: () => Promise.resolve([]),
-          }),
-        }),
-      })
 
     const result = await getLectureLearningDetailForUser(9, 227)
 
@@ -152,73 +139,8 @@ describe('getLectureLearningDetailForUser', () => {
     expect(result.isNewZoomRedirection).toBe(true)
     expect(result.enableZoomWebView).toBe(true)
     expect(hoisted.bookmarkState).toHaveBeenCalledWith(9, 'lecture', 227)
-    // No attendance row for this lecture (empty map) -> attended: false,
-    // reusing the same summary the "Present" badge reads instead of a
-    // second independent `student_attendances` query.
-    expect(hoisted.feedbackRecord).toHaveBeenCalledWith(9, 227, false)
     // No lectures_ai row → nothing to fetch.
     expect(result.tabs.transcript).toEqual({ available: false, url: null })
-  })
-
-  it('passes attended: true through to the feedback record when the attendance summary is present', async () => {
-    const { getLectureLearningDetailForUser } =
-      await import('../services/getLectureLearningDetail.service')
-
-    hoisted.fetchAttendance.mockResolvedValue(
-      new Map([[227, { overallStatus: 1 }]]),
-    )
-    hoisted.dbSelect
-      .mockReturnValueOnce({
-        from: () => ({
-          leftJoin: () => ({
-            leftJoin: () => ({
-              where: () => ({
-                limit: () =>
-                  Promise.resolve([
-                    {
-                      id: 227,
-                      title: 'Live DSA',
-                      category: 'coding',
-                      type: 'live',
-                      optional: 0,
-                      schedule: '2020-01-01 10:00:00',
-                      concludes: '2020-01-01 12:00:00',
-                      week: 1,
-                      module: null,
-                      batchId: 1,
-                      sectionId: 2,
-                      hostName: 'Ravi',
-                      hostAvatarUrl: null,
-                      zoomLink: null,
-                      videos: null,
-                      vimeoDownloadLinks: null,
-                      vimeoPlayerEmbedUrl: null,
-                      settings: { hide_notes: 0 },
-                      notes: '# Session notes',
-                      isNewZoomRedirection: 1,
-                      sectionSettings: { enableZoomWebView: true },
-                      data: null,
-                    },
-                  ]),
-              }),
-            }),
-          }),
-        }),
-      })
-      .mockReturnValueOnce({
-        from: () => ({ where: () => ({ limit: () => Promise.resolve([]) }) }),
-      })
-      .mockReturnValueOnce({
-        from: () => ({ where: () => ({ limit: () => Promise.resolve([]) }) }),
-      })
-      // zef_lms_meta_data select (getInLecturePopupElements) — no meta row
-      .mockReturnValueOnce({
-        from: () => ({ where: () => ({ limit: () => Promise.resolve([]) }) }),
-      })
-
-    await getLectureLearningDetailForUser(9, 227)
-
-    expect(hoisted.feedbackRecord).toHaveBeenCalledWith(9, 227, true)
   })
 
   it('exposes the transcript as a cache URL, never as text (#353)', async () => {
@@ -277,10 +199,6 @@ describe('getLectureLearningDetailForUser', () => {
         from: () => ({
           where: () => ({ limit: () => Promise.resolve([]) }),
         }),
-      })
-      // zef_lms_meta_data select (getInLecturePopupElements) — no meta row
-      .mockReturnValueOnce({
-        from: () => ({ where: () => ({ limit: () => Promise.resolve([]) }) }),
       })
 
     const result = await getLectureLearningDetailForUser(9, 227)

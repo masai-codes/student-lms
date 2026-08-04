@@ -3,10 +3,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import type { SeedFlowResult, TestUser } from '../types'
-import {
-  isLiveLecturePhasesEntities,
-  isLoginAndJoinLectureEntities,
-} from '../types'
+import { isLiveLecturePhasesEntities, isLoginAndJoinLectureEntities } from '../types'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 export const SEED_STATE_PATH = join(__dirname, 'seed-state.json')
@@ -55,14 +52,10 @@ function extractEntityIds(result: SeedFlowResult): FlowSeedState['entityIds'] {
       entities.lectures.afterWithRecordingAttendanceOn.id
     ids.videoMandatoryLectureId = entities.lectures.videoMandatory.id
     ids.videoOptionalLectureId = entities.lectures.videoOptional.id
-    ids.optionalLiveBeforeUnlockLectureId =
-      entities.lectures.optionalLiveBeforeUnlock.id
-    ids.optionalLiveDuringJoinLectureId =
-      entities.lectures.optionalLiveDuringJoin.id
-    ids.recordingAttendanceOffSectionId =
-      entities.sections.recordingAttendanceOff.id
-    ids.recordingAttendanceOnSectionId =
-      entities.sections.recordingAttendanceOn.id
+    ids.optionalLiveBeforeUnlockLectureId = entities.lectures.optionalLiveBeforeUnlock.id
+    ids.optionalLiveDuringJoinLectureId = entities.lectures.optionalLiveDuringJoin.id
+    ids.recordingAttendanceOffSectionId = entities.sections.recordingAttendanceOff.id
+    ids.recordingAttendanceOnSectionId = entities.sections.recordingAttendanceOn.id
   }
 
   return ids

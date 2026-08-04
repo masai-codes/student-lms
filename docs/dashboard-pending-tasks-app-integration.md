@@ -62,12 +62,7 @@ export type DashboardPendingTaskItem = {
   moduleName: string
   attendance: LectureAttendanceSummary | null
   optionalAttendance: LectureAttendanceSummary | null
-  assignmentProgressStatus:
-    | 'new'
-    | 'in-progress'
-    | 'overdue'
-    | 'completed'
-    | null
+  assignmentProgressStatus: 'new' | 'in-progress' | 'overdue' | 'completed' | null
   resourcePhase: 'before' | 'during' | 'after' | null
   listingCtas: LearnListingCardCtas
   courseName: string | null

@@ -4,7 +4,7 @@ import { LectureReactPlayer } from './LectureReactPlayer'
 import { LectureVideoFullBleed } from './LectureVideoFullBleed'
 
 import type {
-  InLecturePopupElements,
+  InLecturePopupQuiz,
   LectureTranscriptSource,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
@@ -16,7 +16,7 @@ type LectureVideoSectionProps = {
   initialAttendance: LectureVideoAttendanceState | null
   /** Pointer to the transcript; captions fetch it the first time CC is enabled. */
   transcript?: LectureTranscriptSource
-  inLecturePopupElements?: InLecturePopupElements
+  inLecturePopupQuiz?: Array<InLecturePopupQuiz>
   className?: string
   /** When false, video stays in its column within a split row. */
   fullBleed?: boolean
@@ -29,7 +29,7 @@ export function LectureVideoSection({
   videoUrl,
   initialAttendance,
   transcript,
-  inLecturePopupElements,
+  inLecturePopupQuiz,
   className,
   fullBleed = true,
   onVideoAspectRatioChange,
@@ -40,7 +40,7 @@ export function LectureVideoSection({
       src={videoUrl}
       initialAttendance={initialAttendance}
       transcript={transcript}
-      inLecturePopupElements={inLecturePopupElements}
+      inLecturePopupQuiz={inLecturePopupQuiz}
       onVideoAspectRatioChange={onVideoAspectRatioChange}
     />
   )

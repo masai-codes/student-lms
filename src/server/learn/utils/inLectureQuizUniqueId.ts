@@ -12,29 +12,3 @@ export function buildInLectureQuizUniqueId(
 ): string {
   return `${userId}-${lectureId}-${assessmentTemplateId}`
 }
-
-/**
- * Inverse of {@link buildInLectureQuizUniqueId} — parses a `gradeAssessment`
- * callback's `uniqueID` back into its parts. `userId`/`lectureId` are the first
- * two `-`-separated segments; the remainder is the `assessmentTemplateId` (which
- * itself contains no `-`, but rejoining is safe). Returns `null` when malformed.
- */
-export function parseInLectureQuizUniqueId(uniqueId: string): {
-  userId: number
-  lectureId: number
-  assessmentTemplateId: string
-} | null {
-  const parts = uniqueId.split('-')
-  if (parts.length < 3) return null
-  const userId = Number(parts[0])
-  const lectureId = Number(parts[1])
-  const assessmentTemplateId = parts.slice(2).join('-')
-  if (
-    !Number.isInteger(userId) ||
-    !Number.isInteger(lectureId) ||
-    !assessmentTemplateId
-  ) {
-    return null
-  }
-  return { userId, lectureId, assessmentTemplateId }
-}

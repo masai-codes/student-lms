@@ -24,7 +24,6 @@ import { buildLearnDetailPresentation } from '@/server/learn/utils/buildLearnDet
 import { buildLectureTabContent } from '@/server/learn/utils/buildLectureTabContent'
 import { getLearnEntityBookmarkState } from '@/server/learn/services/learnEntityBookmark.service'
 import { getLectureFeedbackRecord } from '@/server/learn/services/lectureFeedback.service'
-import { getInLecturePopupElements } from '@/server/learn/services/getInLecturePopupElements.service'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { resolveLearnDetailRestriction } from '@/server/restrictions/resolveLearnDetailRestriction'
 import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
@@ -100,7 +99,7 @@ export async function getLectureLearningDetailForUser(
     videoAttendance,
     attendanceMap,
     isBookmarked,
-    inLecturePopupElements,
+    feedbackRecord,
   ] = await Promise.all([
     Promise.resolve(buildLearnDetailPresentation(row)),
     listDiscussionsWithThreadsForLearnEntity(
@@ -157,22 +156,12 @@ export async function getLectureLearningDetailForUser(
           isRecommended,
         ),
     getLearnEntityBookmarkState(userId, 'lecture', lectureId),
-    getInLecturePopupElements(lectureId),
+    getLectureFeedbackRecord(userId, lectureId),
   ])
 
   const attendanceSummary = attendanceMap.get(lectureId) ?? null
   const attendance = isRecommended ? null : attendanceSummary
   const optionalAttendance = isRecommended ? attendanceSummary : null
-  // Same `overallStatus === 1` the "Present" badge renders from (see
-  // resolveLectureAttendanceUiState) — reused here instead of a second
-  // independent `student_attendances` read, so the tagged-feedback flow can
-  // never disagree with what the badge shows.
-  const attended = attendanceSummary?.overallStatus === 1
-  const feedbackRecord = await getLectureFeedbackRecord(
-    userId,
-    lectureId,
-    attended,
-  )
 
   const aiRow = aiRows[0]
 
@@ -232,7 +221,6 @@ export async function getLectureLearningDetailForUser(
     isBookmarked,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
     enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
-    inLecturePopupElements,
     restriction,
     // When restricted the whole page is blocked client-side; don't leak the
     // recording URL either way.
