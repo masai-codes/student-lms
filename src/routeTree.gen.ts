@@ -97,6 +97,7 @@ import { Route as ApiSupportFloatingChatContextRouteImport } from './routes/api/
 import { Route as ApiSupportFaqsVoteRouteImport } from './routes/api/support/faqs/vote'
 import { Route as ApiSupportCallbackCreateRouteImport } from './routes/api/support/callback/create'
 import { Route as ApiProfileAccountActivitySignOutAllRouteImport } from './routes/api/profile/account-activity/sign-out-all'
+import { Route as ApiMigrationsBatchUserSetEnrolmentIdRouteImport } from './routes/api/migrations/batch-user/set-enrolment-id'
 import { Route as ApiMessageIdReplyRouteImport } from './routes/api/message/$id/reply'
 import { Route as ApiMessageIdMarkUnreadRouteImport } from './routes/api/message/$id/mark-unread'
 import { Route as ApiMessageIdMarkReadRouteImport } from './routes/api/message/$id/mark-read'
@@ -678,6 +679,12 @@ const ApiProfileAccountActivitySignOutAllRoute =
   ApiProfileAccountActivitySignOutAllRouteImport.update({
     id: '/api/profile/account-activity/sign-out-all',
     path: '/api/profile/account-activity/sign-out-all',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMigrationsBatchUserSetEnrolmentIdRoute =
+  ApiMigrationsBatchUserSetEnrolmentIdRouteImport.update({
+    id: '/api/migrations/batch-user/set-enrolment-id',
+    path: '/api/migrations/batch-user/set-enrolment-id',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiMessageIdReplyRoute = ApiMessageIdReplyRouteImport.update({
@@ -1421,6 +1428,7 @@ export interface FileRoutesByFullPath {
   '/api/message/$id/mark-read': typeof ApiMessageIdMarkReadRoute
   '/api/message/$id/mark-unread': typeof ApiMessageIdMarkUnreadRoute
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
+  '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
@@ -1613,6 +1621,7 @@ export interface FileRoutesByTo {
   '/api/message/$id/mark-read': typeof ApiMessageIdMarkReadRoute
   '/api/message/$id/mark-unread': typeof ApiMessageIdMarkUnreadRoute
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
+  '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
@@ -1808,6 +1817,7 @@ export interface FileRoutesById {
   '/api/message/$id/mark-read': typeof ApiMessageIdMarkReadRoute
   '/api/message/$id/mark-unread': typeof ApiMessageIdMarkUnreadRoute
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
+  '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
@@ -2003,6 +2013,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/mark-read'
     | '/api/message/$id/mark-unread'
     | '/api/message/$id/reply'
+    | '/api/migrations/batch-user/set-enrolment-id'
     | '/api/profile/account-activity/sign-out-all'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
@@ -2195,6 +2206,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/mark-read'
     | '/api/message/$id/mark-unread'
     | '/api/message/$id/reply'
+    | '/api/migrations/batch-user/set-enrolment-id'
     | '/api/profile/account-activity/sign-out-all'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
@@ -2389,6 +2401,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/mark-read'
     | '/api/message/$id/mark-unread'
     | '/api/message/$id/reply'
+    | '/api/migrations/batch-user/set-enrolment-id'
     | '/api/profile/account-activity/sign-out-all'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
@@ -2563,6 +2576,7 @@ export interface RootRouteChildren {
   ApiMessageIdMarkReadRoute: typeof ApiMessageIdMarkReadRoute
   ApiMessageIdMarkUnreadRoute: typeof ApiMessageIdMarkUnreadRoute
   ApiMessageIdReplyRoute: typeof ApiMessageIdReplyRoute
+  ApiMigrationsBatchUserSetEnrolmentIdRoute: typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   ApiProfileAccountActivitySignOutAllRoute: typeof ApiProfileAccountActivitySignOutAllRoute
   ApiSupportCallbackCreateRoute: typeof ApiSupportCallbackCreateRoute
   ApiSupportFloatingChatContextRoute: typeof ApiSupportFloatingChatContextRoute
@@ -3209,6 +3223,13 @@ declare module '@tanstack/react-router' {
       path: '/api/profile/account-activity/sign-out-all'
       fullPath: '/api/profile/account-activity/sign-out-all'
       preLoaderRoute: typeof ApiProfileAccountActivitySignOutAllRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/migrations/batch-user/set-enrolment-id': {
+      id: '/api/migrations/batch-user/set-enrolment-id'
+      path: '/api/migrations/batch-user/set-enrolment-id'
+      fullPath: '/api/migrations/batch-user/set-enrolment-id'
+      preLoaderRoute: typeof ApiMigrationsBatchUserSetEnrolmentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/message/$id/reply': {
@@ -4364,6 +4385,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMessageIdMarkReadRoute: ApiMessageIdMarkReadRoute,
   ApiMessageIdMarkUnreadRoute: ApiMessageIdMarkUnreadRoute,
   ApiMessageIdReplyRoute: ApiMessageIdReplyRoute,
+  ApiMigrationsBatchUserSetEnrolmentIdRoute:
+    ApiMigrationsBatchUserSetEnrolmentIdRoute,
   ApiProfileAccountActivitySignOutAllRoute:
     ApiProfileAccountActivitySignOutAllRoute,
   ApiSupportCallbackCreateRoute: ApiSupportCallbackCreateRoute,
