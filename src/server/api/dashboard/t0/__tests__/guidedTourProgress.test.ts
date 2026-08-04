@@ -5,16 +5,16 @@ import {
   isProgressComplete,
 } from '../guidedTourProgress'
 
-const hoisted = vi.hoisted(() => ({ execute: vi.fn(), isIHub: false }))
+const hoisted = vi.hoisted(() => ({ execute: vi.fn(), hasApp: true }))
 
 vi.mock('@/db', () => ({ db: { execute: hoisted.execute } }))
 vi.mock('@/server/auth/v2/portalContext', () => ({
-  isIHubPortalRequest: () => hoisted.isIHub,
+  isMobileAppPortalRequest: () => hoisted.hasApp,
 }))
 
 beforeEach(() => {
   vi.clearAllMocks()
-  hoisted.isIHub = false
+  hoisted.hasApp = true
 })
 
 /** Queue db.execute results in the exact order the service reads them. */
@@ -80,8 +80,8 @@ describe('computeGuidedTourProgress', () => {
     expect(result.lms).toEqual({ completed: 2, total: 4 })
   })
 
-  it('iHub: drops the download-app step from numerator and denominator', async () => {
-    hoisted.isIHub = true
+  it('no-app portal: drops the download-app step from numerator and denominator', async () => {
+    hoisted.hasApp = false
     queue(
       [{ id: 100 }], // latest lms-walkthrough-web section
       [{ id: 1 }, { id: 2 }], // lms lectures
@@ -94,7 +94,7 @@ describe('computeGuidedTourProgress', () => {
       false,
       { profile_pic: 'https://cdn.example.com/me.jpg' }, // photo → +1
       null,
-      true, // device token present, but iHub ignores it
+      true, // device token present, but a no-app portal ignores it
     )
 
     // 2 lectures + 1 fixed step (profile photo only); download-app omitted.
