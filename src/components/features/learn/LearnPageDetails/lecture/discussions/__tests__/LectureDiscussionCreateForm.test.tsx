@@ -28,9 +28,7 @@ vi.mock('@/components/discussion-post-card/rich-text-editor', () => ({
 describe('LectureDiscussionCreateForm', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  const setup = (
-    props?: Partial<Parameters<typeof LectureDiscussionCreateForm>[0]>,
-  ) => {
+  const setup = (props?: Partial<Parameters<typeof LectureDiscussionCreateForm>[0]>) => {
     const onSubmit = vi.fn()
     const utils = render(
       <LectureDiscussionCreateForm onSubmit={onSubmit} {...props} />,

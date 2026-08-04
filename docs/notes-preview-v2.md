@@ -29,23 +29,23 @@ https://learn.masaischool.com/notes-preview?token=eyJhbGciOi...&category=lecture
 
 ## Params
 
-| Param         | Type             | Required | Values                                                                                                                                          |
-| ------------- | ---------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `token`       | string           | yes      | Bootstrap JWT identifying the student — use it to authenticate your own fetch of the entity's content, the same way `/support-page` does today. |
-| `category`    | string           | yes      | `lecture`, `resource`, `assignment`                                                                                                             |
-| `contentType` | string           | yes      | See mapping below — depends on `category`                                                                                                       |
-| `entityId`    | string \| number | yes      | ID of the lecture or assignment, e.g. `157894`                                                                                                  |
+| Param | Type | Required | Values |
+|---|---|---|---|
+| `token` | string | yes | Bootstrap JWT identifying the student — use it to authenticate your own fetch of the entity's content, the same way `/support-page` does today. |
+| `category` | string | yes | `lecture`, `resource`, `assignment` |
+| `contentType` | string | yes | See mapping below — depends on `category` |
+| `entityId` | string \| number | yes | ID of the lecture or assignment, e.g. `157894` |
 
 ## Category × contentType mapping
 
-| `category`   | `contentType`  | Content                 | Equivalent to app field                                               |
-| ------------ | -------------- | ----------------------- | --------------------------------------------------------------------- |
-| `lecture`    | `notes`        | Lecture notes           | `lecture.notes`                                                       |
-| `lecture`    | `summary`      | Lecture AI summary      | `lecture.lectures_ai[0].summary`                                      |
-| `resource`   | `notes`        | Reading resource body   | `resource.body` (`notes` ?? `description`; `lectures.type = reading`) |
-| `resource`   | `description`  | Alias for resource body | same as `notes`                                                       |
-| `assignment` | `description`  | Assignment description  | `assignment.description` (alias → `instructions`)                     |
-| `assignment` | `instructions` | Assignment instructions | `assignment.instructions`                                             |
+| `category` | `contentType` | Content | Equivalent to app field |
+|---|---|---|---|
+| `lecture` | `notes` | Lecture notes | `lecture.notes` |
+| `lecture` | `summary` | Lecture AI summary | `lecture.lectures_ai[0].summary` |
+| `resource` | `notes` | Reading resource body | `resource.body` (`notes` ?? `description`; `lectures.type = reading`) |
+| `resource` | `description` | Alias for resource body | same as `notes` |
+| `assignment` | `description` | Assignment description | `assignment.description` (alias → `instructions`) |
+| `assignment` | `instructions` | Assignment instructions | `assignment.instructions` |
 
 > Reading materials (`type = reading`) must use `category=resource`, not
 > `category=lecture` — the lecture detail path excludes reading rows.
@@ -67,7 +67,6 @@ show an empty/error state — do not crash.
 
 The app keeps a single WebView instance alive and reuses it across opens
 (same approach as `/support-page`). Please make sure:
-
 - The page can re-render new content when `entityId`/`category`/`contentType`
   change via client-side navigation (e.g. React Router / query param change),
   **without requiring a full page reload**, since the app may update the URL

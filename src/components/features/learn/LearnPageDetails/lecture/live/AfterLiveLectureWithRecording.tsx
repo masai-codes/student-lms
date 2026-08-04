@@ -4,7 +4,7 @@ import { LectureRecordingExperience } from '../LectureRecordingExperience'
 import type { DiscussionListItem, LearningPriority } from '@/server/learn/types'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type {
-  InLecturePopupElements,
+  InLecturePopupQuiz,
   LectureDetailTabContent,
   LectureFeedbackState,
   LectureVideoAttendanceState,
@@ -29,7 +29,7 @@ type AfterLiveLectureWithRecordingProps = {
   isLiveLecture: boolean
   isBookmarked: boolean
   feedback: LectureFeedbackState
-  inLecturePopupElements: InLecturePopupElements
+  inLecturePopupQuiz: Array<InLecturePopupQuiz>
 }
 
 export function AfterLiveLectureWithRecording(

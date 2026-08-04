@@ -7,12 +7,6 @@ export const LEARN_API = {
     `/api/learn/lectures/${lectureId}/quiz-url`,
   lectureQuizStatus: (lectureId: number) =>
     `/api/learn/lectures/${lectureId}/quiz-status`,
-  lectureQuizSubmit: (lectureId: number) =>
-    `/api/learn/lectures/${lectureId}/quiz-submit`,
-  lecturePollStatus: (lectureId: number) =>
-    `/api/learn/lectures/${lectureId}/poll-status`,
-  lecturePollSubmit: (lectureId: number) =>
-    `/api/learn/lectures/${lectureId}/poll-submit`,
   lectureBookmark: (lectureId: number) =>
     `/api/learn/lectures/${lectureId}/bookmark`,
   lectureFeedback: (lectureId: number) =>

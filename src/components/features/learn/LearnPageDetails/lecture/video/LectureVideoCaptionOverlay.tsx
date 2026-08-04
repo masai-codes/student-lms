@@ -42,9 +42,7 @@ export function LectureVideoCaptionOverlay({
   return (
     <output
       className={`pointer-events-none absolute left-0 right-0 z-[42] m-0 flex justify-center border-0 p-0 px-3 transition-[bottom] duration-300 ease-out ${
-        liftForControls
-          ? 'bottom-28 md:bottom-[6.75rem]'
-          : 'bottom-14 md:bottom-16'
+        liftForControls ? 'bottom-28 md:bottom-[6.75rem]' : 'bottom-14 md:bottom-16'
       }`}
       aria-live="polite"
     >

@@ -109,12 +109,8 @@ describe('seedLoginAndJoinLecture', () => {
     })
     expect(hoisted.createLecture).toHaveBeenCalledWith(
       expect.objectContaining({
-        schedule: expect.stringMatching(
-          /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
-        ),
-        concludes: expect.stringMatching(
-          /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
-        ),
+        schedule: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/),
+        concludes: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/),
         startDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
         endDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
         zoomLink: expect.any(String),

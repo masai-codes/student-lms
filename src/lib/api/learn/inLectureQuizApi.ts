@@ -1,13 +1,7 @@
 import { fetchJson } from '@/lib/api/fetchJson'
 import { LEARN_API } from '@/lib/api/learnPaths'
 
-export type GenerateInLectureQuizUrlResult = {
-  url: string
-  /** True when `url` is the user's read-only submission view (already submitted). */
-  alreadySubmitted: boolean
-  /** Assess test token (fresh test only) — used to submit via `endassessment`. */
-  token?: string
-}
+export type GenerateInLectureQuizUrlResult = { url: string }
 export type InLectureQuizGradedStatus = { graded: boolean }
 
 /**
@@ -44,23 +38,4 @@ export async function checkInLectureQuizGraded(input: {
   return fetchJson<InLectureQuizGradedStatus>(
     `${LEARN_API.lectureQuizStatus(input.lectureId)}?${params.toString()}`,
   )
-}
-
-/**
- * Submits (ends) the user's in-lecture quiz attempt on the Assess Platform.
- * `token` is the fresh test token returned by {@link generateInLectureQuizUrl}.
- */
-export async function endInLectureQuizAssessment(input: {
-  lectureId: number
-  assessmentTemplateId: string
-  token: string
-}): Promise<{ ok: true }> {
-  return fetchJson<{ ok: true }>(LEARN_API.lectureQuizSubmit(input.lectureId), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      assessmentTemplateId: input.assessmentTemplateId,
-      token: input.token,
-    }),
-  })
 }

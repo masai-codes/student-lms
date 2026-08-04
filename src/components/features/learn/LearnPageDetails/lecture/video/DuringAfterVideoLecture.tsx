@@ -33,7 +33,7 @@ export function DuringAfterVideoLecture({
         isLiveLecture={detail.lectureKind === 'live'}
         isBookmarked={detail.isBookmarked}
         feedback={detail.feedback}
-        inLecturePopupElements={detail.inLecturePopupElements}
+        inLecturePopupQuiz={detail.inLecturePopupQuiz}
       />
     )
   }

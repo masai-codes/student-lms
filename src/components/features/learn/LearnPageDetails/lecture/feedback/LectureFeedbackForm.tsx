@@ -3,7 +3,6 @@
 import { useState } from 'react'
 
 import type { LectureFeedbackState } from '@/server/learn/lectureDetailTypes'
-import { getLectureFeedbackTagOptions } from '@/server/learn/utils/lectureFeedbackTags'
 import { submitLectureFeedbackViaApi } from '@/lib/api/learn/lectureFeedbackApi'
 import { MasaiButton } from '@/components/ui/masai-button'
 import { Textarea } from '@/components/ui/textarea'
@@ -45,11 +44,9 @@ type LectureFeedbackFormProps = {
 function ReadOnlyFeedback({
   rating,
   text,
-  tags,
 }: {
   rating: number
   text: string | null
-  tags: Array<string>
 }) {
   const chosen = ratingFor(rating)
   return (
@@ -69,18 +66,6 @@ function ReadOnlyFeedback({
           </span>
         ) : null}
       </div>
-      {tags.length > 0 ? (
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="type-b3-regular rounded-full border border-border bg-surface-muted px-2.5 py-1 text-foreground-subtle"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      ) : null}
       {text ? (
         <p className="type-b2-regular mt-2 whitespace-pre-wrap text-foreground">
           {text}
@@ -96,40 +81,13 @@ export function LectureFeedbackForm({
 }: LectureFeedbackFormProps) {
   const [rating, setRating] = useState(feedback.rating ?? 0)
   const [text, setText] = useState(feedback.text ?? '')
-  const [tags, setTags] = useState<Array<string>>(feedback.tags ?? [])
   const [hovered, setHovered] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [savedRating, setSavedRating] = useState(feedback.rating)
-  const [savedTags, setSavedTags] = useState(feedback.tags ?? [])
 
   if (!feedback.canSubmit) {
     if (savedRating == null) return null
-    return (
-      <ReadOnlyFeedback
-        rating={savedRating}
-        text={feedback.text}
-        tags={savedTags}
-      />
-    )
-  }
-
-  // Tags only exist in the `zef` flow — the legacy flow never shows them.
-  const tagOptions =
-    feedback.mode === 'zef' && rating > 0
-      ? getLectureFeedbackTagOptions(rating)
-      : []
-
-  const selectRating = (value: number) => {
-    // Tag sets differ between low and high ratings, so a rating change
-    // invalidates any tags picked under the previous set.
-    if (value !== rating) setTags([])
-    setRating(value)
-  }
-
-  const toggleTag = (tag: string) => {
-    setTags((prev) =>
-      prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag],
-    )
+    return <ReadOnlyFeedback rating={savedRating} text={feedback.text} />
   }
 
   const handleSubmit = async () => {
@@ -145,10 +103,8 @@ export function LectureFeedbackForm({
         lectureId,
         rating,
         feedback: trimmed.length > 0 ? trimmed : undefined,
-        tags,
       })
       setSavedRating(result.rating)
-      setSavedTags(result.tags)
       toast.success('Thanks for your feedback!')
     } catch {
       toast.error('Could not submit feedback. Please try again.')
@@ -187,7 +143,7 @@ export function LectureFeedbackForm({
               onMouseLeave={() => setHovered(0)}
               onFocus={() => setHovered(item.value)}
               onBlur={() => setHovered(0)}
-              onClick={() => selectRating(item.value)}
+              onClick={() => setRating(item.value)}
               className="group relative flex items-center justify-center rounded-xl px-0.5 py-2 outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[#4F6BED]/40 disabled:cursor-not-allowed"
             >
               {/* Coloured halo that blooms behind the live emoji. */}
@@ -244,35 +200,6 @@ export function LectureFeedbackForm({
           </span>
         )}
       </div>
-
-      {tagOptions.length > 0 ? (
-        <div
-          className="mt-1 flex flex-wrap justify-center gap-1.5"
-          role="group"
-          aria-label="Feedback tags"
-        >
-          {tagOptions.map((tag) => {
-            const isChecked = tags.includes(tag)
-            return (
-              <button
-                key={tag}
-                type="button"
-                aria-pressed={isChecked}
-                disabled={submitting}
-                onClick={() => toggleTag(tag)}
-                className={cn(
-                  'type-b3-regular rounded-full border px-2.5 py-1 transition-colors duration-150 disabled:cursor-not-allowed',
-                  isChecked
-                    ? 'border-[#4F6BED] bg-[#4F6BED]/10 text-[#4F6BED]'
-                    : 'border-border bg-surface text-foreground-subtle hover:bg-surface-muted',
-                )}
-              >
-                {tag}
-              </button>
-            )
-          })}
-        </div>
-      ) : null}
 
       <Textarea
         value={text}

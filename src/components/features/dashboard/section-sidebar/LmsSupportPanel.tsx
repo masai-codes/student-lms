@@ -54,7 +54,11 @@ export function LmsSupportPanel({
           : 'border-border bg-surface-muted hover:shadow-sm'
       }`}
     >
-      <img src={SUPPORT_ILLUSTRATION} alt="" className="size-12 shrink-0" />
+      <img
+        src={SUPPORT_ILLUSTRATION}
+        alt=""
+        className="size-12 shrink-0"
+      />
 
       <div className="min-w-0 flex-1">
         <h4 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">

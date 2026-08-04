@@ -85,17 +85,13 @@ describe('LectureAiChatPanel', () => {
       />,
     )
     expect(
-      screen
-        .getByTestId('lecture-ask-ai-expand-toggle')
-        .getAttribute('aria-label'),
+      screen.getByTestId('lecture-ask-ai-expand-toggle').getAttribute('aria-label'),
     ).toBe('Minimize chat')
   })
 
   it('closes via the close control', () => {
     const onClose = vi.fn()
-    render(
-      <LectureAiChatPanel chat={makeChat()} lectureId={1} onClose={onClose} />,
-    )
+    render(<LectureAiChatPanel chat={makeChat()} lectureId={1} onClose={onClose} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Close chat' }))
     expect(onClose).toHaveBeenCalledTimes(1)
@@ -106,9 +102,7 @@ describe('LectureAiChatPanel', () => {
     render(
       <LectureAiChatPanel
         chat={makeChat({
-          messages: [
-            { id: '1' },
-          ] as unknown as UseLectureAiChatResult['messages'],
+          messages: [{ id: '1' }] as unknown as UseLectureAiChatResult['messages'],
           startNewChat,
         })}
         lectureId={1}

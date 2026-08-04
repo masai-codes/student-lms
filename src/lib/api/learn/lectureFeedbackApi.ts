@@ -5,14 +5,13 @@ import { LEARN_API } from '@/lib/api/learnPaths'
 
 export type SubmitLectureFeedbackResult = Pick<
   LectureFeedbackState,
-  'rating' | 'text' | 'tags'
+  'rating' | 'text'
 >
 
 export async function submitLectureFeedbackViaApi(input: {
   lectureId: number
   rating: number
   feedback?: string
-  tags?: Array<string>
 }): Promise<SubmitLectureFeedbackResult> {
   try {
     return await fetchJson<SubmitLectureFeedbackResult>(
@@ -23,7 +22,6 @@ export async function submitLectureFeedbackViaApi(input: {
         body: JSON.stringify({
           rating: input.rating,
           feedback: input.feedback,
-          tags: input.tags,
         }),
       },
     )
