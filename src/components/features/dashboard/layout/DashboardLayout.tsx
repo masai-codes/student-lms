@@ -40,10 +40,7 @@ export function DashboardLayout({
   const { now } = useServerTime()
 
   return (
-    <div
-      data-testid="dashboard-root"
-      className="mb-8 mt-2 md:mt-4 container mx-auto"
-    >
+    <div data-testid="dashboard-root" className="mb-8 mt-4 container mx-auto">
       {overview.feePaymentBanners.length > 0 ? (
         <div className="mb-4">
           <FeePaymentBanners banners={overview.feePaymentBanners} />
