@@ -16,7 +16,9 @@ function tx(meta: unknown) {
     where: () => Promise.resolve(undefined),
   }))
   const select = vi.fn(() => ({
-    from: () => ({ where: () => ({ limit: () => Promise.resolve([{ meta }]) }) }),
+    from: () => ({
+      where: () => ({ limit: () => Promise.resolve([{ meta }]) }),
+    }),
   }))
   const handle = {
     select,

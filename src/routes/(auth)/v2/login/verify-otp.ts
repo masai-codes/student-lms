@@ -7,7 +7,6 @@ import {
   withAuthErrorHandling,
 } from '@/server/auth/v2/httpHelpers'
 import { canAccessPortal } from '@/server/auth/v2/portalGate'
-import { portalMismatchResponse } from '@/server/auth/v2/portalMismatchResponse'
 import { VerifyOtpError, verifyOtp } from '@/server/auth/v2/verifyOtp'
 
 type VerifyOtpBody = {
@@ -59,16 +58,11 @@ async function handleVerifyOtp(request: Request): Promise<Response> {
     )
     const allowedUsers = matchedUsers.filter((_, i) => gateResults[i])
     if (allowedUsers.length === 0) {
-      // Every account behind this OTP lives on another portal — redirect rather
-      // than dead-end. One identifier can match several accounts across
-      // portals (`users_email_client_unique` is (email, client)); only redirect
-      // when they agree, otherwise there's no single right destination and
-      // `portalMismatchResponse` falls back to the plain message.
-      const clients = new Set(matchedUsers.map((u) => u.client))
-      return portalMismatchResponse({
-        client: clients.size === 1 ? matchedUsers[0]?.client : null,
-        request,
-      })
+      return errorResponse(
+        403,
+        'PORTAL_MISMATCH',
+        'This account cannot sign in from this portal.',
+      )
     }
 
     const {

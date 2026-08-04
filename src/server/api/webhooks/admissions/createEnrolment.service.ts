@@ -78,7 +78,8 @@ export async function createEnrolmentFromAdmissions(
     await reviveOrCreateSectionUsers(tx, {
       userId: resolvedUserId,
       sectionIds: validSectionIds,
-      managerId: input.manager_id,
+      // `null` from admissions means "no manager" — same as omitted.
+      managerId: input.manager_id ?? undefined,
     })
     if (input.new_user_journey) {
       await upsertAdmissionData(tx, { userId: resolvedUserId, input })

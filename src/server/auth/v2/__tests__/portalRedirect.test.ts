@@ -5,18 +5,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
  * the env, so the module is re-imported *after* stubbing — a static top-level
  * import would make the stubs a no-op and leave the test on the prod fallbacks.
  */
-async function loadPortalRedirect() {
+async function loadGetPortalRedirectUrl() {
   vi.resetModules()
-  return await import('../portalRedirect')
+  return (await import('../portalRedirect')).getPortalRedirectUrl
 }
 
-function requestFrom(url: string, portalHeader?: string): Request {
-  return new Request(url, {
-    headers: portalHeader ? { 'X-App-Origin': portalHeader } : {},
-  })
+/** The `X-App-Origin` header is the first thing `getEmailPortal` checks. */
+function requestFrom(url: string, portal: string): Request {
+  return new Request(url, { headers: { 'X-App-Origin': portal } })
 }
 
-describe('resolvePortalRedirect', () => {
+const student = { id: 1, role: 'student' as string | null, client: 'masai' }
+
+describe('getPortalRedirectUrl', () => {
   beforeEach(() => {
     vi.stubEnv('VITE_NEW_STUDENT_UI_URL', 'https://learn.masaischool.com')
     vi.stubEnv(
@@ -33,60 +34,71 @@ describe('resolvePortalRedirect', () => {
     vi.unstubAllEnvs()
   })
 
-  it('points a Masai account visiting the iHub domain back at Masai', async () => {
-    const { resolvePortalRedirect } = await loadPortalRedirect()
+  it('sends a Masai student off the iHub domain to the Masai base URL', async () => {
+    const getPortalRedirectUrl = await loadGetPortalRedirectUrl()
 
-    expect(
-      resolvePortalRedirect({
-        userPortal: 'masai',
-        request: requestFrom(
-          'https://learn.ihubiitrcourses.org/signin',
-          'ihub',
-        ),
-        path: '/signin',
+    await expect(
+      getPortalRedirectUrl({
+        user: student,
+        request: requestFrom('https://learn.ihubiitrcourses.org/', 'ihub'),
       }),
-    ).toEqual({
-      portal: 'masai',
-      portalLabel: 'Masai School',
-      redirectUrl: 'https://learn.masaischool.com/signin',
-    })
+    ).resolves.toBe('https://learn.masaischool.com')
   })
 
-  it('points an IITJ account visiting the Masai domain at the IITJ portal', async () => {
-    const { resolvePortalRedirect } = await loadPortalRedirect()
+  it('sends an IITJ student off the Masai domain to the IITJ base URL', async () => {
+    const getPortalRedirectUrl = await loadGetPortalRedirectUrl()
 
-    expect(
-      resolvePortalRedirect({
-        userPortal: 'iitj',
+    await expect(
+      getPortalRedirectUrl({
+        user: { ...student, client: 'iitj' },
         request: requestFrom('https://learn.masaischool.com/', 'masai'),
-      })?.redirectUrl,
-      // No `path` → portal root, not a trailing slash.
-    ).toBe('https://iitj-learn.masaischool.com')
+      }),
+    ).resolves.toBe('https://iitj-learn.masaischool.com')
   })
 
-  it('returns null when the user is already on their own portal', async () => {
-    const { resolvePortalRedirect } = await loadPortalRedirect()
+  it('stays put when the student is already on their own portal', async () => {
+    const getPortalRedirectUrl = await loadGetPortalRedirectUrl()
 
-    expect(
-      resolvePortalRedirect({
-        userPortal: 'iitj',
+    await expect(
+      getPortalRedirectUrl({
+        user: { ...student, client: 'iitj' },
         request: requestFrom('https://iitj-learn.masaischool.com/', 'iitj'),
       }),
-    ).toBeNull()
+    ).resolves.toBeNull()
   })
 
-  it('returns null rather than looping when both portals share an origin (local dev)', async () => {
+  it('treats a null/unknown client as Masai', async () => {
+    const getPortalRedirectUrl = await loadGetPortalRedirectUrl()
+
+    await expect(
+      getPortalRedirectUrl({
+        user: { ...student, client: null },
+        request: requestFrom('https://learn.ihubiitrcourses.org/', 'ihub'),
+      }),
+    ).resolves.toBe('https://learn.masaischool.com')
+  })
+
+  it('lets admins through on any portal', async () => {
+    const getPortalRedirectUrl = await loadGetPortalRedirectUrl()
+
+    await expect(
+      getPortalRedirectUrl({
+        user: { ...student, role: 'admin' },
+        request: requestFrom('https://learn.ihubiitrcourses.org/', 'ihub'),
+      }),
+    ).resolves.toBeNull()
+  })
+
+  it('stays put rather than looping when both portals share an origin (local dev)', async () => {
     vi.stubEnv('VITE_NEW_STUDENT_UI_URL', 'http://localhost:3002')
     vi.stubEnv('VITE_NEW_STUDENT_UI_URL_IHUB', 'http://localhost:3002')
-    const { resolvePortalRedirect } = await loadPortalRedirect()
+    const getPortalRedirectUrl = await loadGetPortalRedirectUrl()
 
-    // Request portal is ihub (header), user is masai — a mismatch, but both
-    // resolve to the same localhost origin, so there is nowhere to send them.
-    expect(
-      resolvePortalRedirect({
-        userPortal: 'masai',
-        request: requestFrom('http://localhost:3002/signin', 'ihub'),
+    await expect(
+      getPortalRedirectUrl({
+        user: student,
+        request: requestFrom('http://localhost:3002/', 'ihub'),
       }),
-    ).toBeNull()
+    ).resolves.toBeNull()
   })
 })

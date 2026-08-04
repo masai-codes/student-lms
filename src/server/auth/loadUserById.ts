@@ -2,7 +2,7 @@ import { eq, sql } from 'drizzle-orm'
 import { getRequest } from '@tanstack/react-start/server'
 import { db } from '@/db'
 import { clubMembers } from '@/db/schema'
-import { getPortalRedirectForUser } from '@/server/auth/v2/portalGate'
+import { getPortalRedirectUrl } from '@/server/auth/v2/portalRedirect'
 
 function normalizeRows<T>(result: unknown): Array<T> {
   if (Array.isArray(result)) {
@@ -106,12 +106,10 @@ export async function loadUserById(userId: number) {
   // domain. `null` = right domain, admin, or no distinct target configured.
   const request = currentRequest()
   const portalRedirectUrl = request
-    ? ((
-        await getPortalRedirectForUser({
-          user: { id: row.id, role: row.role, client: row.client ?? 'masai' },
-          request,
-        })
-      )?.redirectUrl ?? null)
+    ? await getPortalRedirectUrl({
+        user: { id: row.id, role: row.role, client: row.client },
+        request,
+      })
     : null
 
   const membershipRows = await db

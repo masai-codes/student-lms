@@ -1,12 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { db } from '@/db'
 import { users } from '@/db/schema'
-import {
-  getEmailPortal,
-  toEmailPortal,
-} from '@/server/auth/v2/isRequestFromIHub'
-import type { PortalRedirect } from '@/server/auth/v2/portalRedirect'
-import { resolvePortalRedirect } from '@/server/auth/v2/portalRedirect'
+import { getEmailPortal } from '@/server/auth/v2/isRequestFromIHub'
 
 export type GateUser = {
   id: number
@@ -77,32 +72,4 @@ export async function canAccessPortal({
   }
 
   return false
-}
-
-/**
- * Portal-mismatch redirect target for `user` on this request, or `null` when
- * the user belongs here (or when no distinct target domain is configured — see
- * `resolvePortalRedirect`).
- *
- * This is the "send them to their own portal" counterpart to
- * {@link canAccessPortal}: same gate, but it answers *where to* instead of
- * *whether*. Admins and grandfathered mobile users are allowed through and so
- * get `null`.
- */
-export async function getPortalRedirectForUser({
-  user,
-  request,
-  path,
-}: {
-  user: GateUser
-  request: Request
-  /** Path on the target portal — `/signin` from login, `/` from the app shell. */
-  path?: string
-}): Promise<PortalRedirect | null> {
-  if (await canAccessPortal({ user, request })) return null
-  return resolvePortalRedirect({
-    userPortal: toEmailPortal(user.client),
-    request,
-    path,
-  })
 }

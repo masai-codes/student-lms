@@ -1,29 +1,10 @@
 import type { EmailPortal } from '@/server/auth/v2/isRequestFromIHub'
-import { getEmailPortal } from '@/server/auth/v2/isRequestFromIHub'
+import {
+  getEmailPortal,
+  toEmailPortal,
+} from '@/server/auth/v2/isRequestFromIHub'
+import { canAccessPortal } from '@/server/auth/v2/portalGate'
 import { ORIGIN_URLS } from '@/utils/originUrls'
-
-/** Human-readable portal names, used in the "you belong to X" copy. */
-const PORTAL_LABEL: Record<EmailPortal, string> = {
-  masai: 'Masai School',
-  ihub: 'iHub DivyaSampark',
-  iitj: 'IIT Jodhpur',
-}
-
-export type PortalRedirect = {
-  /** Portal the user's `users.client` maps to. */
-  portal: EmailPortal
-  portalLabel: string
-  /** Absolute URL on that portal's domain. */
-  redirectUrl: string
-}
-
-export function getPortalLabel(portal: EmailPortal): string {
-  return PORTAL_LABEL[portal]
-}
-
-function baseUrlFor(portal: EmailPortal): string {
-  return ORIGIN_URLS[portal].newStudentUi.trim().replace(/\/$/, '')
-}
 
 function originOf(url: string): string | null {
   try {
@@ -34,40 +15,38 @@ function originOf(url: string): string | null {
 }
 
 /**
- * Where a student whose account lives on a *different* portal should be sent.
- * Returns `null` when no redirect is possible or sensible:
- *   - the target portal has no distinct URL configured, or
- *   - the target URL is the domain the request already arrived on (a redirect
- *     there would bounce the user in a loop — this is also what keeps local dev
- *     working, where every portal points at the same localhost origin).
+ * Base URL of the portal a student belongs to, when they've landed on a
+ * *different* portal's domain — masai / ihub / iitj, keyed off `users.client`
+ * (see `ORIGIN_URLS` for the per-portal env vars). The app shell redirects on
+ * this; it's the only portal-routing decision in the app.
  *
- * Callers decide *whether* the user is misplaced (see `canAccessPortal`); this
- * only answers *where to*.
+ * `null` means stay put:
+ *   - the user is already on their own portal, or
+ *   - the gate lets them through anyway (admins, grandfathered mobile users —
+ *     see {@link canAccessPortal}), or
+ *   - their portal resolves to the domain we're already on, so redirecting
+ *     would loop. This is also what keeps local dev working, where every
+ *     portal's URL points at the same localhost origin.
  */
-export function resolvePortalRedirect({
-  userPortal,
+export async function getPortalRedirectUrl({
+  user,
   request,
-  path = '/',
 }: {
-  userPortal: EmailPortal
+  user: { id: number; role: string | null; client: string | null }
   request: Request
-  /** Path on the target portal, e.g. `/signin`. */
-  path?: string
-}): PortalRedirect | null {
-  const requestPortal = getEmailPortal(request)
-  if (userPortal === requestPortal) return null
+}): Promise<string | null> {
+  const userPortal: EmailPortal = toEmailPortal(user.client)
+  if (userPortal === getEmailPortal(request)) return null
 
-  const base = baseUrlFor(userPortal)
-  const targetOrigin = originOf(base)
-  if (!targetOrigin) return null
+  const allowedAnyway = await canAccessPortal({
+    user: { id: user.id, role: user.role, client: userPortal },
+    request,
+  })
+  if (allowedAnyway) return null
 
-  const currentOrigin = originOf(request.url)
-  if (currentOrigin && currentOrigin === targetOrigin) return null
+  const target = ORIGIN_URLS[userPortal].newStudentUi.trim().replace(/\/$/, '')
+  const targetOrigin = originOf(target)
+  if (!targetOrigin || targetOrigin === originOf(request.url)) return null
 
-  const suffix = path.startsWith('/') ? path : `/${path}`
-  return {
-    portal: userPortal,
-    portalLabel: PORTAL_LABEL[userPortal],
-    redirectUrl: `${base}${suffix === '/' ? '' : suffix}`,
-  }
+  return target
 }

@@ -51,7 +51,8 @@ export async function processAdmissionEvent(
     const batchUser = await findBatchUserByEnrolmentId(
       tx,
       enrolmentId,
-      event.data.lms_batch_user_id,
+      // `null` from admissions means "not specified" — same as omitted.
+      event.data.lms_batch_user_id ?? undefined,
     )
     const payload = { ...event }
 
