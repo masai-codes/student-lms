@@ -5,7 +5,7 @@ import type {
 } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 import type { StudentKitStatus } from '@/server/api/dashboard/t0/getStudentKitStatus.service'
-import { isIHubPortal } from '@/utils/portal'
+import { isMobileAppPortal } from '@/utils/portal'
 
 /**
  * Pure step-model builders for the guided tour. Each tab is a list of steps the
@@ -57,11 +57,11 @@ function videoStep(
 
 /**
  * LMS Walkthrough steps: the walkthrough videos followed by the fixed steps
- * (profile photo, and — Masai only — download app). Completion of the fixed
- * steps mirrors the backend denominator (`lmsWalkthroughExtraSteps`): iHub has
- * no mobile app, so the download-app step is dropped here AND from the backend
- * total to keep the progress bar reachable. The lite (non-T0) flow has no
- * walkthrough videos — strictly the fixed steps.
+ * (profile photo, and — where the app exists — download app). Completion of the
+ * fixed steps mirrors the backend denominator (`lmsWalkthroughExtraSteps`): on
+ * portals with no mobile app the download-app step is dropped here AND from the
+ * backend total, so the progress bar stays reachable. The lite (non-T0) flow has
+ * no walkthrough videos — strictly the fixed steps.
  */
 export function buildLmsSteps(
   lectures: T0FlowLecturesResult,
@@ -84,7 +84,7 @@ export function buildLmsSteps(
     },
   ]
 
-  if (!isIHubPortal()) {
+  if (isMobileAppPortal()) {
     fixedSteps.push({
       key: 'download-app',
       kind: 'fixed',

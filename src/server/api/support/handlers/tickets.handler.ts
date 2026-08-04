@@ -79,6 +79,8 @@ const createSchema = z.object({
   questionId: z.number().int().positive().nullish(),
   /** Lecture / assignment / resource id when raised from a detail page. */
   entityId: z.number().int().positive().nullish(),
+  /** True when raised from the anchored support floater (not `/support` full page). */
+  fromFloater: z.boolean().optional(),
 })
 
 /** POST /api/support/tickets/create */

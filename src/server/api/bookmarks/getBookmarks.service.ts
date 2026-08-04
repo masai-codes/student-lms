@@ -455,17 +455,19 @@ async function getAnnouncements(
   ])
 
   const total = normalizeCount(countResult)
-  const items = normalizeRows(dataResult).map((row): BookmarkItem => ({
-    id: str(row['id']),
-    ctaUrl: `/announcements/${str(row['entityId'])}`,
-    title: str(row['title']),
-    subtitle: str(row['subtitle']),
-    meta: '',
-    author: str(row['authorName']),
-    savedAt: savedAt(row['savedAt']),
-    entityType: 'announcement',
-    isForYou: false,
-  }))
+  const items = normalizeRows(dataResult).map(
+    (row): BookmarkItem => ({
+      id: str(row['id']),
+      ctaUrl: `/announcements/${str(row['entityId'])}`,
+      title: str(row['title']),
+      subtitle: str(row['subtitle']),
+      meta: '',
+      author: str(row['authorName']),
+      savedAt: savedAt(row['savedAt']),
+      entityType: 'announcement',
+      isForYou: false,
+    }),
+  )
 
   return { items, total }
 }

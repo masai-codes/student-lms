@@ -30,8 +30,9 @@ function readEnv(key: string): string | undefined {
  * `getAppOrigin`), so every origin's URLs must be present in the env — baked in
  * for the client (`VITE_*`) and/or available at runtime for the server. `masai`
  * is the default origin and reuses the legacy unprefixed vars for backward
- * compatibility; other origins use an `_<ORIGIN>` suffix. Fallbacks are the
- * previous hardcoded demo URLs and are only used when the env var is unset.
+ * compatibility; other origins use an `_<ORIGIN>` suffix. Fallbacks mirror the
+ * production URLs (see `.env.production`) and are only used when the env var is
+ * unset — keep them in sync when a portal's domain changes.
  */
 const ORIGIN_ENV: Record<
   AppOrigin,
@@ -42,23 +43,23 @@ const ORIGIN_ENV: Record<
     newStudentUiKey: 'VITE_NEW_STUDENT_UI_URL',
     fallback: {
       oldStudentUi: 'https://students.masaischool.com',
-      newStudentUi: 'https://students-v2.masaischool.com',
+      newStudentUi: 'https://learn.masaischool.com',
     },
   },
   ihub: {
     oldStudentUiKey: 'VITE_OLD_STUDENT_UI_URL_IHUB',
     newStudentUiKey: 'VITE_NEW_STUDENT_UI_URL_IHUB',
     fallback: {
-      oldStudentUi: 'https://students.masaischool.com',
-      newStudentUi: 'https://students-v2.masaischool.com',
+      oldStudentUi: 'https://courses.ihubiitrcourses.org',
+      newStudentUi: 'https://learn.ihubiitrcourses.org',
     },
   },
   iitj: {
     oldStudentUiKey: 'VITE_OLD_STUDENT_UI_URL_IITJ',
     newStudentUiKey: 'VITE_NEW_STUDENT_UI_URL_IITJ',
     fallback: {
-      oldStudentUi: 'https://students.masaischool.com',
-      newStudentUi: 'https://students-v2.masaischool.com',
+      oldStudentUi: 'https://iitj-students.masaischool.com',
+      newStudentUi: 'https://iitj-learn.masaischool.com',
     },
   },
 }

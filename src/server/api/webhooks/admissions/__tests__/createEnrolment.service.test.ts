@@ -7,6 +7,7 @@ const FAKE_TX = { tx: true }
 const assertActiveBatchExists = vi.hoisted(() => vi.fn())
 const resolveValidSections = vi.hoisted(() => vi.fn())
 const resolveEnrolmentUser = vi.hoisted(() => vi.fn())
+const applyPortalNewLmsDefaults = vi.hoisted(() => vi.fn())
 const reviveOrCreateBatchUser = vi.hoisted(() => vi.fn())
 const reviveOrCreateSectionUsers = vi.hoisted(() => vi.fn())
 const upsertAdmissionData = vi.hoisted(() => vi.fn())
@@ -30,6 +31,10 @@ vi.mock('@/server/api/webhooks/admissions/steps/resolveValidSections', () => ({
 vi.mock('@/server/api/webhooks/admissions/steps/resolveEnrolmentUser', () => ({
   resolveEnrolmentUser,
 }))
+vi.mock(
+  '@/server/api/webhooks/admissions/steps/applyPortalNewLmsDefaults',
+  () => ({ applyPortalNewLmsDefaults }),
+)
 vi.mock(
   '@/server/api/webhooks/admissions/steps/reviveOrCreateBatchUser',
   () => ({ reviveOrCreateBatchUser }),
@@ -101,6 +106,22 @@ describe('createEnrolmentFromAdmissions', () => {
     await createEnrolmentFromAdmissions(input())
     const { payload } = reviveOrCreateBatchUser.mock.calls[0][1]
     expect(payload).not.toHaveProperty('password')
+  })
+
+  it('defaults the new-LMS-only meta flags for an iitj enrolment', async () => {
+    await createEnrolmentFromAdmissions(input({ isiitj: true }))
+    expect(applyPortalNewLmsDefaults).toHaveBeenCalledWith(FAKE_TX, {
+      userId: 7,
+      client: 'iitj',
+    })
+  })
+
+  it('passes the resolved client through for a masai enrolment', async () => {
+    await createEnrolmentFromAdmissions(input())
+    expect(applyPortalNewLmsDefaults).toHaveBeenCalledWith(FAKE_TX, {
+      userId: 7,
+      client: 'masai',
+    })
   })
 
   it('clears the cached enrolment sets for the student', async () => {

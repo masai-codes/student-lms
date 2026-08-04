@@ -55,4 +55,20 @@ describe('buildLectureAttendanceSummary', () => {
 
     expect(summary.watchPercentage).toBe(0)
   })
+
+  it('reads markAbsentIfLate from the section settings', () => {
+    const summary = buildLectureAttendanceSummary(
+      { ...context, sectionSettings: { markAbsentIfLate: true } },
+      null,
+      Date.now(),
+    )
+
+    expect(summary.markAbsentIfLate).toBe(true)
+  })
+
+  it('defaults markAbsentIfLate to false when unset', () => {
+    const summary = buildLectureAttendanceSummary(context, null, Date.now())
+
+    expect(summary.markAbsentIfLate).toBe(false)
+  })
 })

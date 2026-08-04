@@ -97,7 +97,9 @@ export type NavbarImageAction = {
 } & NavbarActivation
 
 export type NavbarActionItem =
-  NavbarTextAction | NavbarIconAction | NavbarImageAction
+  | NavbarTextAction
+  | NavbarIconAction
+  | NavbarImageAction
 
 export type NavbarProps = {
   logo: NavbarLogo
