@@ -1,7 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import { isAppInstalledForUserServer } from '@/server/devices/isAppInstalledForUserServer'
-import { isIHubPortal, isIitjPortal, isMasaiPortal } from '@/utils/portal'
+import {
+  isIHubPortal,
+  isIitjPortal,
+  isMasaiPortal,
+  isMobileAppPortal,
+} from '@/utils/portal'
 
 /**
  * Every boolean signal `useAppNavItems` needs to decide what to show — kept
@@ -35,6 +40,10 @@ export function useNavGatingSignals(userId: number) {
     // Refer & Earn is disabled entirely for iHub and IIT Jodhpur.
     showReferAndEarn: !isIHub && !isIitj,
     isAppInstalled,
+    // "Get the app" only exists on portals the mobile app actually ships for —
+    // today that's Masai alone (allowlist in `MOBILE_APP_PORTALS`), so iHub and
+    // IIT Jodhpur both drop it.
+    hasMobileApp: isMobileAppPortal(),
     isIHub,
     isIitj,
   }

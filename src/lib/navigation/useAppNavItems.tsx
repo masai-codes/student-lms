@@ -198,7 +198,7 @@ export function useAppNavItems() {
   const rightItems: NavItem[] = useMemo(() => {
     const items: NavItem[] = []
 
-    if (!gating.isIHub) {
+    if (gating.hasMobileApp) {
       items.push({
         id: 'download-app',
         type: 'action',
@@ -249,7 +249,7 @@ export function useAppNavItems() {
     return items
   }, [
     gating.isAppInstalled,
-    gating.isIHub,
+    gating.hasMobileApp,
     gating.showReferAndEarn,
     handleReferAndEarnClick,
     pathname,
