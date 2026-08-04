@@ -56,7 +56,7 @@ export function LearnTabSwitcher({
             role="tab"
             aria-selected={isActive}
             onClick={() => handleChange(tab.value)}
-            className={`pl-2 pr-3 md:pl-4 md:pr-6 relative inline-flex items-center hover:bg-muted/50 rounded-none ${TIER2_TAB_CLASSES} ${
+            className={`pl-2 pr-3 md:pl-4 md:pr-6 relative inline-flex items-center hover:bg-muted/50 rounded-none lg:text-sm ${TIER2_TAB_CLASSES} ${
               isActive ? 'text-brand' : 'text-foreground-muted hover:text-brand'
             }`}
           >

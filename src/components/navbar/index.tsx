@@ -104,7 +104,7 @@ export function Navbar({
           tier 1 bottom border. An invisible logo mirrors tier 1's logo
           column so tier 2 content lines up with the tier 1 nav items. */}
       {tier2 ? (
-        <div className="w-full border-t border-border">
+        <div className="w-full border-t border-border bg-muted">
           <div
             data-testid="navbar-row-tier2"
             className={cn(
