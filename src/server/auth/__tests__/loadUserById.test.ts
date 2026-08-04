@@ -4,6 +4,9 @@ const hoisted = vi.hoisted(() => ({
   userRows: new Array<Record<string, unknown>>(),
   membershipRows: new Array<Record<string, unknown>>(),
   lastSql: '',
+  request: null as Request | null,
+  portalRedirectUrl: null as string | null,
+  portalRedirectCalls: new Array<Record<string, unknown>>(),
 }))
 
 vi.mock('@/db', () => {
@@ -22,12 +25,27 @@ vi.mock('@/db', () => {
   return { db: chain }
 })
 
+vi.mock('@tanstack/react-start/server', () => ({
+  getRequest: () => {
+    if (!hoisted.request) throw new Error('no ambient request')
+    return hoisted.request
+  },
+}))
+
+vi.mock('@/server/auth/v2/portalRedirect', () => ({
+  getPortalRedirectUrl: (args: Record<string, unknown>) => {
+    hoisted.portalRedirectCalls.push(args)
+    return Promise.resolve(hoisted.portalRedirectUrl)
+  },
+}))
+
 const BASE_ROW = {
   id: 42,
   name: 'Suryakumar',
   email: 'sky@example.com',
   mobile: '9000000000',
   role: 'student',
+  client: 'masai',
   status: 'active',
   profileImage: null,
   newLmsPagesEnabled: null,
@@ -41,6 +59,9 @@ describe('loadUserWithStatusById', () => {
     hoisted.userRows = [{ ...BASE_ROW }]
     hoisted.membershipRows = []
     hoisted.lastSql = ''
+    hoisted.request = null
+    hoisted.portalRedirectUrl = null
+    hoisted.portalRedirectCalls = []
   })
 
   it('maps the user row and keeps status for the deactivation gate', async () => {
@@ -54,11 +75,36 @@ describe('loadUserWithStatusById', () => {
       mobile: '9000000000',
       role: 'student',
       status: 'disabled',
+      portalRedirectUrl: null,
       profileImageUrl: null,
       newLmsPagesEnabled: false,
       hasSeenTryNewTour: false,
       hideSwitchOption: false,
     })
+  })
+
+  it('resolves the portal redirect from the ambient request', async () => {
+    hoisted.request = new Request('https://ihub.example.com/dashboard')
+    hoisted.portalRedirectUrl = 'https://masai.example.com'
+    const { loadUserWithStatusById } = await import('../loadUserById')
+
+    const user = await loadUserWithStatusById(42)
+
+    expect(user?.portalRedirectUrl).toBe('https://masai.example.com')
+    expect(hoisted.portalRedirectCalls[0]?.user).toEqual({
+      id: 42,
+      role: 'student',
+      client: 'masai',
+    })
+  })
+
+  it('skips the portal check when there is no ambient request', async () => {
+    const { loadUserWithStatusById } = await import('../loadUserById')
+
+    const user = await loadUserWithStatusById(42)
+
+    expect(user?.portalRedirectUrl).toBeNull()
+    expect(hoisted.portalRedirectCalls).toHaveLength(0)
   })
 
   it('returns null when the user row is missing', async () => {
@@ -93,9 +139,8 @@ describe('loadUserWithStatusById', () => {
     expect(user?.hasSeenTryNewTour).toBe(expected)
   })
 
-  it('trims a blank profile image down to null and stringifies the joined club id', async () => {
+  it('trims a blank profile image down to null', async () => {
     hoisted.userRows = [{ ...BASE_ROW, profileImage: '   ' }]
-    hoisted.membershipRows = [{ clubId: 7 }]
     const { loadUserWithStatusById } = await import('../loadUserById')
     const user = await loadUserWithStatusById(42)
 
@@ -132,6 +177,9 @@ describe('loadUserById', () => {
     vi.clearAllMocks()
     hoisted.userRows = [{ ...BASE_ROW }]
     hoisted.membershipRows = []
+    hoisted.request = null
+    hoisted.portalRedirectUrl = null
+    hoisted.portalRedirectCalls = []
   })
 
   it('never exposes users.status to callers that ship the payload to the client', async () => {

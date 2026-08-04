@@ -15,13 +15,13 @@ import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
 import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { getAuthBranding } from '@/utils/authBranding'
-import { isMasaiPortal } from '@/utils/portal'
 import type { NavItem } from '@/lib/navigation/navItemConfig'
 import { resolveNavItemPriority } from '@/lib/navigation/resolveNavItemPriority'
 import { useAppNavItems } from '@/lib/navigation/useAppNavItems'
 import { MessagesSquare } from 'lucide-react'
 import { LearnBatchSwitcher } from '../learn/section-one/LearnBatchSwitcher'
 import { NextActionBanner, useNextActionBannerView } from './NextActionBanner'
+import { isMasaiPortal } from '@/utils/portal'
 
 function profileInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean)

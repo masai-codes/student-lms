@@ -3,13 +3,13 @@ import { buildLmsSteps, buildProgramSteps, getIdCardState } from './steps'
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 
-const hoisted = vi.hoisted(() => ({ isIHub: false }))
+const hoisted = vi.hoisted(() => ({ hasApp: true }))
 vi.mock('@/utils/portal', () => ({
-  isIHubPortal: () => hoisted.isIHub,
+  isMobileAppPortal: () => hoisted.hasApp,
 }))
 
 afterEach(() => {
-  hoisted.isIHub = false
+  hoisted.hasApp = true
 })
 
 function lectures(
@@ -87,8 +87,8 @@ describe('buildLmsSteps', () => {
     expect(steps[3].completed).toBe(false) // app not installed
   })
 
-  it('drops the download-app step on the iHub portal', () => {
-    hoisted.isIHub = true
+  it('drops the download-app step on portals with no mobile app', () => {
+    hoisted.hasApp = false
     const steps = buildLmsSteps(
       lectures({
         lmsLectures: [

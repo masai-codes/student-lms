@@ -66,6 +66,7 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_FETCHING_DASHBOARD_ACTION_BANNERS':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_DASHBOARD_PENDING_TASKS':
+      case 'SERVER_ERROR_FETCHING_DASHBOARD_OVERVIEW_APP':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_MASAIVERSE_V2_HOME':
       case 'SERVER_ERROR_MARKING_MASAIVERSE_VISITED':

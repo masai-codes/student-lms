@@ -1,5 +1,7 @@
 import { sql } from 'drizzle-orm'
+import { getRequest } from '@tanstack/react-start/server'
 import { db } from '@/db'
+import { getPortalRedirectUrl } from '@/server/auth/v2/portalRedirect'
 
 function normalizeRows<T>(result: unknown): Array<T> {
   if (Array.isArray(result)) {
@@ -19,6 +21,15 @@ function normalizeRows<T>(result: unknown): Array<T> {
   return []
 }
 
+/** Ambient request, or `null` when there is none (background jobs, tests). */
+function currentRequest(): Request | null {
+  try {
+    return getRequest()
+  } catch {
+    return null
+  }
+}
+
 function pickProfileImageUrl(value: unknown): string | null {
   if (value == null) return null
   const s = String(value).trim()
@@ -36,6 +47,7 @@ type UserRow = {
   email: string
   mobile: string | null
   role: string | null
+  client: string | null
   status: string | null
   profileImage: string | null
   newLmsPagesEnabled: number | boolean | string | null
@@ -54,9 +66,6 @@ type UserRow = {
  * outer `u.id` filter pushed into it, which made MySQL aggregate the whole
  * `profiles` table on every call (see issue #354).
  *
- * The club membership probe runs concurrently, so this is one round-trip of
- * latency rather than two.
- *
  * Server-only: touches `@/db` (mysql2). Import it exclusively from inside
  * server-fn handlers / API services so it never reaches the client bundle.
  */
@@ -68,6 +77,7 @@ export async function loadUserWithStatusById(userId: number) {
         u.email,
         u.mobile,
         u.role,
+        u.client,
         u.status,
         JSON_EXTRACT(u.meta, '$.new_lms_pages_enabled') AS newLmsPagesEnabled,
         JSON_EXTRACT(u.meta, '$.new_lms_try_new_tour_seen') AS tryNewTourSeen,
@@ -90,6 +100,19 @@ export async function loadUserWithStatusById(userId: number) {
   const row = normalizeRows<UserRow>(userResult).at(0)
   if (row === undefined) return null
 
+  // A student holding a session for one portal can still land on another
+  // portal's domain (bookmark, shared link, legacy/app `?token=` handoff).
+  // Resolve where they belong here — the app shell redirects on it (see the
+  // protected layout's `beforeLoad`). `null` = they're on the right domain, are
+  // an admin, or no distinct target URL is configured.
+  const request = currentRequest()
+  const portalRedirectUrl = request
+    ? await getPortalRedirectUrl({
+        user: { id: row.id, role: row.role, client: row.client },
+        request,
+      })
+    : null
+
   return {
     id: row.id,
     name: row.name,
@@ -97,6 +120,7 @@ export async function loadUserWithStatusById(userId: number) {
     mobile: row.mobile,
     role: row.role,
     status: row.status,
+    portalRedirectUrl,
     profileImageUrl: pickProfileImageUrl(row.profileImage),
     newLmsPagesEnabled: isJsonTrue(row.newLmsPagesEnabled),
     hasSeenTryNewTour: isJsonTrue(row.tryNewTourSeen),

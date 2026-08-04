@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import { isAppInstalledForUserServer } from '@/server/devices/isAppInstalledForUserServer'
-import { isIHubPortal, isIitjPortal } from '@/utils/portal'
+import { isIHubPortal, isIitjPortal, isMasaiPortal } from '@/utils/portal'
 
 /**
  * Every boolean signal `useAppNavItems` needs to decide what to show — kept
@@ -9,11 +9,14 @@ import { isIHubPortal, isIitjPortal } from '@/utils/portal'
  * function instead of a bag of ad hoc queries.
  */
 export function useNavGatingSignals(userId: number) {
+  const isIHub = isIHubPortal()
+  const isIitj = isIitjPortal()
+  const isMasai = isMasaiPortal()
   const { data: canShowMasaiVerse = false } = useQuery({
     queryKey: ['nav-can-show-masaiverse', userId],
     queryFn: async () => {
       const result = await getMasaiverseAccessDebugServer({ data: { userId } })
-      return result.canShowMasaiverse
+      return result.canShowMasaiverse && isMasai
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -23,9 +26,6 @@ export function useNavGatingSignals(userId: number) {
     queryFn: () => isAppInstalledForUserServer({ data: { userId } }),
     staleTime: 5 * 60 * 1000,
   })
-
-  const isIHub = isIHubPortal()
-  const isIitj = isIitjPortal()
 
   return {
     // Chat is shown to everyone except iHub and IIT Jodhpur — portal-based

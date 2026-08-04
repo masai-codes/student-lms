@@ -74,4 +74,31 @@ describe('createEnrolmentSchema', () => {
     )
     expect(parsed.success).toBe(true)
   })
+
+  it('treats null optional fields as absent, not invalid', () => {
+    const parsed = createEnrolmentSchema.safeParse(
+      validPayload({
+        manager_id: null,
+        new_user_journey: null,
+        id_card_url: null,
+        seat_blocking_fees_paid: null,
+        seat_blocking_fees_amount: null,
+        seat_blocking_fees_paid_date: null,
+        seat_blocking_fees_invoice: null,
+        student_kit_exists: null,
+        course_fee_deadline: null,
+        payment_url: null,
+        isiHub: null,
+        isiitj: null,
+      }),
+    )
+    expect(parsed.success).toBe(true)
+  })
+
+  it('still requires a real course_fee_deadline on a new user journey', () => {
+    const parsed = createEnrolmentSchema.safeParse(
+      validPayload({ new_user_journey: true, course_fee_deadline: null }),
+    )
+    expect(parsed.success).toBe(false)
+  })
 })

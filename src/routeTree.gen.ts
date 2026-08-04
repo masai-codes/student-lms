@@ -52,6 +52,8 @@ import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api
 import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
 import { Route as ApiDashboardT0FlowDocumentsRouteImport } from './routes/api/dashboard/t0-flow-documents'
 import { Route as ApiDashboardProfilePhotoRouteImport } from './routes/api/dashboard/profile-photo'
+import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashboard/pending-tasks'
+import { Route as ApiDashboardOverviewAppRouteImport } from './routes/api/dashboard/overview-app'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
 import { Route as ApiBookmarksFilterOptionsRouteImport } from './routes/api/bookmarks/filter-options'
@@ -99,6 +101,7 @@ import { Route as ApiSupportFloatingChatContextRouteImport } from './routes/api/
 import { Route as ApiSupportFaqsVoteRouteImport } from './routes/api/support/faqs/vote'
 import { Route as ApiSupportCallbackCreateRouteImport } from './routes/api/support/callback/create'
 import { Route as ApiProfileAccountActivitySignOutAllRouteImport } from './routes/api/profile/account-activity/sign-out-all'
+import { Route as ApiMigrationsBatchUserSetEnrolmentIdRouteImport } from './routes/api/migrations/batch-user/set-enrolment-id'
 import { Route as ApiMessageIdReplyRouteImport } from './routes/api/message/$id/reply'
 import { Route as ApiMessageIdMarkUnreadRouteImport } from './routes/api/message/$id/mark-unread'
 import { Route as ApiMessageIdMarkReadRouteImport } from './routes/api/message/$id/mark-read'
@@ -444,6 +447,17 @@ const ApiDashboardProfilePhotoRoute =
     path: '/api/dashboard/profile-photo',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiDashboardPendingTasksRoute =
+  ApiDashboardPendingTasksRouteImport.update({
+    id: '/api/dashboard/pending-tasks',
+    path: '/api/dashboard/pending-tasks',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardOverviewAppRoute = ApiDashboardOverviewAppRouteImport.update({
+  id: '/api/dashboard/overview-app',
+  path: '/api/dashboard/overview-app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDashboardOverviewRoute = ApiDashboardOverviewRouteImport.update({
   id: '/api/dashboard/overview',
   path: '/api/dashboard/overview',
@@ -706,6 +720,12 @@ const ApiProfileAccountActivitySignOutAllRoute =
   ApiProfileAccountActivitySignOutAllRouteImport.update({
     id: '/api/profile/account-activity/sign-out-all',
     path: '/api/profile/account-activity/sign-out-all',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiMigrationsBatchUserSetEnrolmentIdRoute =
+  ApiMigrationsBatchUserSetEnrolmentIdRouteImport.update({
+    id: '/api/migrations/batch-user/set-enrolment-id',
+    path: '/api/migrations/batch-user/set-enrolment-id',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiMessageIdReplyRoute = ApiMessageIdReplyRouteImport.update({
@@ -1434,6 +1454,8 @@ export interface FileRoutesByFullPath {
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/overview-app': typeof ApiDashboardOverviewAppRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
   '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
@@ -1538,6 +1560,7 @@ export interface FileRoutesByFullPath {
   '/api/message/$id/mark-read': typeof ApiMessageIdMarkReadRoute
   '/api/message/$id/mark-unread': typeof ApiMessageIdMarkUnreadRoute
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
+  '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
@@ -1642,6 +1665,8 @@ export interface FileRoutesByTo {
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/overview-app': typeof ApiDashboardOverviewAppRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
   '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
@@ -1746,6 +1771,7 @@ export interface FileRoutesByTo {
   '/api/message/$id/mark-read': typeof ApiMessageIdMarkReadRoute
   '/api/message/$id/mark-unread': typeof ApiMessageIdMarkUnreadRoute
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
+  '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
@@ -1853,6 +1879,8 @@ export interface FileRoutesById {
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/dashboard/overview-app': typeof ApiDashboardOverviewAppRoute
+  '/api/dashboard/pending-tasks': typeof ApiDashboardPendingTasksRoute
   '/api/dashboard/profile-photo': typeof ApiDashboardProfilePhotoRoute
   '/api/dashboard/t0-flow-documents': typeof ApiDashboardT0FlowDocumentsRoute
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
@@ -1957,6 +1985,7 @@ export interface FileRoutesById {
   '/api/message/$id/mark-read': typeof ApiMessageIdMarkReadRoute
   '/api/message/$id/mark-unread': typeof ApiMessageIdMarkUnreadRoute
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
+  '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   '/api/profile/account-activity/sign-out-all': typeof ApiProfileAccountActivitySignOutAllRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
@@ -2064,6 +2093,8 @@ export interface FileRouteTypes {
     | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/overview-app'
+    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/profile-photo'
     | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
@@ -2168,6 +2199,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/mark-read'
     | '/api/message/$id/mark-unread'
     | '/api/message/$id/reply'
+    | '/api/migrations/batch-user/set-enrolment-id'
     | '/api/profile/account-activity/sign-out-all'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
@@ -2272,6 +2304,8 @@ export interface FileRouteTypes {
     | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/overview-app'
+    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/profile-photo'
     | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
@@ -2376,6 +2410,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/mark-read'
     | '/api/message/$id/mark-unread'
     | '/api/message/$id/reply'
+    | '/api/migrations/batch-user/set-enrolment-id'
     | '/api/profile/account-activity/sign-out-all'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
@@ -2482,6 +2517,8 @@ export interface FileRouteTypes {
     | '/api/bookmarks/filter-options'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
+    | '/api/dashboard/overview-app'
+    | '/api/dashboard/pending-tasks'
     | '/api/dashboard/profile-photo'
     | '/api/dashboard/t0-flow-documents'
     | '/api/dashboard/t0-flow-lectures'
@@ -2586,6 +2623,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/mark-read'
     | '/api/message/$id/mark-unread'
     | '/api/message/$id/reply'
+    | '/api/migrations/batch-user/set-enrolment-id'
     | '/api/profile/account-activity/sign-out-all'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
@@ -2689,6 +2727,8 @@ export interface RootRouteChildren {
   ApiBookmarksFilterOptionsRoute: typeof ApiBookmarksFilterOptionsRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
+  ApiDashboardOverviewAppRoute: typeof ApiDashboardOverviewAppRoute
+  ApiDashboardPendingTasksRoute: typeof ApiDashboardPendingTasksRoute
   ApiDashboardProfilePhotoRoute: typeof ApiDashboardProfilePhotoRoute
   ApiDashboardT0FlowDocumentsRoute: typeof ApiDashboardT0FlowDocumentsRoute
   ApiDashboardT0FlowLecturesRoute: typeof ApiDashboardT0FlowLecturesRoute
@@ -2774,6 +2814,7 @@ export interface RootRouteChildren {
   ApiMessageIdMarkReadRoute: typeof ApiMessageIdMarkReadRoute
   ApiMessageIdMarkUnreadRoute: typeof ApiMessageIdMarkUnreadRoute
   ApiMessageIdReplyRoute: typeof ApiMessageIdReplyRoute
+  ApiMigrationsBatchUserSetEnrolmentIdRoute: typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   ApiProfileAccountActivitySignOutAllRoute: typeof ApiProfileAccountActivitySignOutAllRoute
   ApiSupportCallbackCreateRoute: typeof ApiSupportCallbackCreateRoute
   ApiSupportFloatingChatContextRoute: typeof ApiSupportFloatingChatContextRoute
@@ -3111,6 +3152,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardProfilePhotoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/dashboard/pending-tasks': {
+      id: '/api/dashboard/pending-tasks'
+      path: '/api/dashboard/pending-tasks'
+      fullPath: '/api/dashboard/pending-tasks'
+      preLoaderRoute: typeof ApiDashboardPendingTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/overview-app': {
+      id: '/api/dashboard/overview-app'
+      path: '/api/dashboard/overview-app'
+      fullPath: '/api/dashboard/overview-app'
+      preLoaderRoute: typeof ApiDashboardOverviewAppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/dashboard/overview': {
       id: '/api/dashboard/overview'
       path: '/api/dashboard/overview'
@@ -3438,6 +3493,13 @@ declare module '@tanstack/react-router' {
       path: '/api/profile/account-activity/sign-out-all'
       fullPath: '/api/profile/account-activity/sign-out-all'
       preLoaderRoute: typeof ApiProfileAccountActivitySignOutAllRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/migrations/batch-user/set-enrolment-id': {
+      id: '/api/migrations/batch-user/set-enrolment-id'
+      path: '/api/migrations/batch-user/set-enrolment-id'
+      fullPath: '/api/migrations/batch-user/set-enrolment-id'
+      preLoaderRoute: typeof ApiMigrationsBatchUserSetEnrolmentIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/message/$id/reply': {
@@ -4659,6 +4721,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBookmarksFilterOptionsRoute: ApiBookmarksFilterOptionsRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
+  ApiDashboardOverviewAppRoute: ApiDashboardOverviewAppRoute,
+  ApiDashboardPendingTasksRoute: ApiDashboardPendingTasksRoute,
   ApiDashboardProfilePhotoRoute: ApiDashboardProfilePhotoRoute,
   ApiDashboardT0FlowDocumentsRoute: ApiDashboardT0FlowDocumentsRoute,
   ApiDashboardT0FlowLecturesRoute: ApiDashboardT0FlowLecturesRoute,
@@ -4748,6 +4812,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMessageIdMarkReadRoute: ApiMessageIdMarkReadRoute,
   ApiMessageIdMarkUnreadRoute: ApiMessageIdMarkUnreadRoute,
   ApiMessageIdReplyRoute: ApiMessageIdReplyRoute,
+  ApiMigrationsBatchUserSetEnrolmentIdRoute:
+    ApiMigrationsBatchUserSetEnrolmentIdRoute,
   ApiProfileAccountActivitySignOutAllRoute:
     ApiProfileAccountActivitySignOutAllRoute,
   ApiSupportCallbackCreateRoute: ApiSupportCallbackCreateRoute,

@@ -1,5 +1,6 @@
 import type { AppOrigin } from '@/utils/appOrigin'
 import { getAppOrigin } from '@/utils/appOrigin'
+import { portalHasMobileApp } from '@/utils/portalCapabilities'
 
 /**
  * Frontend portal helpers. Thin, reusable wrappers over {@link getAppOrigin}
@@ -32,12 +33,20 @@ export function isIITJPortal(): boolean {
 
 /**
  * Whether the current portal hides the Masai-only surfaces (MasaiVerse, Refer &
- * Earn, Chat, guided-tour icon, LevelUp, Practice Interviews, LMS support).
- * True for BOTH iHub and IIT Jodhpur — i.e. every non-Masai portal.
- *
- * NOTE: the Download App action is gated separately on {@link isIHubPortal} —
- * iHub hides it, but IIT Jodhpur KEEPS it, so don't fold it into this helper.
+ * Earn, Chat, guided-tour icon, LevelUp, Practice Interviews, LMS support,
+ * Download App). True for BOTH iHub and IIT Jodhpur — i.e. every non-Masai
+ * portal.
  */
 export function hidesMasaiOnlyFeatures(): boolean {
   return !isMasaiPortal()
+}
+
+/**
+ * Whether the mobile app (Masai Learn) exists for the portal we're running on —
+ * gates the navbar "Download App" action and the download-app guided-tour step.
+ * The allowlist lives in `MOBILE_APP_PORTALS` (`@/utils/portalCapabilities`) —
+ * add or remove portals there, not here.
+ */
+export function isMobileAppPortal(): boolean {
+  return portalHasMobileApp(getAppOrigin())
 }
