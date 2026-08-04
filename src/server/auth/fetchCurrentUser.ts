@@ -1,8 +1,10 @@
 import { eq, sql } from 'drizzle-orm'
 import { createServerFn } from '@tanstack/react-start'
+import { getRequest } from '@tanstack/react-start/server'
 import { db } from '@/db'
 import { clubMembers } from '@/db/schema'
 import { getCurrentUserId } from '@/server/auth/getCurrentSessionUserId'
+import { getPortalRedirectUrl } from '@/server/auth/v2/portalRedirect'
 import { isUserDeactivated } from '@/server/restrictions/deactivatedUser'
 
 function normalizeRows<T>(result: unknown): Array<T> {
@@ -21,6 +23,15 @@ function normalizeRows<T>(result: unknown): Array<T> {
     return (result as { rows: Array<T> }).rows
   }
   return []
+}
+
+/** Ambient request, or `null` when there is none (background jobs, tests). */
+function currentRequest(): Request | null {
+  try {
+    return getRequest()
+  } catch {
+    return null
+  }
 }
 
 function pickProfileImageUrl(value: unknown): string | null {
@@ -52,6 +63,7 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
       email: string
       mobile: string | null
       role: string | null
+      client: string | null
       status: string | null
       profileImage: string | null
       newLmsPagesEnabled: number | boolean | string | null
@@ -65,6 +77,7 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
         u.email,
         u.mobile,
         u.role,
+        u.client,
         u.status,
         JSON_EXTRACT(u.meta, '$.new_lms_pages_enabled') AS newLmsPagesEnabled,
         JSON_EXTRACT(u.meta, '$.new_lms_try_new_tour_seen') AS tryNewTourSeen,
@@ -97,6 +110,19 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
     // login (where sign-in is also blocked), cutting off the active session.
     if (isUserDeactivated(row.status)) return null
 
+    // A student holding a session for one portal can still land on another
+    // portal's domain (bookmark, shared link, old app handoff). Resolve where
+    // they belong here — the app shell redirects on it (see the protected
+    // layout's `beforeLoad`). `null` = they're on the right domain, are an
+    // admin, or no distinct target URL is configured.
+    const request = currentRequest()
+    const portalRedirectUrl = request
+      ? await getPortalRedirectUrl({
+          user: { id: row.id, role: row.role, client: row.client },
+          request,
+        })
+      : null
+
     const membershipRows = await db
       .select({ clubId: clubMembers.clubId })
       .from(clubMembers)
@@ -109,6 +135,7 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
       email: row.email,
       mobile: row.mobile,
       role: row.role,
+      portalRedirectUrl,
       profileImageUrl: pickProfileImageUrl(row.profileImage),
       newLmsPagesEnabled: isMetaFlagTrue(row.newLmsPagesEnabled),
       hasSeenTryNewTour: isMetaFlagTrue(row.tryNewTourSeen),

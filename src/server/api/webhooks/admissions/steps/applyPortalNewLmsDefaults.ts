@@ -48,9 +48,10 @@ export async function applyPortalNewLmsDefaults(
     rows[0]?.meta && typeof rows[0].meta === 'object' ? rows[0].meta : {}
   ) as Record<string, unknown>
 
-  const missingKeys = [NEW_LMS_PAGES_META_KEY, HIDE_SWITCH_OPTION_META_KEY].filter(
-    (key) => existingMeta[key] === undefined,
-  )
+  const missingKeys = [
+    NEW_LMS_PAGES_META_KEY,
+    HIDE_SWITCH_OPTION_META_KEY,
+  ].filter((key) => existingMeta[key] === undefined)
   if (missingKeys.length === 0) return
 
   const newMeta = { ...existingMeta }

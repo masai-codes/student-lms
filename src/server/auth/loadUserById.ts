@@ -1,6 +1,8 @@
 import { eq, sql } from 'drizzle-orm'
+import { getRequest } from '@tanstack/react-start/server'
 import { db } from '@/db'
 import { clubMembers } from '@/db/schema'
+import { getPortalRedirectUrl } from '@/server/auth/v2/portalRedirect'
 
 function normalizeRows<T>(result: unknown): Array<T> {
   if (Array.isArray(result)) {
@@ -18,6 +20,15 @@ function normalizeRows<T>(result: unknown): Array<T> {
     return (result as { rows: Array<T> }).rows
   }
   return []
+}
+
+/** Ambient request, or `null` when there is none (background jobs, tests). */
+function currentRequest(): Request | null {
+  try {
+    return getRequest()
+  } catch {
+    return null
+  }
 }
 
 function pickProfileImageUrl(value: unknown): string | null {
@@ -49,6 +60,7 @@ export async function loadUserById(userId: number) {
     email: string
     mobile: string | null
     role: string | null
+    client: string | null
     profileImage: string | null
     newLmsPagesEnabled: number | boolean | string | null
     tryNewTourSeen: number | boolean | string | null
@@ -61,6 +73,7 @@ export async function loadUserById(userId: number) {
         u.email,
         u.mobile,
         u.role,
+        u.client,
         JSON_EXTRACT(u.meta, '$.new_lms_pages_enabled') AS newLmsPagesEnabled,
         JSON_EXTRACT(u.meta, '$.new_lms_try_new_tour_seen') AS tryNewTourSeen,
         JSON_EXTRACT(u.meta, '$.hide_switch_option') AS hideSwitchOption,
@@ -88,6 +101,17 @@ export async function loadUserById(userId: number) {
   const row = rows.at(0)
   if (row === undefined) return null
 
+  // Same portal check as `fetchCurrentUser`: this path is the legacy/app `?token=`
+  // handoff, which is exactly how a student can arrive on another portal's
+  // domain. `null` = right domain, admin, or no distinct target configured.
+  const request = currentRequest()
+  const portalRedirectUrl = request
+    ? await getPortalRedirectUrl({
+        user: { id: row.id, role: row.role, client: row.client },
+        request,
+      })
+    : null
+
   const membershipRows = await db
     .select({ clubId: clubMembers.clubId })
     .from(clubMembers)
@@ -100,6 +124,7 @@ export async function loadUserById(userId: number) {
     email: row.email,
     mobile: row.mobile,
     role: row.role,
+    portalRedirectUrl,
     profileImageUrl: pickProfileImageUrl(row.profileImage),
     newLmsPagesEnabled: isMetaFlagTrue(row.newLmsPagesEnabled),
     hasSeenTryNewTour: isMetaFlagTrue(row.tryNewTourSeen),
