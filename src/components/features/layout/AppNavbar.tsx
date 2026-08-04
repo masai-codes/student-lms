@@ -52,11 +52,7 @@ import {
 import { fetchLevelupSso } from '@/utils/levelupSso'
 import { fetchReferralLmsLoginRedirectUrl } from '@/utils/referralLmsLogin'
 import { getAuthBranding } from '@/utils/authBranding'
-import {
-  hidesMasaiOnlyFeatures,
-  isIHubPortal,
-  isMasaiPortal,
-} from '@/utils/portal'
+import { hidesMasaiOnlyFeatures, isMasaiPortal } from '@/utils/portal'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -126,10 +122,9 @@ type PrimaryNavTab = { id: string; label: string; isActive?: boolean } & (
 export default function AppNavbar() {
   const { user } = layoutRouteApi.useRouteContext()
   // Non-Masai portals (iHub, IIT Jodhpur) hide the Masai-only surfaces
-  // (MasaiVerse, Refer & Earn, Practice Interviews, LevelUp, chat + guided-tour
-  // icons). Download App is different: hidden on iHub only, kept on IIT Jodhpur.
+  // (MasaiVerse, Refer & Earn, Practice Interviews, LevelUp, Download App,
+  // chat + guided-tour icons).
   const hideMasaiExtras = hidesMasaiOnlyFeatures()
-  const isIHub = isIHubPortal()
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   // Lecture detail only goes dark when it renders the immersive black video
@@ -369,9 +364,9 @@ export default function AppNavbar() {
 
   const trailingActions: Array<NavbarActionItem> = useMemo(
     () => [
-      // Download App is hidden on iHub only (iHub has no mobile app) — Masai and
-      // IIT Jodhpur both keep it. Chat + the guided-tour icon are Masai-only.
-      ...(isIHub
+      // Download App, Chat and the guided-tour icon are all Masai-only — the
+      // mobile app only ships for Masai students.
+      ...(hideMasaiExtras
         ? []
         : [
             {
@@ -431,7 +426,6 @@ export default function AppNavbar() {
       handleAnnouncementsClick,
       handleGuidedTourClick,
       hideMasaiExtras,
-      isIHub,
       unreadCount,
     ],
   )
