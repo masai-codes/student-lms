@@ -15,7 +15,7 @@ import { TabNavbar } from '@/components/tab-navbar'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
-import { isChatPortal } from '@/utils/portal'
+import { isChatPortal, isSupportPortal } from '@/utils/portal'
 
 /**
  * Selects the fixed mobile tab bar. Keep in sync with the `data-app-mobile-tab-bar`
@@ -36,6 +36,9 @@ export default function AppMobileTabBar() {
   // Chat ships for Masai and IIT Jodhpur (allowlist in `CHAT_PORTALS`); only
   // iHub drops it from the mobile tab bar.
   const showChat = isChatPortal()
+  // Support ships for Masai and iHub (allowlist in `SUPPORT_PORTALS`); IIT
+  // Jodhpur runs its own support channel and drops the entry.
+  const showSupport = isSupportPortal()
 
   const items = useMemo(
     () => [
@@ -64,18 +67,22 @@ export default function AppMobileTabBar() {
           void navigate({ to: '/learn', search: {} })
         },
       },
-      {
-        id: 'support',
-        label: 'Support',
-        icon: (
-          <Headphones
-            strokeWidth={1.75}
-            className="size-6 shrink-0 text-current"
-          />
-        ),
-        isActive: false,
-        onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.support),
-      },
+      ...(showSupport
+        ? [
+            {
+              id: 'support',
+              label: 'Support',
+              icon: (
+                <Headphones
+                  strokeWidth={1.75}
+                  className="size-6 shrink-0 text-current"
+                />
+              ),
+              isActive: false,
+              onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.support),
+            },
+          ]
+        : []),
       ...(showChat
         ? [
             {
@@ -114,7 +121,7 @@ export default function AppMobileTabBar() {
         onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.profileSettings),
       },
     ],
-    [activeId, navigate, showChat],
+    [activeId, navigate, showChat, showSupport],
   )
 
   return (

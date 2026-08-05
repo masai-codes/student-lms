@@ -54,6 +54,18 @@ export function portalHasMasaiLivePromo(portal: AppOrigin): boolean {
 }
 
 /**
+ * Portals that get the Support surface (navbar "Support" tab + mobile tab bar
+ * entry, both of which hand off to the old student UI). IIT Jodhpur runs its own
+ * support channel, so its students don't see the LMS one.
+ */
+export const SUPPORT_PORTALS: ReadonlyArray<AppOrigin> = ['masai', 'ihub']
+
+/** Whether the Support surface is available for `portal`. */
+export function portalHasSupport(portal: AppOrigin): boolean {
+  return SUPPORT_PORTALS.includes(portal)
+}
+
+/**
  * Portals that show the section label as an extra chip on `/learn` listing cards
  * (after the type/category/module tags). IIT Jodhpur students take the same
  * course across several sections and need to tell the listings apart; Masai and
