@@ -15,7 +15,7 @@ import { TabNavbar } from '@/components/tab-navbar'
 import { activeAppNavIdForPathname } from '@/lib/appNavActiveItem'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
-import { hidesMasaiOnlyFeatures } from '@/utils/portal'
+import { isChatPortal } from '@/utils/portal'
 
 /**
  * Selects the fixed mobile tab bar. Keep in sync with the `data-app-mobile-tab-bar`
@@ -33,9 +33,9 @@ export default function AppMobileTabBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const navigate = useNavigate()
   const activeId = activeAppNavIdForPathname(pathname)
-  // Chat is a Masai-only surface — dropped from non-Masai (iHub, IIT Jodhpur)
-  // mobile tab bars.
-  const hideMasaiExtras = hidesMasaiOnlyFeatures()
+  // Chat ships for Masai and IIT Jodhpur (allowlist in `CHAT_PORTALS`); only
+  // iHub drops it from the mobile tab bar.
+  const showChat = isChatPortal()
 
   const items = useMemo(
     () => [
@@ -76,9 +76,8 @@ export default function AppMobileTabBar() {
         isActive: false,
         onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.support),
       },
-      ...(hideMasaiExtras
-        ? []
-        : [
+      ...(showChat
+        ? [
             {
               id: 'chat',
               label: 'Chat',
@@ -91,7 +90,8 @@ export default function AppMobileTabBar() {
               isActive: false,
               onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.chat),
             },
-          ]),
+          ]
+        : []),
       {
         id: 'forum',
         label: 'Forum',
@@ -114,7 +114,7 @@ export default function AppMobileTabBar() {
         onClick: () => oldUiNavigate(OLD_STUDENT_UI_NAV_PATHS.profileSettings),
       },
     ],
-    [activeId, hideMasaiExtras, navigate],
+    [activeId, navigate, showChat],
   )
 
   return (

@@ -1,6 +1,11 @@
 import type { AppOrigin } from '@/utils/appOrigin'
 import { getAppOrigin } from '@/utils/appOrigin'
-import { portalHasMobileApp } from '@/utils/portalCapabilities'
+import {
+  portalHasChat,
+  portalHasMasaiLivePromo,
+  portalHasMobileApp,
+  portalShowsSectionOnLearnCard,
+} from '@/utils/portalCapabilities'
 
 /**
  * Frontend portal helpers. Thin, reusable wrappers over {@link getAppOrigin}
@@ -28,12 +33,33 @@ export function isIITJPortal(): boolean {
 
 /**
  * Whether the current portal hides the Masai-only surfaces (MasaiVerse, Refer &
- * Earn, Chat, guided-tour icon, LevelUp, Practice Interviews, LMS support,
- * Download App). True for BOTH iHub and IIT Jodhpur — i.e. every non-Masai
- * portal.
+ * Earn, guided-tour icon, LevelUp, Practice Interviews, LMS support, Download
+ * App). True for BOTH iHub and IIT Jodhpur — i.e. every non-Masai portal.
+ *
+ * Chat is NOT one of these — it ships for Masai *and* IIT Jodhpur and is gated
+ * by {@link isChatPortal}.
  */
 export function hidesMasaiOnlyFeatures(): boolean {
   return !isMasaiPortal()
+}
+
+/**
+ * Whether Chat is available on the portal we're running on — gates the navbar
+ * chat icon and the mobile tab bar's Chat entry. The allowlist lives in
+ * `CHAT_PORTALS` (`@/utils/portalCapabilities`) — add or remove portals there,
+ * not here.
+ */
+export function isChatPortal(): boolean {
+  return portalHasChat(getAppOrigin())
+}
+
+/**
+ * Whether the hardcoded Masai Live promo slide shows on the portal we're running
+ * on — it advertises a Masai-branded live session, so IIT Jodhpur hides it. The
+ * allowlist lives in `MASAI_LIVE_PROMO_PORTALS` (`@/utils/portalCapabilities`).
+ */
+export function showsMasaiLivePromo(): boolean {
+  return portalHasMasaiLivePromo(getAppOrigin())
 }
 
 /**
@@ -44,4 +70,13 @@ export function hidesMasaiOnlyFeatures(): boolean {
  */
 export function isMobileAppPortal(): boolean {
   return portalHasMobileApp(getAppOrigin())
+}
+
+/**
+ * Whether `/learn` listing cards show the section label as an extra chip on the
+ * portal we're running on — IIT Jodhpur only. The allowlist lives in
+ * `SECTION_ON_LEARN_CARD_PORTALS` (`@/utils/portalCapabilities`).
+ */
+export function showsSectionOnLearnCard(): boolean {
+  return portalShowsSectionOnLearnCard(getAppOrigin())
 }

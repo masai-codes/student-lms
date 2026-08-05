@@ -93,6 +93,7 @@ export async function fetchAssignmentListingPage(
       optional: assignments.optional,
       schedule: assignments.schedule,
       concludes: assignments.concludes,
+      sectionId: assignments.sectionId,
       week: assignments.week,
       module: assignments.module,
       showScores: assignments.showScores,

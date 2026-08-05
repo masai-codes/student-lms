@@ -52,7 +52,7 @@ import {
 import { fetchLevelupSso } from '@/utils/levelupSso'
 import { fetchReferralLmsLoginRedirectUrl } from '@/utils/referralLmsLogin'
 import { getAuthBranding } from '@/utils/authBranding'
-import { hidesMasaiOnlyFeatures, isMasaiPortal } from '@/utils/portal'
+import { hidesMasaiOnlyFeatures, isChatPortal, isMasaiPortal } from '@/utils/portal'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -123,8 +123,11 @@ export default function AppNavbar() {
   const { user } = layoutRouteApi.useRouteContext()
   // Non-Masai portals (iHub, IIT Jodhpur) hide the Masai-only surfaces
   // (MasaiVerse, Refer & Earn, Practice Interviews, LevelUp, Download App,
-  // chat + guided-tour icons).
+  // guided-tour icon).
   const hideMasaiExtras = hidesMasaiOnlyFeatures()
+  // Chat has its own allowlist (Masai + IIT Jodhpur), so it isn't tied to
+  // hideMasaiExtras — only iHub hides it.
+  const showChat = isChatPortal()
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   // Lecture detail only goes dark when it renders the immersive black video
@@ -364,8 +367,8 @@ export default function AppNavbar() {
 
   const trailingActions: Array<NavbarActionItem> = useMemo(
     () => [
-      // Download App, Chat and the guided-tour icon are all Masai-only — the
-      // mobile app only ships for Masai students.
+      // Download App and the guided-tour icon are Masai-only — the mobile app
+      // only ships for Masai students. (Chat below is Masai + IIT Jodhpur.)
       ...(hideMasaiExtras
         ? []
         : [
@@ -390,9 +393,8 @@ export default function AppNavbar() {
         ariaLabel: 'Calendar',
         ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.calendar),
       },
-      ...(hideMasaiExtras
-        ? []
-        : [
+      ...(showChat
+        ? [
             {
               id: 'chat',
               type: 'icon' as const,
@@ -400,6 +402,11 @@ export default function AppNavbar() {
               ariaLabel: 'Chat',
               ...oldStudentUiLink(OLD_STUDENT_UI_NAV_PATHS.chat),
             },
+          ]
+        : []),
+      ...(hideMasaiExtras
+        ? []
+        : [
             {
               id: 'guided-tour',
               type: 'icon' as const,
@@ -426,6 +433,7 @@ export default function AppNavbar() {
       handleAnnouncementsClick,
       handleGuidedTourClick,
       hideMasaiExtras,
+      showChat,
       unreadCount,
     ],
   )
