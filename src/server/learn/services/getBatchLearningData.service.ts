@@ -67,6 +67,7 @@ function mapRowToItem(
   attendance: LectureAttendanceSummary | null,
   assignmentProgressStatus: AssignmentProgressStatus | null,
   assignmentScore: number | null,
+  sectionLabelById: Map<number, string>,
 ): LearningItem {
   const listingCtas = buildLearnListingCardCtas({
     learningType: input.learningType,
@@ -93,14 +94,21 @@ function mapRowToItem(
         })
       : null
 
-  return mapLearningEntityRow(
-    row,
-    input.learningType,
-    listingCtas,
-    attendance,
-    assignmentProgressStatus,
-    resourcePhase,
-  )
+  return {
+    ...mapLearningEntityRow(
+      row,
+      input.learningType,
+      listingCtas,
+      attendance,
+      assignmentProgressStatus,
+      resourcePhase,
+    ),
+    // Only the /learn feed carries this; the IIT Jodhpur portal shows it as a chip.
+    sectionName:
+      row.sectionId != null
+        ? (sectionLabelById.get(row.sectionId) ?? null)
+        : null,
+  }
 }
 
 export async function getBatchLearningData(
@@ -198,6 +206,10 @@ export async function getBatchLearningData(
       ? (pageResult as AssignmentListingPage).scoreById
       : new Map<number, number>()
 
+  const sectionLabelById = new Map(
+    enrolledSections.map((section) => [section.sectionId, section.name]),
+  )
+
   const learningItems = pageResult.rows.map((row) =>
     mapRowToItem(
       row,
@@ -206,6 +218,7 @@ export async function getBatchLearningData(
       attendanceByLectureId.get(row.id) ?? null,
       progressById.get(row.id) ?? null,
       scoreById.get(row.id) ?? null,
+      sectionLabelById,
     ),
   )
 

@@ -9,6 +9,7 @@ import {
 import type { AgreementFormValues, AgreementStepDoc } from './agreementShared'
 import { db } from '@/db'
 import { batches, profiles, sectionUser, users } from '@/db/schema'
+import { resolveSectionLabelFromColumns } from '@/server/batches/resolveSectionLabel'
 
 export interface AgreementSection {
   sectionId: number
@@ -99,10 +100,13 @@ export async function getAgreementRenderData(
   const sectionRows = normalizeRows<{
     id: number
     name: string
+    section_display_name: string | null
     agreements: string | null
   }>(
     await db.execute(sql`
-      SELECT id, name, settings->>'$.agreements' AS agreements
+      SELECT id, name,
+             settings->>'$.sectionDisplayName' AS section_display_name,
+             settings->>'$.agreements' AS agreements
       FROM sections
       WHERE id IN (${sql.raw(sectionIds.join(', '))})
         AND batch_id = ${batchId}
@@ -168,7 +172,10 @@ export async function getAgreementRenderData(
 
     sections.push({
       sectionId: Number(row.id),
-      sectionName: String(row.name ?? ''),
+      sectionName: resolveSectionLabelFromColumns(
+        row.name,
+        row.section_display_name,
+      ),
       programName: batch?.program ?? '',
       batchName: batch?.name ?? '',
       email: user?.email ?? '',

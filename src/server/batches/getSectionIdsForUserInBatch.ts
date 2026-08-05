@@ -4,6 +4,7 @@ import type { EnrolledSection } from '@/server/learn/types'
 import { db } from '@/db'
 import { batches, sectionUser, sections } from '@/db/schema'
 import { batchScopeForPortal } from '@/server/batches/portalBatchScope'
+import { resolveSectionLabel } from '@/server/batches/resolveSectionLabel'
 
 /**
  * Section IDs the user is enrolled in for a given batch (legacy lectures/assignments API scope).
@@ -66,13 +67,9 @@ export async function getEnrolledSectionsForUserInBatch(
   const byId = new Map<number, EnrolledSection>()
   for (const row of rows) {
     if (byId.has(row.sectionId)) continue
-    const displayName =
-      typeof row.settings?.sectionDisplayName === 'string'
-        ? row.settings.sectionDisplayName.trim()
-        : ''
     byId.set(row.sectionId, {
       sectionId: row.sectionId,
-      name: displayName || row.name,
+      name: resolveSectionLabel(row.name, row.settings),
     })
   }
 

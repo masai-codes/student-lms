@@ -7,6 +7,7 @@ import { getAssignmentStatusChipStyles } from '@/components/features/learn/Learn
 import { LearnListingJoinLiveCta } from '@/components/features/learn/section-three/content-card/LearnListingJoinLiveCta'
 import { LocalTimeWithIstTooltip } from '@/components/shared/local-time-with-ist-tooltip'
 import { MasaiChips } from '@/components/ui/masai-chips'
+import { showsSectionOnLearnCard } from '@/utils/portal'
 import {
   getLearnListingAttendancePresentation,
   shouldShowAssignmentStatusChip,
@@ -70,6 +71,33 @@ function LearnAssignmentWeightageChip({
       className="pointer-events-none"
       backgroundClassName="bg-blue-50 border border-blue-100 dark:bg-info-subtle dark:border-info-subtle"
       textClassName="!text-blue-600 dark:!text-info-subtle-foreground"
+    />
+  )
+}
+
+/**
+ * The item's section label, shown after the tags so IIT Jodhpur students can tell
+ * apart listings they hold in more than one section. Only the `/learn` feed sets
+ * `sectionName`, and only `SECTION_ON_LEARN_CARD_PORTALS` renders it.
+ */
+function LearnSectionChip({
+  sectionName,
+}: {
+  sectionName: string | null | undefined
+}) {
+  if (!sectionName?.trim() || !showsSectionOnLearnCard()) {
+    return null
+  }
+
+  return (
+    <MasaiChips
+      data-testid="learn-card-section-name"
+      type="default"
+      size="regular"
+      label={sectionName}
+      tabIndex={-1}
+      className="pointer-events-none max-w-[24ch] truncate"
+      {...learnContentTagChipPalette}
     />
   )
 }
@@ -249,6 +277,9 @@ export function LearnContentCard({
                         {...resolveTagChipPalette(tag)}
                       />
                     ))}
+                    {!isAssociatedCard ? (
+                      <LearnSectionChip sectionName={item.sectionName} />
+                    ) : null}
                     <MasaiChips
                       type="default"
                       size="regular"
