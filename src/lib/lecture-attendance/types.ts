@@ -19,6 +19,5 @@ export type ListingAttendanceVisibleState = Exclude<
 export type ListingAttendanceRender = {
   uiState: ListingAttendanceVisibleState | null
   daysRemaining: number | null
-  remainingLabel: string | null
   showBadge: boolean
 }
