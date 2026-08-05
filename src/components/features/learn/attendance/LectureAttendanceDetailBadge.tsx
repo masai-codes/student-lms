@@ -66,10 +66,7 @@ export function LectureAttendanceDetailBadge({
   isLiveLecture,
   ...render
 }: LectureAttendanceDetailBadgeProps) {
-  const remainingText = formatCatchUpRemainingLabel(
-    render.remainingLabel,
-    render.daysRemaining,
-  )
+  const remainingText = formatCatchUpRemainingLabel(render.daysRemaining)
 
   // Reuse LectureAttendanceInline for layout/label/badge; only wrap the badge
   // with the detail-page hover tooltips here.

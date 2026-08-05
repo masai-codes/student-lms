@@ -23,7 +23,6 @@ type LectureAttendanceInlineProps = ListingAttendanceRender & {
 export function LectureAttendanceInline({
   uiState,
   daysRemaining,
-  remainingLabel,
   showBadge = true,
   renderBadge,
   forceRow = false,
@@ -33,10 +32,7 @@ export function LectureAttendanceInline({
   }
 
   const showDays = daysRemaining != null && daysRemaining >= 0
-  const remainingText = formatCatchUpRemainingLabel(
-    remainingLabel,
-    daysRemaining,
-  )
+  const remainingText = formatCatchUpRemainingLabel(daysRemaining)
 
   const badge = showBadge ? (
     <div className="min-w-0 shrink">
