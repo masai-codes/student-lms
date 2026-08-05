@@ -14,12 +14,12 @@ import type { AppOrigin } from '@/utils/appOrigin'
  */
 
 /**
- * Portals the Masai Learn mobile app ships for. Today only Masai students have
- * an app, so iHub and IIT Jodhpur hide the navbar "Download App" action and drop
- * the download-app guided-tour step (from numerator *and* denominator).
+ * Portals the Masai Learn mobile app ships for. Masai and IIT Jodhpur students
+ * both get it; iHub has no app, so it hides the navbar "Download App" action and
+ * drops the download-app guided-tour step (from numerator *and* denominator).
  * Add a portal here when the app becomes available to it.
  */
-export const MOBILE_APP_PORTALS: ReadonlyArray<AppOrigin> = ['masai']
+export const MOBILE_APP_PORTALS: ReadonlyArray<AppOrigin> = ['masai', 'iitj']
 
 /** Whether the mobile app exists for `portal`. */
 export function portalHasMobileApp(portal: AppOrigin): boolean {
