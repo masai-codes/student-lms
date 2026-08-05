@@ -52,7 +52,12 @@ import {
 import { fetchLevelupSso } from '@/utils/levelupSso'
 import { fetchReferralLmsLoginRedirectUrl } from '@/utils/referralLmsLogin'
 import { getAuthBranding } from '@/utils/authBranding'
-import { hidesMasaiOnlyFeatures, isChatPortal, isMasaiPortal } from '@/utils/portal'
+import {
+  hidesMasaiOnlyFeatures,
+  isChatPortal,
+  isMasaiPortal,
+  isSupportPortal,
+} from '@/utils/portal'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -128,6 +133,9 @@ export default function AppNavbar() {
   // Chat has its own allowlist (Masai + IIT Jodhpur), so it isn't tied to
   // hideMasaiExtras — only iHub hides it.
   const showChat = isChatPortal()
+  // Support has its own allowlist (Masai + iHub) — IIT Jodhpur runs its own
+  // support channel, so it drops the tab.
+  const showSupport = isSupportPortal()
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   // Lecture detail only goes dark when it renders the immersive black video
@@ -328,12 +336,16 @@ export default function AppNavbar() {
       to: '/learn',
       isActive: activeNavId === 'learn',
     }),
-    buildPrimaryNavTab({
-      id: 'support',
-      label: 'Support',
-      stayInNew: false,
-      oldUiPath: OLD_STUDENT_UI_NAV_PATHS.support,
-    }),
+    ...(showSupport
+      ? [
+          buildPrimaryNavTab({
+            id: 'support',
+            label: 'Support',
+            stayInNew: false,
+            oldUiPath: OLD_STUDENT_UI_NAV_PATHS.support,
+          }),
+        ]
+      : []),
     buildPrimaryNavTab({
       id: 'discussions',
       label: 'Discussions',

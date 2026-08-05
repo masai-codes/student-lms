@@ -4,9 +4,11 @@ import {
   MASAI_LIVE_PROMO_PORTALS,
   MOBILE_APP_PORTALS,
   SECTION_ON_LEARN_CARD_PORTALS,
+  SUPPORT_PORTALS,
   portalHasChat,
   portalHasMasaiLivePromo,
   portalHasMobileApp,
+  portalHasSupport,
   portalShowsSectionOnLearnCard,
 } from './portalCapabilities'
 
@@ -45,6 +47,18 @@ describe('portalHasMasaiLivePromo', () => {
 
   it('stays in sync with the allowlist', () => {
     expect([...MASAI_LIVE_PROMO_PORTALS]).toEqual(['masai', 'ihub'])
+  })
+})
+
+describe('portalHasSupport', () => {
+  it('hides Support on IIT Jodhpur only', () => {
+    expect(portalHasSupport('masai')).toBe(true)
+    expect(portalHasSupport('ihub')).toBe(true)
+    expect(portalHasSupport('iitj')).toBe(false)
+  })
+
+  it('stays in sync with the allowlist', () => {
+    expect([...SUPPORT_PORTALS]).toEqual(['masai', 'ihub'])
   })
 })
 

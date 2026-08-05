@@ -4,6 +4,7 @@ import {
   portalHasChat,
   portalHasMasaiLivePromo,
   portalHasMobileApp,
+  portalHasSupport,
   portalShowsSectionOnLearnCard,
 } from '@/utils/portalCapabilities'
 
@@ -51,6 +52,17 @@ export function hidesMasaiOnlyFeatures(): boolean {
  */
 export function isChatPortal(): boolean {
   return portalHasChat(getAppOrigin())
+}
+
+/**
+ * Whether the Support surface is available on the portal we're running on —
+ * gates the navbar "Support" tab and the mobile tab bar's Support entry. IIT
+ * Jodhpur runs its own support channel and hides it. The allowlist lives in
+ * `SUPPORT_PORTALS` (`@/utils/portalCapabilities`) — add or remove portals
+ * there, not here.
+ */
+export function isSupportPortal(): boolean {
+  return portalHasSupport(getAppOrigin())
 }
 
 /**
