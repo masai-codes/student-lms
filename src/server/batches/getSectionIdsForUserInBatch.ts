@@ -39,9 +39,9 @@ export async function getSectionIdsForUserInBatch(
  * Sections the user is enrolled in for a given batch, for the section filter
  * dropdown. Same scope as {@link getSectionIdsForUserInBatch} (portal-scoped,
  * `sections.deleted_at IS NULL`, keyed on the user's `section_user` rows only)
- * plus one extra guard: sections flagged `settings.hideSection` are dropped, so
- * ops can take a section out of the learner-facing dropdown — see
- * {@link sectionNotHiddenCondition}.
+ * plus one extra guard: on the IIT Jodhpur portal, sections flagged
+ * `settings.hideSection` are dropped so ops can take a section out of the
+ * learner-facing dropdown — see {@link sectionNotHiddenCondition}.
  *
  * The label prefers `settings.sectionDisplayName` (legacy `assignment.controller`
  * uses the same `settings?.sectionDisplayName || section.name` fallback).
