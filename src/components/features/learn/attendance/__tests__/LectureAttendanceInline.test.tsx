@@ -7,7 +7,6 @@ import { LectureAttendanceInline } from '../LectureAttendanceInline'
 const attendanceRender = {
   uiState: 'absent' as const,
   daysRemaining: 4,
-  remainingLabel: null,
   showBadge: true,
 }
 

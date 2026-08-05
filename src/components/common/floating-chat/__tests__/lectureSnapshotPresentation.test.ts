@@ -21,7 +21,6 @@ function makeAttendance(
     videoPercentage: 0,
     watchPercentage: 0,
     daysRemaining: 2,
-    remainingLabel: '2 days remaining',
     lateByMinutes: null,
     liveAttendanceStatus: 0,
     videoAttendanceStatus: 0,
@@ -234,7 +233,6 @@ describe('getSupportCatchUpPresentation', () => {
       makeSnapshot({
         attendance: makeAttendance({
           daysRemaining: 2,
-          remainingLabel: '2 days remaining',
         }),
       }),
     )
@@ -280,7 +278,6 @@ describe('getSupportCatchUpPresentation', () => {
         attendance: makeAttendance({
           videoCountsForAttendance: false,
           daysRemaining: null,
-          remainingLabel: null,
         }),
       }),
     )
@@ -294,7 +291,6 @@ describe('getSupportCatchUpPresentation', () => {
         attendance: makeAttendance({
           videoCountsForAttendance: true,
           daysRemaining: null,
-          remainingLabel: null,
           isCatchupWindowOver: false,
         }),
       }),

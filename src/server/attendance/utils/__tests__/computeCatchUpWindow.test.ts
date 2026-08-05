@@ -19,7 +19,6 @@ describe('computeCatchUpWindow', () => {
     ).toEqual({
       daysRemaining: null,
       isCatchupWindowOver: null,
-      remainingLabel: null,
     })
   })
 
@@ -36,8 +35,23 @@ describe('computeCatchUpWindow', () => {
     ).toEqual({
       daysRemaining: 2,
       isCatchupWindowOver: false,
-      remainingLabel: '2 days remaining',
     })
+  })
+
+  // Regression: the count is whole days elapsed, matching the legacy LMS. A
+  // countdown to the exact window-close instant would floor the residual hours
+  // and render one day fewer (here: 1 instead of 2).
+  it('does not shave a day for a partial-day residual', () => {
+    expect(
+      computeCatchUpWindow({
+        schedule: concludes,
+        concludes,
+        catchUpDays: 5,
+        includeVideoAttendance: true,
+        isAbsent: true,
+        nowMs: nowMs + 23 * 60 * 60 * 1000,
+      }).daysRemaining,
+    ).toBe(2)
   })
 
   it('marks window over when elapsed days exceed catch-up allowance', () => {
@@ -54,7 +68,6 @@ describe('computeCatchUpWindow', () => {
     ).toEqual({
       daysRemaining: 0,
       isCatchupWindowOver: true,
-      remainingLabel: null,
     })
   })
 })
