@@ -13,7 +13,6 @@ import {
 } from '@/components/features/layout/NextActionBanner'
 import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
-import { hidesMasaiOnlyFeatures } from '@/utils/portal'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -27,9 +26,6 @@ const layoutRouteApi = getRouteApi('/(protected)/_layout')
 export default function AppMobileHeader() {
   const { user } = layoutRouteApi.useRouteContext()
   const navigate = useNavigate()
-  // Non-Masai portals (iHub, IIT Jodhpur) hide the guided-tour icon (same as
-  // the desktop navbar).
-  const hideMasaiExtras = hidesMasaiOnlyFeatures()
   const showTryNew = useTryNewCtaVisible()
 
   const { data: unreadCount = 0 } = useQuery({
@@ -95,17 +91,15 @@ export default function AppMobileHeader() {
             </span>
           ) : null}
         </button>
-        {hideMasaiExtras ? null : (
-          <button
-            type="button"
-            onClick={handleGuidedTourClick}
-            aria-label="Onboarding steps"
-            className="flex size-10 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
-            data-testid="app-mobile-header-guided-tour"
-          >
-            <CircleHelp className="size-7" />
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleGuidedTourClick}
+          aria-label="Onboarding steps"
+          className="flex size-10 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
+          data-testid="app-mobile-header-guided-tour"
+        >
+          <CircleHelp className="size-7" />
+        </button>
       </div>
     </header>
   )

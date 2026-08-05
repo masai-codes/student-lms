@@ -56,6 +56,7 @@ import {
   hidesMasaiOnlyFeatures,
   isChatPortal,
   isMasaiPortal,
+  isMobileAppPortal,
   isSupportPortal,
 } from '@/utils/portal'
 
@@ -127,9 +128,12 @@ type PrimaryNavTab = { id: string; label: string; isActive?: boolean } & (
 export default function AppNavbar() {
   const { user } = layoutRouteApi.useRouteContext()
   // Non-Masai portals (iHub, IIT Jodhpur) hide the Masai-only surfaces
-  // (MasaiVerse, Refer & Earn, Practice Interviews, LevelUp, Download App,
-  // guided-tour icon).
+  // (MasaiVerse, Refer & Earn, Practice Interviews, LevelUp). Onboarding /
+  // guided tour is NOT one of them — every portal gets it.
   const hideMasaiExtras = hidesMasaiOnlyFeatures()
+  // Download App has its own allowlist (Masai + IIT Jodhpur) — only iHub, which
+  // has no mobile app, drops the action.
+  const showDownloadApp = isMobileAppPortal()
   // Chat has its own allowlist (Masai + IIT Jodhpur), so it isn't tied to
   // hideMasaiExtras — only iHub hides it.
   const showChat = isChatPortal()
@@ -379,11 +383,10 @@ export default function AppNavbar() {
 
   const trailingActions: Array<NavbarActionItem> = useMemo(
     () => [
-      // Download App and the guided-tour icon are Masai-only — the mobile app
-      // only ships for Masai students. (Chat below is Masai + IIT Jodhpur.)
-      ...(hideMasaiExtras
-        ? []
-        : [
+      // Download App follows the mobile-app allowlist (Masai + IIT Jodhpur) —
+      // only iHub, which has no app, drops it.
+      ...(showDownloadApp
+        ? [
             {
               id: 'download-app',
               type: 'image' as const,
@@ -397,7 +400,8 @@ export default function AppNavbar() {
                 setDownloadAppOpen(true)
               },
             },
-          ]),
+          ]
+        : []),
       {
         id: 'calendar',
         type: 'icon',
@@ -416,20 +420,18 @@ export default function AppNavbar() {
             },
           ]
         : []),
-      ...(hideMasaiExtras
-        ? []
-        : [
-            {
-              id: 'guided-tour',
-              type: 'icon' as const,
-              icon: <CircleHelp className="size-7" />,
-              ariaLabel: 'Onboarding steps',
-              tooltip: 'Onboarding steps',
-              href: '/',
-              openInNewTab: false,
-              onClick: handleGuidedTourClick,
-            },
-          ]),
+      // Onboarding / guided tour is portal-independent — every student has an
+      // onboarding flow, so this icon shows on Masai, iHub and IIT Jodhpur alike.
+      {
+        id: 'guided-tour',
+        type: 'icon',
+        icon: <CircleHelp className="size-7" />,
+        ariaLabel: 'Onboarding steps',
+        tooltip: 'Onboarding steps',
+        href: '/',
+        openInNewTab: false,
+        onClick: handleGuidedTourClick,
+      },
       {
         id: 'announcements',
         type: 'icon',
@@ -444,8 +446,8 @@ export default function AppNavbar() {
     [
       handleAnnouncementsClick,
       handleGuidedTourClick,
-      hideMasaiExtras,
       showChat,
+      showDownloadApp,
       unreadCount,
     ],
   )
