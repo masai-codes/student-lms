@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { act, renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useLectureAiChatFeedback } from '../useLectureAiChatFeedback'
 
@@ -14,22 +14,57 @@ vi.mock('@/lib/api/ai-tutor/lectureAiChatFeedbackApi', () => ({
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.useFakeTimers()
+})
+
+afterEach(() => {
+  vi.useRealTimers()
 })
 
 describe('useLectureAiChatFeedback', () => {
-  it('shows the modal when notified of a completed first reply', () => {
+  it('shows the modal after 15s of inactivity following a completed first reply', () => {
     const { result } = renderHook(() => useLectureAiChatFeedback(1))
 
     act(() => result.current.notifyFirstReplyCompleted(42))
+    expect(result.current.isVisible).toBe(false)
+
+    act(() => vi.advanceTimersByTime(15_000))
 
     expect(result.current.isVisible).toBe(true)
     expect(result.current.chatId).toBe(42)
+  })
+
+  it('does not show the modal while the chat is still active', () => {
+    const { result } = renderHook(() => useLectureAiChatFeedback(1))
+
+    act(() => result.current.notifyFirstReplyCompleted(42))
+    act(() => result.current.reportActivity(true))
+    act(() => vi.advanceTimersByTime(15_000))
+
+    expect(result.current.isVisible).toBe(false)
+  })
+
+  it('restarts the inactivity timer once activity resumes then stops', () => {
+    const { result } = renderHook(() => useLectureAiChatFeedback(1))
+
+    act(() => result.current.notifyFirstReplyCompleted(42))
+    act(() => vi.advanceTimersByTime(10_000))
+    act(() => result.current.reportActivity(true))
+    act(() => result.current.reportActivity(false))
+    act(() => vi.advanceTimersByTime(10_000))
+
+    expect(result.current.isVisible).toBe(false)
+
+    act(() => vi.advanceTimersByTime(5_000))
+
+    expect(result.current.isVisible).toBe(true)
   })
 
   it('ignores a null chatId', () => {
     const { result } = renderHook(() => useLectureAiChatFeedback(1))
 
     act(() => result.current.notifyFirstReplyCompleted(null))
+    act(() => vi.advanceTimersByTime(15_000))
 
     expect(result.current.isVisible).toBe(false)
   })
@@ -39,6 +74,7 @@ describe('useLectureAiChatFeedback', () => {
     const { result } = renderHook(() => useLectureAiChatFeedback(1))
 
     act(() => result.current.notifyFirstReplyCompleted(7))
+    act(() => vi.advanceTimersByTime(15_000))
     await act(async () => {
       await result.current.submit(4, 'Great explanation')
     })
@@ -52,6 +88,7 @@ describe('useLectureAiChatFeedback', () => {
     expect(result.current.isVisible).toBe(false)
 
     act(() => result.current.notifyFirstReplyCompleted(7))
+    act(() => vi.advanceTimersByTime(15_000))
     expect(result.current.isVisible).toBe(false)
   })
 
@@ -60,6 +97,7 @@ describe('useLectureAiChatFeedback', () => {
     const { result } = renderHook(() => useLectureAiChatFeedback(1))
 
     act(() => result.current.notifyFirstReplyCompleted(7))
+    act(() => vi.advanceTimersByTime(15_000))
     await act(async () => {
       await result.current.submit(2)
     })
@@ -74,11 +112,13 @@ describe('useLectureAiChatFeedback', () => {
     const { result } = renderHook(() => useLectureAiChatFeedback(1))
 
     act(() => result.current.notifyFirstReplyCompleted(9))
+    act(() => vi.advanceTimersByTime(15_000))
     act(() => result.current.skip())
 
     expect(result.current.isVisible).toBe(false)
 
     act(() => result.current.notifyFirstReplyCompleted(9))
+    act(() => vi.advanceTimersByTime(15_000))
     expect(result.current.isVisible).toBe(false)
   })
 
@@ -86,8 +126,10 @@ describe('useLectureAiChatFeedback', () => {
     const { result } = renderHook(() => useLectureAiChatFeedback(1))
 
     act(() => result.current.notifyFirstReplyCompleted(9))
+    act(() => vi.advanceTimersByTime(15_000))
     act(() => result.current.skip())
     act(() => result.current.notifyFirstReplyCompleted(10))
+    act(() => vi.advanceTimersByTime(15_000))
 
     expect(result.current.isVisible).toBe(true)
     expect(result.current.chatId).toBe(10)
