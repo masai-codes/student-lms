@@ -32,7 +32,7 @@ import {
 import { fetchLevelupSso } from '@/utils/levelupSso'
 import { fetchReferralLmsLoginRedirectUrl } from '@/utils/referralLmsLogin'
 import { OLD_STUDENT_UI_NAV_PATHS } from '@/constants/oldStudentUiNavPaths'
-import { UsersThreeIcon } from '@phosphor-icons/react'
+import { HandWaving, UsersThreeIcon } from '@phosphor-icons/react'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -223,6 +223,19 @@ export function useAppNavItems() {
       })
     }
 
+    if (!gating.isIHub && !gating.isIitj) {
+      items.push({
+        id: 'guided-tour',
+        type: 'action',
+        onClick: () =>
+          void navigate({ to: '/', search: { guidedTour: 'open' } }),
+        label: 'Onboarding',
+        icon: HandWaving,
+        tooltip: 'Onboarding',
+        uiType: 'secondary',
+      })
+    }
+
     items.push({
       id: 'announcements',
       type: 'internal-link',
@@ -250,8 +263,11 @@ export function useAppNavItems() {
   }, [
     gating.isAppInstalled,
     gating.hasMobileApp,
+    gating.isIHub,
+    gating.isIitj,
     gating.showReferAndEarn,
     handleReferAndEarnClick,
+    navigate,
     pathname,
     unreadCount,
   ])

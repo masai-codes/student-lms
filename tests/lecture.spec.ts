@@ -14,7 +14,7 @@ test('test', async ({ page }) => {
   await page1.getByRole('link', { name: 'Learn' }).click()
   await page1
     .getByRole('link', {
-      name: 'Lecture [live-lecture-phases] Transcript — timestamped segments (download + CC',
+      name: '[live-lecture-phases] Transcript — timestamped segments (download + CC',
     })
     .click()
   await page1.getByRole('button', { name: 'Play', exact: true }).click()

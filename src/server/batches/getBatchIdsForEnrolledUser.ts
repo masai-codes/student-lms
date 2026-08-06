@@ -1,4 +1,4 @@
-import { and, asc, eq, isNull } from 'drizzle-orm'
+import { and, desc, eq, isNull } from 'drizzle-orm'
 import { db } from '@/db'
 import { batches, sectionUser, sections } from '@/db/schema'
 import { getRequestPortal } from '@/server/auth/v2/portalContext'
@@ -53,7 +53,9 @@ export async function getBatchIdsForEnrolledUser(
           batchScopeForPortal(portal),
         ),
       )
-      .orderBy(asc(sectionUser.createdAt)),
+      // Most recently started batch first — downstream surfaces (learn batch
+      // switcher default selection, dropdown order) rely on this ordering.
+      .orderBy(desc(batches.starting), desc(batches.createdAt)),
     getUserBatchRestrictions(userId),
   ])
 

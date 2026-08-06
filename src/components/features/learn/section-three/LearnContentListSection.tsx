@@ -21,7 +21,7 @@ export function LearnContentListSection({
   }
 
   return (
-    <section data-testid="learn-content-list" className="mt-[16px] space-y-3">
+    <section data-testid="learn-content-list" className="mt-3 space-y-3">
       {items.map((item) => (
         <div
           key={item.id}

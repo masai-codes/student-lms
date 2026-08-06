@@ -194,7 +194,7 @@ export function LearnControlsSection({
           onChange={(event) => setSearchInput(event.target.value)}
           placeholder={SEARCH_PLACEHOLDER_BY_TAB[activeTab]}
           iconLeft={<Search className="size-4 shrink-0" strokeWidth={2} />}
-          className="h-8 min-h-0 w-full min-w-0 rounded-lg px-3 py-0 text-sm sm:w-65 bg-muted"
+          className="h-8 min-h-0 w-full min-w-0 rounded-lg px-3 py-0 text-sm sm:w-65 bg-muted lg:bg-surface"
         />
 
         {showSectionDropdown ? (
@@ -269,7 +269,7 @@ export function LearnControlsSection({
                 ? `Open filters, ${filterCount} active`
                 : 'Open filters'
             }
-            className="h-8 rounded-lg border! border-border! text-foreground! transition-all duration-200 hover:-translate-y-px hover:border-brand/35! hover:bg-surface-muted! active:scale-95"
+            className="h-8 rounded-lg border! border-border! text-foreground! transition-all duration-200 hover:-translate-y-px hover:border-brand/35! hover:bg-surface-muted! active:scale-95 bg-surface"
           />
           {filterCount > 0 ? (
             <span

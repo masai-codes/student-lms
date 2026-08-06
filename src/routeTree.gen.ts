@@ -207,6 +207,7 @@ import { Route as ApiLearnAiChatLectureIdHistoryRouteImport } from './routes/api
 import { Route as ApiInterviewsSessionsSessionIdTurnsRouteImport } from './routes/api/interviews/sessions/$sessionId/turns'
 import { Route as ApiInterviewsSessionsSessionIdSttTokenRouteImport } from './routes/api/interviews/sessions/$sessionId/stt-token'
 import { Route as ApiAiTutorLecturesLectureIdIngestRouteImport } from './routes/api/ai-tutor/lectures/$lectureId/ingest'
+import { Route as ApiAiTutorChatPracticeQuestionsAnswersRouteImport } from './routes/api/ai-tutor/chat/practice-questions/answers'
 import { Route as ApiAiTutorChatFeedbackMigrateRatingsRouteImport } from './routes/api/ai-tutor/chat/feedback/migrate-ratings'
 import { Route as ApiAiTutorChatConversationsChatIdRouteImport } from './routes/api/ai-tutor/chat/conversations/$chatId'
 import { Route as protectedLayoutMasaiverseEventEventIdRouteImport } from './routes/(protected)/_layout/masaiverse/event.$eventId'
@@ -1347,6 +1348,12 @@ const ApiAiTutorLecturesLectureIdIngestRoute =
     path: '/api/ai-tutor/lectures/$lectureId/ingest',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAiTutorChatPracticeQuestionsAnswersRoute =
+  ApiAiTutorChatPracticeQuestionsAnswersRouteImport.update({
+    id: '/api/ai-tutor/chat/practice-questions/answers',
+    path: '/api/ai-tutor/chat/practice-questions/answers',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAiTutorChatFeedbackMigrateRatingsRoute =
   ApiAiTutorChatFeedbackMigrateRatingsRouteImport.update({
     id: '/migrate-ratings',
@@ -1601,6 +1608,7 @@ export interface FileRoutesByFullPath {
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
+  '/api/ai-tutor/chat/practice-questions/answers': typeof ApiAiTutorChatPracticeQuestionsAnswersRoute
   '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/interviews/sessions/$sessionId/stt-token': typeof ApiInterviewsSessionsSessionIdSttTokenRoute
   '/api/interviews/sessions/$sessionId/turns': typeof ApiInterviewsSessionsSessionIdTurnsRouteWithChildren
@@ -1812,6 +1820,7 @@ export interface FileRoutesByTo {
   '/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
+  '/api/ai-tutor/chat/practice-questions/answers': typeof ApiAiTutorChatPracticeQuestionsAnswersRoute
   '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/interviews/sessions/$sessionId/stt-token': typeof ApiInterviewsSessionsSessionIdSttTokenRoute
   '/api/interviews/sessions/$sessionId/turns': typeof ApiInterviewsSessionsSessionIdTurnsRouteWithChildren
@@ -2026,6 +2035,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/masaiverse/event/$eventId': typeof protectedLayoutMasaiverseEventEventIdRoute
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
+  '/api/ai-tutor/chat/practice-questions/answers': typeof ApiAiTutorChatPracticeQuestionsAnswersRoute
   '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/interviews/sessions/$sessionId/stt-token': typeof ApiInterviewsSessionsSessionIdSttTokenRoute
   '/api/interviews/sessions/$sessionId/turns': typeof ApiInterviewsSessionsSessionIdTurnsRouteWithChildren
@@ -2240,6 +2250,7 @@ export interface FileRouteTypes {
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
+    | '/api/ai-tutor/chat/practice-questions/answers'
     | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/interviews/sessions/$sessionId/stt-token'
     | '/api/interviews/sessions/$sessionId/turns'
@@ -2451,6 +2462,7 @@ export interface FileRouteTypes {
     | '/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
+    | '/api/ai-tutor/chat/practice-questions/answers'
     | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/interviews/sessions/$sessionId/stt-token'
     | '/api/interviews/sessions/$sessionId/turns'
@@ -2664,6 +2676,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/masaiverse/event/$eventId'
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
+    | '/api/ai-tutor/chat/practice-questions/answers'
     | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/interviews/sessions/$sessionId/stt-token'
     | '/api/interviews/sessions/$sessionId/turns'
@@ -2833,6 +2846,7 @@ export interface RootRouteChildren {
   ApiProfileEmailPreferencesIndexRoute: typeof ApiProfileEmailPreferencesIndexRoute
   ApiWhatsNewIdIndexRoute: typeof ApiWhatsNewIdIndexRoute
   ApiAiTutorChatConversationsChatIdRoute: typeof ApiAiTutorChatConversationsChatIdRoute
+  ApiAiTutorChatPracticeQuestionsAnswersRoute: typeof ApiAiTutorChatPracticeQuestionsAnswersRoute
   ApiAiTutorLecturesLectureIdIngestRoute: typeof ApiAiTutorLecturesLectureIdIngestRoute
   ApiInterviewsSessionsSessionIdSttTokenRoute: typeof ApiInterviewsSessionsSessionIdSttTokenRoute
   ApiInterviewsSessionsSessionIdTurnsRoute: typeof ApiInterviewsSessionsSessionIdTurnsRouteWithChildren
@@ -4237,6 +4251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiTutorLecturesLectureIdIngestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-tutor/chat/practice-questions/answers': {
+      id: '/api/ai-tutor/chat/practice-questions/answers'
+      path: '/api/ai-tutor/chat/practice-questions/answers'
+      fullPath: '/api/ai-tutor/chat/practice-questions/answers'
+      preLoaderRoute: typeof ApiAiTutorChatPracticeQuestionsAnswersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-tutor/chat/feedback/migrate-ratings': {
       id: '/api/ai-tutor/chat/feedback/migrate-ratings'
       path: '/migrate-ratings'
@@ -4836,6 +4857,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
   ApiAiTutorChatConversationsChatIdRoute:
     ApiAiTutorChatConversationsChatIdRoute,
+  ApiAiTutorChatPracticeQuestionsAnswersRoute:
+    ApiAiTutorChatPracticeQuestionsAnswersRoute,
   ApiAiTutorLecturesLectureIdIngestRoute:
     ApiAiTutorLecturesLectureIdIngestRoute,
   ApiInterviewsSessionsSessionIdSttTokenRoute:
