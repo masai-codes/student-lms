@@ -10,16 +10,30 @@ import { toDiscussionListItem } from '@/server/new-discussions/utils/discussionP
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 import type { LearnDiscussionListItem } from '@/server/learn/types'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
+import { getAccessibleSectionIdsForUserInBatch } from '@/server/learn/utils/ensureLearnEntityAccess'
 
 /**
- * Every public discussion in the batch, plus the viewer's own non-public
- * ones, across all lectures/resources (both live in the `lectures` table)
- * and assignments — the batch-wide feed for `/learn/discussions`.
+ * Every public discussion on content in the viewer's own sections of `batchId`,
+ * plus the viewer's own non-public ones, across lectures/resources (both live in
+ * the `lectures` table) and assignments — the feed for `/learn/discussions`.
  *
- * Returns nothing if the viewer's enrolment in `batchId` is not active
- * ({@link getBatchIdsForEnrolledUser}) — e.g. a cancelled enrolment, or a
- * batch the viewer was never in — so a stale/direct `batchId` can't surface
- * another batch's public discussions.
+ * Two independent scopes, both required:
+ *
+ * 1. Enrolment — returns nothing if the viewer's enrolment in `batchId` is not
+ *    active ({@link getBatchIdsForEnrolledUser}), e.g. a cancelled enrolment or a
+ *    batch the viewer was never in, so a stale/direct `batchId` can't surface
+ *    another batch's public discussions.
+ * 2. Section — content is matched on `section_id`, never on `batch_id`, using the
+ *    exact predicate the detail page gates on
+ *    ({@link getAccessibleSectionIdsForUserInBatch}). Matching on `batch_id` here
+ *    listed every sibling section's public discussions — hundreds of unrelated
+ *    sections share the catch-all "Masai" batch — which then 404'd on click
+ *    because `ensureUserCanAccessLearnHubEntity` requires section membership.
+ *
+ * `batch_id` is deliberately NOT also filtered on: it disagrees with the row's
+ * `sections.batch_id` on a few hundred live rows, and the detail page ignores it,
+ * so adding it would hide content the viewer can legitimately open. Rows with a
+ * NULL `section_id` drop out for the same reason — the gate rejects them too.
  */
 export async function listLearnDiscussionsForBatch(
   viewerUserId: number,
@@ -30,16 +44,32 @@ export async function listLearnDiscussionsForBatch(
     return []
   }
 
+  const sectionIds = await getAccessibleSectionIdsForUserInBatch(
+    viewerUserId,
+    batchId,
+  )
+  if (!sectionIds.length) {
+    return []
+  }
+
   const [lectureRows, assignmentRows] = await Promise.all([
     db
       .select({ id: lectures.id, title: lectures.title, type: lectures.type })
       .from(lectures)
-      .where(and(eq(lectures.batchId, batchId), isNull(lectures.deletedAt))),
+      .where(
+        and(
+          inArray(lectures.sectionId, sectionIds),
+          isNull(lectures.deletedAt),
+        ),
+      ),
     db
       .select({ id: assignments.id, title: assignments.title })
       .from(assignments)
       .where(
-        and(eq(assignments.batchId, batchId), isNull(assignments.deletedAt)),
+        and(
+          inArray(assignments.sectionId, sectionIds),
+          isNull(assignments.deletedAt),
+        ),
       ),
   ])
 
