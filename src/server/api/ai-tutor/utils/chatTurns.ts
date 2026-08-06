@@ -32,8 +32,14 @@ export function chatHistoryToTurns(
     if (entry.userMessage) {
       turns.push({ role: 'user', content: entry.userMessage })
     }
-    if (entry.aiMessage) {
-      turns.push({ role: 'assistant', content: entry.aiMessage })
+    if (entry.aiMessage || entry.practiceQuestions) {
+      turns.push({
+        role: 'assistant',
+        content: entry.aiMessage,
+        ...(entry.practiceQuestions
+          ? { practiceQuestions: entry.practiceQuestions }
+          : {}),
+      })
     }
   }
 

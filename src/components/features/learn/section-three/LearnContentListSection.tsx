@@ -1,9 +1,5 @@
-import type { CSSProperties } from 'react'
 import type { LearnContentItem } from '../shared/types'
 import { LearnContentCard } from './content-card/LearnContentCard'
-
-/** Cap the cascade so long lists don't keep late rows invisible for seconds. */
-const MAX_STAGGER_STEPS = 8
 
 export function LearnContentListSection({
   items,
@@ -25,8 +21,8 @@ export function LearnContentListSection({
   }
 
   return (
-    <section data-testid="learn-content-list" className="mt-[16px] space-y-3">
-      {items.map((item, index) => (
+    <section data-testid="learn-content-list" className="mt-3 space-y-3">
+      {items.map((item) => (
         <div
           key={item.id}
           // Stable automation hook per row, keyed by content type so suites can
@@ -34,12 +30,7 @@ export function LearnContentListSection({
           // Automation Test Hooks and the `browser-verify` skill.
           data-testid={`${item.type}-list-item`}
           data-content-id={item.id}
-          className="dash-lift animate-dash-row-in rounded-[8px]"
-          style={
-            {
-              '--dash-delay': `${Math.min(index, MAX_STAGGER_STEPS) * 0.05}s`,
-            } as CSSProperties
-          }
+          className="rounded-xl"
         >
           <LearnContentCard item={item} />
         </div>

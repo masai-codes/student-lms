@@ -17,10 +17,7 @@ export function createEmptyAnnouncementFilters(): AnnouncementFilters {
 }
 
 export type AnnouncementFilterSection =
-  | 'type'
-  | 'category'
-  | 'announcedBy'
-  | 'date'
+  'type' | 'category' | 'announcedBy' | 'date'
 
 export const ANNOUNCEMENT_FILTER_SECTIONS: Array<AnnouncementFilterSection> = [
   'type',

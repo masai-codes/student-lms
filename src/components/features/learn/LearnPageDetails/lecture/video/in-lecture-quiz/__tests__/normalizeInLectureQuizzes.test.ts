@@ -1,52 +1,36 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  normalizeInLectureQuizzes,
-  parseTimestampToSeconds,
-} from '../normalizeInLectureQuizzes'
-import type { InLecturePopupQuiz } from '@/server/learn/lectureDetailTypes'
+import { normalizeInLectureQuizzes } from '../normalizeInLectureQuizzes'
+import type { InLecturePopupQuizElement } from '@/server/learn/lectureDetailTypes'
 
 const quiz = (
-  start: string,
-  end: string,
-  assessmentTemplate: string,
-): InLecturePopupQuiz => ({
-  timeStamp: { start, end },
-  assessmentTemplate,
-})
-
-describe('parseTimestampToSeconds', () => {
-  it('parses HH:MM:SS', () => {
-    expect(parseTimestampToSeconds('00:03:35')).toBe(215)
-    expect(parseTimestampToSeconds('01:00:00')).toBe(3600)
-  })
-
-  it('parses MM:SS', () => {
-    expect(parseTimestampToSeconds('05:57')).toBe(357)
-  })
-
-  it('rejects malformed input', () => {
-    expect(parseTimestampToSeconds('abc')).toBeNull()
-    expect(parseTimestampToSeconds('1:2:3:4')).toBeNull()
-    expect(parseTimestampToSeconds('-1:00')).toBeNull()
-  })
+  id: number,
+  startSec: number,
+  endSec: number,
+  assessmentId: string,
+): InLecturePopupQuizElement => ({
+  id,
+  assessmentId,
+  status: 'active',
+  startSec,
+  endSec,
 })
 
 describe('normalizeInLectureQuizzes', () => {
-  it('parses, sorts, and keys quizzes', () => {
+  it('sorts by start and keys by the element id', () => {
     const result = normalizeInLectureQuizzes(
-      [quiz('00:07:43', '00:08:32', 'b'), quiz('00:03:35', '00:05:57', 'a')],
+      [quiz(2, 463, 512, 'b'), quiz(1, 215, 357, 'a')],
       0,
     )
     expect(result).toEqual([
-      { id: 'a@215', startSec: 215, endSec: 357, assessmentTemplate: 'a' },
-      { id: 'b@463', startSec: 463, endSec: 512, assessmentTemplate: 'b' },
+      { id: '1', startSec: 215, endSec: 357, assessmentId: 'a' },
+      { id: '2', startSec: 463, endSec: 512, assessmentId: 'b' },
     ])
   })
 
-  it('drops windows where start >= end or timestamps are malformed', () => {
+  it('drops windows where start >= end or start is negative', () => {
     const result = normalizeInLectureQuizzes(
-      [quiz('00:05:00', '00:05:00', 'eq'), quiz('bad', '00:05:00', 'x')],
+      [quiz(1, 300, 300, 'eq'), quiz(2, -5, 100, 'neg')],
       0,
     )
     expect(result).toEqual([])
@@ -54,12 +38,12 @@ describe('normalizeInLectureQuizzes', () => {
 
   it('drops windows starting at/after the video duration and clamps the end', () => {
     const result = normalizeInLectureQuizzes(
-      [quiz('00:00:10', '00:10:00', 'clamp'), quiz('00:10:00', '00:12:00', 'past')],
+      [quiz(1, 10, 600, 'clamp'), quiz(2, 600, 720, 'past')],
       // duration 400s: 'past' starts after the end (dropped); 'clamp' end clamped to 400
       400,
     )
     expect(result).toEqual([
-      { id: 'clamp@10', startSec: 10, endSec: 400, assessmentTemplate: 'clamp' },
+      { id: '1', startSec: 10, endSec: 400, assessmentId: 'clamp' },
     ])
   })
 })

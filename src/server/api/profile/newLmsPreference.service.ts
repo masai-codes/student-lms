@@ -48,12 +48,16 @@ function readHideSwitch(meta: unknown): boolean {
 
 function readFeedbackList(meta: unknown): Array<NewLmsSwitchFeedbackEntry> {
   if (!meta || typeof meta !== 'object') return []
-  const list = (meta as Record<string, unknown>)[NEW_LMS_SWITCH_FEEDBACK_META_KEY]
+  const list = (meta as Record<string, unknown>)[
+    NEW_LMS_SWITCH_FEEDBACK_META_KEY
+  ]
   return Array.isArray(list) ? (list as Array<NewLmsSwitchFeedbackEntry>) : []
 }
 
 /** Reads the new-LMS-pages opt-in flag from users.meta. Defaults to false. */
-export async function getNewLmsPagesPreference(userId: number): Promise<boolean> {
+export async function getNewLmsPagesPreference(
+  userId: number,
+): Promise<boolean> {
   const rows = await db
     .select({ meta: users.meta })
     .from(users)

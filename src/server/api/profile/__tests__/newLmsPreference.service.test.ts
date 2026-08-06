@@ -19,7 +19,9 @@ vi.mock('@/db', () => ({
 /** Makes `db.select(...)` resolve to a single row holding `meta`. */
 function withMeta(meta: unknown) {
   select.mockReturnValue({
-    from: () => ({ where: () => ({ limit: () => Promise.resolve([{ meta }]) }) }),
+    from: () => ({
+      where: () => ({ limit: () => Promise.resolve([{ meta }]) }),
+    }),
   })
 }
 

@@ -44,7 +44,13 @@ beforeEach(() => {
 describe('clearAgreementBan', () => {
   it('clears an object-shaped ban', async () => {
     hoisted.rows = [
-      { id: 1, meta: JSON.stringify({ aggrementBanned: true, aggrementBannedDate: '2026-07-03' }) },
+      {
+        id: 1,
+        meta: JSON.stringify({
+          aggrementBanned: true,
+          aggrementBannedDate: '2026-07-03',
+        }),
+      },
     ]
     await clearAgreementBan(10, 5)
     expect(hoisted.writes).toHaveLength(1)
@@ -53,7 +59,12 @@ describe('clearAgreementBan', () => {
 
   it('clears a single-element array ban and preserves other keys', async () => {
     hoisted.rows = [
-      { id: 1, meta: JSON.stringify([{ Freshmen: '2021-11-15', aggrementBanned: true }]) },
+      {
+        id: 1,
+        meta: JSON.stringify([
+          { Freshmen: '2021-11-15', aggrementBanned: true },
+        ]),
+      },
     ]
     await clearAgreementBan(10, 5)
     const written = flatten(hoisted.writes[0])
@@ -62,7 +73,9 @@ describe('clearAgreementBan', () => {
   })
 
   it('is a no-op when not banned', async () => {
-    hoisted.rows = [{ id: 1, meta: JSON.stringify([{ Freshmen: '2021-11-15' }]) }]
+    hoisted.rows = [
+      { id: 1, meta: JSON.stringify([{ Freshmen: '2021-11-15' }]) },
+    ]
     await clearAgreementBan(10, 5)
     expect(hoisted.writes).toHaveLength(0)
   })

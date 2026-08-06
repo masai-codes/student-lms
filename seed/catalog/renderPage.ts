@@ -11,7 +11,10 @@ export type CatalogRenderInput = {
 }
 
 /** Flows that belong to the "Lectures - Listing & Details" section. */
-const LECTURE_FLOW_IDS = new Set(['login-and-join-lecture', 'live-lecture-phases'])
+const LECTURE_FLOW_IDS = new Set([
+  'login-and-join-lecture',
+  'live-lecture-phases',
+])
 
 type SectionDef = {
   key: string
@@ -33,10 +36,18 @@ function groupFlowsIntoSections(flows: SeedFlowMeta[]): SectionDef[] {
 
   const sections: SectionDef[] = []
   if (t0Flows.length > 0) {
-    sections.push({ key: 't0', label: 'T0 — Onboarding & Dashboard', flows: t0Flows })
+    sections.push({
+      key: 't0',
+      label: 'T0 — Onboarding & Dashboard',
+      flows: t0Flows,
+    })
   }
   if (lectureFlows.length > 0) {
-    sections.push({ key: 'lectures', label: 'Lectures — Listing & Details', flows: lectureFlows })
+    sections.push({
+      key: 'lectures',
+      label: 'Lectures — Listing & Details',
+      flows: lectureFlows,
+    })
   }
   return sections
 }

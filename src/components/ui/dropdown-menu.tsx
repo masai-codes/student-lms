@@ -40,7 +40,9 @@ function DropdownMenuContent({
    * dismissable overlay) so the menu renders within that subtree and selecting
    * an item is not treated as an "outside" interaction that closes the overlay.
    */
-  container?: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>['container']
+  container?: React.ComponentProps<
+    typeof DropdownMenuPrimitive.Portal
+  >['container']
 }) {
   return (
     <DropdownMenuPrimitive.Portal container={container}>

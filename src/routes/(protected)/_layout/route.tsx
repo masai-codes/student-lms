@@ -16,14 +16,9 @@ import { TryNewTour } from '@/components/features/layout/TryNewTour'
 import { AnnouncementModalController, ModalProvider } from '@/components/modals'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
-import {
-  layoutMainClasses,
-  layoutMainClassesFullWidth,
-  lectureDetailMainClasses,
-  LAYOUT_APP_SHELL_CLASSES,
-} from '@/lib/layout'
+import { ME_QUERY_KEY } from '@/query/me/meCache'
+import { meQuery } from '@/query/me/meQuery'
 import { bootstrapLoginWithToken } from '@/server/auth/bootstrapLogin'
-import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
 import {
   getOldStudentUiUrlForPath,
   isLegacyStudentRedirectEnabled,
@@ -38,13 +33,19 @@ const ENABLE_SUPPORT_FLOATER = true
 /**
  * Paths served by this app when legacy redirect is enabled (everything else →
  * old LMS). Deliberately minimal: only the 5 migrated pages (flag-gated,
- * handled separately) plus `masaiverse` and `support` stay on the new LMS.
- * Everything else — announcements, messages, bookmarks, whats-new, profile,
- * my-courses, course, etc. — redirects to the old LMS.
+ * handled separately) plus `masaiverse`, `support`, `interviews`, and `chat`
+ * stay on the new LMS. Everything else — announcements, messages, bookmarks,
+ * whats-new, profile, my-courses, course, etc. — redirects to the old LMS.
  */
 function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/masaiverse')) return true
   if (pathname === '/support' || pathname.startsWith('/support/')) {
+    return true
+  }
+  if (pathname === '/interviews' || pathname.startsWith('/interviews/')) {
+    return true
+  }
+  if (pathname === '/chat' || pathname.startsWith('/chat/')) {
     return true
   }
   return false
@@ -67,18 +68,25 @@ function mapToLegacyPath(pathname: string): string {
 }
 
 /** Lecture, assignment, and resource detail pages use in-header Raise Ticket instead. */
-function isLearnDetailRoute(pathname: string): boolean {
-  return /^\/(lectures|assignments|resources)\/[^/]+/.test(pathname)
+function shouldHideSupportIcon(pathname: string): boolean {
+  return (
+    /^\/learn\/(lectures|assignments|resources)\/[^/]+/.test(pathname) ||
+    /^\/(interviews\/|chat)/.test(pathname)
+  )
 }
 
 export const Route = createFileRoute('/(protected)/_layout')({
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async ({ context, location }) => {
     const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
     const isMasaiverseRoute = location.pathname.startsWith('/masaiverse')
     const requestUrl = new URL(location.href, 'http://localhost')
     const token = requestUrl.searchParams.get('token')
 
-    let user = await fetchCurrentUser()
+    // `beforeLoad` re-runs on every navigation under this layout, so this must
+    // come from the cache: called directly, the server function was an RPC per
+    // page change that blocked navigation for up to ~1.3s (issue #354). Primed
+    // during SSR, streamed into the client, then reused for `ME_STALE_TIME`.
+    let user = await context.queryClient.ensureQueryData(meQuery())
 
     // Auto-login fallback: on any route, when there's no session yet but the
     // request carries a `?token=` (legacy/app hands the session off via the
@@ -86,6 +94,9 @@ export const Route = createFileRoute('/(protected)/_layout')({
     // authed. The `?token=` is stripped from the URL below once consumed.
     if (!user && token) {
       user = await bootstrapLoginWithToken({ data: token })
+      // Overwrite the `null` just cached, or the redirect below would re-read it
+      // and bounce this now-authenticated request to /signin.
+      context.queryClient.setQueryData(ME_QUERY_KEY, user)
     }
 
     if (!user) {
@@ -182,12 +193,17 @@ function RouteComponent() {
   const isSupportRoute = pathname.startsWith('/support')
   // Lecture detail spans the full viewport width (no centered container), so
   // every hero state is edge-to-edge like the recording video.
-  const isLectureDetail = /^\/lectures\/[^/]+/.test(renderedPathname)
-  const mainClasses = renderedPathname.startsWith('/masaiverse')
-    ? layoutMainClassesFullWidth
-    : isLectureDetail
-      ? lectureDetailMainClasses
-      : layoutMainClasses
+  const isLectureDetail = /^\/learn\/lectures\/[^/]+/.test(renderedPathname)
+  // Chat is a single full-bleed iframe (connect.masaischool.com) — it wants
+  // the full viewport width/height, same as Masaiverse and lecture detail.
+  const isChatRoute = renderedPathname.startsWith('/chat')
+  const isDashboard = renderedPathname === '/'
+  const mainClasses =
+    renderedPathname.startsWith('/masaiverse') || isChatRoute || isDashboard
+      ? 'layout-full-width-main'
+      : isLectureDetail
+        ? 'layout-lecture-main'
+        : 'layout-page'
 
   useEffect(() => {
     initClarity()
@@ -208,11 +224,11 @@ function RouteComponent() {
   const showFloatingChat =
     ENABLE_SUPPORT_FLOATER && !isMasaiverseRoute && !isSupportRoute
   const showFloatingChatSphere =
-    showFloatingChat && !isLearnDetailRoute(renderedPathname)
+    showFloatingChat && !shouldHideSupportIcon(renderedPathname)
 
   // `data-app-shell`: hook target for the lecture page viewport lock (styles.css).
   const layout = (
-    <div data-app-shell className={LAYOUT_APP_SHELL_CLASSES}>
+    <div data-app-shell className="layout-app-shell">
       <TryNewTour hasSeen={user.hasSeenTryNewTour || user.hideSwitchOption} />
       <AppNavbar />
       {pathname === '/' && !isApp ? <AppMobileHeader /> : null}

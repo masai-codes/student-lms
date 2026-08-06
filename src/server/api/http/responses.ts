@@ -185,6 +185,37 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'AI_CHAT_OPENAI_TIMEOUT':
       case 'AI_CHAT_MESSAGE_INSERT_FAILED':
         return jsonError(503, error.message)
+      case 'INTERVIEW_TOPIC_INVALID':
+      case 'INTERVIEW_ANSWER_EMPTY':
+      case 'INTERVIEW_ANSWER_AUDIO_TOO_LARGE':
+      case 'INTERVIEW_SESSION_ID_INVALID':
+        return jsonError(400, error.message)
+      case 'INTERVIEW_SESSION_FORBIDDEN':
+        return jsonError(403, error.message)
+      case 'INTERVIEW_SESSION_NOT_FOUND':
+        return jsonError(404, error.message)
+      case 'INTERVIEW_SESSION_NOT_IN_PROGRESS':
+        return jsonError(409, error.message)
+      case 'INTERVIEW_RESPONSE_EMPTY':
+        return jsonError(422, error.message)
+      case 'INTERVIEW_DAILY_LIMIT':
+        return jsonError(429, error.message)
+      case 'INTERVIEW_QUESTION_GENERATION_FAILED':
+      case 'INTERVIEW_SESSION_CREATE_FAILED':
+      case 'INTERVIEW_REPORT_GENERATION_FAILED':
+      case 'INTERVIEW_OPENROUTER_NOT_CONFIGURED':
+      case 'INTERVIEW_OPENROUTER_REQUEST_FAILED':
+      case 'INTERVIEW_OPENROUTER_EMPTY_RESPONSE':
+      case 'INTERVIEW_OPENROUTER_INVALID_RESPONSE':
+      case 'INTERVIEW_OPENROUTER_TIMEOUT':
+        return jsonError(503, error.message)
+      case 'SERVER_ERROR_FETCHING_INTERVIEW_TOPICS':
+      case 'SERVER_ERROR_CREATING_INTERVIEW_SESSION':
+      case 'SERVER_ERROR_FETCHING_INTERVIEW_SESSION':
+      case 'SERVER_ERROR_SUBMITTING_INTERVIEW_TURN':
+      case 'SERVER_ERROR_LISTING_INTERVIEW_SESSIONS':
+      case 'SERVER_ERROR_CREATING_INTERVIEW_STT_TOKEN':
+        return jsonError(500, error.message)
       case 'CHATBOT_INVALID_LECTURE_ID':
       case 'CHATBOT_INVALID_SESSION_PAYLOAD':
       case 'CHATBOT_INVALID_SESSION_PATCH':

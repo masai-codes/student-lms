@@ -1,3 +1,5 @@
+import type { QueryClient } from '@tanstack/react-query'
+
 export interface User {
   id: number
   name: string
@@ -6,10 +8,11 @@ export interface User {
   role?: string | null
   /** Resolved avatar URL (profiles / users meta or `profile_photo_path`). */
   profileImageUrl?: string | null
-  joinedClubId?: string | null
 }
 
 export interface RouterContext {
+  /** Per-request/per-tab cache, so `beforeLoad` and loaders can prime and reuse queries. */
+  queryClient: QueryClient
   user: User | null
   login: (user: User) => void
   logout: () => void

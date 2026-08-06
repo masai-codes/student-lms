@@ -1,6 +1,13 @@
 # Feature Test Matrix
 
-Last updated: 2026-07-02
+Last updated: 2026-08-01
+
+## Mock interview practice (`/interviews`)
+
+- Area: Personalized topic list (`getInterviewTopicsForUser`: domain from `resolveInterviewDomain` + coursework topics from `lectures.module`) → turn-based AI interview (`interview_sessions`, record/type answer → OpenRouter audio-input model transcribes + asks follow-up → Claude scores the final report); `useInterviewRecorder` extracted from the announcements voice-note composer and shared with `MessageDetailPage`; `encodeWav.ts` re-encodes `MediaRecorder` output to 16kHz mono PCM16 WAV client-side (OpenRouter doesn't accept webm/mp4).
+- Status: Covered (topic personalization + de-dupe, domain classification, session create/get, turn submission incl. daily-limit/transcript-empty/audio-too-large/not-in-progress failure modes, report generation, all 4 handlers, WAV header/resample/PCM encoding, recorder state machine, `MessageDetailPage` regression).
+- Test files: `src/server/api/interviews/**/__tests__/*.test.ts`, `src/lib/audio/__tests__/encodeWav.test.ts`, `src/hooks/__tests__/useInterviewRecorder.test.tsx`, `src/components/features/announcements/MessageDetailPage.test.tsx`
+- Notes: See `docs/testing/features/interviews.md`
 
 ## Structured logging
 

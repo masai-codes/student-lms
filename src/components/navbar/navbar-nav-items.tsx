@@ -8,6 +8,12 @@ type NavbarNavItemsProps = {
   className?: string
 }
 
+function navLinkTestId(item: NavbarLinkItem) {
+  const slug =
+    item.id ?? (item.label.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'item')
+  return `navbar-nav-link-${slug}`
+}
+
 export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
   if (!items.length) {
     return null
@@ -16,34 +22,47 @@ export function NavbarNavItems({ items, className }: NavbarNavItemsProps) {
   return (
     <nav
       aria-label="Primary"
-      className={`flex min-w-0 flex-1 items-center ${className ?? ''}`.trim()}
+      data-testid="navbar-nav-links"
+      className={cn('flex min-w-0 items-stretch self-stretch', className)}
     >
-      <ul className="flex min-w-0 flex-nowrap items-center gap-3 xl:gap-4">
+      <ul className="flex min-w-0 flex-nowrap items-stretch gap-0 xl:gap-0">
         {items.map((item, index) => (
           <li
             key={item.id ?? `${item.href}-${item.label}-${index}`}
-            className="shrink-0"
+            className="flex shrink-0 items-stretch hover:bg-muted/50 transition-colors"
           >
             <NavbarAnchor
               href={item.href}
               openInNewTab={item.openInNewTab}
               onClick={item.onClick}
               aria-current={item.isActive ? 'page' : undefined}
-              className="flex flex-col gap-1 px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+              data-testid={navLinkTestId(item)}
+              className="relative flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 pl-2 pr-4"
             >
               <span
                 className={cn(
-                  'subpixel-antialiased cursor-pointer whitespace-nowrap font-poppins text-base leading-6 !font-[500] transition-colors',
+                  'inline-flex items-center gap-1.5 subpixel-antialiased cursor-pointer whitespace-nowrap font-poppins text-[14px] leading-5 transition-colors font-medium',
                   item.isActive
                     ? 'text-brand'
                     : 'text-foreground-muted hover:text-brand',
                 )}
               >
+                {item.icon ? (
+                  <span
+                    className="flex shrink-0 items-center justify-center [&_svg]:size-4"
+                    aria-hidden
+                  >
+                    {item.icon}
+                  </span>
+                ) : null}
                 {item.label}
               </span>
+              {/* Active indicator sits on the row's baseline (rather than
+                  directly under the label) so it reads as a tab underline. */}
               <span
+                aria-hidden="true"
                 className={cn(
-                  'h-0.5 rounded-[3px] transition-colors',
+                  'absolute inset-x-0 bottom-0 h-0.5 rounded-t-[2px] transition-colors',
                   item.isActive ? 'bg-brand' : 'bg-transparent',
                 )}
               />

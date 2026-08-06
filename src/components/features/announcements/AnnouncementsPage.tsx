@@ -99,7 +99,7 @@ export function AnnouncementsPage() {
   }
 
   return (
-    <div className="mx-4 mb-6 mt-4 md:mx-8 flex flex-col gap-4">
+    <div className="mb-6 flex flex-col gap-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h1 className="text-xl font-semibold text-foreground shrink-0">
           Announcements

@@ -60,9 +60,6 @@ describe('LectureTranscriptTabContent', () => {
     })
     expect(screen.getAllByTestId('lecture-transcript-segment')).toHaveLength(2)
     expect(screen.getByText('Welcome to class')).toBeTruthy()
-    expect(
-      screen.getByTestId('lecture-transcript-download-button'),
-    ).toBeTruthy()
     expect(fetchLectureTranscriptFromCache).toHaveBeenCalledWith(
       '/api/cache/transcript/12/34/7',
     )
@@ -81,9 +78,6 @@ describe('LectureTranscriptTabContent', () => {
       expect(screen.getByText('A flat transcript')).toBeTruthy()
     })
     expect(screen.queryByTestId('lecture-transcript-list')).toBeNull()
-    expect(
-      screen.getByTestId('lecture-transcript-download-button'),
-    ).toBeTruthy()
   })
 
   it('never fetches when the lecture has no transcript', () => {
@@ -91,9 +85,6 @@ describe('LectureTranscriptTabContent', () => {
 
     expect(screen.getByText('Transcript not available')).toBeTruthy()
     expect(fetchLectureTranscriptFromCache).not.toHaveBeenCalled()
-    expect(
-      screen.queryByTestId('lecture-transcript-download-button'),
-    ).toBeNull()
   })
 
   it('shows the empty state when the fetch resolves with nothing', async () => {

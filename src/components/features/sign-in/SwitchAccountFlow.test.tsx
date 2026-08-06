@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
   cleanup,
   fireEvent,
@@ -8,6 +9,7 @@ import {
 } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SwitchAccountFlow } from '@/components/features/sign-in/SwitchAccountFlow'
+import { ME_QUERY_KEY } from '@/query/me/meCache'
 
 const {
   navigateMock,
@@ -53,6 +55,24 @@ function stubFetchJson(
           : input.url
     return handler(url, init)
   }) as typeof fetch
+}
+
+/**
+ * Renders the flow with a client already holding a cached `me` (the account the
+ * session started as), so specs can assert selecting an account drops it.
+ */
+let queryClient: QueryClient
+
+function renderSwitchAccountFlow() {
+  queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+  queryClient.setQueryData(ME_QUERY_KEY, { id: 1, name: 'Primary User' })
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <SwitchAccountFlow />
+    </QueryClientProvider>,
+  )
 }
 
 describe('SwitchAccountFlow', () => {
@@ -124,7 +144,7 @@ describe('SwitchAccountFlow', () => {
   })
 
   it('shows compact account cards on switch-account page', async () => {
-    render(<SwitchAccountFlow />)
+    renderSwitchAccountFlow()
 
     await waitFor(() => {
       expect(
@@ -158,7 +178,7 @@ describe('SwitchAccountFlow', () => {
       }),
     )
 
-    render(<SwitchAccountFlow />)
+    renderSwitchAccountFlow()
 
     await waitFor(() => {
       expect(
@@ -174,6 +194,9 @@ describe('SwitchAccountFlow', () => {
       expect(redirectToOldStudentUiMock).toHaveBeenCalled()
     })
 
+    // Account selection always re-resolves the user, even on the already-active
+    // account, so nothing stale can reach the destination.
+    expect(queryClient.getQueryState(ME_QUERY_KEY)).toBeUndefined()
     expect(dispatchSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'sso-v2-success',
@@ -200,7 +223,7 @@ describe('SwitchAccountFlow', () => {
       window as Window & { dataLayer?: Array<Record<string, unknown>> }
     ).dataLayer = []
 
-    render(<SwitchAccountFlow />)
+    renderSwitchAccountFlow()
 
     await waitFor(() => {
       expect(
@@ -216,6 +239,9 @@ describe('SwitchAccountFlow', () => {
       expect(redirectToOldStudentUiMock).toHaveBeenCalled()
     })
 
+    // The session now belongs to the other account, so the previously cached
+    // user must not survive into the destination.
+    expect(queryClient.getQueryState(ME_QUERY_KEY)).toBeUndefined()
     expect(dispatchSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'sso-v2-success',
@@ -241,7 +267,7 @@ describe('SwitchAccountFlow', () => {
       'https://example.com/final-target',
     )
 
-    render(<SwitchAccountFlow />)
+    renderSwitchAccountFlow()
 
     await waitFor(() => {
       expect(
@@ -264,7 +290,7 @@ describe('SwitchAccountFlow', () => {
   it('navigates within the new app after account selection when legacy redirect is disabled', async () => {
     isLegacyStudentRedirectEnabledMock.mockReturnValue(false)
 
-    render(<SwitchAccountFlow />)
+    renderSwitchAccountFlow()
 
     await waitFor(() => {
       expect(
@@ -298,7 +324,7 @@ describe('SwitchAccountFlow', () => {
       return new Response('not found', { status: 404 })
     })
 
-    render(<SwitchAccountFlow />)
+    renderSwitchAccountFlow()
 
     await waitFor(() => {
       expect(navigateMock).toHaveBeenCalledWith({ to: '/signin' })

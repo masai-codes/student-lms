@@ -6,7 +6,6 @@ import type { ReactNode } from 'react'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
 import { resolveLectureAttendanceBanner } from '@/lib/lecture-attendance/resolveLectureAttendanceBanner'
-import { lectureDetailContentClasses } from '@/lib/layout'
 import { cn } from '@/lib/utils'
 
 type LectureDetailChromeProps = {
@@ -73,7 +72,7 @@ export function LectureDetailChrome({
         {hero}
         <div
           data-lecture-viewport-chrome
-          className={cn(lectureDetailContentClasses, 'relative z-20 shrink-0')}
+          className={cn('w-full px-4 md:px-6', 'relative z-20 shrink-0')}
         >
           {/* Content below the video rises in with a gentle stagger (header →
               attendance banner → footer). The hero stays untouched — its
@@ -100,7 +99,7 @@ export function LectureDetailChrome({
       {footer ? (
         <div
           className={cn(
-            lectureDetailContentClasses,
+            'w-full px-4 md:px-6',
             'animate-dash-rise bg-surface dark:bg-transparent [--dash-delay:0.16s]',
           )}
         >

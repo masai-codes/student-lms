@@ -5,6 +5,46 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ════════════════════════════════════════════════════════════════════════
+   PAGE LAYOUT WIDTH — single source of truth for the shared content-column
+   width + gutters, as real (variant-capable) Tailwind utilities. Replaces
+   the JS string constants that used to live in `src/lib/layout.ts`: the
+   navbar kept its own hardcoded copy of `max-w-[1440px]` that could silently
+   drift from the page content's, and the Learn filter bar's full-bleed
+   breakout column forgot to re-apply the cap at all, letting it grow wider
+   than the card list below it on large screens. Every consumer below now
+   composes `layout-max-w` / `layout-gutter-x` (or the bundled `layout-page`)
+   so they can't diverge again. */
+@utility layout-max-w {
+  @apply max-w-[1440px];
+}
+
+@utility layout-gutter-x {
+  @apply px-2 lg:px-6;
+}
+
+/* Standard routed-page content column: centered, capped, gutted, and a
+   flex-1 participant in the app shell's column (used by `<main>`). */
+@utility layout-page {
+  @apply mx-auto w-full flex-1 min-h-0 max-w-[1440px] px-2 lg:px-6 py-6;
+}
+
+/* Full-height app shell: navbar + `<main>` + mobile tab bar. */
+@utility layout-app-shell {
+  @apply flex min-h-dvh flex-col bg-surface-muted;
+}
+
+/* Full-viewport-width `<main>` variant (Masaiverse / chat / dashboard): no
+   max-w cap, children own their own spacing. */
+@utility layout-full-width-main {
+  @apply flex w-full flex-1 min-h-0 flex-col px-1;
+}
+
+/* Lecture detail `<main>`: full viewport width, no cap, flush under navbar. */
+@utility layout-lecture-main {
+  @apply flex w-full flex-1 min-h-0 flex-col;
+}
+
 body {
   @apply m-0;
   font-family:
