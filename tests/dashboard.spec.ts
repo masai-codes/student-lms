@@ -6,7 +6,7 @@ test('test', async ({ page }) => {
   await page
     .getByRole('button', {
       name: 'Login',
-      description: 'Secret-login as student (userId 20)',
+      description: 'Secret-login as student (userId 26)',
     })
     .click()
   const page1 = await page1Promise
@@ -17,7 +17,7 @@ test('test', async ({ page }) => {
   const elem = await page1.getByTestId('dashboard-fee-payment-days')
   const elemText = await elem.innerText()
   elem.click()
-  expect(elemText.includes('8')).toBeTruthy()
+  expect(elemText.includes('7')).toBeTruthy()
   await page1.getByTestId('guided-tour-step-lecture-81').click()
   await page1.getByTestId('guided-tour-step-profile-photo').click()
   await page1.getByTestId('guided-tour-step-download-app').click()
