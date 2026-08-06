@@ -57,6 +57,7 @@ export async function getLectureLearningDetailForUser(
       settings: lectures.settings,
       notes: lectures.notes,
       isNewZoomRedirection: lectures.isNewZoomRedirection,
+      zoomDetails: lectures.zoomDetails,
       sectionSettings: sections.settings,
       data: lectures.data,
     })

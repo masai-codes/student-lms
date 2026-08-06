@@ -1,6 +1,7 @@
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningItem } from '@/server/learn/types'
 import { buildLearnListingCardCtas } from '@/server/learn/utils/buildLearnListingCardCtas'
+import { isIvsZoomRedirection } from '@/server/learn/utils/isIvsZoomRedirection'
 import {
   calculateAssignmentProgressStatus,
   type AssignmentSubmissionProgress,
@@ -30,6 +31,8 @@ export type AssociatedLectureRow = {
   hostName: string | null
   zoomLink: string | null
   isNewZoomRedirection: number | null
+  /** `lectures.zoom_details` JSON; read for `redirectionType` (ZEF with IVS). */
+  zoomDetails?: unknown
   sectionSettings?: unknown
 }
 
@@ -70,6 +73,7 @@ export function buildAssociatedLectureItem(
     isMandatory: toLearningPriority(row.optional) === 'mandatory',
     zoomLink: row.zoomLink,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    isIvsRedirection: isIvsZoomRedirection(row.zoomDetails),
     enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
     nowMs,
     attendance,
@@ -123,6 +127,7 @@ export function buildAssociatedAssignmentItem(
     isMandatory: toLearningPriority(row.optional) === 'mandatory',
     zoomLink: null,
     isNewZoomRedirection: false,
+    isIvsRedirection: false,
     enableZoomWebView: false,
     nowMs,
     attendance: null,

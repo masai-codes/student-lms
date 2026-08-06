@@ -36,6 +36,7 @@ const lectureColumns = {
   hostName: users.name,
   zoomLink: lectures.zoomLink,
   isNewZoomRedirection: lectures.isNewZoomRedirection,
+  zoomDetails: lectures.zoomDetails,
   sectionSettings: sections.settings,
   data: lectures.data,
 }

@@ -12,8 +12,13 @@ export function resolveJoinLiveButtonState(input: {
   concludes: string | null
   nowMs: number
   zoomLink: string | null
+  /**
+   * ZEF with IVS mints the join URL at click time, so those lectures have no
+   * `zoom_link` to gate on — only the schedule window decides visibility.
+   */
+  isIvsRedirection?: boolean
 }): JoinLiveButtonState {
-  if (!input.zoomLink?.trim()) return 'hidden'
+  if (!input.isIvsRedirection && !input.zoomLink?.trim()) return 'hidden'
 
   const scheduleMs = parseIstToMs(input.schedule)
   const concludesMs = parseIstToMs(input.concludes)

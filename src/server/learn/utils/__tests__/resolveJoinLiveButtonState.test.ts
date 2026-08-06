@@ -18,6 +18,42 @@ describe('resolveJoinLiveButtonState', () => {
     ).toBe('hidden')
   })
 
+  it('still needs a schedule for an IVS lecture', () => {
+    expect(
+      resolveJoinLiveButtonState({
+        schedule: null,
+        concludes,
+        nowMs: Date.now(),
+        zoomLink: null,
+        isIvsRedirection: true,
+      }),
+    ).toBe('hidden')
+  })
+
+  it('shows for an IVS lecture with no zoom link', () => {
+    const scheduleMs = new Date(schedule).getTime()
+
+    expect(
+      resolveJoinLiveButtonState({
+        schedule,
+        concludes,
+        nowMs: scheduleMs - 7 * 60 * 1000,
+        zoomLink: null,
+        isIvsRedirection: true,
+      }),
+    ).toBe('disabled')
+
+    expect(
+      resolveJoinLiveButtonState({
+        schedule,
+        concludes,
+        nowMs: scheduleMs - 2 * 60 * 1000,
+        zoomLink: null,
+        isIvsRedirection: true,
+      }),
+    ).toBe('active')
+  })
+
   it('disables then activates around start', () => {
     const scheduleMs = new Date(schedule).getTime()
     expect(

@@ -15,6 +15,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: 'https://zoom.example/j/1',
       isNewZoomRedirection: false,
+      isIvsRedirection: false,
       enableZoomWebView: false,
       nowMs,
       attendance: null,
@@ -38,6 +39,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: 'https://zoom.example/j/1',
       isNewZoomRedirection: false,
+      isIvsRedirection: false,
       enableZoomWebView: true,
       nowMs,
       attendance: null,
@@ -59,6 +61,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: 'https://api.example.com/api/adaptive-lecture/9/join',
       isNewZoomRedirection: false,
+      isIvsRedirection: false,
       enableZoomWebView: true,
       nowMs,
       attendance: null,
@@ -76,6 +79,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: 'https://zoom.example/j/1',
       isNewZoomRedirection: true,
+      isIvsRedirection: false,
       enableZoomWebView: true,
       nowMs,
       attendance: null,
@@ -83,6 +87,73 @@ describe('buildLearnListingCardCtas', () => {
       assignmentScore: null,
     })
     expect(zef.enableZoomWebView).toBe(false)
+  })
+
+  it('shows the join CTA for an IVS lecture with no zoom link', () => {
+    const ctas = buildLearnListingCardCtas({
+      learningType: 'lecture',
+      lectureId: 3,
+      itemType: 'live',
+      schedule: '2026-05-11T10:00:00.000Z',
+      concludes: '2026-05-11T12:00:00.000Z',
+      isMandatory: true,
+      zoomLink: null,
+      isNewZoomRedirection: true,
+      isIvsRedirection: true,
+      enableZoomWebView: true,
+      nowMs,
+      attendance: null,
+      assignmentProgressStatus: null,
+      assignmentScore: null,
+    })
+
+    expect(ctas.joinLive).toBe('active')
+    expect(ctas.joinZoomLink).toBeNull()
+    expect(ctas.isNewZoomRedirection).toBe(true)
+    expect(ctas.enableZoomWebView).toBe(false)
+  })
+
+  it('routes an IVS lecture through ZEF even if the flag column lags', () => {
+    const ctas = buildLearnListingCardCtas({
+      learningType: 'lecture',
+      lectureId: 4,
+      itemType: 'live',
+      schedule: '2026-05-11T10:00:00.000Z',
+      concludes: '2026-05-11T12:00:00.000Z',
+      isMandatory: true,
+      zoomLink: null,
+      isNewZoomRedirection: false,
+      isIvsRedirection: true,
+      enableZoomWebView: false,
+      nowMs,
+      attendance: null,
+      assignmentProgressStatus: null,
+      assignmentScore: null,
+    })
+
+    expect(ctas.joinLive).toBe('active')
+    expect(ctas.isNewZoomRedirection).toBe(true)
+  })
+
+  it('still hides the join CTA for a non-IVS lecture with no zoom link', () => {
+    const ctas = buildLearnListingCardCtas({
+      learningType: 'lecture',
+      lectureId: 5,
+      itemType: 'live',
+      schedule: '2026-05-11T10:00:00.000Z',
+      concludes: '2026-05-11T12:00:00.000Z',
+      isMandatory: true,
+      zoomLink: null,
+      isNewZoomRedirection: true,
+      isIvsRedirection: false,
+      enableZoomWebView: false,
+      nowMs,
+      attendance: null,
+      assignmentProgressStatus: null,
+      assignmentScore: null,
+    })
+
+    expect(ctas.joinLive).toBe('hidden')
   })
 
   it('shows attendance only after the session has ended', () => {
@@ -96,6 +167,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: 'https://zoom.example/j/1',
       isNewZoomRedirection: false,
+      isIvsRedirection: false,
       enableZoomWebView: false,
       nowMs: endedNow,
       attendance: {
@@ -131,6 +203,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: null,
       isNewZoomRedirection: false,
+      isIvsRedirection: false,
       enableZoomWebView: false,
       nowMs,
       attendance: null,
@@ -151,6 +224,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: null,
       isNewZoomRedirection: false,
+      isIvsRedirection: false,
       enableZoomWebView: false,
       nowMs,
       attendance: null,
@@ -171,6 +245,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: null,
       isNewZoomRedirection: false,
+      isIvsRedirection: false,
       enableZoomWebView: false,
       nowMs,
       attendance: null,
@@ -191,6 +266,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: null,
       isNewZoomRedirection: false,
+      isIvsRedirection: false,
       enableZoomWebView: false,
       nowMs,
       attendance: null,
@@ -211,6 +287,7 @@ describe('buildLearnListingCardCtas', () => {
       isMandatory: true,
       zoomLink: null,
       isNewZoomRedirection: false,
+      isIvsRedirection: false,
       enableZoomWebView: false,
       nowMs,
       attendance: null,

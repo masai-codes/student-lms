@@ -17,7 +17,8 @@ import {
 
 type JoinLiveSessionCardProps = {
   lectureId: number
-  zoomLink: string
+  /** Null for ZEF-with-IVS lectures, which carry no raw join link. */
+  zoomLink: string | null
   buttonState: JoinLiveButtonState
   /** When true, join via the ZEF redirect flow instead of the raw zoom link. */
   isNewZoomRedirection: boolean
@@ -64,9 +65,14 @@ export function JoinLiveSessionCard({
     try {
       openInNewTab(await fetchZoomRedirectUrlViaApi(lectureId))
     } catch {
-      // Fall back to the raw link so the student can still join.
-      openInNewTab(zoomLink)
-      toast.error('Opened the standard join link instead.')
+      // Fall back to the raw link so the student can still join. IVS lectures
+      // have none, so there the failure has to surface instead.
+      if (zoomLink) {
+        openInNewTab(zoomLink)
+        toast.error('Opened the standard join link instead.')
+      } else {
+        toast.error('Could not open the live session. Please try again.')
+      }
     } finally {
       setPending(false)
     }
@@ -84,7 +90,7 @@ export function JoinLiveSessionCard({
     try {
       openInNewTab(await fetchAdaptiveJoinUrlViaApi(lectureId))
     } catch {
-      openInNewTab(zoomLink)
+      if (zoomLink) openInNewTab(zoomLink)
       toast.error('Opened the standard join link instead.')
     } finally {
       setPending(false)
@@ -141,7 +147,7 @@ export function JoinLiveSessionCard({
         >
           {isActive ? (
             <a
-              href={joinHref}
+              href={joinHref ?? '#'}
               target="_blank"
               rel="noopener noreferrer"
               data-testid="lecture-join-live-cta"
