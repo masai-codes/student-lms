@@ -32,7 +32,9 @@ export function DuringLiveLecture({
           {/* Keep the countdown running down to 00:00:00 next to the join CTA;
               it also auto-refetches at the 5-min mark so the button enables. */}
           <LectureStartsInCountdown schedule={schedule} />
-          {zoomLink ? (
+          {/* IVS mints its URL at click time and carries no `zoomLink`, so defer
+              to the server-resolved state rather than requiring a link here. */}
+          {zoomLink || joinLiveButtonState !== 'hidden' ? (
             <JoinLiveSessionCard
               lectureId={lectureId}
               zoomLink={zoomLink}

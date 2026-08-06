@@ -15,6 +15,7 @@ import { resolveLectureVideoUrl } from '@/server/learn/utils/resolveLectureVideo
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { resolveVideoLecturePhase } from '@/server/learn/utils/resolveVideoLecturePhase'
 import { isSalLectureRecordingAvailable } from '@/server/learn/utils/isSalLectureRecordingAvailable'
+import { isIvsZoomRedirection } from '@/server/learn/utils/isIvsZoomRedirection'
 import { scrubZoomLinkForSchedule } from '@/server/learn/utils/scrubZoomLinkForSchedule'
 import {
   isAdaptiveLectureLink,
@@ -32,6 +33,8 @@ type LectureDetailRow = {
   settings: unknown
   hostAvatarUrl: string | null
   notes: string | null
+  /** `lectures.zoom_details` JSON; read for `redirectionType` (ZEF with IVS). */
+  zoomDetails?: unknown
 }
 
 export function buildLectureDetailPayload(
@@ -124,6 +127,7 @@ export function buildLectureDetailPayload(
           concludes: row.concludes,
           nowMs,
           zoomLink: row.zoomLink,
+          isIvsRedirection: isIvsZoomRedirection(row.zoomDetails),
         })
       : null
 

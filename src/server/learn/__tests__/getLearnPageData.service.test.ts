@@ -80,7 +80,7 @@ describe('getLearnPageData', () => {
     )
   })
 
-  it('falls back to the first enrolled batch when the requested one is not enrolled', async () => {
+  it('falls back to the most recently enrolled batch when the requested one is not enrolled', async () => {
     const { getLearnPageData } =
       await import('../services/getLearnPageData.service')
     hoisted.getEnrolledBatches.mockResolvedValueOnce([batch(5), batch(6)])
@@ -90,17 +90,17 @@ describe('getLearnPageData', () => {
       7,
     )
 
-    expect(result.selectedBatchId).toBe(5)
+    expect(result.selectedBatchId).toBe(6)
   })
 
-  it('defaults to the first enrolled batch when none is requested', async () => {
+  it('defaults to the most recently enrolled batch when none is requested', async () => {
     const { getLearnPageData } =
       await import('../services/getLearnPageData.service')
     hoisted.getEnrolledBatches.mockResolvedValueOnce([batch(5), batch(6)])
 
     const result = await getLearnPageData({ learningType: 'assignment' }, 7)
 
-    expect(result.selectedBatchId).toBe(5)
+    expect(result.selectedBatchId).toBe(6)
     expect(result.batches).toHaveLength(2)
   })
 })

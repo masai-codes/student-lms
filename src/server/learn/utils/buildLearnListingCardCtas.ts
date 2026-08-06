@@ -21,6 +21,8 @@ export function buildLearnListingCardCtas(input: {
   isMandatory: boolean
   zoomLink: string | null
   isNewZoomRedirection: boolean
+  /** `zoom_details.redirectionType === 'ivs'` — join CTA shows without a zoom link. */
+  isIvsRedirection: boolean
   /** `sections.settings.enableZoomWebView` — routes the join CTA to the old LMS embed. */
   enableZoomWebView: boolean
   nowMs: number
@@ -78,6 +80,7 @@ export function buildLearnListingCardCtas(input: {
         concludes: input.concludes,
         nowMs: input.nowMs,
         zoomLink: input.zoomLink,
+        isIvsRedirection: input.isIvsRedirection,
       })
     : 'hidden'
 
@@ -103,16 +106,20 @@ export function buildLearnListingCardCtas(input: {
       nowMs: input.nowMs,
     })
 
+  // An IVS lecture always joins through ZEF — it has no raw link to fall back
+  // on, so never leave the CTA pointing at nothing if the flag column lags.
+  const usesZefRedirect = input.isNewZoomRedirection || input.isIvsRedirection
+
   return {
     joinLive,
     joinZoomLink,
-    isNewZoomRedirection: input.isNewZoomRedirection,
+    isNewZoomRedirection: usesZefRedirect,
     // Web View only applies to a shown, non-adaptive join link (SAL keeps its
     // own redirect) that isn't a ZEF lecture; mirrors the old LMS join ladder.
     enableZoomWebView:
       input.enableZoomWebView &&
       joinZoomLink != null &&
-      !input.isNewZoomRedirection &&
+      !usesZefRedirect &&
       !isAdaptiveLectureLink(joinZoomLink),
     showAttendance,
     assignmentStatusChip: null,

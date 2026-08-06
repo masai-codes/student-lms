@@ -161,13 +161,15 @@ function LearnPage() {
       return
     }
 
+    // No usable stored choice → default to the most recent enrolment. `enrolledBatches`
+    // is ordered oldest-enrolment-first, so that's the last entry.
     const storedBatchId = Number(getLastSelectedBatchIdForUser(user.id))
     const restoredBatchId =
       Number.isFinite(storedBatchId) &&
       storedBatchId > 0 &&
       enrolledBatches.some((batch) => batch.batchId === storedBatchId)
         ? storedBatchId
-        : enrolledBatches[0].batchId
+        : enrolledBatches[enrolledBatches.length - 1].batchId
 
     navigate({
       search: (prev) => ({

@@ -25,9 +25,6 @@ import { hidesMasaiOnlyFeatures } from '@/utils/portal'
 export default function AppMobileHeader() {
   const { user, rightItems, navigate: navItemsNavigate } = useAppNavItems()
   const navigate = useNavigate()
-  // Non-Masai portals (iHub, IIT Jodhpur) hide the guided-tour icon (same as
-  // the desktop navbar).
-  const hideMasaiExtras = hidesMasaiOnlyFeatures()
   const showTryNew = useTryNewCtaVisible()
 
   // Same announcements signal the desktop navbar renders — no separate query.
