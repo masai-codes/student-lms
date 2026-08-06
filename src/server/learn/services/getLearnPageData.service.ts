@@ -16,7 +16,14 @@ const EMPTY_FILTER_VALUES: LearningFilterValues = {
   instructorFilterValues: [],
 }
 
-/** Picks the requested batch when the user is enrolled in it, otherwise the first enrolled batch. */
+/**
+ * Picks the requested batch when the user is enrolled in it, otherwise the most
+ * recently enrolled batch. `enrolledBatchIds` arrives ordered oldest-enrolment-first
+ * (see `getBatchIdsForEnrolledUser`), so the newest enrolment is the last entry.
+ * This mirrors the client's fallback in `/learn` so the first paint and the URL the
+ * client settles on agree — otherwise we'd render the oldest batch's listing and then
+ * immediately refetch.
+ */
 function resolveSelectedBatchId(
   requestedBatchId: number | undefined,
   enrolledBatchIds: Array<number>,
@@ -24,7 +31,7 @@ function resolveSelectedBatchId(
   if (requestedBatchId != null && enrolledBatchIds.includes(requestedBatchId)) {
     return requestedBatchId
   }
-  return enrolledBatchIds[0]
+  return enrolledBatchIds[enrolledBatchIds.length - 1]
 }
 
 /**
