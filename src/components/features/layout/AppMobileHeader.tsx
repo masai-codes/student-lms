@@ -26,6 +26,7 @@ export default function AppMobileHeader() {
   const { user, rightItems, navigate: navItemsNavigate } = useAppNavItems()
   const navigate = useNavigate()
   const showTryNew = useTryNewCtaVisible()
+  const hideMasaiExtras = hidesMasaiOnlyFeatures()
 
   // Same announcements signal the desktop navbar renders — no separate query.
   const announcements = rightItems.find((item) => item.id === 'announcements')
