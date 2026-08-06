@@ -33,13 +33,19 @@ const ENABLE_SUPPORT_FLOATER = true
 /**
  * Paths served by this app when legacy redirect is enabled (everything else →
  * old LMS). Deliberately minimal: only the 5 migrated pages (flag-gated,
- * handled separately) plus `masaiverse` and `support` stay on the new LMS.
- * Everything else — announcements, messages, bookmarks, whats-new, profile,
- * my-courses, course, etc. — redirects to the old LMS.
+ * handled separately) plus `masaiverse`, `support`, `interviews`, and `chat`
+ * stay on the new LMS. Everything else — announcements, messages, bookmarks,
+ * whats-new, profile, my-courses, course, etc. — redirects to the old LMS.
  */
 function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/masaiverse')) return true
   if (pathname === '/support' || pathname.startsWith('/support/')) {
+    return true
+  }
+  if (pathname === '/interviews' || pathname.startsWith('/interviews/')) {
+    return true
+  }
+  if (pathname === '/chat' || pathname.startsWith('/chat/')) {
     return true
   }
   return false

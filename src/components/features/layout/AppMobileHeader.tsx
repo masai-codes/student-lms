@@ -2,7 +2,8 @@
 
 import { useCallback } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { CircleHelp, Megaphone } from 'lucide-react'
+import { Megaphone } from 'lucide-react'
+import { HandWaving } from '@phosphor-icons/react'
 
 import { formatGreetingName } from '@/components/features/dashboard/shared/greeting'
 import {
@@ -101,7 +102,7 @@ export default function AppMobileHeader() {
             className="flex size-10 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
             data-testid="app-mobile-header-guided-tour"
           >
-            <CircleHelp className="size-7" />
+            <HandWaving className="size-7" />
           </button>
         )}
       </div>

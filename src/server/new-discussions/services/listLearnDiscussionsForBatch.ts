@@ -9,16 +9,27 @@ import {
 import { toDiscussionListItem } from '@/server/new-discussions/utils/discussionPresentation'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 import type { LearnDiscussionListItem } from '@/server/learn/types'
+import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 
 /**
  * Every public discussion in the batch, plus the viewer's own non-public
  * ones, across all lectures/resources (both live in the `lectures` table)
  * and assignments — the batch-wide feed for `/learn/discussions`.
+ *
+ * Returns nothing if the viewer's enrolment in `batchId` is not active
+ * ({@link getBatchIdsForEnrolledUser}) — e.g. a cancelled enrolment, or a
+ * batch the viewer was never in — so a stale/direct `batchId` can't surface
+ * another batch's public discussions.
  */
 export async function listLearnDiscussionsForBatch(
   viewerUserId: number,
   batchId: number,
 ): Promise<Array<LearnDiscussionListItem>> {
+  const enrolledBatchIds = await getBatchIdsForEnrolledUser(viewerUserId)
+  if (!enrolledBatchIds.includes(batchId)) {
+    return []
+  }
+
   const [lectureRows, assignmentRows] = await Promise.all([
     db
       .select({ id: lectures.id, title: lectures.title, type: lectures.type })

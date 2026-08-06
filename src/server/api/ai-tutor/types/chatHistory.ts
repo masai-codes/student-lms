@@ -1,10 +1,9 @@
 import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
-import type {AiTutorFeedbackPlatform} from '@/server/api/ai-tutor/feedbackPlatform';
-import {
-  
-  isAiTutorFeedbackPlatform
-} from '@/server/api/ai-tutor/feedbackPlatform'
+import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
+import { isAiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
 import { parseStoredChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
+import type { PracticeQuestionsPayload } from '@/server/api/ai-tutor/types/practiceQuestions'
+import { parsePracticeQuestionsPayload } from '@/server/api/ai-tutor/types/practiceQuestions'
 
 /** One persisted turn in `ai_chat_practice_questions.chatHistory`. */
 export type AiChatHistoryEntry = {
@@ -12,6 +11,8 @@ export type AiChatHistoryEntry = {
   aiMessage: string
   platform?: AiTutorFeedbackPlatform
   language?: AiTutorChatLanguage
+  /** Set when this turn's reply was a `generatePracticeQuestions` tool call. */
+  practiceQuestions?: PracticeQuestionsPayload
 }
 
 export function parseChatHistory(value: unknown): Array<AiChatHistoryEntry> {
@@ -31,6 +32,9 @@ export function parseChatHistory(value: unknown): Array<AiChatHistoryEntry> {
       : undefined
 
     const language = parseStoredChatLanguage(row.language)
+    const practiceQuestions = parsePracticeQuestionsPayload(
+      row.practiceQuestions,
+    )
 
     return [
       {
@@ -38,6 +42,7 @@ export function parseChatHistory(value: unknown): Array<AiChatHistoryEntry> {
         aiMessage,
         ...(platform ? { platform } : {}),
         ...(language ? { language } : {}),
+        ...(practiceQuestions ? { practiceQuestions } : {}),
       },
     ]
   })

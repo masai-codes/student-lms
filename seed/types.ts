@@ -69,6 +69,7 @@ export type LiveLecturePhasesEntities = {
     optionalLiveDuringJoin: typeof lectures.$inferSelect
     transcriptSegmented: typeof lectures.$inferSelect
     transcriptPlainText: typeof lectures.$inferSelect
+    operatorsInJavascript: typeof lectures.$inferSelect
   }
   attendanceOffExtras: {
     associatedLecture: typeof lectures.$inferSelect
@@ -76,6 +77,9 @@ export type LiveLecturePhasesEntities = {
   transcriptExtras: {
     segmentedAi: typeof lecturesAi.$inferSelect
     plainTextAi: typeof lecturesAi.$inferSelect
+  }
+  operatorsExtras: {
+    lecturesAi: typeof lecturesAi.$inferSelect
   }
   attendanceOnExtras: {
     lecturesAi: typeof import('@/db/schema').lecturesAi.$inferSelect
@@ -161,6 +165,20 @@ export type MultiProgramStudentEntities = LiveLecturePhasesEntities & {
   secondBatchLecture: typeof lectures.$inferSelect
 }
 
+export type DiscussionsCancelledEnrollmentEntities = {
+  admin: typeof users.$inferSelect
+  /** The student whose batch-level enrolment is cancelled. */
+  student: typeof users.$inferSelect
+  authorStudent: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  section: typeof sections.$inferSelect
+  cancelledEnrollment: typeof sectionUser.$inferSelect
+  authorEnrollment: typeof sectionUser.$inferSelect
+  lecture: typeof lectures.$inferSelect
+  discussion: typeof import('@/db/schema').discussions.$inferSelect
+  cancelledBatchUser: typeof import('@/db/schema').batchUser.$inferSelect
+}
+
 export type SectionDropdownBatchEntities = {
   admin: typeof users.$inferSelect
   student: typeof users.$inferSelect
@@ -180,6 +198,7 @@ export type SeedFlowEntities =
   | MultiProgramStudentEntities
   | AppInstalledEntities
   | SectionDropdownBatchEntities
+  | DiscussionsCancelledEnrollmentEntities
 
 export type SeedFlowResult = {
   flowId: string

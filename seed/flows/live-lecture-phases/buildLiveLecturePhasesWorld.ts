@@ -31,6 +31,7 @@ import {
   LIVE_LECTURE_PHASES_TIMING,
   LIVE_LECTURE_RECORDING_HLS_URL,
 } from './config'
+import { seedOperatorsLecture } from './seedOperatorsLecture'
 import { seedTranscriptLectures } from './seedTranscriptLectures'
 import type { TranscriptLectureSeeds } from './seedTranscriptLectures'
 
@@ -62,6 +63,7 @@ export type LiveLecturePhaseKey =
   | 'optionalLiveDuringJoin'
   | 'transcriptSegmented'
   | 'transcriptPlainText'
+  | 'operatorsInJavascript'
 
 export type LiveLecturePhasesWorld = {
   flowId: string
@@ -95,6 +97,10 @@ export type LiveLecturePhasesWorld = {
   transcriptExtras: {
     segmentedAi: TranscriptLectureSeeds['segmentedAi']
     plainTextAi: TranscriptLectureSeeds['plainTextAi']
+  }
+  /** `lectures_ai` row behind the "Operators in JavaScript" lecture. */
+  operatorsExtras: {
+    lecturesAi: LecturesAiRow
   }
   /** Tab content for the video-attendance-ON recording lecture. */
   attendanceOnExtras: {
@@ -452,6 +458,19 @@ export async function buildLiveLecturePhasesWorld(
     endDate: formatMysqlDate(afterConcludes),
   })
 
+  // Standalone recording lecture with a small transcript + AI summary.
+  const operatorsLecture = await seedOperatorsLecture(flowId, {
+    ...SHARED_VIDEO_LECTURE_META,
+    ...RECORDING_VIDEO_FIELDS,
+    batchId: batch.id,
+    sectionId: section.id,
+    userId: admin.id,
+    schedule: formatMysqlDatetime(afterSchedule),
+    concludes: formatMysqlDatetime(afterConcludes),
+    startDate: formatMysqlDate(afterSchedule),
+    endDate: formatMysqlDate(afterConcludes),
+  })
+
   const afterNoRecording = await createLecture({
     ...SHARED_LECTURE_META,
     batchId: batch.id,
@@ -725,10 +744,14 @@ export async function buildLiveLecturePhasesWorld(
       optionalLiveDuringJoin,
       transcriptSegmented: transcriptLectures.segmented,
       transcriptPlainText: transcriptLectures.plainText,
+      operatorsInJavascript: operatorsLecture.lecture,
     },
     transcriptExtras: {
       segmentedAi: transcriptLectures.segmentedAi,
       plainTextAi: transcriptLectures.plainTextAi,
+    },
+    operatorsExtras: {
+      lecturesAi: operatorsLecture.lecturesAi,
     },
     attendanceOffExtras: {
       associatedLecture: associatedLectureAttendanceOff,

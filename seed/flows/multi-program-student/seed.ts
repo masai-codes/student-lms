@@ -102,6 +102,7 @@ export async function seedMultiProgramStudent(): Promise<SeedFlowResult> {
       enrollments: world.enrollments,
       lectures: world.lectures,
       transcriptExtras: world.transcriptExtras,
+      operatorsExtras: world.operatorsExtras,
       attendanceOffExtras: world.attendanceOffExtras,
       attendanceOnExtras: world.attendanceOnExtras,
       secondBatch,

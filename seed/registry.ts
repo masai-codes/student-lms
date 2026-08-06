@@ -5,6 +5,7 @@ import { masaiverseAccessConfig } from './flows/masaiverse-access/config'
 import { multiProgramStudentConfig } from './flows/multi-program-student/config'
 import { appInstalledConfig } from './flows/app-installed/config'
 import { sectionDropdownBatchConfig } from './flows/section-dropdown-batch/config'
+import { discussionsCancelledEnrollmentConfig } from './flows/discussions-cancelled-enrollment/config'
 import {
   createOnboardingFlowMeta,
   ONBOARDING_FLOW_IDS,
@@ -24,6 +25,7 @@ const flowConfigs: SeedFlowMeta[] = [
   multiProgramStudentConfig,
   appInstalledConfig,
   sectionDropdownBatchConfig,
+  discussionsCancelledEnrollmentConfig,
   ...onboardingConfigs,
 ]
 
@@ -79,6 +81,14 @@ async function loadFlowModule(id: string): Promise<SeedFlowModule> {
       return {
         meta: sectionDropdownBatchConfig,
         seed: seedSectionDropdownBatch,
+      }
+    }
+    case discussionsCancelledEnrollmentConfig.id: {
+      const { seedDiscussionsCancelledEnrollment } =
+        await import('./flows/discussions-cancelled-enrollment/seed')
+      return {
+        meta: discussionsCancelledEnrollmentConfig,
+        seed: seedDiscussionsCancelledEnrollment,
       }
     }
     default: {
