@@ -167,15 +167,35 @@ export type MultiProgramStudentEntities = LiveLecturePhasesEntities & {
 
 export type DiscussionsCancelledEnrollmentEntities = {
   admin: typeof users.$inferSelect
-  /** The student whose batch-level enrolment is cancelled. */
+  /**
+   * Enrolled in both batches — cancelled at the batch level in `batch`,
+   * still active (healthy) in `secondBatch`.
+   */
   student: typeof users.$inferSelect
+  /** Healthy student, `batch`/`section` only — discussion author there. */
   authorStudent: typeof users.$inferSelect
+  /** Healthy student, `secondBatch`/`secondSection` only — discussion author there. */
+  authorStudent2: typeof users.$inferSelect
   batch: typeof batches.$inferSelect
   section: typeof sections.$inferSelect
+  secondBatch: typeof batches.$inferSelect
+  secondSection: typeof sections.$inferSelect
   cancelledEnrollment: typeof sectionUser.$inferSelect
   authorEnrollment: typeof sectionUser.$inferSelect
+  /** `student`'s healthy enrolment into `secondSection`/`secondBatch`. */
+  secondEnrollment: typeof sectionUser.$inferSelect
+  secondAuthorEnrollment: typeof sectionUser.$inferSelect
   lecture: typeof lectures.$inferSelect
+  secondLecture: typeof lectures.$inferSelect
+  /** `authorStudent`'s public discussion on `lecture` (batch A). */
   discussion: typeof import('@/db/schema').discussions.$inferSelect
+  /** `student`'s public discussion on `lecture` (batch A) — posted while their `section_user` row is still active. */
+  discussionByStudentOnBatch: typeof import('@/db/schema').discussions.$inferSelect
+  /** `authorStudent2`'s public discussion on `secondLecture` (batch B). */
+  secondDiscussion: typeof import('@/db/schema').discussions.$inferSelect
+  /** `student`'s public discussion on `secondLecture` (batch B), where their enrolment is healthy. */
+  discussionByStudentOnSecondBatch: typeof import('@/db/schema').discussions.$inferSelect
+  /** Batch-level cancellation for `student` on `batch` only. */
   cancelledBatchUser: typeof import('@/db/schema').batchUser.$inferSelect
 }
 
