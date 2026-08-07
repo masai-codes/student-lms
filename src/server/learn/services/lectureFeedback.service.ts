@@ -16,12 +16,14 @@ const NOW_IST = sql`CONVERT_TZ(NOW(), '+00:00', '+05:30')`
 
 export type LectureFeedbackRecord = {
   /**
-   * Which flow this lecture uses, decided purely by whether it has a
-   * `zef_lms_meta_data` row: `'zef'` (tagged feedback, no submission window,
-   * `zef_lms_feedback_submissions`) or `'legacy'` (the original rating+text
-   * flow, window-gated, `lecture_feedback`).
+   * Which flow this lecture uses. A `zef_lms_meta_data` row makes the lecture
+   * ZEF-owned and takes the legacy flow off the table entirely: `'zef'` when the
+   * user also attended (tagged feedback, no submission window,
+   * `zef_lms_feedback_submissions`), `'hidden'` when they did not — no feedback
+   * UI at all, never a legacy fallback. `'legacy'` only when the lecture has no
+   * meta row: the original rating+text flow, window-gated, `lecture_feedback`.
    */
-  mode: 'zef' | 'legacy'
+  mode: 'zef' | 'legacy' | 'hidden'
   rating: number | null
   text: string | null
   tags: Array<string>
@@ -60,32 +62,11 @@ async function hasAttendedLecture(
 }
 
 /**
- * `zef` mode requires both a `zef_lms_meta_data` row for the lecture *and*
- * the user having attended it (`student_attendances.status = 1`). Either
- * missing falls back to `legacy`. Returns the meta row id when eligible.
- *
- * Used only by `submitLectureFeedback` — a fresh POST has no pre-fetched
- * attendance to reuse, unlike `getLectureFeedbackRecord` (see its docstring).
- */
-async function resolveZefLmsMetaDataId(
-  userId: number,
-  lectureId: number,
-): Promise<number | null> {
-  const zefLmsMetaDataId = await findZefLmsMetaDataId(lectureId)
-  if (zefLmsMetaDataId == null) return null
-
-  const attended = await hasAttendedLecture(userId, lectureId)
-  if (!attended) return null
-
-  return zefLmsMetaDataId
-}
-
-/**
  * The current user's saved feedback for a lecture.
  *
- * Picks between two independent flows: `zef` mode requires both a
- * `zef_lms_meta_data` row for the lecture and the user having attended it —
- * otherwise falls back to `legacy` (see `submitLectureFeedback` for why).
+ * The meta row decides the flow: a lecture with a `zef_lms_meta_data` row is
+ * ZEF-owned, so it is either `zef` (the user attended) or `hidden` (they did
+ * not) — never `legacy`. Only a lecture without a meta row uses `legacy`.
  *
  * `attended` is passed in by the caller rather than queried here: the lecture
  * detail page already fetches `student_attendances` once (via
@@ -98,7 +79,11 @@ export async function getLectureFeedbackRecord(
   lectureId: number,
   attended: boolean,
 ): Promise<LectureFeedbackRecord> {
-  const zefLmsMetaDataId = attended ? await findZefLmsMetaDataId(lectureId) : null
+  const zefLmsMetaDataId = await findZefLmsMetaDataId(lectureId)
+
+  if (zefLmsMetaDataId != null && !attended) {
+    return { mode: 'hidden', rating: null, text: null, tags: [] }
+  }
 
   if (zefLmsMetaDataId != null) {
     const rows = await db
@@ -126,7 +111,10 @@ export async function getLectureFeedbackRecord(
   }
 
   const rows = await db
-    .select({ rating: lectureFeedback.rating, feedback: lectureFeedback.feedback })
+    .select({
+      rating: lectureFeedback.rating,
+      feedback: lectureFeedback.feedback,
+    })
     .from(lectureFeedback)
     .where(
       and(
@@ -220,10 +208,13 @@ async function upsertLegacyLectureFeedback(input: {
  * auth/access — rating + tags + text can be submitted any time, saved to
  * `zef_lms_feedback_submissions`.
  *
- * `legacy` mode (meta row missing, or the user didn't attend): the original
- * behaviour — rating + text only (no tags), gated by the schedule/conclude
- * submission window, saved to `lecture_feedback`. Throws
- * `LEARN_DETAIL_NOT_FOUND` / `FEEDBACK_WINDOW_CLOSED`.
+ * A meta row with no attendance is rejected outright (`FEEDBACK_NOT_AVAILABLE`)
+ * — mirrors the `hidden` mode the read path returns, so a stale client can't
+ * write a legacy row for a ZEF-owned lecture.
+ *
+ * `legacy` mode (no meta row): the original behaviour — rating + text only (no
+ * tags), gated by the schedule/conclude submission window, saved to
+ * `lecture_feedback`. Throws `LEARN_DETAIL_NOT_FOUND` / `FEEDBACK_WINDOW_CLOSED`.
  */
 export async function submitLectureFeedback(input: {
   userId: number
@@ -256,12 +247,16 @@ export async function submitLectureFeedback(input: {
     throw new Error('LEARN_DETAIL_NOT_FOUND')
   }
 
-  const zefLmsMetaDataId = await resolveZefLmsMetaDataId(
-    input.userId,
-    input.lectureId,
-  )
+  // A fresh POST has no pre-fetched attendance to reuse, unlike
+  // `getLectureFeedbackRecord` (see its docstring), so read it here.
+  const zefLmsMetaDataId = await findZefLmsMetaDataId(input.lectureId)
 
   if (zefLmsMetaDataId != null) {
+    const attended = await hasAttendedLecture(input.userId, input.lectureId)
+    if (!attended) {
+      throw new Error('FEEDBACK_NOT_AVAILABLE')
+    }
+
     await upsertZefLectureFeedback({
       zefLmsMetaDataId,
       userId: input.userId,

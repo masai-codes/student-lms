@@ -1,10 +1,16 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
+import type {
+  CSSProperties,
+  PointerEvent as ReactPointerEvent,
+  ReactNode,
+} from 'react'
 import { createPortal } from 'react-dom'
-import { CaretUp, Minus } from '@phosphor-icons/react'
+import { CaretDown, CaretUp } from '@phosphor-icons/react'
 
+import BottomDrawer from '@/components/ui/bottom-drawer'
+import { useIsMobileViewport } from '@/hooks/useIsMobileViewport'
 import { cn } from '@/lib/utils'
 
 /** Default panel geometry / constraints (px), within the viewport. */
@@ -91,17 +97,30 @@ export type FloatingPopupPanelProps = {
   children: (opts: { interacting: boolean }) => ReactNode
   /** Rendered above the content area (e.g. a "skip to next concept" overlay). */
   overlay?: ReactNode
+  /**
+   * Rendered as a ribbon below the content area (e.g. the quiz "Continue"
+   * action). Hidden while minimized, like the content itself.
+   */
+  footer?: ReactNode
 }
 
 /**
- * Non-blocking, draggable/resizable popup panel shared by in-lecture quiz and
- * poll modals. Portaled (to `portalContainer`, see above) and positioned with
- * `position: fixed` so it renders as a compact floating popup that can be
- * dragged/resized anywhere on the page.
+ * Popup surface shared by the in-lecture quiz and poll modals. It renders as
+ * one of two things, decided by `useIsMobileViewport` (`max-width: 767px`, i.e.
+ * below Tailwind's `md`):
  *
- * Drag by the header; resize from any corner (pointer capture keeps the
- * gesture alive over cross-origin content). Opening/closing by playback
- * window is owned by the caller's hook.
+ * - **tablet and up** — a non-blocking floating panel: portaled (to
+ *   `portalContainer`, see above), `position: fixed`, dragged by the header and
+ *   resized from any corner (pointer capture keeps the gesture alive over
+ *   cross-origin content), collapsible to its header bar. A tablet has room for
+ *   it, and the embedded quiz keeps its wide layout.
+ * - **phones** — a {@link BottomDrawer} bottom sheet. Dragging a popup around a
+ *   phone screen is pointless, and the floating panel would sit on top of the
+ *   mobile tab bar; the sheet is the pattern the rest of the app already uses at
+ *   this width. Collapsing it leaves a pill centered above that tab bar, in
+ *   place of the panel's minimized header bar.
+ *
+ * Opening/closing by playback window is owned by the caller's hook either way.
  */
 export function FloatingPopupPanel({
   title,
@@ -111,7 +130,9 @@ export function FloatingPopupPanel({
   portalContainer,
   children,
   overlay,
+  footer,
 }: FloatingPopupPanelProps) {
+  const isMobile = useIsMobileViewport()
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
   const [geom, setGeom] = useState<Geom>(defaultGeom)
   const [interacting, setInteracting] = useState(false)
@@ -227,7 +248,63 @@ export function FloatingPopupPanel({
     onPointerCancel: endGesture,
   }
 
+  // Nothing renders until the mount effect has run, so the surface is picked
+  // once — mounting one and swapping to the other would reload the quiz iframe
+  // underneath.
   if (!portalTarget) return null
+
+  if (isMobile) {
+    // Collapsed sheet: a pill above the mobile tab bar, the sheet's stand-in for
+    // the panel's header-bar minimized state. Tapping it brings the sheet back.
+    if (minimized) {
+      return createPortal(
+        <button
+          type="button"
+          aria-label="Restore"
+          onClick={toggleMinimized}
+          data-testid={testId}
+          className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-1/2 z-[210] flex max-w-[min(90vw,22rem)] -translate-x-1/2 items-center gap-3 rounded-2xl bg-brand px-5 py-3 shadow-[0_4px_24px_rgba(17,24,39,0.28)]"
+        >
+          <span className="type-b1-md truncate text-brand-foreground">
+            {title}
+          </span>
+          <CaretUp size={16} weight="bold" className="text-brand-foreground" />
+        </button>,
+        portalTarget,
+      )
+    }
+
+    return (
+      <BottomDrawer
+        open
+        title={title}
+        // Same `data-testid` as the panel: automation finds the popup by one
+        // selector whichever surface the viewport picked.
+        testId={testId}
+        // Swipe-down and the header button both collapse to the pill rather
+        // than closing — the popup has no dismiss on either surface.
+        onClose={toggleMinimized}
+        closeIcon={<CaretDown size={18} weight="bold" />}
+        closeLabel="Minimize"
+        // Same fullscreen reasoning as the panel's portal — see `portalContainer`.
+        container={portalContainer}
+        // A definite height, not just `max-h`: the quiz iframe sizes itself with
+        // `h-full`, which collapses to nothing inside a content-height sheet.
+        className="h-[85svh]"
+        bodyClassName="flex min-h-0 flex-1 flex-col overflow-hidden px-0 pb-0"
+      >
+        <div className="relative min-h-0 flex-1 bg-surface-muted">
+          {children({ interacting: false })}
+          {overlay}
+        </div>
+        {footer != null ? (
+          <div className="shrink-0 border-t border-border bg-surface px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            {footer}
+          </div>
+        ) : null}
+      </BottomDrawer>
+    )
+  }
 
   const panelStyle: CSSProperties = {
     left: geom.x,
@@ -238,43 +315,36 @@ export function FloatingPopupPanel({
 
   return createPortal(
     <div
-      className="fixed z-[1000] flex flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-2xl"
+      className="fixed z-[1000] flex flex-col overflow-hidden rounded-xl border border-brand bg-surface shadow-2xl"
       style={panelStyle}
       role="dialog"
       aria-label={ariaLabel}
       data-testid={testId}
     >
+      {/* Brand-filled in both states: collapsed to a bare header bar it would
+          otherwise read as just another white card floating over the page (the
+          chat composer sits right there), and keeping the fill while expanded
+          means the popup looks like one object either way. */}
       <header
         onPointerDown={beginGesture('drag')}
         {...gestureHandlers}
-        className={cn(
-          'flex cursor-move select-none items-center justify-between gap-2 px-5 py-3',
-          !minimized && 'border-b border-border',
-        )}
+        className="flex cursor-move select-none items-center justify-between gap-2 bg-brand px-5 py-3 text-brand-foreground"
       >
-        <p className="type-b1-md truncate text-foreground">{title}</p>
+        {/* `text-brand-foreground` has to sit on the element itself: the
+            `type-*` classes declare their own `color`, which beats anything
+            inherited from the header. */}
+        <p className="type-b1-md truncate text-brand-foreground">{title}</p>
         <button
           type="button"
           aria-label={minimized ? 'Restore' : 'Minimize'}
           onPointerDown={(e) => e.stopPropagation()}
           onClick={toggleMinimized}
-          className={cn(
-            'group flex h-3.5 w-3.5 shrink-0 cursor-pointer items-center justify-center rounded-full border border-black/10 transition-[filter] hover:brightness-95 active:brightness-90',
-            minimized ? 'bg-[#28C840]' : 'bg-[#FEBC2E]',
-          )}
+          className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-brand-foreground/15"
         >
           {minimized ? (
-            <CaretUp
-              size={9}
-              weight="bold"
-              className="text-[#0E5C1D] opacity-0 group-hover:opacity-100"
-            />
+            <CaretUp size={16} weight="bold" />
           ) : (
-            <Minus
-              size={9}
-              weight="bold"
-              className="text-[#985712] opacity-0 group-hover:opacity-100"
-            />
+            <CaretDown size={16} weight="bold" />
           )}
         </button>
       </header>
@@ -290,6 +360,12 @@ export function FloatingPopupPanel({
         {children({ interacting })}
         {overlay}
       </div>
+
+      {footer != null && !minimized ? (
+        <div className="shrink-0 border-t border-border bg-surface px-4 py-3">
+          {footer}
+        </div>
+      ) : null}
 
       {/* Resize handles — one per corner. Hidden while minimized. */}
       {!minimized &&

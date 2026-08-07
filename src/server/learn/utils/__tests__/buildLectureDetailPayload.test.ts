@@ -142,37 +142,41 @@ describe('buildLectureDetailPayload', () => {
     })
   })
 
-  it('does not expose an adaptive recording link before concludes + 30 min for SAL', () => {
-    const concludesMs = new Date(concludes).getTime()
+  it('never allows submission in hidden mode, even inside an open window', () => {
+    const scheduleMs = new Date(schedule).getTime()
     const payload = buildLectureDetailPayload(
       core,
       {
         type: 'live',
         schedule,
         concludes,
-        zoomLink:
-          'https://experience-api.masaischool.com/api/adaptive-lecture/abc123/join',
+        zoomLink: null,
         videos: null,
         vimeoDownloadLinks: null,
         vimeoPlayerEmbedUrl: null,
-        settings: null,
+        settings: { show_feedback: 1 },
         hostAvatarUrl: null,
         notes: null,
       },
-      // Past conclude but still inside the 30-min grace window.
-      concludesMs + 10 * 60 * 1000,
+      // Inside the legacy window — irrelevant, the lecture is ZEF-owned.
+      scheduleMs + 30 * 60 * 1000,
       emptyTabs,
       null,
       null,
       null,
-      { rating: null, text: null, mode: 'zef', tags: [] },
+      { mode: 'hidden', rating: null, text: null, tags: [] },
     )
 
-    expect(payload.livePhase).toBe('during')
-    expect(payload.adaptiveRecordingUrl).toBeNull()
+    expect(payload.feedback).toEqual({
+      mode: 'hidden',
+      canSubmit: false,
+      rating: null,
+      text: null,
+      tags: [],
+    })
   })
 
-  it('does not expose an adaptive recording link while a SAL lecture is live', () => {
+  it('does not expose an adaptive recording link before a SAL lecture ends', () => {
     const scheduleMs = new Date(schedule).getTime()
     const payload = buildLectureDetailPayload(
       core,
