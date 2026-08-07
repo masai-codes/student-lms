@@ -1,3 +1,5 @@
+import type { PracticeQuestionsPayload } from '@/server/api/ai-tutor/types/practiceQuestions'
+
 export type AiTutorConversationSummary = {
   chatId: number
   title: string
@@ -12,6 +14,7 @@ export type AiTutorChatTurn = {
   role: 'user' | 'assistant'
   content: string
   createdAt?: number
+  practiceQuestions?: PracticeQuestionsPayload
 }
 
 export type GetAiTutorConversationResponse = {

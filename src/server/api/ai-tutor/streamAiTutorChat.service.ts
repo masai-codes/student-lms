@@ -3,6 +3,7 @@ import type { LectureChatMessage } from '@/server/api/ai-tutor/services/buildLec
 import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
 import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 import type { LectureChatMaterials } from '@/server/api/ai-tutor/types/lectureChatMaterials'
+import type { PracticeQuestionsPayload } from '@/server/api/ai-tutor/types/practiceQuestions'
 import { getAiTutorChatModel } from '@/server/api/ai-tutor/clients/anthropicModel'
 import {
   appendChatPracticeHistory,
@@ -14,9 +15,17 @@ import {
 } from '@/server/api/ai-tutor/services/buildLectureChatPrompt'
 import { getLectureChatMaterials } from '@/server/api/ai-tutor/services/getLectureChatMaterials.service'
 import { createRetrieveLectureContentTool } from '@/server/api/ai-tutor/tools/retrieveLectureContent.tool'
+import { createGeneratePracticeQuestionsTool } from '@/server/api/ai-tutor/tools/generatePracticeQuestions.tool'
+import { AI_TUTOR_PRACTICE_QUESTIONS_TOOL_NAME } from '@/server/api/ai-tutor/constants'
+import {
+  namespacePracticeQuestions,
+  parsePracticeQuestionsPayload,
+} from '@/server/api/ai-tutor/types/practiceQuestions'
 
 export type ChatStreamEvent =
-  { type: 'token'; content: string } | { type: 'done'; chatId: number }
+  | { type: 'token'; content: string }
+  | { type: 'practiceQuestions'; payload: PracticeQuestionsPayload }
+  | { type: 'done'; chatId: number }
 
 export type StreamLectureChatInput = {
   userId: number
@@ -67,24 +76,45 @@ export async function prepareLectureChatContext(
 export async function* streamLectureChatEventsFromContext(
   context: LectureChatStreamContext,
 ): AsyncGenerator<ChatStreamEvent> {
+  const tools = {
+    ...(context.materials.ragRetrievalAvailable
+      ? createRetrieveLectureContentTool(context.materials.lectureId)
+      : {}),
+    ...createGeneratePracticeQuestionsTool(),
+  }
+
   const result = streamText({
     model: getAiTutorChatModel(),
     system: context.systemPrompt,
     messages: context.messages,
-    tools: context.materials.ragRetrievalAvailable
-      ? createRetrieveLectureContentTool(context.materials.lectureId)
-      : undefined,
-    stopWhen: stepCountIs(2),
+    tools,
+    // Allows: 1 retrieval-tool step + 1 practice-questions-tool step + 1 final-text step.
+    stopWhen: stepCountIs(3),
     onError({ error }) {
       console.error('AI tutor Claude stream error', error)
     },
   })
 
   let aiMessage = ''
-  for await (const chunk of result.textStream) {
-    if (chunk.length === 0) continue
-    aiMessage += chunk
-    yield { type: 'token', content: chunk }
+  let practiceQuestions: PracticeQuestionsPayload | undefined
+  for await (const part of result.fullStream) {
+    if (part.type === 'text-delta') {
+      if (part.text.length === 0) continue
+      aiMessage += part.text
+      yield { type: 'token', content: part.text }
+      continue
+    }
+    if (
+      part.type === 'tool-result' &&
+      part.toolName === AI_TUTOR_PRACTICE_QUESTIONS_TOOL_NAME
+    ) {
+      const parsed = parsePracticeQuestionsPayload(part.output)
+      if (parsed) {
+        const quizId = `${context.chatRow.id}-t${context.chatRow.chatHistory.length}`
+        practiceQuestions = namespacePracticeQuestions(parsed, quizId)
+        yield { type: 'practiceQuestions', payload: practiceQuestions }
+      }
+    }
   }
 
   await appendChatPracticeHistory({
@@ -94,6 +124,7 @@ export async function* streamLectureChatEventsFromContext(
     platform: context.platform,
     language: context.language,
     existingHistory: context.chatRow.chatHistory,
+    practiceQuestions,
   })
 
   yield { type: 'done', chatId: context.chatRow.id }

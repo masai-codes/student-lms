@@ -1,5 +1,6 @@
 import { and, asc, eq, inArray, isNull, lt, ne } from 'drizzle-orm'
 import type { ScheduleEntityRow } from '../schedule/scheduleTypes'
+import { withSectionLabel } from '../schedule/scheduleTypes'
 import { db } from '@/db'
 import { batches, lectures, sections, users } from '@/db/schema'
 
@@ -18,7 +19,7 @@ export async function fetchPendingLectures(
 ): Promise<Array<ScheduleEntityRow>> {
   if (sectionIds.length === 0) return []
 
-  return db
+  const rows = await db
     .select({
       id: lectures.id,
       title: lectures.title,
@@ -33,6 +34,7 @@ export async function fetchPendingLectures(
       hostName: users.name,
       zoomLink: lectures.zoomLink,
       isNewZoomRedirection: lectures.isNewZoomRedirection,
+      zoomDetails: lectures.zoomDetails,
       sectionName: sections.name,
       batchName: batches.name,
       sectionSettings: sections.settings,
@@ -51,4 +53,6 @@ export async function fetchPendingLectures(
       ),
     )
     .orderBy(asc(lectures.concludes))
+
+  return withSectionLabel(rows)
 }

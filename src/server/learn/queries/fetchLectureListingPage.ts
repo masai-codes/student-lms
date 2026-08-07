@@ -98,6 +98,7 @@ export async function fetchLectureListingPage(
       hostName: users.name,
       zoomLink: lectures.zoomLink,
       isNewZoomRedirection: lectures.isNewZoomRedirection,
+      zoomDetails: lectures.zoomDetails,
       sectionSettings: sections.settings,
     })
     .from(lectures)

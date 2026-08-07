@@ -18,6 +18,10 @@ todos.json
 # Reference files temporarily copied for inspection
 otp.ts
 
+knowcode.md
+knowcode.log
+.knowcode/
+.agent/
 # Cached local DB seed dumps
 scripts/db/.cache
 
@@ -26,3 +30,10 @@ drizzle/schema.ts
 public/seed-catalog
 seed/catalog/index.html
 seed/catalog/seed-state.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

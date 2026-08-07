@@ -1,5 +1,6 @@
 import { and, asc, eq, gt, inArray, isNull, lte } from 'drizzle-orm'
 import type { ScheduleEntityRow } from '../schedule/scheduleTypes'
+import { withSectionLabel } from '../schedule/scheduleTypes'
 import { db } from '@/db'
 import { assignments, batches, sections, users } from '@/db/schema'
 
@@ -49,5 +50,5 @@ export async function fetchPendingAssignments(
     .orderBy(asc(assignments.concludes))
 
   // Assignments have no `zoom_link` column.
-  return rows.map((row) => ({ ...row, zoomLink: null }))
+  return withSectionLabel(rows.map((row) => ({ ...row, zoomLink: null })))
 }

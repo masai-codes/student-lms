@@ -17,7 +17,6 @@ export function getListingAttendanceRender(
     return {
       uiState: null,
       daysRemaining: null,
-      remainingLabel: null,
       showBadge: false,
     }
   }
@@ -28,7 +27,6 @@ export function getListingAttendanceRender(
         return {
           uiState: 'att_window_over',
           daysRemaining: null,
-          remainingLabel: null,
           showBadge: true,
         }
       }
@@ -36,7 +34,6 @@ export function getListingAttendanceRender(
         return {
           uiState: 'absent',
           daysRemaining: attendance.daysRemaining,
-          remainingLabel: attendance.remainingLabel,
           showBadge: false,
         }
       }
@@ -44,7 +41,6 @@ export function getListingAttendanceRender(
     return {
       uiState: null,
       daysRemaining: null,
-      remainingLabel: null,
       showBadge: false,
     }
   }
@@ -69,7 +65,6 @@ export function getListingAttendanceRender(
     return {
       uiState: null,
       daysRemaining: null,
-      remainingLabel: null,
       showBadge: false,
     }
   }
@@ -80,7 +75,6 @@ export function getListingAttendanceRender(
     attendance.isCatchupWindowOver !== true &&
     (uiState === 'absent' || uiState === 'continue_watching')
   const daysRemaining = showRemaining ? attendance.daysRemaining : null
-  const remainingLabel = showRemaining ? attendance.remainingLabel : null
 
-  return { uiState, daysRemaining, remainingLabel, showBadge: true }
+  return { uiState, daysRemaining, showBadge: true }
 }

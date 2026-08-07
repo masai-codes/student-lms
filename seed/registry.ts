@@ -1,6 +1,11 @@
 import { loginAndJoinLectureConfig } from './flows/login-and-join-lecture/config'
 import { liveLecturePhasesConfig } from './flows/live-lecture-phases/config'
 import { dashboardHomeConfig } from './flows/dashboard-home/config'
+import { masaiverseAccessConfig } from './flows/masaiverse-access/config'
+import { multiProgramStudentConfig } from './flows/multi-program-student/config'
+import { appInstalledConfig } from './flows/app-installed/config'
+import { sectionDropdownBatchConfig } from './flows/section-dropdown-batch/config'
+import { discussionsCancelledEnrollmentConfig } from './flows/discussions-cancelled-enrollment/config'
 import {
   createOnboardingFlowMeta,
   ONBOARDING_FLOW_IDS,
@@ -16,6 +21,11 @@ const flowConfigs: SeedFlowMeta[] = [
   loginAndJoinLectureConfig,
   liveLecturePhasesConfig,
   dashboardHomeConfig,
+  masaiverseAccessConfig,
+  multiProgramStudentConfig,
+  appInstalledConfig,
+  sectionDropdownBatchConfig,
+  discussionsCancelledEnrollmentConfig,
   ...onboardingConfigs,
 ]
 
@@ -47,6 +57,39 @@ async function loadFlowModule(id: string): Promise<SeedFlowModule> {
     case dashboardHomeConfig.id: {
       const { seedDashboardHome } = await import('./flows/dashboard-home/seed')
       return { meta: dashboardHomeConfig, seed: seedDashboardHome }
+    }
+    case masaiverseAccessConfig.id: {
+      const { seedMasaiverseAccess } =
+        await import('./flows/masaiverse-access/seed')
+      return { meta: masaiverseAccessConfig, seed: seedMasaiverseAccess }
+    }
+    case multiProgramStudentConfig.id: {
+      const { seedMultiProgramStudent } =
+        await import('./flows/multi-program-student/seed')
+      return {
+        meta: multiProgramStudentConfig,
+        seed: seedMultiProgramStudent,
+      }
+    }
+    case appInstalledConfig.id: {
+      const { seedAppInstalled } = await import('./flows/app-installed/seed')
+      return { meta: appInstalledConfig, seed: seedAppInstalled }
+    }
+    case sectionDropdownBatchConfig.id: {
+      const { seedSectionDropdownBatch } =
+        await import('./flows/section-dropdown-batch/seed')
+      return {
+        meta: sectionDropdownBatchConfig,
+        seed: seedSectionDropdownBatch,
+      }
+    }
+    case discussionsCancelledEnrollmentConfig.id: {
+      const { seedDiscussionsCancelledEnrollment } =
+        await import('./flows/discussions-cancelled-enrollment/seed')
+      return {
+        meta: discussionsCancelledEnrollmentConfig,
+        seed: seedDiscussionsCancelledEnrollment,
+      }
     }
     default: {
       const known = flowConfigs.map((flow) => flow.id).join(', ')

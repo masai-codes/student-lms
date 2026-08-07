@@ -1,5 +1,6 @@
 import { useCallback, useReducer, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import type { VerifyOtpResult } from '@/components/features/sign-in/v2AuthClient'
 import { EmailAuthStepView } from '@/components/features/sign-in/EmailAuthStepView'
 import { ForgotPasswordStepView } from '@/components/features/sign-in/ForgotPasswordStepView'
@@ -30,6 +31,7 @@ import {
   emailOtpSentBody,
 } from '@/components/features/sign-in/signInMessages'
 import { getSignInSubmitError } from '@/components/features/sign-in/signInSubmit'
+import { invalidateMeQuery } from '@/query/me/meCache'
 import {
   V2AuthRequestError,
   v2FetchLinkedAccounts,
@@ -58,6 +60,7 @@ function formatAuthError(err: unknown): string {
 
 export function SignInFlow() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [state, dispatch] = useReducer(signInReducer, initialSignInState)
   const [identifierBusy, setIdentifierBusy] = useState(false)
   const [emailOtpBusy, setEmailOtpBusy] = useState(false)
@@ -67,6 +70,9 @@ export function SignInFlow() {
   const [rememberMe, setRememberMe] = useState(true)
 
   const completePrimarySignIn = useCallback(() => {
+    // A session was just created: drop whoever the cached `me` was (usually the
+    // `null` this very page cached) so the destination resolves the new user.
+    invalidateMeQuery(queryClient)
     const redirectTo = getRedirectToSearchParam()
     if (redirectTo) {
       redirectToResolvedUrl(redirectTo)
@@ -81,11 +87,12 @@ export function SignInFlow() {
     }
     // Legacy redirect disabled: stay in this (new) app.
     void navigate({ to: '/' })
-  }, [navigate])
+  }, [navigate, queryClient])
 
   const completePhoneRedirect = useCallback(
     (method: 'phone-otp' | 'phone-use-account', response: VerifyOtpResult) => {
       dispatchSignInSuccessEvent('sso-v2', method, response)
+      invalidateMeQuery(queryClient)
       const redirectTo = getRedirectToSearchParam()
       if (redirectTo) {
         redirectToResolvedUrl(redirectTo)
@@ -102,7 +109,7 @@ export function SignInFlow() {
       // Legacy redirect disabled: stay in this (new) app.
       void navigate({ to: '/' })
     },
-    [navigate],
+    [navigate, queryClient],
   )
 
   const onIdentifierSubmit = useCallback(async () => {

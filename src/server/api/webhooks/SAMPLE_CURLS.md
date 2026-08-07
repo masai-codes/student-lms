@@ -133,6 +133,13 @@ without it, the latest-created row is used. Any other fields the platform sends
 are ignored by the logic but still stored verbatim in the audit trail — the
 samples below show just the required keys.
 
+`null` counts as "not sent" for every optional field, so an envelope carrying
+`"full_fees_paid_invoice": null` / `"course_fee_deadline": null` /
+`"lms_batch_user_id": null` is accepted. The fields a specific event _requires_
+(`to_batch_id` for transfers, `full_fees_paid_invoice` for
+`lms.invoice.generated`, `course_fee_deadline` for `lms.fee.deadline.updated`)
+must still be a real value there — `null` is a 400 for those.
+
 ### `lms.batch.paid` (also `lms.batch.pause` / `lms.batch.unpause`)
 
 ```bash

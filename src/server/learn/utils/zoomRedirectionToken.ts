@@ -2,9 +2,14 @@ import { asc, eq, sql } from 'drizzle-orm'
 import jwt from 'jsonwebtoken'
 
 import { db } from '@/db'
-import { lectures } from '@/db/schema'
+import { batches, lectures, users } from '@/db/schema'
 
 const JWT_ALGORITHM = 'HS256'
+
+// Destination platforms for the ZEF join redirect.
+const ZOOM_MASAI_BASE_URL = 'https://zoom.masaischool.com'
+const ZOOM_IHUB_BASE_URL = 'https://zoom.ihubiitrcourses.org'
+const ZEF_IVS_BASE_URL = 'https://zef-ivs.iasam.dev'
 
 export type ZoomRedirectionUser = {
   id?: number | string | null
@@ -13,10 +18,17 @@ export type ZoomRedirectionUser = {
   email?: string | null
 }
 
-export type ZoomRedirectionTokenResult =
-  { ok: true; token: string } | { ok: false; status: number; message: string }
+export type ZoomRedirectionUrlResult =
+  { ok: true; url: string } | { ok: false; status: number; message: string }
 
-function parseZoomDetails(raw: unknown): Record<string, unknown> | null {
+type LectureRow = {
+  zoomDetails: Record<string, unknown> | null
+  hostId: number | null
+  settings: Record<string, unknown> | null
+  batchId: number | null
+}
+
+function parseJsonObject(raw: unknown): Record<string, unknown> | null {
   if (raw == null) return null
   if (typeof raw === 'string') {
     try {
@@ -28,6 +40,12 @@ function parseZoomDetails(raw: unknown): Record<string, unknown> | null {
   return typeof raw === 'object' ? (raw as Record<string, unknown>) : null
 }
 
+function lower(raw: unknown): string {
+  return String(raw ?? '')
+    .trim()
+    .toLowerCase()
+}
+
 async function readZoomDetails(
   lectureId: number,
 ): Promise<Record<string, unknown> | null> {
@@ -36,7 +54,7 @@ async function readZoomDetails(
     .from(lectures)
     .where(eq(lectures.id, lectureId))
     .limit(1)
-  return parseZoomDetails(rows[0]?.zoomDetails)
+  return parseJsonObject(rows[0]?.zoomDetails)
 }
 
 /**
@@ -70,47 +88,100 @@ async function resolveEffectiveLectureId(lectureId: string): Promise<string> {
   return String(target.id)
 }
 
-/** For admins, map the dashboard email to the licensed/alternative host email. */
-function resolveAdminEmail(
-  details: Record<string, unknown> | null,
-  normalizedEmail: string,
-): string {
-  const dashboardEmail = String(details?.hostAdminDashboardEmailId ?? '')
-    .trim()
-    .toLowerCase()
-  const licenseEmail = String(details?.license_email_id ?? '')
-    .trim()
-    .toLowerCase()
-  const mapping = Array.isArray(details?.alternativeHostEmailMapping)
-    ? (details.alternativeHostEmailMapping as Array<Record<string, unknown>>)
+/**
+ * ZEF with IVS: authorization is by user id, not email — only the lecture's
+ * primary host (`lectures.host_id`) and secondary hosts
+ * (`settings.secondary_host_ids`) may join as admin. The primary host is the
+ * instructor.
+ */
+function resolveIvsAdmin(
+  lecture: LectureRow | undefined,
+  userIdT: string,
+): { ok: true; isInstructor: boolean } | { ok: false } {
+  const primaryHostId = lecture?.hostId != null ? String(lecture.hostId) : null
+
+  const settings = parseJsonObject(lecture?.settings)
+  const secondaryHostIds = Array.isArray(settings?.secondary_host_ids)
+    ? settings.secondary_host_ids.map((sid) => String(sid))
     : []
 
-  if (normalizedEmail && normalizedEmail === dashboardEmail && licenseEmail) {
-    return licenseEmail
-  }
-  const matched = mapping.find(
-    (entry) =>
-      normalizedEmail ===
-      String(entry.alternativehostAdminDashboardEmailId ?? '')
-        .trim()
-        .toLowerCase(),
-  )
-  return matched
-    ? String(matched.alternativehostAdminZoomLicenseEmailId ?? '')
-        .trim()
-        .toLowerCase()
-    : ''
+  const isPrimaryHost = primaryHostId != null && primaryHostId === userIdT
+  const isSecondaryHost = secondaryHostIds.includes(userIdT)
+
+  if (!isPrimaryHost && !isSecondaryHost) return { ok: false }
+  return { ok: true, isInstructor: isPrimaryHost }
 }
 
 /**
- * Mints the JWT the ZEF platform (zoom.masaischool.com / zoom.ihubiitrcourses.org)
- * expects, signed with `ZOOM_REDIRECTION_JWT_SECRET`. Ported from experience-api
- * so the new LMS no longer proxies for token minting.
+ * ZEF with ZOOM: the lecture stores its primary host as a user id. Resolve that
+ * user's current email and compare it against the joining admin's. The primary
+ * host joins on the shared Zoom license with host privileges; any other admin
+ * joins with their own email and no privileges, exactly like a student.
  */
-export async function generateZoomRedirectionToken(input: {
+async function resolveZoomAdmin(
+  zoomDetails: Record<string, unknown> | null,
+  normalizedEmail: string,
+): Promise<{ roleZoom: string; jwtEmail: string }> {
+  const hostUserIdN = Number(zoomDetails?.hostAdminDashboardUserId)
+  let hostAdminDashboardEmail = ''
+  if (Number.isInteger(hostUserIdN) && hostUserIdN > 0) {
+    const hostRows = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.id, hostUserIdN))
+      .limit(1)
+    hostAdminDashboardEmail = lower(hostRows[0]?.email)
+  }
+
+  if (
+    !normalizedEmail ||
+    !hostAdminDashboardEmail ||
+    normalizedEmail !== hostAdminDashboardEmail
+  ) {
+    return { roleZoom: 'student', jwtEmail: normalizedEmail }
+  }
+
+  const licenseEmailId = lower(zoomDetails?.license_email_id)
+  return {
+    roleZoom: 'admin',
+    jwtEmail: licenseEmailId || normalizedEmail,
+  }
+}
+
+/** ZEF with IVS goes to the IVS app; ZOOM splits masai / iHub by batch duration. */
+async function resolveBaseUrl(
+  redirectionType: 'zoom' | 'ivs',
+  batchId: number | null | undefined,
+): Promise<string> {
+  if (redirectionType === 'ivs') return ZEF_IVS_BASE_URL
+  if (batchId == null) return ZOOM_MASAI_BASE_URL
+
+  const batchRows = await db
+    .select({ duration: batches.duration })
+    .from(batches)
+    .where(eq(batches.id, batchId))
+    .limit(1)
+
+  return lower(batchRows[0]?.duration) === 'ihub'
+    ? ZOOM_IHUB_BASE_URL
+    : ZOOM_MASAI_BASE_URL
+}
+
+/**
+ * Mints the join JWT (signed with `ZOOM_REDIRECTION_JWT_SECRET`) and returns the
+ * full redirect URL for it — callers should not need to know which platform a
+ * lecture uses or how the token gets attached to it. Kept in parity with
+ * experience-api's `generateZoomRedirectionUrl`:
+ *  - resolves the effective lectureId via `zoom_details.groupLectureIdentifier`
+ *  - for ZEF with ZOOM admins, maps the dashboard email to the licensed host email
+ *  - for ZEF with IVS admins, only the lecture's primary/secondary hosts get a
+ *    token, and the primary host gets `isInstructor: true`
+ *  - picks the destination platform from `zoom_details.redirectionType`
+ */
+export async function generateZoomRedirectionUrl(input: {
   lectureId: string
   user: ZoomRedirectionUser | null | undefined
-}): Promise<ZoomRedirectionTokenResult> {
+}): Promise<ZoomRedirectionUrlResult> {
   const { lectureId, user } = input
   if (typeof lectureId !== 'string' || lectureId.trim().length === 0) {
     return { ok: false, status: 400, message: 'Invalid lectureId' }
@@ -121,9 +192,8 @@ export async function generateZoomRedirectionToken(input: {
   const userIdT = user?.id != null ? String(user.id) : ''
   const roleT = user?.role ? String(user.role).trim() : ''
   const usernameT = String(user?.name ?? '').trim()
-  const normalizedEmail = String(user?.email ?? '')
-    .trim()
-    .toLowerCase()
+  const normalizedEmail = lower(user?.email)
+  const roleLower = roleT.toLowerCase()
   if (!userIdT || !roleT || !usernameT) {
     return { ok: false, status: 401, message: 'Unauthorized user' }
   }
@@ -137,43 +207,87 @@ export async function generateZoomRedirectionToken(input: {
     }
   }
 
+  const effectiveLectureIdN = Number(effectiveLectureId)
+  if (!Number.isFinite(effectiveLectureIdN)) {
+    return { ok: false, status: 400, message: 'Invalid lectureId' }
+  }
+
+  // Fetched once, for every role — the destination platform (ZEF with IVS vs ZEF
+  // with ZOOM) depends on this too, not just the admin logic below.
+  const lectureRows = await db
+    .select({
+      zoomDetails: lectures.zoomDetails,
+      hostId: lectures.hostId,
+      settings: lectures.settings,
+      batchId: lectures.batchId,
+    })
+    .from(lectures)
+    .where(eq(lectures.id, effectiveLectureIdN))
+    .limit(1)
+
+  const lecture = lectureRows.at(0)
+  const zoomDetails = parseJsonObject(lecture?.zoomDetails)
+  const redirectionType: 'zoom' | 'ivs' =
+    zoomDetails?.redirectionType === 'ivs' ? 'ivs' : 'zoom'
+
+  // role mirrors the users-table role: admin stays admin, everyone else is student.
+  const payloadRole = roleLower === 'admin' ? 'admin' : 'student'
+  // role_zoom is 'admin' only when the user is the lecture's primary host.
+  let roleZoom = 'student'
+  // Set only for ZEF-with-IVS admin tokens: true for the primary host, false for
+  // a secondary host.
+  let isInstructor: boolean | undefined
   let jwtEmail = normalizedEmail
-  if (roleT.toLowerCase() === 'admin') {
-    const idN = Number(effectiveLectureId)
-    if (!Number.isFinite(idN)) {
-      return { ok: false, status: 400, message: 'Invalid lectureId' }
-    }
-    const adminEmail = resolveAdminEmail(
-      await readZoomDetails(idN),
-      normalizedEmail,
-    )
-    if (!adminEmail) {
-      return {
-        ok: false,
-        status: 403,
-        message: 'Admin email is not authorized for this lecture',
+
+  if (roleLower === 'admin') {
+    if (redirectionType === 'ivs') {
+      // ZEF with IVS: role_zoom simply mirrors role (no shared-license host swap).
+      const ivs = resolveIvsAdmin(lecture, userIdT)
+      if (!ivs.ok) {
+        return {
+          ok: false,
+          status: 403,
+          message: 'Admin is not a host for this lecture',
+        }
       }
+      roleZoom = 'admin'
+      isInstructor = ivs.isInstructor
+    } else {
+      const zoomAdmin = await resolveZoomAdmin(zoomDetails, normalizedEmail)
+      roleZoom = zoomAdmin.roleZoom
+      jwtEmail = zoomAdmin.jwtEmail
     }
-    jwtEmail = adminEmail
-  } else if (!normalizedEmail) {
+  }
+
+  if (!jwtEmail) {
     return { ok: false, status: 401, message: 'Unauthorized user' }
   }
+
+  // An admin who is not the primary host (role admin, role_zoom student) joins as
+  // a participant — prefix their display name with "Admin " so they stay identifiable.
+  const payloadUsername =
+    payloadRole === 'admin' && roleZoom === 'student'
+      ? `Admin ${usernameT}`
+      : usernameT
 
   const token = jwt.sign(
     {
       lectureId: effectiveLectureId,
-      role: roleT,
+      role: payloadRole,
+      role_zoom: roleZoom,
       userId: userIdT,
-      username: usernameT,
+      username: payloadUsername,
       email: jwtEmail,
+      ...(isInstructor !== undefined ? { isInstructor } : {}),
     },
     secret,
     {
       algorithm: JWT_ALGORITHM,
       header: { typ: 'JWT', alg: JWT_ALGORITHM },
-      expiresIn: '2h',
+      expiresIn: '4h',
     },
   )
 
-  return { ok: true, token }
+  const baseUrl = await resolveBaseUrl(redirectionType, lecture?.batchId)
+  return { ok: true, url: `${baseUrl}/?token=${encodeURIComponent(token)}` }
 }

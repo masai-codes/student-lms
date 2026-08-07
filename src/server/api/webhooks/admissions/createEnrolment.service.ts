@@ -8,6 +8,7 @@ import type {
 import { assertActiveBatchExists } from '@/server/api/webhooks/admissions/steps/assertActiveBatchExists'
 import { resolveValidSections } from '@/server/api/webhooks/admissions/steps/resolveValidSections'
 import { resolveEnrolmentUser } from '@/server/api/webhooks/admissions/steps/resolveEnrolmentUser'
+import { applyPortalNewLmsDefaults } from '@/server/api/webhooks/admissions/steps/applyPortalNewLmsDefaults'
 import { reviveOrCreateBatchUser } from '@/server/api/webhooks/admissions/steps/reviveOrCreateBatchUser'
 import { reviveOrCreateSectionUsers } from '@/server/api/webhooks/admissions/steps/reviveOrCreateSectionUsers'
 import { upsertAdmissionData } from '@/server/api/webhooks/admissions/steps/upsertAdmissionData'
@@ -24,11 +25,12 @@ const FN = 'createEnrolmentFromAdmissions'
  *   1. batch must be active + non-deleted
  *   2. keep only valid sections (invalid ones are reported, not fatal)
  *   3. find-or-create the student (by email + client)
- *   4. revive-or-create the batch_user
- *   5. revive-or-create a section_user per valid section
- *   6. (new-user-journey only) record admission data
+ *   4. (iitj only) default the student's new-LMS-only meta flags
+ *   5. revive-or-create the batch_user
+ *   6. revive-or-create a section_user per valid section
+ *   7. (new-user-journey only) record admission data
  *
- * Steps 3–6 run inside a single transaction so a partial enrolment can never
+ * Steps 3–7 run inside a single transaction so a partial enrolment can never
  * persist. Once it commits, the student's cached enrolment sets are dropped so
  * the new batch/sections show up on their next request instead of after the 1h
  * TTL. Returns the batch_user id plus any sections that were skipped.
@@ -64,6 +66,7 @@ export async function createEnrolmentFromAdmissions(
 
   const { userId, batchUserId } = await db.transaction(async (tx) => {
     const resolvedUserId = await resolveEnrolmentUser(tx, input, client)
+    await applyPortalNewLmsDefaults(tx, { userId: resolvedUserId, client })
     const createdBatchUserId = await reviveOrCreateBatchUser(tx, {
       userId: resolvedUserId,
       batchId: input.batch_id,
@@ -75,7 +78,8 @@ export async function createEnrolmentFromAdmissions(
     await reviveOrCreateSectionUsers(tx, {
       userId: resolvedUserId,
       sectionIds: validSectionIds,
-      managerId: input.manager_id,
+      // `null` from admissions means "no manager" — same as omitted.
+      managerId: input.manager_id ?? undefined,
     })
     if (input.new_user_journey) {
       await upsertAdmissionData(tx, { userId: resolvedUserId, input })

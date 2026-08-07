@@ -6,9 +6,11 @@ import {
   AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE,
   AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE,
   AI_TUTOR_LECTURE_RAG_TOOL_NAME,
+  AI_TUTOR_PRACTICE_QUESTIONS_GUIDANCE,
   buildEnforcedChatLanguageInstruction,
 } from '@/server/api/ai-tutor/constants'
 import { formatLectureSharedResourcesForPrompt } from '@/server/api/ai-tutor/services/formatLectureSharedResources'
+import { formatPracticeQuestionsForContext } from '@/server/api/ai-tutor/types/practiceQuestions'
 
 export type LectureChatMessage = {
   role: 'user' | 'assistant'
@@ -55,6 +57,8 @@ ${buildEnforcedChatLanguageInstruction(language)}
 
 ${AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE}${formatRagGuidance(materials)}
 
+${AI_TUTOR_PRACTICE_QUESTIONS_GUIDANCE}
+
 ## Lecture
 Title: ${materials.title}
 
@@ -78,8 +82,16 @@ export function buildLectureChatMessages(input: {
     if (entry.userMessage) {
       messages.push({ role: 'user', content: entry.userMessage })
     }
-    if (entry.aiMessage) {
-      messages.push({ role: 'assistant', content: entry.aiMessage })
+    const assistantContent = [
+      entry.aiMessage,
+      entry.practiceQuestions
+        ? formatPracticeQuestionsForContext(entry.practiceQuestions)
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n\n')
+    if (assistantContent) {
+      messages.push({ role: 'assistant', content: assistantContent })
     }
   }
 

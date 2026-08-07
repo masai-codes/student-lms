@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { Bookmark } from 'lucide-react'
+import { Bookmark, CircleQuestionMark } from 'lucide-react'
 
 import { MasaiButton } from '@/components/ui/masai-button'
-import { RaiseTicketDrawer } from '@/components/features/support/RaiseTicketDrawer'
+import { useFloatingChatOptional } from '@/components/common/floating-chat/FloatingChatProvider'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
+import type { SupportEntityCategory } from '@/server/api/support/support.types'
 
 export interface LearnDetailBookmarkControls {
   isBookmarked: boolean
@@ -13,49 +13,65 @@ export interface LearnDetailBookmarkControls {
   toggle: () => void
 }
 
+const SUPPORT_ENTITY_CATEGORIES = new Set<SupportEntityCategory>([
+  'lecture',
+  'assignment',
+  'resource',
+  'evaluation',
+])
+
 type LearnDetailDefaultActionsProps = {
   /** When provided, renders a wired bookmark toggle; otherwise the button is inert. */
   bookmark?: LearnDetailBookmarkControls
-  /** Page context category that scopes the Raise Ticket subcategory list. */
-  ticketCategory?: string
-  /**
-   * Id of the lecture / assignment / resource this header belongs to. Recorded
-   * on any ticket raised from here as `data.entity_ID`, matching the legacy
-   * `createTicketV2` payload — without it ops can't tell which entity the
-   * student was on.
-   */
-  ticketEntityId?: number | null
+  /** Page context category that scopes the support floater launch. */
+  ticketCategory?: SupportEntityCategory
+  /** Learn entity id for opening the support floater on step 2.5. */
+  entityId?: number
 }
 
 /** Default CTAs for lecture / assignment / resource detail headers. */
 export function LearnDetailDefaultActions({
   bookmark,
   ticketCategory,
-  ticketEntityId,
+  entityId,
 }: LearnDetailDefaultActionsProps = {}) {
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const floatingChat = useFloatingChatOptional()
+
+  const hasEntityLaunch =
+    entityId != null &&
+    ticketCategory != null &&
+    SUPPORT_ENTITY_CATEGORIES.has(ticketCategory)
 
   return (
     <>
       <MasaiButton
-        type="secondary"
-        size="md"
+        type="tertiary"
+        size="sm"
         ctaText="Raise Ticket"
         htmlType="button"
+        data-testid="learn-detail-raise-ticket"
         className="transition-all duration-200 active:scale-95"
+        icon={<CircleQuestionMark />}
         onClick={() => {
           pushLearnEvent('l_learn_raise_ticket_open', {
             category: ticketCategory,
-            entityId: ticketEntityId,
+            entityId,
           })
-          setDrawerOpen(true)
+          if (!floatingChat) return
+          if (hasEntityLaunch) {
+            floatingChat.openWithEntity({
+              category: ticketCategory,
+              entityId,
+            })
+            return
+          }
+          floatingChat.open()
         }}
       />
       <MasaiButton
-        type="tertiary"
-        size="md"
+        type="secondary"
+        size="sm"
         icon={
-          // Remounting on toggle replays the springy star pop each time.
           <Bookmark
             key={bookmark?.isBookmarked ? 'bookmarked' : 'unbookmarked'}
             strokeWidth={1.75}
@@ -74,12 +90,6 @@ export function LearnDetailDefaultActions({
         aria-pressed={bookmark ? bookmark.isBookmarked : undefined}
         disabled={bookmark?.pending}
         onClick={bookmark ? bookmark.toggle : () => undefined}
-      />
-      <RaiseTicketDrawer
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-        contextCategory={ticketCategory}
-        contextEntityId={ticketEntityId}
       />
     </>
   )

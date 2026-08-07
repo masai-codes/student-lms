@@ -5,7 +5,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import { AppLoading } from '@/components/common'
+import { AppLoading, FloatingChatProvider } from '@/components/common'
 import {
   AppMobileHeader,
   AppMobileTabBar,
@@ -16,14 +16,9 @@ import { TryNewTour } from '@/components/features/layout/TryNewTour'
 import { AnnouncementModalController, ModalProvider } from '@/components/modals'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
-import {
-  layoutMainClasses,
-  layoutMainClassesFullWidth,
-  lectureDetailMainClasses,
-  LAYOUT_APP_SHELL_CLASSES,
-} from '@/lib/layout'
+import { ME_QUERY_KEY } from '@/query/me/meCache'
+import { meQuery } from '@/query/me/meQuery'
 import { bootstrapLoginWithToken } from '@/server/auth/bootstrapLogin'
-import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
 import {
   getOldStudentUiUrlForPath,
   isLegacyStudentRedirectEnabled,
@@ -31,15 +26,28 @@ import {
 import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 
+/** Hardcoded kill-switch for the new floating support chat. Flip to `false` to fall back to the old /support button. */
+const ENABLE_SUPPORT_FLOATER = true
+
+/** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
 /**
  * Paths served by this app when legacy redirect is enabled (everything else →
  * old LMS). Deliberately minimal: only the 5 migrated pages (flag-gated,
- * handled separately) plus `masaiverse` stay on the new LMS. Everything else —
- * announcements, messages, bookmarks, whats-new, profile, my-courses, course,
- * support, etc. — redirects to the old LMS.
+ * handled separately) plus `masaiverse`, `support`, `interviews`, and `chat`
+ * stay on the new LMS. Everything else — announcements, messages, bookmarks,
+ * whats-new, profile, my-courses, course, etc. — redirects to the old LMS.
  */
 function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/masaiverse')) return true
+  if (pathname === '/support' || pathname.startsWith('/support/')) {
+    return true
+  }
+  if (pathname === '/interviews' || pathname.startsWith('/interviews/')) {
+    return true
+  }
+  if (pathname === '/chat' || pathname.startsWith('/chat/')) {
+    return true
+  }
   return false
 }
 
@@ -59,14 +67,26 @@ function mapToLegacyPath(pathname: string): string {
   return pathname
 }
 
+/** Lecture, assignment, and resource detail pages use in-header Raise Ticket instead. */
+function shouldHideSupportIcon(pathname: string): boolean {
+  return (
+    /^\/learn\/(lectures|assignments|resources)\/[^/]+/.test(pathname) ||
+    /^\/(interviews\/|chat)/.test(pathname)
+  )
+}
+
 export const Route = createFileRoute('/(protected)/_layout')({
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async ({ context, location }) => {
     const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
     const isMasaiverseRoute = location.pathname.startsWith('/masaiverse')
     const requestUrl = new URL(location.href, 'http://localhost')
     const token = requestUrl.searchParams.get('token')
 
-    let user = await fetchCurrentUser()
+    // `beforeLoad` re-runs on every navigation under this layout, so this must
+    // come from the cache: called directly, the server function was an RPC per
+    // page change that blocked navigation for up to ~1.3s (issue #354). Primed
+    // during SSR, streamed into the client, then reused for `ME_STALE_TIME`.
+    let user = await context.queryClient.ensureQueryData(meQuery())
 
     // Auto-login fallback: on any route, when there's no session yet but the
     // request carries a `?token=` (legacy/app hands the session off via the
@@ -74,10 +94,21 @@ export const Route = createFileRoute('/(protected)/_layout')({
     // authed. The `?token=` is stripped from the URL below once consumed.
     if (!user && token) {
       user = await bootstrapLoginWithToken({ data: token })
+      // Overwrite the `null` just cached, or the redirect below would re-read it
+      // and bounce this now-authenticated request to /signin.
+      context.queryClient.setQueryData(ME_QUERY_KEY, user)
     }
 
     if (!user) {
       throw redirect({ to: '/signin' })
+    }
+
+    // Right session, wrong portal domain (bookmark, shared link, old handoff):
+    // hand the student to the portal their `users.client` says they belong to.
+    // Runs before any legacy-redirect logic so we never bounce them through the
+    // wrong portal's old LMS on the way. Admins are exempt (resolved server-side).
+    if (user.portalRedirectUrl) {
+      throw redirect({ href: user.portalRedirectUrl })
     }
 
     if (shouldRedirectToLegacy && isMasaiverseRoute && token) {
@@ -162,12 +193,17 @@ function RouteComponent() {
   const isSupportRoute = pathname.startsWith('/support')
   // Lecture detail spans the full viewport width (no centered container), so
   // every hero state is edge-to-edge like the recording video.
-  const isLectureDetail = /^\/lectures\/[^/]+/.test(renderedPathname)
-  const mainClasses = renderedPathname.startsWith('/masaiverse')
-    ? layoutMainClassesFullWidth
-    : isLectureDetail
-      ? lectureDetailMainClasses
-      : layoutMainClasses
+  const isLectureDetail = /^\/learn\/lectures\/[^/]+/.test(renderedPathname)
+  // Chat is a single full-bleed iframe (connect.masaischool.com) — it wants
+  // the full viewport width/height, same as Masaiverse and lecture detail.
+  const isChatRoute = renderedPathname.startsWith('/chat')
+  const isDashboard = renderedPathname === '/'
+  const mainClasses =
+    renderedPathname.startsWith('/masaiverse') || isChatRoute || isDashboard
+      ? 'layout-full-width-main'
+      : isLectureDetail
+        ? 'layout-lecture-main'
+        : 'layout-page'
 
   useEffect(() => {
     initClarity()
@@ -177,35 +213,54 @@ function RouteComponent() {
     setCurrentUserForTracking(user)
   }, [user])
 
+  if (isSupportRoute) {
+    return (
+      <ModalProvider>
+        <Outlet />
+      </ModalProvider>
+    )
+  }
+
+  const showFloatingChat =
+    ENABLE_SUPPORT_FLOATER && !isMasaiverseRoute && !isSupportRoute
+  const showFloatingChatSphere =
+    showFloatingChat && !shouldHideSupportIcon(renderedPathname)
+
+  // `data-app-shell`: hook target for the lecture page viewport lock (styles.css).
+  const layout = (
+    <div data-app-shell className="layout-app-shell">
+      <TryNewTour hasSeen={user.hasSeenTryNewTour || user.hideSwitchOption} />
+      <AppNavbar />
+      {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
+      <main
+        className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
+      >
+        <Outlet />
+      </main>
+      {isMasaiverseRoute ? (
+        <MasaiverseMobileTabBar />
+      ) : !isApp ? (
+        <AppMobileTabBar />
+      ) : null}
+      {!ENABLE_SUPPORT_FLOATER &&
+      pathname === '/' &&
+      !isMasaiverseRoute &&
+      !isSupportRoute ? (
+        <SupportChatButton />
+      ) : null}
+      <AnnouncementModalController />
+    </div>
+  )
+
   return (
     <ModalProvider>
-      {/* `data-app-shell`: the hook target for the lecture page's viewport lock
-          (styles.css) — that page pins this shell to the viewport so its two
-          columns can scroll independently. */}
-      <div data-app-shell className={LAYOUT_APP_SHELL_CLASSES}>
-        <TryNewTour hasSeen={user.hasSeenTryNewTour} />
-        <AppNavbar />
-        {/* Mobile-only greeting header for the dashboard home; the desktop
-            navbar (with the same announcements + onboarding actions) is hidden
-            on mobile. */}
-        {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
-        <main
-          className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
-        >
-          <Outlet />
-        </main>
-        {isMasaiverseRoute ? (
-          <MasaiverseMobileTabBar />
-        ) : !isApp ? (
-          <AppMobileTabBar />
-        ) : null}
-        {/* Floating support entry — shown only on the dashboard home for now. */}
-        {pathname === '/' && !isMasaiverseRoute && !isSupportRoute ? (
-          <SupportChatButton />
-        ) : null}
-        {/* Central modal system — announcement popups check on every page. */}
-        <AnnouncementModalController />
-      </div>
+      {showFloatingChat ? (
+        <FloatingChatProvider showSphere={showFloatingChatSphere}>
+          {layout}
+        </FloatingChatProvider>
+      ) : (
+        layout
+      )}
     </ModalProvider>
   )
 }

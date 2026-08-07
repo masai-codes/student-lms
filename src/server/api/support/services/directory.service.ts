@@ -11,7 +11,7 @@
  * fan them out in parallel.
  */
 
-import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
+import { and, eq, inArray, isNull } from 'drizzle-orm'
 import type {
   OneOnOneBatchGroup,
   OneOnOneSection,
@@ -21,40 +21,22 @@ import type {
 } from '@/server/api/support/support.types'
 import { db } from '@/db'
 import { batches, profiles, sectionUser, sections, users } from '@/db/schema'
+import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
+import { resolveSectionLabel } from '@/server/batches/resolveSectionLabel'
 
 /**
- * The student's batches — **derived from their section enrollments**, exactly
- * like the legacy `getUserBatchesWithShowBatchDetails`: every batch the user has
- * a `section_user` row for, de-duplicated, ordered by latest enrollment
- * (`section_user.id` desc). No `active`/`isActive` filtering — that's what the
- * original does, and filtering it down was hiding batches.
- *
- * The first returned batch is the default support scope. `oneOnOneEnabled` reads
+ * The student's batches for support — scoped via {@link getBatchIdsForEnrolledUser}
+ * (section enrollment, portal-scoped, cancelled enrolments excluded). The first
+ * returned batch is the default support scope. `oneOnOneEnabled` reads
  * `batches.settings.show_pp`.
  */
 export async function getUserSupportBatches(
   userId: number,
 ): Promise<Array<SupportBatch>> {
-  // 1) The user's sections → batch ids, newest enrollment first.
-  const enrollments = await db
-    .select({ batchId: sections.batchId })
-    .from(sectionUser)
-    .innerJoin(sections, eq(sections.id, sectionUser.sectionId))
-    .where(eq(sectionUser.userId, userId))
-    .orderBy(desc(sectionUser.id))
-
-  // 2) Unique, order-preserving list of batch ids.
-  const orderedBatchIds: Array<number> = []
-  const seen = new Set<number>()
-  for (const e of enrollments) {
-    if (!seen.has(e.batchId)) {
-      seen.add(e.batchId)
-      orderedBatchIds.push(e.batchId)
-    }
-  }
+  const orderedBatchIds = await getBatchIdsForEnrolledUser(userId)
   if (orderedBatchIds.length === 0) return []
 
-  // 3) Fetch batch details and return them in enrollment order.
+  // Fetch batch details and return them in enrollment order.
   const rows = await db
     .select({ id: batches.id, name: batches.name, settings: batches.settings })
     .from(batches)
@@ -183,6 +165,32 @@ export async function getSupportGate(input: {
   return activeSections.length === 0 ? 'no-active-section' : null
 }
 
+/**
+ * The student's active section names (codes) in a batch, e.g.
+ * `IITREICT_AIML_2604_M1_101` — snapshotted onto `tickets.data['active-sections']`
+ * at creation time so support agents can see which cohorts the student was in,
+ * exactly like the legacy `GetSectionsForTicket` gate captured.
+ */
+export async function getActiveSectionNames(
+  userId: number,
+  batchId: number,
+): Promise<Array<string>> {
+  const rows = await db
+    .select({ name: sections.name })
+    .from(sectionUser)
+    .innerJoin(sections, eq(sections.id, sectionUser.sectionId))
+    .where(
+      and(
+        eq(sectionUser.userId, userId),
+        eq(sections.batchId, batchId),
+        eq(sections.active, 1),
+        isNull(sectionUser.deletedAt),
+        isNull(sections.deletedAt),
+      ),
+    )
+  return rows.map((r) => r.name)
+}
+
 /** Normalise a pp link: trim and prepend https:// when no protocol present. */
 function normalizePpLink(value: unknown): string | null {
   const trimmed = typeof value === 'string' ? value.trim() : ''
@@ -198,11 +206,17 @@ function normalizePpLink(value: unknown): string | null {
  *     `show_pp === true`), plus IA (`section_user.manager_id`) + EC/PC
  *     (`role='ec'/'pc'`).
  *
- * Returns `[]` when no section qualifies — the UI then hides the 1:1 tab.
+ * Batches are scoped via {@link getBatchIdsForEnrolledUser} so cancelled
+ * enrolments never appear here. Returns `[]` when no section qualifies — the UI
+ * then hides the 1:1 tab.
  */
 export async function getOneOnOneGroups(
   userId: number,
 ): Promise<Array<OneOnOneBatchGroup>> {
+  const enrolledBatchIds = await getBatchIdsForEnrolledUser(userId)
+  if (enrolledBatchIds.length === 0) return []
+  const enrolledBatchIdSet = new Set(enrolledBatchIds)
+
   // 1) The student's active sections + their pp settings + IA (manager_id).
   const myRows = await db
     .select({
@@ -229,7 +243,9 @@ export async function getOneOnOneGroups(
       const ppLink = typeof s.ppLink === 'string' ? s.ppLink.trim() : ''
       return { ...r, showPp: Boolean(s.show_pp), ppLink }
     })
-    .filter((r) => r.showPp && r.ppLink !== '')
+    .filter(
+      (r) => r.showPp && r.ppLink !== '' && enrolledBatchIdSet.has(r.batchId),
+    )
 
   if (enabled.length === 0) return []
 
@@ -295,7 +311,8 @@ export async function getOneOnOneGroups(
 
     const entry: OneOnOneSection = {
       sectionId: sec.sectionId,
-      sectionName: sec.sectionName,
+      // `settings.sectionDisplayName` wins over the raw cohort code.
+      sectionName: resolveSectionLabel(sec.sectionName, sec.settings),
       ppLink: normalizePpLink(sec.ppLink) ?? sec.ppLink,
       coordinators,
     }

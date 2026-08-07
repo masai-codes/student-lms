@@ -5,6 +5,16 @@ import { batches } from '@/db/schema'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 import { mapEnrolledBatchRow } from '@/server/learn/utils/mapEnrolledBatchRow'
 
+/**
+ * The enrolled batches backing `/learn`'s course dropdown, ordered MOST RECENT
+ * ENROLMENT FIRST.
+ *
+ * `getBatchIdsForEnrolledUser` returns oldest-enrolment-first and is shared with
+ * surfaces that depend on that order (support directory, my-courses), so the
+ * reversal lives here rather than in the shared query. Because the newest enrolment
+ * is now index 0, the `[0]` fallbacks in `resolveSelectedBatchId` and the `/learn`
+ * route also default to the student's latest course.
+ */
 export async function getEnrolledBatchesForUser(
   userId: number,
 ): Promise<Array<EnrolledBatch>> {
@@ -34,4 +44,5 @@ export async function getEnrolledBatchesForUser(
   return batchIds
     .map((batchId) => mappedRowsByBatchId.get(batchId))
     .filter((batch): batch is EnrolledBatch => batch !== undefined)
+    .reverse()
 }

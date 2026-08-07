@@ -39,7 +39,9 @@ export type LearnListingJoinLiveState = 'hidden' | 'disabled' | 'active'
 
 /** Assignment status chip on learn listing cards (legacy AssignmentListCard rules). */
 export type AssignmentListingStatusChip =
-  AssignmentProgressStatus | 'practice-mode' | null
+  | AssignmentProgressStatus
+  | 'practice-mode'
+  | null
 
 /** Server-resolved CTA visibility for learn listing cards — see `buildLearnListingCardCtas`. */
 export interface LearnListingCardCtas {
@@ -132,6 +134,12 @@ export interface LearningItem {
   resourcePhase: ResourcePhase | null
   /** Listing card CTAs — resolved on the server to match legacy LMS rules. */
   listingCtas: LearnListingCardCtas
+  /**
+   * The item's section label (display name, else the section code). Only
+   * populated on the `/learn` listing feed — the IIT Jodhpur portal renders it as
+   * an extra card chip. Null on the dashboard and associated-content feeds.
+   */
+  sectionName?: string | null
 }
 
 export interface LearningFilterValues {
@@ -201,6 +209,13 @@ export interface DiscussionListItem {
   author: DiscussionAuthorPreview | null
   /** Reply threads loaded with the detail page (empty on non-detail listings). */
   threads: Array<LearnDiscussionThreadItem>
+}
+
+/** A discussion in the batch-wide `/learn/discussions` feed, with its source content attached. */
+export interface LearnDiscussionListItem extends DiscussionListItem {
+  contentType: 'lecture' | 'assignment' | 'resource'
+  contentId: number
+  contentTitle: string
 }
 
 /**

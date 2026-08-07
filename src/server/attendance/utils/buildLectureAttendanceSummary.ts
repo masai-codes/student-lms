@@ -39,15 +39,14 @@ export function buildLectureAttendanceSummary(
     sectionSettings.enableVideoAttendance
 
   const isAbsent = record != null ? record.status === 0 : true
-  const { daysRemaining, isCatchupWindowOver, remainingLabel } =
-    computeCatchUpWindow({
-      schedule: context.schedule,
-      concludes: context.concludes,
-      catchUpDays,
-      includeVideoAttendance,
-      isAbsent,
-      nowMs,
-    })
+  const { daysRemaining, isCatchupWindowOver } = computeCatchUpWindow({
+    schedule: context.schedule,
+    concludes: context.concludes,
+    catchUpDays,
+    includeVideoAttendance,
+    isAbsent,
+    nowMs,
+  })
 
   const notApplicable = hasStudentAttendanceEntry
     ? readNotApplicable(record?.meta)
@@ -61,7 +60,6 @@ export function buildLectureAttendanceSummary(
     videoPercentage: record?.videoPercentage ?? 0,
     watchPercentage: videoWatchPercentage,
     daysRemaining,
-    remainingLabel,
     lateByMinutes: record?.lateByMinutes ?? null,
     liveAttendanceStatus: record?.liveAttendanceStatus ?? 0,
     videoAttendanceStatus: record?.videoAttendanceStatus ?? 0,
@@ -70,5 +68,6 @@ export function buildLectureAttendanceSummary(
     // `include_video_attendance` column is stale (see upgrade/backfill notes).
     videoCountsForAttendance:
       sectionSettings.considerVideoAttendanceForActualAttendance,
+    markAbsentIfLate: sectionSettings.markAbsentIfLate,
   }
 }

@@ -15,6 +15,7 @@ import {
 } from '@/server/restrictions/enrollmentRestrictionScope'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { buildLearnListingCardCtas } from '@/server/learn/utils/buildLearnListingCardCtas'
+import { isIvsZoomRedirection } from '@/server/learn/utils/isIvsZoomRedirection'
 import { buildLearnScheduleWindow } from '@/server/learn/utils/buildLearnScheduleWindow'
 import {
   mapLearningEntityRow,
@@ -67,6 +68,7 @@ function mapRowToItem(
   attendance: LectureAttendanceSummary | null,
   assignmentProgressStatus: AssignmentProgressStatus | null,
   assignmentScore: number | null,
+  sectionLabelById: Map<number, string>,
 ): LearningItem {
   const listingCtas = buildLearnListingCardCtas({
     learningType: input.learningType,
@@ -77,6 +79,7 @@ function mapRowToItem(
     isMandatory: toLearningPriority(row.optional) === 'mandatory',
     zoomLink: row.zoomLink ?? null,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    isIvsRedirection: isIvsZoomRedirection(row.zoomDetails),
     enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
     nowMs,
     attendance,
@@ -93,14 +96,21 @@ function mapRowToItem(
         })
       : null
 
-  return mapLearningEntityRow(
-    row,
-    input.learningType,
-    listingCtas,
-    attendance,
-    assignmentProgressStatus,
-    resourcePhase,
-  )
+  return {
+    ...mapLearningEntityRow(
+      row,
+      input.learningType,
+      listingCtas,
+      attendance,
+      assignmentProgressStatus,
+      resourcePhase,
+    ),
+    // Only the /learn feed carries this; the IIT Jodhpur portal shows it as a chip.
+    sectionName:
+      row.sectionId != null
+        ? (sectionLabelById.get(row.sectionId) ?? null)
+        : null,
+  }
 }
 
 export async function getBatchLearningData(
@@ -198,6 +208,10 @@ export async function getBatchLearningData(
       ? (pageResult as AssignmentListingPage).scoreById
       : new Map<number, number>()
 
+  const sectionLabelById = new Map(
+    enrolledSections.map((section) => [section.sectionId, section.name]),
+  )
+
   const learningItems = pageResult.rows.map((row) =>
     mapRowToItem(
       row,
@@ -206,6 +220,7 @@ export async function getBatchLearningData(
       attendanceByLectureId.get(row.id) ?? null,
       progressById.get(row.id) ?? null,
       scoreById.get(row.id) ?? null,
+      sectionLabelById,
     ),
   )
 

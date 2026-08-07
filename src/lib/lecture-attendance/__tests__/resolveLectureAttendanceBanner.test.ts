@@ -17,12 +17,12 @@ function makeSummary(
     videoPercentage: 0,
     watchPercentage: 0,
     daysRemaining: null,
-    remainingLabel: null,
     lateByMinutes: null,
     liveAttendanceStatus: 0,
     videoAttendanceStatus: 0,
     includeVideoAttendance: true,
     videoCountsForAttendance: true,
+    markAbsentIfLate: false,
     ...overrides,
   }
 }

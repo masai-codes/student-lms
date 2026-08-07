@@ -1,5 +1,6 @@
 import type { LearningEntityRow } from '@/server/learn/utils/learningDataMappers'
 import type { LearningItem } from '@/server/learn/types'
+import { resolveSectionDisplayName } from '@/server/batches/resolveSectionLabel'
 
 /**
  * A lecture/assignment row for the schedule tab — the shared `LearningEntityRow`
@@ -8,10 +9,26 @@ import type { LearningItem } from '@/server/learn/types'
  * filter runs on `start_date`/`end_date`.
  */
 export interface ScheduleEntityRow extends LearningEntityRow {
+  /** Display label — `settings.sectionDisplayName` when set, else `sections.name`. */
   sectionName: string | null
   batchName: string | null
   /** `sections.settings` JSON; the UI reads `enableZoomWebView` for lectures. */
   sectionSettings: unknown
+}
+
+/**
+ * Replaces each row's raw `sections.name` with the learner-facing section label.
+ * Applied in the schedule/pending fetchers so no caller can surface the cohort
+ * code by accident.
+ */
+export function withSectionLabel<
+  T extends { sectionName: string | null; sectionSettings: unknown },
+>(rows: Array<T>): Array<T> {
+  return rows.map((row) => {
+    const displayName = resolveSectionDisplayName(row.sectionSettings)
+    // No display name configured — leave `sectionName` (and its nullness) as-is.
+    return displayName ? { ...row, sectionName: displayName } : row
+  })
 }
 
 /**

@@ -1,11 +1,11 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { SignInShell } from '@/components/features/sign-in/SignInShell'
 import { SwitchAccountFlow } from '@/components/features/sign-in/SwitchAccountFlow'
-import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
+import { meQuery } from '@/query/me/meQuery'
 
 export const Route = createFileRoute('/(auth)/switch-account/')({
-  beforeLoad: async () => {
-    const user = await fetchCurrentUser()
+  beforeLoad: async ({ context }) => {
+    const user = await context.queryClient.ensureQueryData(meQuery())
     if (!user) {
       throw redirect({ to: '/signin' })
     }
