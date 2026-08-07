@@ -105,13 +105,19 @@ export type LectureTranscriptPayload = {
 
 export type LectureFeedbackState = {
   /**
-   * `'zef'` when the lecture has a `zef_lms_meta_data` row — tagged feedback,
-   * always open, saved to `zef_lms_feedback_submissions`. `'legacy'`
-   * otherwise — the original rating+text flow, window-gated, no tags, saved
+   * `'zef'` when the lecture has a `zef_lms_meta_data` row *and* the user
+   * attended — tagged feedback, always open, saved to
+   * `zef_lms_feedback_submissions`. `'hidden'` when the meta row exists but the
+   * user did not attend: the form renders nothing at all, since a ZEF-owned
+   * lecture never falls back to the legacy flow. `'legacy'` only when there is
+   * no meta row — the original rating+text flow, window-gated, no tags, saved
    * to `lecture_feedback`.
    */
-  mode: 'zef' | 'legacy'
-  /** Whether the feedback form is open for submission. Always true in `zef` mode. */
+  mode: 'zef' | 'legacy' | 'hidden'
+  /**
+   * Whether the feedback form is open for submission. Always true in `zef`
+   * mode, always false in `hidden` mode.
+   */
   canSubmit: boolean
   /** Existing rating 1–5, or null when not yet submitted. */
   rating: number | null

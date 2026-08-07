@@ -55,6 +55,24 @@ describe('LectureFeedbackForm', () => {
     expect(container.firstChild).toBeNull()
   })
 
+  it('renders nothing in hidden mode, even with a saved rating', () => {
+    // ZEF-owned lecture the user didn't attend: no form, and no read-only
+    // summary of a stale legacy row either.
+    const { container } = render(
+      <LectureFeedbackForm
+        lectureId={572}
+        feedback={{
+          mode: 'hidden',
+          canSubmit: false,
+          rating: 3,
+          text: 'stale legacy text',
+          tags: [],
+        }}
+      />,
+    )
+    expect(container.firstChild).toBeNull()
+  })
+
   it('shows a read-only summary when closed but already rated', () => {
     render(
       <LectureFeedbackForm

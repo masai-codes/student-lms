@@ -220,6 +220,8 @@ export function mapThrownErrorToResponse(error: unknown): Response {
         return jsonError(400, error.message)
       case 'FEEDBACK_WINDOW_CLOSED':
         return jsonError(409, error.message)
+      case 'FEEDBACK_NOT_AVAILABLE':
+        return jsonError(403, error.message)
       case 'ZOOM_REDIRECT_FORBIDDEN':
         return jsonError(403, error.message)
       case 'ZOOM_REDIRECT_FAILED':
