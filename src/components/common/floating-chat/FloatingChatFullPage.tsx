@@ -38,6 +38,7 @@ export function FloatingChatFullPage({
           dispatchSupportNavigate({
             category: input.category,
             entityId: input.entityId,
+            href: input.href,
           })
         }
         entityLaunchIntent={entityLaunchIntent}
