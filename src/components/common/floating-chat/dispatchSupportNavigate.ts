@@ -86,13 +86,3 @@ export function dispatchSupportNavigate(input: {
   }
   window.parent.postMessage(message, getParentOrigin())
 }
-
-/** Ask an embedding host to close the support panel it renders around us. */
-export function dispatchSupportClose(): void {
-  if (typeof window === 'undefined' || !isEmbedded()) return
-
-  window.parent.postMessage(
-    { source: SUPPORT_IFRAME_MESSAGE_SOURCE, type: 'support-page-close' },
-    getParentOrigin(),
-  )
-}
