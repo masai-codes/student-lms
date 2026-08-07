@@ -27,7 +27,8 @@ export async function getCourseAgreements(
   const agreementSections = sectionRows.filter((s) => {
     const settings = s.settings as Record<string, unknown> | null
     const agreements = settings?.agreements as
-      Record<string, unknown> | undefined
+      | Record<string, unknown>
+      | undefined
     return agreements?.shouldModalBeVisible === true
   })
 
