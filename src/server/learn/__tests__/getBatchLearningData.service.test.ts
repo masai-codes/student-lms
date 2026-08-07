@@ -314,3 +314,53 @@ describe('getBatchLearningData service (orchestration)', () => {
     )
   })
 })
+
+describe('getBatchLearningData service (section label)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    hoisted.getEnrolledSections.mockResolvedValue([
+      // `getEnrolledSectionsForUserInBatch` already resolves the display name.
+      { sectionId: 9, name: 'AI & ML — Module 1' },
+    ])
+    hoisted.fetchFacets.mockResolvedValue(FACETS)
+    hoisted.fetchAttendance.mockResolvedValue(new Map())
+  })
+
+  it("labels each row with its enrolled section's display name", async () => {
+    const { getBatchLearningData } =
+      await import('../services/getBatchLearningData.service')
+    hoisted.fetchLecturePage.mockResolvedValueOnce({
+      rows: [lectureRow()],
+      pagination: PAGINATION,
+    })
+
+    const result = await getBatchLearningData(
+      { batchId: 4, learningType: 'lecture' } as GetBatchLearningDataInput,
+      7,
+    )
+
+    expect(result.learningItems[0].sectionName).toBe('AI & ML — Module 1')
+  })
+
+  it('leaves the label null for rows with an unknown or missing section', async () => {
+    const { getBatchLearningData } =
+      await import('../services/getBatchLearningData.service')
+    hoisted.fetchLecturePage.mockResolvedValueOnce({
+      rows: [
+        lectureRow({ id: 1, sectionId: 999 }),
+        lectureRow({ id: 2, sectionId: null }),
+      ],
+      pagination: PAGINATION,
+    })
+
+    const result = await getBatchLearningData(
+      { batchId: 4, learningType: 'lecture' } as GetBatchLearningDataInput,
+      7,
+    )
+
+    expect(result.learningItems.map((item) => item.sectionName)).toEqual([
+      null,
+      null,
+    ])
+  })
+})

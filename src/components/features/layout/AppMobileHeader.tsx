@@ -12,7 +12,6 @@ import {
 import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
 import { useAppNavItems } from '@/lib/navigation/useAppNavItems'
-import { hidesMasaiOnlyFeatures } from '@/utils/portal'
 
 /**
  * Mobile-only sticky top header for the dashboard home. On mobile the desktop
@@ -24,9 +23,6 @@ import { hidesMasaiOnlyFeatures } from '@/utils/portal'
 export default function AppMobileHeader() {
   const { user, rightItems, navigate: navItemsNavigate } = useAppNavItems()
   const navigate = useNavigate()
-  // Non-Masai portals (iHub, IIT Jodhpur) hide the guided-tour icon (same as
-  // the desktop navbar).
-  const hideMasaiExtras = hidesMasaiOnlyFeatures()
   const showTryNew = useTryNewCtaVisible()
 
   // Same announcements signal the desktop navbar renders — no separate query.
@@ -93,17 +89,15 @@ export default function AppMobileHeader() {
             </span>
           ) : null}
         </button>
-        {hideMasaiExtras ? null : (
-          <button
-            type="button"
-            onClick={handleGuidedTourClick}
-            aria-label="Onboarding steps"
-            className="flex size-10 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
-            data-testid="app-mobile-header-guided-tour"
-          >
-            <CircleHelp className="size-7" />
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleGuidedTourClick}
+          aria-label="Onboarding steps"
+          className="flex size-10 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
+          data-testid="app-mobile-header-guided-tour"
+        >
+          <CircleHelp className="size-7" />
+        </button>
       </div>
     </header>
   )

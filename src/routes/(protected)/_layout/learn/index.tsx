@@ -161,6 +161,8 @@ function LearnPage() {
       return
     }
 
+    // No usable stored choice → default to the most recent enrolment, which is the
+    // first entry (`getEnrolledBatchesForUser` orders newest enrolment first).
     const storedBatchId = Number(getLastSelectedBatchIdForUser(user.id))
     const restoredBatchId =
       Number.isFinite(storedBatchId) &&

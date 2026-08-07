@@ -153,10 +153,7 @@ export function getSupportCatchUpPresentation(
     return { label: 'N/A' }
   }
 
-  const remainingText = formatCatchUpRemainingLabel(
-    render.remainingLabel,
-    render.daysRemaining,
-  )
+  const remainingText = formatCatchUpRemainingLabel(render.daysRemaining)
 
   if (remainingText) {
     return { label: remainingText }

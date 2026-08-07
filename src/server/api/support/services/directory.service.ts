@@ -22,6 +22,7 @@ import type {
 import { db } from '@/db'
 import { batches, profiles, sectionUser, sections, users } from '@/db/schema'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
+import { resolveSectionLabel } from '@/server/batches/resolveSectionLabel'
 
 /**
  * The student's batches for support — scoped via {@link getBatchIdsForEnrolledUser}
@@ -310,7 +311,8 @@ export async function getOneOnOneGroups(
 
     const entry: OneOnOneSection = {
       sectionId: sec.sectionId,
-      sectionName: sec.sectionName,
+      // `settings.sectionDisplayName` wins over the raw cohort code.
+      sectionName: resolveSectionLabel(sec.sectionName, sec.settings),
       ppLink: normalizePpLink(sec.ppLink) ?? sec.ppLink,
       coordinators,
     }

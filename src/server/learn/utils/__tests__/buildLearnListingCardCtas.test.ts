@@ -106,7 +106,6 @@ describe('buildLearnListingCardCtas', () => {
         videoPercentage: 0,
         watchPercentage: 0,
         daysRemaining: 3,
-        remainingLabel: '3 days remaining',
         lateByMinutes: null,
         liveAttendanceStatus: 0,
         videoAttendanceStatus: 0,

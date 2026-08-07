@@ -11,6 +11,7 @@ import type { AgreementPdfDoc } from './buildAgreementPdf'
 import { db } from '@/db'
 import { batches, profiles, sectionUser, users } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
+import { resolveSectionLabelFromColumns } from '@/server/batches/resolveSectionLabel'
 import { clearAgreementBan } from '@/server/restrictions/clearAgreementBan'
 import { uploadImageToS3 } from '@/server/storage/s3Upload'
 
@@ -67,10 +68,13 @@ export async function submitAgreement(
   const [sectionRow] = normalizeRows<{
     name: string
     batch_id: number
+    section_display_name: string | null
     agreements: string | null
   }>(
     await db.execute(sql`
-      SELECT name, batch_id, settings->>'$.agreements' AS agreements
+      SELECT name, batch_id,
+             settings->>'$.sectionDisplayName' AS section_display_name,
+             settings->>'$.agreements' AS agreements
       FROM sections WHERE id = ${sectionId} LIMIT 1
     `),
   )
@@ -131,7 +135,10 @@ export async function submitAgreement(
       passportNumber: existing['passportNumber'] as string | undefined,
       address: (existing['address'] as string | undefined) ?? '',
       program: batch?.program ?? '',
-      sectionName: sectionRow.name ?? '',
+      sectionName: resolveSectionLabelFromColumns(
+        sectionRow.name,
+        sectionRow.section_display_name,
+      ),
       viewed:
         (existing['viewTime'] as string | undefined) ??
         (existing['formDetailCreateTime'] as string | undefined) ??
