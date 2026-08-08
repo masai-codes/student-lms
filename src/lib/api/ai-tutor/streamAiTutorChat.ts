@@ -1,11 +1,14 @@
 import { AI_TUTOR_API } from '@/lib/api/ai-tutor/aiTutorPaths'
 import { createSseFrameBuffer } from '@/lib/api/sse/sseFrameBuffer'
+import type { PracticeQuestionsPayload } from '@/server/api/ai-tutor/types/practiceQuestions'
+import { parsePracticeQuestionsPayload } from '@/server/api/ai-tutor/types/practiceQuestions'
 
 export { createSseFrameBuffer }
 
 /** Wire events emitted by `POST /api/ai-tutor/chat/stream`. */
 export type ChatStreamEvent =
   | { type: 'token'; content: string }
+  | { type: 'practiceQuestions'; payload: PracticeQuestionsPayload }
   | { type: 'done'; chatId: number }
 
 export type LectureAiChatPlatform = 'web-desktop' | 'web-mobile'
@@ -24,6 +27,8 @@ export type StreamLectureAiChatHandlers = {
   /** Fired once, on the first streamed token (flip "thinking" → "streaming"). */
   onFirstChunk?: () => void
   onChunk: (content: string) => void
+  /** Fired when the assistant generated practice questions instead of (or alongside) text. */
+  onPracticeQuestions?: (payload: PracticeQuestionsPayload) => void
   onComplete: (chatId: number | null) => void
   onError: (code: string) => void
 }
@@ -43,6 +48,7 @@ function parseEvent(payload: string): ChatStreamEvent | null {
   const record = parsed as {
     type?: unknown
     content?: unknown
+    payload?: unknown
     chatId?: unknown
   }
 
@@ -51,6 +57,10 @@ function parseEvent(payload: string): ChatStreamEvent | null {
       type: 'token',
       content: typeof record.content === 'string' ? record.content : '',
     }
+  }
+  if (record.type === 'practiceQuestions') {
+    const payload = parsePracticeQuestionsPayload(record.payload)
+    return payload ? { type: 'practiceQuestions', payload } : null
   }
   if (record.type === 'done') {
     return {
@@ -148,6 +158,12 @@ async function runStream(
             handlers.onFirstChunk?.()
           }
           handlers.onChunk(event.content)
+        } else if (event.type === 'practiceQuestions') {
+          if (!sawFirstChunk) {
+            sawFirstChunk = true
+            handlers.onFirstChunk?.()
+          }
+          handlers.onPracticeQuestions?.(event.payload)
         } else {
           completed = true
           handlers.onComplete(event.chatId)
