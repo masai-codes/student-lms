@@ -13,6 +13,11 @@ import { createInterviewAudioPlayer } from '@/lib/audio/interviewAudioPlayer'
 import { interviewTopicsQuery } from '@/query/interviews/interviewTopicsQuery'
 import { interviewSessionsQuery } from '@/query/interviews/interviewSessionsQuery'
 import { toast } from '@/lib/toast'
+import { LectureAiChatLanguagePicker } from '@/components/features/lecture-ai-chat/components/LectureAiChatLanguagePicker'
+import {
+  readStoredAiLectureChatLanguage,
+  writeStoredAiLectureChatLanguage,
+} from '@/components/features/lecture-ai-chat/languages'
 import { getTopicIcon } from './topicIcons'
 import { cn } from '@/lib/utils'
 
@@ -229,6 +234,12 @@ export function InterviewsPage() {
   const navigate = useNavigate()
   const { data, isPending, isError } = useQuery(interviewTopicsQuery())
   const [creatingTopicId, setCreatingTopicId] = useState<string | null>(null)
+  const [language, setLanguage] = useState(readStoredAiLectureChatLanguage)
+
+  function handleLanguageChange(next: typeof language) {
+    setLanguage(next)
+    writeStoredAiLectureChatLanguage(next)
+  }
 
   async function handleSelect(topic: InterviewTopic) {
     if (creatingTopicId) return
@@ -242,7 +253,7 @@ export function InterviewsPage() {
     const outcome = await new Promise<
       { status: 'done'; sessionId: number } | { status: 'error' }
     >((resolve) => {
-      streamCreateInterviewSession(topic.id, {
+      streamCreateInterviewSession(topic.id, language, {
         onAudioDelta: (data) => player.pushChunk(data),
         onDone: (result) => {
           player.finish()
@@ -268,9 +279,16 @@ export function InterviewsPage() {
 
   return (
     <div className="mx-auto w-full pb-8">
-      <h1 className="type-h4 mb-1 font-semibold text-foreground">
-        Practice Interviews
-      </h1>
+      <div className="mb-1 flex items-start justify-between gap-3">
+        <h1 className="type-h4 font-semibold text-foreground">
+          Practice Interviews
+        </h1>
+        <LectureAiChatLanguagePicker
+          value={language}
+          onChange={handleLanguageChange}
+          disabled={creatingTopicId !== null}
+        />
+      </div>
       <p className="mb-6 text-sm text-foreground-muted">
         Pick a topic to start a mock interview with an AI interviewer.
       </p>

@@ -810,6 +810,8 @@ export const interviewSessions = mysqlTable(
     topicLabel: varchar('topic_label', { length: 255 }).notNull(),
     domain: varchar({ length: 50 }).notNull(),
     status: varchar({ length: 20 }).default('in_progress').notNull(),
+    numQuestions: int('num_questions').default(5).notNull(),
+    language: varchar({ length: 20 }).default('English').notNull(),
     turns: json().$type<Record<string, any>>().notNull(),
     report: json().$type<Record<string, any>>(),
     createdAt: timestamp('created_at', { mode: 'string' }),

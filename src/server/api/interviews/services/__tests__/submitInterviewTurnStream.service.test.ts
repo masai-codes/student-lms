@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const hoisted = vi.hoisted(() => ({
   row: null as any,
   requestInterviewTurnAudioStream: vi.fn(),
+  requestOpenRouterChatCompletion: vi.fn(),
   generateInterviewReport: vi.fn(),
   updateCalls: [] as Array<Record<string, unknown>>,
 }))
@@ -27,6 +28,10 @@ vi.mock('@/server/api/interviews/clients/openRouterAudioChat', () => ({
   requestInterviewTurnAudioStream: hoisted.requestInterviewTurnAudioStream,
 }))
 
+vi.mock('@/server/api/interviews/clients/openRouterClient', () => ({
+  requestOpenRouterChatCompletion: hoisted.requestOpenRouterChatCompletion,
+}))
+
 vi.mock(
   '@/server/api/interviews/services/generateInterviewReport.service',
   () => ({
@@ -42,9 +47,11 @@ function baseRow(overrides: Partial<Record<string, unknown>> = {}) {
     topicLabel: 'DSA',
     domain: 'software-development',
     status: 'in_progress',
+    numQuestions: 5,
     turns: [
       {
-        index: 0,
+        questionIndex: 0,
+        turnKind: 'main',
         question: 'What is a hash map?',
         transcript: '',
         answerAudioBase64: null,
@@ -80,11 +87,13 @@ beforeEach(() => {
 describe('submitInterviewTurnStream', () => {
   it('yields audio-delta events then a done event when more questions remain', async () => {
     hoisted.row = baseRow()
+    hoisted.requestOpenRouterChatCompletion.mockResolvedValueOnce(
+      'ACTION: next_question\nTEXT: How do you handle collisions?',
+    )
     hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
       fakeAudioStream([
         { type: 'audio', data: 'QUJD' },
         { type: 'audio', data: 'REVG' },
-        { type: 'final', spokenText: 'How do you handle collisions?' },
       ]),
     )
 
@@ -112,13 +121,13 @@ describe('submitInterviewTurnStream', () => {
     const updatedTurns = hoisted.updateCalls[0].turns as Array<any>
     expect(updatedTurns).toHaveLength(2)
     expect(updatedTurns[1].question).toBe('How do you handle collisions?')
+    expect(updatedTurns[1].questionIndex).toBe(1)
   })
 
-  it('generates the report and completes the session on the final question', async () => {
-    // INTERVIEW_TOTAL_QUESTIONS is 5 — completion is now purely turn-count
-    // driven, so the fixture needs 4 answered turns + 1 pending (the 5th).
+  it('generates the report and completes the session when the decision ends the interview', async () => {
     const answeredPriorTurns = Array.from({ length: 4 }, (_, i) => ({
-      index: i,
+      questionIndex: i,
+      turnKind: 'main' as const,
       question: `Q${i + 1}?`,
       transcript: `A${i + 1}`,
       answerAudioBase64: null,
@@ -130,7 +139,8 @@ describe('submitInterviewTurnStream', () => {
       turns: [
         ...answeredPriorTurns,
         {
-          index: 4,
+          questionIndex: 4,
+          turnKind: 'main',
           question: 'Q5?',
           transcript: '',
           answerAudioBase64: null,
@@ -140,10 +150,11 @@ describe('submitInterviewTurnStream', () => {
         },
       ],
     })
+    hoisted.requestOpenRouterChatCompletion.mockResolvedValueOnce(
+      'ACTION: end_interview\nTEXT: Thanks, that concludes the interview.',
+    )
     hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
-      fakeAudioStream([
-        { type: 'final', spokenText: 'Thanks, that concludes the interview.' },
-      ]),
+      fakeAudioStream([{ type: 'audio', data: 'QUJD' }]),
     )
     const report = {
       overallScore: 90,
@@ -164,19 +175,21 @@ describe('submitInterviewTurnStream', () => {
       }),
     )
 
-    expect(events).toEqual([
-      { type: 'done', result: { status: 'completed', report } },
-    ])
+    expect(events.at(-1)).toEqual({
+      type: 'done',
+      result: { status: 'completed', report },
+    })
     expect(hoisted.updateCalls[0].status).toBe('completed')
     expect(hoisted.updateCalls[0].report).toEqual(report)
   })
 
   it('stores a transcribed answer as a voice turn with its transcript populated', async () => {
     hoisted.row = baseRow()
+    hoisted.requestOpenRouterChatCompletion.mockResolvedValueOnce(
+      'ACTION: next_question\nTEXT: How do you handle collisions?',
+    )
     hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
-      fakeAudioStream([
-        { type: 'final', spokenText: 'How do you handle collisions?' },
-      ]),
+      fakeAudioStream([{ type: 'audio', data: 'QUJD' }]),
     )
 
     const { submitInterviewTurnStream } =

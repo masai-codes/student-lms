@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
 
-const WINDOW_SECONDS = 15
 const BAR_INTERVAL_MS = 120
-const MAX_BARS = Math.round((WINDOW_SECONDS * 1000) / BAR_INTERVAL_MS)
-const CANVAS_HEIGHT = 24
+const CANVAS_HEIGHT = 44
+const BAR_WIDTH_PX = 3
+const BAR_GAP_PX = 3
 
 /**
  * Scrolling amplitude-bar visualizer over the last ~15s of the live mic
@@ -71,34 +71,31 @@ export function LiveWaveform({ mediaStream }: { mediaStream: MediaStream }) {
     const drawFrame = () => {
       frameId = requestAnimationFrame(drawFrame)
 
+      const maxBars = Math.max(
+        1,
+        Math.floor(cssWidth / (BAR_WIDTH_PX + BAR_GAP_PX)),
+      )
+
       const now = performance.now()
       if (now - lastSampleAt >= BAR_INTERVAL_MS) {
         lastSampleAt = now
         bars.push(sampleAmplitude())
-        if (bars.length > MAX_BARS) bars.shift()
+        if (bars.length > maxBars) bars.shift()
       }
 
-      const barWidth = cssWidth / MAX_BARS
-      const gap = barWidth * 0.35
       const midY = cssHeight / 2
 
       ctx.clearRect(0, 0, cssWidth, cssHeight)
       ctx.fillStyle = '#7164E9'
 
       bars.forEach((amplitude, i) => {
-        const barHeight = Math.max(2, amplitude * (cssHeight - 4))
-        const x = cssWidth - (bars.length - i) * barWidth
+        const barHeight = Math.max(3, amplitude * (cssHeight - 8))
+        const x = cssWidth - (bars.length - i) * (BAR_WIDTH_PX + BAR_GAP_PX)
         ctx.beginPath()
         if (ctx.roundRect) {
-          ctx.roundRect(
-            x + gap / 2,
-            midY - barHeight / 2,
-            barWidth - gap,
-            barHeight,
-            2,
-          )
+          ctx.roundRect(x, midY - barHeight / 2, BAR_WIDTH_PX, barHeight, 2)
         } else {
-          ctx.rect(x + gap / 2, midY - barHeight / 2, barWidth - gap, barHeight)
+          ctx.rect(x, midY - barHeight / 2, BAR_WIDTH_PX, barHeight)
         }
         ctx.fill()
       })
@@ -114,6 +111,6 @@ export function LiveWaveform({ mediaStream }: { mediaStream: MediaStream }) {
   }, [mediaStream])
 
   return (
-    <canvas ref={canvasRef} className="h-6 w-full min-w-0 flex-1 rounded-lg" />
+    <canvas ref={canvasRef} className="h-11 w-full min-w-0 flex-1 rounded-lg" />
   )
 }

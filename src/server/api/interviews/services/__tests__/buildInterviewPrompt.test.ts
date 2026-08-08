@@ -7,15 +7,20 @@ import {
 } from '../buildInterviewPrompt'
 
 describe('buildInterviewSystemPrompt', () => {
-  it('instructs the model to ask a follow-up when not the last question', () => {
+  it('instructs the model to ask the exact next question when not the last question', () => {
     const prompt = buildInterviewSystemPrompt({
       topicLabel: 'System Design',
       domain: 'software-development',
       rubricFocus: ['Trade-offs'],
       questionNumber: 2,
       totalQuestions: 5,
+      followUpCount: 0,
+      maxFollowUps: 4,
+      forced: false,
+      nextQuestionText: 'How would you shard this database?',
+      language: 'English',
     })
-    expect(prompt).toContain('question 3 of 5')
+    expect(prompt).toContain('How would you shard this database?')
     expect(prompt).not.toContain('FINAL question')
   })
 
@@ -26,24 +31,31 @@ describe('buildInterviewSystemPrompt', () => {
       rubricFocus: ['Trade-offs'],
       questionNumber: 5,
       totalQuestions: 5,
+      followUpCount: 4,
+      maxFollowUps: 4,
+      forced: true,
+      nextQuestionText: null,
+      language: 'English',
     })
     expect(prompt).toContain('FINAL question')
   })
 })
 
 describe('buildOpeningTurnSystemPrompt', () => {
-  it('includes topic, domain, and rubric focus, and instructs a spoken greeting', () => {
+  it('includes topic, domain, rubric focus, and the exact fixed first question', () => {
     const prompt = buildOpeningTurnSystemPrompt({
       topicLabel: 'DSA',
       domain: 'software-development',
       rubricFocus: ['Complexity'],
       totalQuestions: 5,
+      firstQuestion: 'What is a hash map?',
+      language: 'English',
     })
     expect(prompt).toContain('DSA')
     expect(prompt).toContain('software-development')
     expect(prompt).toContain('Complexity')
     expect(prompt).toContain('greeting')
-    expect(prompt).toContain('question 1 of 5')
+    expect(prompt).toContain('What is a hash map?')
   })
 })
 
@@ -58,23 +70,19 @@ describe('buildOpeningTurnMessages', () => {
 })
 
 describe('buildInterviewMessages', () => {
-  const typedPriorTurns = [
+  const typedPriorExchanges = [
     {
-      index: 0,
-      question: 'Q1?',
+      prompt: 'Q1?',
       transcript: 'A1',
       answerAudioBase64: null,
-      answerSource: 'typed' as const,
-      askedAt: '',
-      answeredAt: '2024-01-01T00:00:00.000Z',
     },
   ]
 
-  it('projects a typed prior turn as an assistant/user text pair', () => {
+  it('projects a typed prior exchange as an assistant/user text pair', () => {
     const messages = buildInterviewMessages({
       systemPrompt: 'sys',
-      priorTurns: typedPriorTurns,
-      currentQuestion: 'Q2?',
+      priorExchanges: typedPriorExchanges,
+      currentPrompt: 'Q2?',
       answer: { kind: 'typed', text: 'A2' },
     })
 
@@ -87,21 +95,17 @@ describe('buildInterviewMessages', () => {
     expect(messages[3]).toEqual({ role: 'assistant', content: 'Q2?' })
   })
 
-  it('replays a voice prior turn as raw audio, not text', () => {
+  it('replays a voice prior exchange as raw audio, not text', () => {
     const messages = buildInterviewMessages({
       systemPrompt: 'sys',
-      priorTurns: [
+      priorExchanges: [
         {
-          index: 0,
-          question: 'Q1?',
+          prompt: 'Q1?',
           transcript: '',
           answerAudioBase64: 'PRIORAUDIO',
-          answerSource: 'voice' as const,
-          askedAt: '',
-          answeredAt: '2024-01-01T00:00:00.000Z',
         },
       ],
-      currentQuestion: 'Q2?',
+      currentPrompt: 'Q2?',
       answer: { kind: 'typed', text: 'A2' },
     })
 
@@ -119,8 +123,8 @@ describe('buildInterviewMessages', () => {
   it('sends a text-only content part for typed answers', () => {
     const messages = buildInterviewMessages({
       systemPrompt: 'sys',
-      priorTurns: [],
-      currentQuestion: 'Q1?',
+      priorExchanges: [],
+      currentPrompt: 'Q1?',
       answer: { kind: 'typed', text: 'typed answer' },
     })
     const last = messages.at(-1)
@@ -133,8 +137,8 @@ describe('buildInterviewMessages', () => {
   it('sends an input_audio content part for voice answers', () => {
     const messages = buildInterviewMessages({
       systemPrompt: 'sys',
-      priorTurns: [],
-      currentQuestion: 'Q1?',
+      priorExchanges: [],
+      currentPrompt: 'Q1?',
       answer: { kind: 'audio', base64: 'BASE64DATA', format: 'wav' },
     })
     const last = messages.at(-1)

@@ -1,6 +1,7 @@
 import { and, desc, eq, gte } from 'drizzle-orm'
 import { db } from '@/db'
 import { interviewSessions } from '@/db/schema'
+import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 import { ApiError } from '@/server/api/http/apiError'
 import { requestInterviewTurnAudioStream } from '@/server/api/interviews/clients/openRouterAudioChat'
 import {
@@ -12,6 +13,7 @@ import {
   buildOpeningTurnMessages,
   buildOpeningTurnSystemPrompt,
 } from '@/server/api/interviews/services/buildInterviewPrompt'
+import { generateAllInterviewQuestions } from '@/server/api/interviews/services/generateInterviewQuestions.service'
 import { resolveInterviewTopicSelection } from '@/server/api/interviews/services/resolveInterviewTopicSelection'
 import type {
   InterviewSession,
@@ -53,6 +55,8 @@ function mapRowToSession(row: InterviewSessionRow): InterviewSession {
     topicLabel: row.topicLabel,
     domain: row.domain as InterviewSession['domain'],
     status: row.status as InterviewSession['status'],
+    numQuestions: row.numQuestions,
+    language: row.language,
     turns: (row.turns as Array<InterviewTurn>) ?? [],
     report: (row.report as InterviewSession['report']) ?? null,
     createdAt: row.createdAt,
@@ -71,25 +75,35 @@ export type CreateInterviewSessionStreamEvent =
   | { type: 'done'; result: CreateInterviewSessionResult }
 
 /**
- * One audio-out model call generates AND speaks the greeting + opening
- * question together (no prior answer exists yet, so this is a kickoff
- * trigger rather than a real conversation turn) — streamed to the client the
- * same way a normal turn's response is, then the session row is created only
- * once the question text is known.
+ * All `INTERVIEW_TOTAL_QUESTIONS` questions are generated up front, in one
+ * text-only call, and stored fixed from the start — never one at a time as
+ * the interview progresses. Only question 1 is actually spoken here (an
+ * audio-out call that greets the candidate and asks it verbatim); the rest
+ * sit in the DB unasked (`askedAt: ''`) until the interview reaches them.
  */
 export async function* createInterviewSessionStream(
   userId: number,
   topicId: string,
+  language: AiTutorChatLanguage,
 ): AsyncGenerator<CreateInterviewSessionStreamEvent> {
   await assertUnderDailySessionLimit(userId)
 
   const selection = await resolveInterviewTopicSelection(userId, topicId)
+
+  const questions = await generateAllInterviewQuestions({
+    topicLabel: selection.topicLabel,
+    domain: selection.domain,
+    rubricFocus: selection.rubricFocus,
+    numQuestions: INTERVIEW_TOTAL_QUESTIONS,
+  })
 
   const systemPrompt = buildOpeningTurnSystemPrompt({
     topicLabel: selection.topicLabel,
     domain: selection.domain,
     rubricFocus: selection.rubricFocus,
     totalQuestions: INTERVIEW_TOTAL_QUESTIONS,
+    firstQuestion: questions[0],
+    language,
   })
 
   let spokenText = ''
@@ -104,21 +118,21 @@ export async function* createInterviewSessionStream(
     }
   }
 
-  const question = spokenText.trim()
-  if (!question) {
+  if (!spokenText.trim()) {
     throw new ApiError(503, 'INTERVIEW_QUESTION_GENERATION_FAILED')
   }
 
   const now = new Date().toISOString()
-  const firstTurn: InterviewTurn = {
-    index: 0,
+  const turns: Array<InterviewTurn> = questions.map((question, index) => ({
+    questionIndex: index,
     question,
+    askedAt: index === 0 ? now : '',
     transcript: '',
     answerAudioBase64: null,
     answerSource: 'voice',
-    askedAt: now,
+    followUps: [],
     answeredAt: '',
-  }
+  }))
 
   const [insertResult] = await db.insert(interviewSessions).values({
     userId,
@@ -126,7 +140,9 @@ export async function* createInterviewSessionStream(
     topicLabel: selection.topicLabel,
     domain: selection.domain,
     status: 'in_progress',
-    turns: [firstTurn],
+    numQuestions: INTERVIEW_TOTAL_QUESTIONS,
+    language,
+    turns,
   })
 
   const sessionId = Number(insertResult.insertId)
@@ -134,7 +150,7 @@ export async function* createInterviewSessionStream(
     throw new ApiError(503, 'INTERVIEW_SESSION_CREATE_FAILED')
   }
 
-  yield { type: 'done', result: { sessionId, question } }
+  yield { type: 'done', result: { sessionId, question: questions[0] } }
 }
 
 /**
@@ -146,9 +162,14 @@ export async function* createInterviewSessionStream(
 export async function createInterviewSession(
   userId: number,
   topicId: string,
+  language: AiTutorChatLanguage,
 ): Promise<CreateInterviewSessionResult> {
   let result: CreateInterviewSessionResult | null = null
-  for await (const event of createInterviewSessionStream(userId, topicId)) {
+  for await (const event of createInterviewSessionStream(
+    userId,
+    topicId,
+    language,
+  )) {
     if (event.type === 'done') result = event.result
   }
   if (!result) {
@@ -182,6 +203,21 @@ export async function getInterviewSession(
 ): Promise<InterviewSession> {
   const row = await getInterviewSessionRowForUser(userId, sessionId)
   return mapRowToSession(row)
+}
+
+/** Marks an in-progress session as abandoned when the candidate ends it
+ * early — a no-op if it's already finished (completed or abandoned). */
+export async function abandonInterviewSession(
+  userId: number,
+  sessionId: number,
+): Promise<void> {
+  const row = await getInterviewSessionRowForUser(userId, sessionId)
+  if (row.status !== 'in_progress') return
+
+  await db
+    .update(interviewSessions)
+    .set({ status: 'abandoned' })
+    .where(eq(interviewSessions.id, row.id))
 }
 
 export async function listInterviewSessions(

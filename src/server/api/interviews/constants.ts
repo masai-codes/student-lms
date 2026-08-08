@@ -3,6 +3,10 @@ export { INTERVIEW_TOTAL_QUESTIONS } from '@/lib/interviews/interviewConstants'
 /** Per-user per-day cap on new interview sessions — bounds model cost. */
 export const INTERVIEW_DAILY_SESSION_LIMIT = 5
 
+/** Max follow-up questions the interviewer may ask on a single planned
+ * question before being forced to move on to the next one. */
+export const INTERVIEW_MAX_FOLLOW_UPS = 4
+
 // One OpenRouter-compatible audio model covers the opening greeting/question
 // and every turn (audio-in/audio-out) — one OPENROUTER_API_KEY, no separate
 // ANTHROPIC_API_KEY needed.

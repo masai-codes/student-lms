@@ -73,7 +73,7 @@ describe('createInterviewSession', () => {
 
     const { createInterviewSession } =
       await import('../interviewSession.service')
-    const result = await createInterviewSession(1, 'dsa')
+    const result = await createInterviewSession(1, 'dsa', 'English')
 
     expect(result).toEqual({
       sessionId: 7,
@@ -88,7 +88,9 @@ describe('createInterviewSession', () => {
 
     const { createInterviewSession } =
       await import('../interviewSession.service')
-    await expect(createInterviewSession(1, 'dsa')).rejects.toMatchObject({
+    await expect(
+      createInterviewSession(1, 'dsa', 'English'),
+    ).rejects.toMatchObject({
       code: 'INTERVIEW_DAILY_LIMIT',
     })
   })
@@ -101,7 +103,9 @@ describe('createInterviewSession', () => {
 
     const { createInterviewSession } =
       await import('../interviewSession.service')
-    await expect(createInterviewSession(1, 'dsa')).rejects.toMatchObject({
+    await expect(
+      createInterviewSession(1, 'dsa', 'English'),
+    ).rejects.toMatchObject({
       code: 'INTERVIEW_QUESTION_GENERATION_FAILED',
     })
   })

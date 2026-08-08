@@ -20,11 +20,12 @@ export async function fetchInterviewSessions(): Promise<
 
 export async function createInterviewSession(
   topicId: string,
+  language: string,
 ): Promise<CreateInterviewSessionResult> {
   return fetchJson<CreateInterviewSessionResult>(INTERVIEWS_API.createSession, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topicId }),
+    body: JSON.stringify({ topicId, language }),
   })
 }
 
@@ -70,4 +71,10 @@ export async function fetchInterviewSttToken(
   return fetchJson<InterviewSttToken>(INTERVIEWS_API.sttToken(sessionId), {
     method: 'POST',
   })
+}
+
+export async function abandonInterviewSession(
+  sessionId: number | string,
+): Promise<void> {
+  await fetchJson(INTERVIEWS_API.abandon(sessionId), { method: 'POST' })
 }

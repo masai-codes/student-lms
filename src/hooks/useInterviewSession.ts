@@ -33,6 +33,7 @@ export function useInterviewSession(sessionId: number) {
   const queryClient = useQueryClient()
   const query = useQuery(interviewSessionQuery(sessionId))
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const playerRef = useRef<ReturnType<
     typeof createInterviewAudioPlayer
@@ -51,6 +52,7 @@ export function useInterviewSession(sessionId: number) {
     >((resolve) => {
       streamSubmitInterviewTurn(sessionId, answer, {
         onAudioDelta: (data) => {
+          setIsSpeaking(true)
           player.pushChunk(data)
         },
         onDone: () => {
@@ -64,6 +66,14 @@ export function useInterviewSession(sessionId: number) {
       })
     })
 
+    // The SSE stream finishing doesn't mean playback is done — audio is
+    // scheduled ahead of real time for gapless playback, so still-queued
+    // chunks can keep playing well after the last delta arrives. Wait for
+    // the player to confirm everything has actually finished (or been
+    // cancelled) before dropping the "speaking" state.
+    await new Promise<void>((resolve) => player.onPlaybackEnded(resolve))
+    setIsSpeaking(false)
+
     if (outcome.status === 'done') {
       await queryClient.invalidateQueries({
         queryKey: interviewSessionQueryKey(sessionId),
@@ -75,13 +85,20 @@ export function useInterviewSession(sessionId: number) {
     setIsSubmitting(false)
   }
 
+  function stopSpeaking() {
+    playerRef.current?.cancel()
+    setIsSpeaking(false)
+  }
+
   return {
     session: query.data ?? null,
     isLoading: query.isPending,
     isError: query.isError,
     isSubmitting,
+    isSpeaking,
     error,
     submitAnswer,
+    stopSpeaking,
     clearError: () => setError(null),
   }
 }
