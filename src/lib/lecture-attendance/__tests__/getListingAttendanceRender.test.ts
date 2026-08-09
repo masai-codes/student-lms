@@ -7,7 +7,6 @@ describe('getListingAttendanceRender', () => {
     expect(getListingAttendanceRender(null)).toEqual({
       uiState: null,
       daysRemaining: null,
-      remainingLabel: null,
       showBadge: false,
     })
   })
@@ -22,7 +21,6 @@ describe('getListingAttendanceRender', () => {
         videoPercentage: 0,
         watchPercentage: 0,
         daysRemaining: 0,
-        remainingLabel: null,
         lateByMinutes: null,
         liveAttendanceStatus: 0,
         videoAttendanceStatus: 0,
@@ -33,7 +31,6 @@ describe('getListingAttendanceRender', () => {
     ).toEqual({
       uiState: 'att_window_over',
       daysRemaining: null,
-      remainingLabel: null,
       showBadge: true,
     })
   })
@@ -48,7 +45,6 @@ describe('getListingAttendanceRender', () => {
         videoPercentage: 100,
         watchPercentage: 0,
         daysRemaining: null,
-        remainingLabel: null,
         lateByMinutes: null,
         liveAttendanceStatus: 0,
         videoAttendanceStatus: 0,
@@ -59,7 +55,6 @@ describe('getListingAttendanceRender', () => {
     ).toEqual({
       uiState: 'present',
       daysRemaining: null,
-      remainingLabel: null,
       showBadge: true,
     })
   })

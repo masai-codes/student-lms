@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { KeyboardIcon, Loader2, Mic, X, SendHorizonal } from 'lucide-react'
+import { Check, Loader2, Mic, Volume2, X } from 'lucide-react'
 import { useInterviewRecorder } from '@/hooks/useInterviewRecorder'
 import { useLiveInterviewStt } from '@/hooks/useLiveInterviewStt'
 import { encodeWavFromBlob } from '@/lib/audio/encodeWav'
 import type { SubmitInterviewAnswerInput } from '@/lib/api/interviews/interviewsApi'
 import { USE_LIVE_STT } from '@/lib/interviews/liveSttConfig'
 import { LiveWaveform } from './LiveWaveform'
-import { Button } from '@/components/ui/button'
 
 function formatDuration(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60)
@@ -14,13 +13,43 @@ function formatDuration(totalSeconds: number): string {
   return `${minutes}:${String(seconds).padStart(2, '0')}`
 }
 
+/** Single-line live transcript, always scrolled to show the most recently
+ * spoken words rather than wrapping or growing taller as it fills up. */
+function LiveTranscriptLine({ text }: { text: string }) {
+  const lineRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = lineRef.current
+    if (el) el.scrollLeft = el.scrollWidth
+  }, [text])
+
+  if (!text) return null
+
+  return (
+    <div
+      ref={lineRef}
+      data-testid="interview-live-transcript"
+      className="w-full max-w-xl overflow-x-hidden whitespace-nowrap text-center text-sm text-foreground-muted"
+    >
+      {text}
+    </div>
+  )
+}
+
 export function AnswerRecorder({
   sessionId,
   isSubmitting,
+  isSpeaking = false,
+  onStopSpeaking = () => {},
   onSubmit,
 }: {
   sessionId: number | string
   isSubmitting: boolean
+  /** True once the interviewer's spoken response has started streaming back —
+   * lets the submit spinner hand off to a "stop speaking" control instead of
+   * staying in an indefinite loading state for the whole response. */
+  isSpeaking?: boolean
+  onStopSpeaking?: () => void
   onSubmit: (answer: SubmitInterviewAnswerInput) => Promise<void>
 }) {
   const recorder = useInterviewRecorder()
@@ -33,6 +62,7 @@ export function AnswerRecorder({
   const sttStartedRef = useRef(false)
 
   const busy = isSubmitting || isEncoding || isSending
+  const isRecording = recorder.state === 'recording'
 
   // Starts the live STT session once the mic stream shows up on a render
   // after `startRecording()` resolves — `recorder.mediaStream` is still null
@@ -121,17 +151,17 @@ export function AnswerRecorder({
         />
         <div className="flex items-center gap-3 px-1">
           {!recorder.permissionDenied ? (
-            <Button
+            <button
               type="button"
               onClick={() => {
                 setTypedMode(false)
                 void handleStartRecording()
               }}
-              variant="outline"
+              className="flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surface-muted"
             >
               Record instead
-              <Mic />
-            </Button>
+              <Mic size={16} />
+            </button>
           ) : null}
           <div className="flex-1" />
           <button
@@ -149,72 +179,123 @@ export function AnswerRecorder({
   }
 
   return (
-    <div className="flex items-center gap-3">
-      {recorder.state === 'recording' || busy ? (
-        <>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            data-testid="interview-record-button"
-            onClick={() => void handleDiscard()}
-            disabled={busy}
-            aria-label="Discard recording"
-          >
-            <X size={16} fill="currentColor" />
-          </Button>
-          <div className="flex min-w-0 flex-1 items-center gap-3 rounded-full border border-border bg-background px-3 py-1.5">
-            {recorder.state === 'recording' && recorder.mediaStream ? (
-              <LiveWaveform mediaStream={recorder.mediaStream} />
-            ) : (
-              <span className="flex-1 text-sm text-foreground-muted">
-                Submitting…
-              </span>
-            )}
-            <span className="shrink-0 text-sm font-medium tabular-nums text-danger w-12">
-              {formatDuration(
-                recorder.state === 'recording'
-                  ? recorder.seconds
-                  : frozenSeconds,
-              )}
+    <div className="flex w-full flex-col items-center gap-3">
+      <div
+        data-testid="interview-record-pill"
+        data-recording={isRecording || busy ? 'true' : 'false'}
+        className={`flex items-center rounded-full border p-1 transition-all duration-500 ${
+          isRecording || busy
+            ? 'w-full max-w-xl border-border bg-background shadow-sm'
+            : 'w-16 border-transparent bg-transparent'
+        }`}
+      >
+        <button
+          type="button"
+          onClick={() => void handleDiscard()}
+          disabled={busy}
+          aria-label="Discard recording"
+          className={`flex shrink-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-full px-0 text-sm text-foreground-muted transition-all duration-500 hover:bg-surface-muted disabled:pointer-events-none ${
+            isRecording
+              ? 'max-w-[7rem] px-3 py-3 opacity-100'
+              : 'max-w-0 opacity-0'
+          }`}
+        >
+          <X size={15} />
+          Cancel
+        </button>
+
+        <div
+          className={`flex min-w-0 flex-1 items-center gap-3 overflow-hidden transition-all duration-500 ${
+            isRecording || busy
+              ? 'max-w-full min-w-[120px] px-3 opacity-100'
+              : 'max-w-0 opacity-0'
+          }`}
+        >
+          {isSpeaking ? (
+            <span className="flex-1 text-sm text-foreground-muted">
+              Speaking…
             </span>
-          </div>
-          <Button
-            variant="outline"
-            size="icon-sm"
-            data-testid="interview-submit-answer"
-            onClick={() => void handleSend()}
-            disabled={busy}
-            aria-label={busy ? 'Submitting' : 'Send recording'}
-          >
-            {busy ? (
-              <Loader2 className="animate-spin" size={16} />
-            ) : (
-              <SendHorizonal />
-            )}
-          </Button>
-        </>
-      ) : (
-        <>
-          <Button
-            type="button"
-            data-testid="interview-type-instead"
-            onClick={() => setTypedMode(true)}
-            variant="ghost"
-          >
-            <KeyboardIcon />
-          </Button>
-          <Button
-            type="button"
-            data-testid="interview-record-button"
-            onClick={() => void handleStartRecording()}
-            aria-label="Start recording your answer"
-          >
-            <Mic size={18} />
-            Record your answer
-          </Button>
-        </>
-      )}
+          ) : (
+            <>
+              <div className="size-2 shrink-0 animate-pulse rounded-full bg-danger" />
+              <span className="shrink-0 text-sm font-medium tabular-nums text-foreground-muted">
+                {formatDuration(isRecording ? recorder.seconds : frozenSeconds)}
+              </span>
+              {isRecording && recorder.mediaStream ? (
+                <LiveWaveform mediaStream={recorder.mediaStream} />
+              ) : (
+                <span className="flex-1 text-sm text-foreground-muted">
+                  Submitting…
+                </span>
+              )}
+            </>
+          )}
+        </div>
+
+        <button
+          type="button"
+          data-testid={
+            isSpeaking
+              ? 'interview-stop-speaking'
+              : isRecording
+                ? 'interview-submit-answer'
+                : 'interview-record-button'
+          }
+          onClick={() => {
+            if (isSpeaking) {
+              onStopSpeaking()
+              return
+            }
+            void (isRecording ? handleSend() : handleStartRecording())
+          }}
+          disabled={busy && !isSpeaking}
+          aria-label={
+            isSpeaking
+              ? 'Stop AI speaking'
+              : busy
+                ? 'Submitting'
+                : isRecording
+                  ? 'Submit your answer'
+                  : 'Start recording your answer'
+          }
+          className="relative flex size-14 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-md transition-transform active:scale-95 disabled:opacity-70"
+        >
+          {!(isRecording || busy) ? (
+            <span className="absolute inset-0 rounded-full bg-brand/40 animate-ping" />
+          ) : null}
+          {isSpeaking ? (
+            <Volume2 size={22} />
+          ) : busy ? (
+            <Loader2 className="animate-spin" size={22} />
+          ) : isRecording ? (
+            <Check size={22} />
+          ) : (
+            <Mic size={22} />
+          )}
+        </button>
+      </div>
+
+      {USE_LIVE_STT && isRecording ? (
+        <LiveTranscriptLine text={liveStt.partialTranscript} />
+      ) : null}
+
+      <div
+        className={`flex flex-col items-center gap-2 transition-opacity duration-300 ${
+          isRecording || busy ? 'pointer-events-none opacity-0' : 'opacity-100'
+        }`}
+      >
+        <span className="text-sm font-semibold text-foreground">
+          Tap to record
+        </span>
+        <button
+          type="button"
+          data-testid="interview-type-instead"
+          onClick={() => setTypedMode(true)}
+          className="text-sm text-foreground-muted underline underline-offset-4 hover:text-foreground"
+        >
+          or type your answer instead
+        </button>
+      </div>
     </div>
   )
 }

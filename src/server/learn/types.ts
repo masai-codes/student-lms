@@ -134,6 +134,12 @@ export interface LearningItem {
   resourcePhase: ResourcePhase | null
   /** Listing card CTAs — resolved on the server to match legacy LMS rules. */
   listingCtas: LearnListingCardCtas
+  /**
+   * The item's section label (display name, else the section code). Only
+   * populated on the `/learn` listing feed — the IIT Jodhpur portal renders it as
+   * an extra card chip. Null on the dashboard and associated-content feeds.
+   */
+  sectionName?: string | null
 }
 
 export interface LearningFilterValues {

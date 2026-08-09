@@ -1,14 +1,8 @@
-import { formatTimeRemaining } from '@/lib/formatTimeRemaining'
 import { parseIstToMs } from '@/server/time/istClock'
 
 export type CatchUpWindow = {
   daysRemaining: number | null
   isCatchupWindowOver: boolean | null
-  /**
-   * Granular "time left" label for the catch-up window, e.g.
-   * "2 days 3 hours remaining". Null when the window is null/over.
-   */
-  remainingLabel: string | null
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -21,6 +15,12 @@ function elapsedDaysSinceConcludes(
 }
 
 /**
+ * `daysRemaining` is a whole-day count — `catchUpDays` minus the number of full
+ * days elapsed since the lecture concluded — matching the legacy LMS
+ * (`experience-api` attendance resolver) so every surface shows the same number
+ * it did there. Deliberately NOT a countdown to the exact window-close instant:
+ * flooring the residual hours renders one day fewer for the same lecture.
+ *
  * ⚠️ The `absent` learn-listing filter reproduces the window-over branch of this
  * logic in SQL for lectures with no attendance row — see
  * `buildAbsentWindowOverCondition`. Keep the two in sync.
@@ -36,35 +36,18 @@ export function computeCatchUpWindow(input: {
   const { catchUpDays, includeVideoAttendance, isAbsent, nowMs } = input
 
   if (!isAbsent || !includeVideoAttendance || catchUpDays <= 0) {
-    return {
-      daysRemaining: null,
-      isCatchupWindowOver: null,
-      remainingLabel: null,
-    }
+    return { daysRemaining: null, isCatchupWindowOver: null }
   }
 
   // IST wall-clock DB values → absolute instant, independent of server tz.
   const concludesMs =
     parseIstToMs(input.concludes) ?? parseIstToMs(input.schedule)
   if (concludesMs == null) {
-    return {
-      daysRemaining: null,
-      isCatchupWindowOver: null,
-      remainingLabel: null,
-    }
+    return { daysRemaining: null, isCatchupWindowOver: null }
   }
 
   const elapsedDays = elapsedDaysSinceConcludes(concludesMs, nowMs)
   const daysRemaining = Math.max(0, catchUpDays - elapsedDays)
 
-  // The window closes `catchUpDays` after the lecture concludes; the label
-  // counts down to that exact instant (days → hours → minutes).
-  const windowEndMs = concludesMs + catchUpDays * DAY_MS
-  const remainingLabel = formatTimeRemaining(windowEndMs - nowMs)
-
-  return {
-    daysRemaining,
-    isCatchupWindowOver: daysRemaining <= 0,
-    remainingLabel,
-  }
+  return { daysRemaining, isCatchupWindowOver: daysRemaining <= 0 }
 }

@@ -78,21 +78,24 @@ function buildReportMessages(input: {
     { role: 'system', content: buildReportSystemPrompt(input) },
   ]
 
-  input.turns.forEach((turn, i) => {
-    messages.push({
-      role: 'assistant',
-      content: `Question ${i + 1}: ${turn.question}`,
-    })
+  function pushExchange(label: string, transcript: string) {
+    messages.push({ role: 'assistant', content: label })
     messages.push({
       role: 'user',
       content: [
         {
           type: 'text',
           text:
-            turn.transcript ||
-            '[Voice answer submitted — no transcript available]',
+            transcript || '[Voice answer submitted — no transcript available]',
         },
       ],
+    })
+  }
+
+  input.turns.forEach((turn, i) => {
+    pushExchange(`Question ${i + 1}: ${turn.question}`, turn.transcript)
+    turn.followUps.forEach((followUp) => {
+      pushExchange(`Follow-up: ${followUp.prompt}`, followUp.transcript)
     })
   })
 

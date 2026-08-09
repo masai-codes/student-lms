@@ -1,7 +1,7 @@
 import { isApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
-import { parseTopicId } from '@/server/api/interviews/handlers/parseCreateSessionRequest'
+import { parseCreateSessionRequest } from '@/server/api/interviews/handlers/parseCreateSessionRequest'
 import { createInterviewSession } from '@/server/api/interviews/services/interviewSession.service'
 
 export async function handleCreateInterviewSession(
@@ -9,9 +9,9 @@ export async function handleCreateInterviewSession(
 ): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
-    const topicId = await parseTopicId(request)
+    const { topicId, language } = await parseCreateSessionRequest(request)
 
-    const result = await createInterviewSession(userId, topicId)
+    const result = await createInterviewSession(userId, topicId, language)
     return jsonOk(result, { status: 201 })
   } catch (error) {
     if (!isApiError(error)) {

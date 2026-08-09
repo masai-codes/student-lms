@@ -19,6 +19,9 @@ vi.mock('@tanstack/react-router', () => ({
   }) => <a {...props}>{children}</a>,
 }))
 
+const showsSectionOnLearnCard = vi.hoisted(() => vi.fn(() => false))
+vi.mock('@/utils/portal', () => ({ showsSectionOnLearnCard }))
+
 const pushLearnEvent = vi.hoisted(() => vi.fn())
 vi.mock('../../../shared/learnAnalytics', () => ({
   pushLearnEvent,
@@ -208,5 +211,52 @@ describe('LearnContentCard — assignment weightage chip', () => {
     }
     render(<LearnContentCard item={lecture} />)
     expect(screen.queryByTestId('learn-assignment-weightage')).toBeNull()
+  })
+})
+
+describe('LearnContentCard — section chip', () => {
+  afterEach(() => {
+    cleanup()
+    showsSectionOnLearnCard.mockReturnValue(false)
+  })
+
+  it('renders the section label after the tags on IIT Jodhpur', () => {
+    showsSectionOnLearnCard.mockReturnValue(true)
+    const item = { ...makeItem('lecture', 'mandatory'), sectionName: 'AI & ML' }
+    render(<LearnContentCard item={item} />)
+    expect(screen.getByTestId('learn-card-section-name').textContent).toBe(
+      'AI & ML',
+    )
+  })
+
+  it('omits the chip on portals that are not on the allowlist', () => {
+    const item = { ...makeItem('lecture', 'mandatory'), sectionName: 'AI & ML' }
+    render(<LearnContentCard item={item} />)
+    expect(screen.queryByTestId('learn-card-section-name')).toBeNull()
+  })
+
+  it.each([null, undefined, '   '])(
+    'omits the chip when the label is %p even on IIT Jodhpur',
+    (sectionName) => {
+      showsSectionOnLearnCard.mockReturnValue(true)
+      render(
+        <LearnContentCard
+          item={{ ...makeItem('lecture', 'mandatory'), sectionName }}
+        />,
+      )
+      expect(screen.queryByTestId('learn-card-section-name')).toBeNull()
+    },
+  )
+
+  it('stays off the dashboard and associated-content cards', () => {
+    showsSectionOnLearnCard.mockReturnValue(true)
+    const item = { ...makeItem('lecture', 'mandatory'), sectionName: 'AI & ML' }
+
+    render(<LearnContentCard item={item} fromDashboard />)
+    expect(screen.queryByTestId('learn-card-section-name')).toBeNull()
+    cleanup()
+
+    render(<LearnContentCard item={item} isAssociatedCard />)
+    expect(screen.queryByTestId('learn-card-section-name')).toBeNull()
   })
 })

@@ -57,7 +57,11 @@ describe('handleCreateInterviewSession', () => {
 
     const res = await handleCreateInterviewSession(req({ topicId: 'dsa' }))
     expect(res.status).toBe(201)
-    expect(hoisted.createInterviewSession).toHaveBeenCalledWith(7, 'dsa')
+    expect(hoisted.createInterviewSession).toHaveBeenCalledWith(
+      7,
+      'dsa',
+      'English',
+    )
     await expect(res.json()).resolves.toEqual({
       sessionId: 42,
       question: 'Tell me about arrays.',

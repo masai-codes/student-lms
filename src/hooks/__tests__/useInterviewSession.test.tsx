@@ -11,6 +11,9 @@ const hoisted = vi.hoisted(() => ({
   pushChunk: vi.fn(),
   finish: vi.fn(),
   cancel: vi.fn(),
+  // Fires its callback synchronously — the tests below don't exercise real
+  // scheduled-audio timing, just that `submitAnswer` awaits playback ending.
+  onPlaybackEnded: vi.fn((callback: () => void) => callback()),
 }))
 
 vi.mock('@/lib/api/interviews/streamSubmitInterviewTurn', () => ({
@@ -29,6 +32,7 @@ vi.mock('@/lib/audio/interviewAudioPlayer', () => ({
     pushChunk: hoisted.pushChunk,
     finish: hoisted.finish,
     cancel: hoisted.cancel,
+    onPlaybackEnded: hoisted.onPlaybackEnded,
   }),
 }))
 

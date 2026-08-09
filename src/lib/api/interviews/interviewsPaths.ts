@@ -11,4 +11,6 @@ export const INTERVIEWS_API = {
     `/api/interviews/sessions/${sessionId}/turns/stream`,
   sttToken: (sessionId: number | string) =>
     `/api/interviews/sessions/${sessionId}/stt-token`,
+  abandon: (sessionId: number | string) =>
+    `/api/interviews/sessions/${sessionId}/abandon`,
 } as const
