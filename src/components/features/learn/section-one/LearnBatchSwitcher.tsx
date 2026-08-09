@@ -19,10 +19,15 @@ import { pushLearnEvent } from '../shared/learnAnalytics'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 import { Tooltip, TooltipContent } from '@/components/ui/tooltip'
 import { TooltipTrigger } from '@radix-ui/react-tooltip'
-import { getLastSelectedBatchIdForUser } from '@/lib/learnBatchSelection'
-import { getRouteApi, useNavigate } from '@tanstack/react-router'
+import { setLastSelectedBatchIdForUser } from '@/lib/learnBatchSelection'
+import {
+  getRouteApi,
+  useNavigate,
+  useRouterState,
+} from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { fetchLearnPageDataFromApi } from '@/lib/api/learn/learnApi'
+import { useSelectedLearnBatchId } from '@/hooks/useSelectedLearnBatchId'
 
 interface LearnBatchSwitcherProps {
   /** `true` renders the compact navbar Tier 2 pill instead of the page-header title style. */
@@ -44,15 +49,16 @@ export function LearnBatchSwitcher({
   const navigate = useNavigate()
 
   const [isBatchMenuOpen, setIsBatchMenuOpen] = useState(false)
-  const lastSelectedBatchId = getLastSelectedBatchIdForUser(user.id)
-  const lastSelectedBatchIdNumber = lastSelectedBatchId
-    ? Number(lastSelectedBatchId)
-    : undefined
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
+  const isDiscussions = pathname.startsWith('/learn/discussions')
+  const selectedBatchIdFromRoute = useSelectedLearnBatchId(user.id)
   const { data } = useQuery({
-    queryKey: ['learn-tier2-fallback-batches', lastSelectedBatchIdNumber],
+    queryKey: ['learn-tier2-fallback-batches', selectedBatchIdFromRoute],
     queryFn: () =>
       fetchLearnPageDataFromApi({
-        batchId: lastSelectedBatchIdNumber,
+        batchId: selectedBatchIdFromRoute,
         learningType: 'lecture',
         page: 1,
       }),
@@ -74,13 +80,20 @@ export function LearnBatchSwitcher({
   if (!data) return null
 
   const onBatchChange = (batchId: string) => {
-    // if (isDiscussions) {
-    //   void navigate({
-    //     to: '/learn/discussions',
-    //     search: { batchId: Number(batchId) },
-    //   })
-    //   return
-    // }
+    // Persisted here rather than only by `/learn`'s effect: switching batches
+    // from the discussions page never touches that page, and the stored value is
+    // the fallback for Learn links opened without an explicit `batchId`.
+    setLastSelectedBatchIdForUser(user.id, Number(batchId))
+
+    // Switching batches while reading discussions should stay on discussions —
+    // bouncing to the lecture listing loses the page the student was on.
+    if (isDiscussions) {
+      void navigate({
+        to: '/learn/discussions',
+        search: { batchId: Number(batchId) },
+      })
+      return
+    }
     void navigate({ to: '/learn', search: { batchId: Number(batchId) } })
   }
 
