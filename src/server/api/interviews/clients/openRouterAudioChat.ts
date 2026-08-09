@@ -12,6 +12,10 @@ const INTERVIEW_VOICE = 'alloy'
 
 export type InterviewTurnAudioEvent =
   | { type: 'audio'; data: string }
+  /** The spoken text accumulated so far, re-emitted on every incoming
+   * transcript delta — lets callers show the response building up on screen
+   * without waiting for the full audio to finish streaming. */
+  | { type: 'transcript'; textSoFar: string }
   | { type: 'final'; spokenText: string }
   | { type: 'tool_call'; name: string }
 
@@ -43,6 +47,7 @@ export async function* requestInterviewTurnAudioStream(input: {
       return
     } else {
       spokenText += event.text
+      yield { type: 'transcript', textSoFar: spokenText }
     }
   }
 

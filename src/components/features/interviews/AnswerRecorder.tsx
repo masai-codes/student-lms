@@ -3,6 +3,7 @@ import { Check, Loader2, Mic, Volume2, X } from 'lucide-react'
 import { useInterviewRecorder } from '@/hooks/useInterviewRecorder'
 import { useLiveInterviewStt } from '@/hooks/useLiveInterviewStt'
 import type { SubmitInterviewAnswerInput } from '@/lib/api/interviews/interviewsApi'
+import { INTERVIEW_SEND_PARTIAL_TRANSCRIPT_ON_SUBMIT } from '@/lib/interviews/interviewConstants'
 import { LiveWaveform } from './LiveWaveform'
 
 function formatDuration(totalSeconds: number): string {
@@ -53,6 +54,7 @@ export function AnswerRecorder({
   const recorder = useInterviewRecorder()
   const liveStt = useLiveInterviewStt(sessionId)
   const [isSending, setIsSending] = useState(false)
+  const [isConnectingStt, setIsConnectingStt] = useState(false)
   const [typedMode, setTypedMode] = useState(false)
   const [typedAnswer, setTypedAnswer] = useState('')
   const [frozenSeconds, setFrozenSeconds] = useState(0)
@@ -60,6 +62,11 @@ export function AnswerRecorder({
 
   const busy = isSubmitting || isSending
   const isRecording = recorder.state === 'recording'
+  // The record pill shows as soon as the mic opens, but audio sent before the
+  // STT session finishes connecting is never transcribed — treat that window
+  // as its own "connecting" state so the candidate doesn't start talking into
+  // a mic that isn't listening yet.
+  const isPreparing = isRecording && isConnectingStt
 
   // Starts the live STT session once the mic stream shows up on a render
   // after `startRecording()` resolves — `recorder.mediaStream` is still null
@@ -70,11 +77,15 @@ export function AnswerRecorder({
     if (recorder.state === 'recording' && recorder.mediaStream) {
       if (sttStartedRef.current) return
       sttStartedRef.current = true
-      liveStt.start(recorder.mediaStream).catch((error: unknown) => {
-        console.error('Failed to start live interview STT session', error)
-        recorder.stopAndDiscard()
-        setTypedMode(true)
-      })
+      setIsConnectingStt(true)
+      liveStt
+        .start(recorder.mediaStream)
+        .catch((error: unknown) => {
+          console.error('Failed to start live interview STT session', error)
+          recorder.stopAndDiscard()
+          setTypedMode(true)
+        })
+        .finally(() => setIsConnectingStt(false))
     } else {
       sttStartedRef.current = false
     }
@@ -91,7 +102,7 @@ export function AnswerRecorder({
   }
 
   async function handleSend() {
-    if (busy) return
+    if (busy || isPreparing) return
     // Flips the button into its sending state synchronously, before any of
     // the awaits below — otherwise the UI stays untouched (and clickable)
     // while `stopAndSubmit`/`liveStt.stop()` are in flight, which is what let
@@ -100,11 +111,24 @@ export function AnswerRecorder({
     setFrozenSeconds(recorder.seconds)
 
     try {
-      // Order matters: `stop()` sends the commit and awaits the final
-      // transcript segment over the still-live mic track — only stop the
-      // MediaRecorder (which kills that same track) once that's done.
-      const transcript = await liveStt.stop()
-      await recorder.stopAndSubmit()
+      let transcript: string
+      if (INTERVIEW_SEND_PARTIAL_TRANSCRIPT_ON_SUBMIT) {
+        // Grab whatever's already been transcribed and submit right away —
+        // tear the STT session and MediaRecorder down in the background
+        // rather than blocking the turn request on their teardown.
+        transcript = liveStt.partialTranscript
+        void liveStt.stop()
+        void recorder.stopAndSubmit()
+      } else {
+        // Order doesn't actually matter between these two — run them
+        // concurrently instead of serializing the (up to ~5s) transcript
+        // commit ahead of the (near-instant) MediaRecorder flush.
+        const [finalTranscript] = await Promise.all([
+          liveStt.stop(),
+          recorder.stopAndSubmit(),
+        ])
+        transcript = finalTranscript
+      }
       if (!transcript) return
       await onSubmit({ kind: 'transcribed', text: transcript })
     } finally {
@@ -201,6 +225,11 @@ export function AnswerRecorder({
             <span className="flex-1 text-sm text-foreground-muted">
               Speaking…
             </span>
+          ) : isPreparing ? (
+            <span className="flex flex-1 items-center gap-2 text-sm text-foreground-muted">
+              <Loader2 className="animate-spin" size={14} />
+              Connecting…
+            </span>
           ) : (
             <>
               <div className="size-2 shrink-0 animate-pulse rounded-full bg-danger" />
@@ -234,15 +263,17 @@ export function AnswerRecorder({
             }
             void (isRecording ? handleSend() : handleStartRecording())
           }}
-          disabled={busy && !isSpeaking}
+          disabled={(busy || isPreparing) && !isSpeaking}
           aria-label={
             isSpeaking
               ? 'Stop AI speaking'
               : busy
                 ? 'Submitting'
-                : isRecording
-                  ? 'Submit your answer'
-                  : 'Start recording your answer'
+                : isPreparing
+                  ? 'Connecting'
+                  : isRecording
+                    ? 'Submit your answer'
+                    : 'Start recording your answer'
           }
           className="relative flex size-14 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-md transition-transform active:scale-95 disabled:opacity-70"
         >
@@ -251,7 +282,7 @@ export function AnswerRecorder({
           ) : null}
           {isSpeaking ? (
             <Volume2 size={22} />
-          ) : busy ? (
+          ) : busy || isPreparing ? (
             <Loader2 className="animate-spin" size={22} />
           ) : isRecording ? (
             <Check size={22} />
@@ -261,7 +292,7 @@ export function AnswerRecorder({
         </button>
       </div>
 
-      {isRecording ? (
+      {isRecording && !isPreparing ? (
         <LiveTranscriptLine text={liveStt.partialTranscript} />
       ) : null}
 

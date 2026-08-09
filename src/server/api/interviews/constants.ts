@@ -3,9 +3,13 @@ export { INTERVIEW_TOTAL_QUESTIONS } from '@/lib/interviews/interviewConstants'
 /** Per-user per-day cap on new interview sessions — bounds model cost. */
 export const INTERVIEW_DAILY_SESSION_LIMIT = 5
 
-/** Max follow-up questions the interviewer may ask on a single planned
- * question before being forced to move on to the next one. */
-export const INTERVIEW_MAX_FOLLOW_UPS = 4
+/** Soft floor — below this, the model decides freely whether to follow up or
+ * move on. At and above this count the prompt nudges it to wrap up. */
+export const INTERVIEW_MIN_FOLLOW_UPS = 3
+
+/** Hard cap — the system force-advances once this many follow-ups have been
+ * asked on a single planned question, regardless of what the model wants. */
+export const INTERVIEW_MAX_FOLLOW_UPS = 5
 
 // One OpenRouter-compatible audio model covers the opening greeting/question
 // and every turn (audio-in/audio-out) — one OPENROUTER_API_KEY, no separate

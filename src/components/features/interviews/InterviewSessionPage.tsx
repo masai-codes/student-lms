@@ -94,6 +94,7 @@ export function InterviewSessionPage({ sessionId }: { sessionId: number }) {
     isError,
     isSubmitting,
     isSpeaking,
+    pendingQuestion,
     error,
     submitAnswer,
     stopSpeaking,
@@ -143,11 +144,31 @@ export function InterviewSessionPage({ sessionId }: { sessionId: number }) {
     pendingTurn && pendingTurn.transcript !== ''
       ? pendingTurn.followUps.at(-1)
       : null
-  const questionNumber = (pendingTurn?.questionIndex ?? 0) + 1
-  const followUpQuestion =
+  const baseQuestionNumber = (pendingTurn?.questionIndex ?? 0) + 1
+  const baseFollowUpQuestion =
     pendingFollowUp && pendingFollowUp.answeredAt === ''
       ? pendingFollowUp.prompt
       : null
+
+  // While a turn is in flight, `pendingQuestion` carries the next
+  // question's text as soon as it's known — well before its audio finishes
+  // playing and the query behind `pendingTurn` refetches. Prefer it so the
+  // candidate sees the new question the moment it's decided, not once it's
+  // been fully spoken.
+  const questionNumber =
+    pendingQuestion?.kind === 'advance'
+      ? baseQuestionNumber + 1
+      : baseQuestionNumber
+  const displayedQuestion =
+    pendingQuestion?.kind === 'advance'
+      ? pendingQuestion.text
+      : (pendingTurn?.question ?? '')
+  const followUpQuestion =
+    pendingQuestion?.kind === 'follow_up'
+      ? pendingQuestion.text
+      : pendingQuestion?.kind === 'advance'
+        ? null
+        : baseFollowUpQuestion
 
   return (
     <div
@@ -161,7 +182,7 @@ export function InterviewSessionPage({ sessionId }: { sessionId: number }) {
           topicLabel={session.topicLabel}
           questionNumber={questionNumber}
           totalQuestions={session.numQuestions}
-          question={pendingTurn?.question ?? ''}
+          question={displayedQuestion}
           followUpQuestion={followUpQuestion}
         />
       </div>

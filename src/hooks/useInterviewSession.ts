@@ -35,6 +35,13 @@ export function useInterviewSession(sessionId: number) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // The next question's text as soon as it's known — well before the audio
+  // finishes streaming/playing and the DB-backed query gets invalidated.
+  // Cleared once the query refetch (below) has the real thing.
+  const [pendingQuestion, setPendingQuestion] = useState<{
+    text: string
+    kind: 'advance' | 'follow_up'
+  } | null>(null)
   const playerRef = useRef<ReturnType<
     typeof createInterviewAudioPlayer
   > | null>(null)
@@ -42,6 +49,7 @@ export function useInterviewSession(sessionId: number) {
   async function submitAnswer(answer: SubmitInterviewAnswerInput) {
     setIsSubmitting(true)
     setError(null)
+    setPendingQuestion(null)
 
     playerRef.current?.cancel()
     const player = createInterviewAudioPlayer()
@@ -54,6 +62,9 @@ export function useInterviewSession(sessionId: number) {
         onAudioDelta: (data) => {
           setIsSpeaking(true)
           player.pushChunk(data)
+        },
+        onQuestionText: (text, kind) => {
+          setPendingQuestion({ text, kind })
         },
         onDone: () => {
           player.finish()
@@ -82,6 +93,7 @@ export function useInterviewSession(sessionId: number) {
       setError(FRIENDLY_ERROR_MESSAGES[outcome.code] ?? DEFAULT_ERROR_MESSAGE)
     }
 
+    setPendingQuestion(null)
     setIsSubmitting(false)
   }
 
@@ -96,6 +108,7 @@ export function useInterviewSession(sessionId: number) {
     isError: query.isError,
     isSubmitting,
     isSpeaking,
+    pendingQuestion,
     error,
     submitAnswer,
     stopSpeaking,

@@ -40,9 +40,15 @@ export function buildTurnSystemPrompt(input: {
   questionNumber: number
   totalQuestions: number
   followUpCount: number
+  minFollowUps: number
   maxFollowUps: number
   language: string
 }): string {
+  const paceGuidance =
+    input.followUpCount >= input.minFollowUps
+      ? `You have asked ${input.followUpCount} of at most ${input.maxFollowUps} follow-ups on this question — you're past the usual ${input.minFollowUps}-follow-up mark, so lean strongly toward moving on unless the answer is still genuinely thin.`
+      : `You have asked ${input.followUpCount} of at most ${input.maxFollowUps} follow-ups on this question.`
+
   return `You are a professional interviewer conducting a mock interview on "${input.topicLabel}" for a candidate in the ${input.domain} track.
 
 ${SPOKEN_STYLE_RULES}
@@ -50,7 +56,7 @@ ${SPOKEN_STYLE_RULES}
 ${buildEnforcedChatLanguageInstruction(input.language)}
 
 Focus areas for this topic: ${input.rubricFocus.join(', ')}.
-This is question ${input.questionNumber} of ${input.totalQuestions} total questions for this session. You have asked ${input.followUpCount} of at most ${input.maxFollowUps} follow-ups on this question.
+This is question ${input.questionNumber} of ${input.totalQuestions} total questions for this session. ${paceGuidance}
 Decide whether the candidate's answer deserves one more short follow-up, or is complete enough to move on. If it's complete, call \`move_to_next_question\` and say nothing else. Otherwise, ask exactly one natural follow-up out loud that digs into what they just said (go deeper on a vague or weak answer, move on if it was already strong).`
 }
 
@@ -125,8 +131,16 @@ export function buildOpeningTurnMessages(
 export function buildAskQuestionSystemPrompt(input: {
   questionText: string
   language: string
+  /** True only when the system (not the model) force-advanced after hitting
+   * the follow-up cap — the model never got to decide to move on itself, so
+   * the transition needs a spoken lead-in that a natural advance doesn't. */
+  forcedTransition?: boolean
 }): string {
-  return `You are a professional interviewer in a live spoken mock interview. Ask, word for word, this exact question: "${input.questionText}"
+  const transitionInstruction = input.forcedTransition
+    ? ' Start with a brief, natural transition sentence — something like "Let\'s move on to the next question" — before asking it, since you\'ve covered this question thoroughly.'
+    : ''
+
+  return `You are a professional interviewer in a live spoken mock interview.${transitionInstruction} Ask, word for word, this exact question: "${input.questionText}"
 
 ${SPOKEN_STYLE_RULES}
 
@@ -145,8 +159,15 @@ export function buildAskQuestionMessages(
 /** Generic, non-score-aware closing remark — spoken immediately once the
  * system detects the interview is complete, before the report (which takes
  * longer to generate) is ready. */
-export function buildClosingRemarksSystemPrompt(language: string): string {
-  return `You are a professional interviewer wrapping up a live spoken mock interview. Briefly and warmly thank the candidate and let them know the interview is now complete. Do not mention or guess at their score or performance — that will be shared separately.
+export function buildClosingRemarksSystemPrompt(
+  language: string,
+  forcedTransition?: boolean,
+): string {
+  const transitionInstruction = forcedTransition
+    ? ' Start with a brief, natural transition sentence — something like "Let\'s wrap up here" — since you\'ve covered this question thoroughly.'
+    : ''
+
+  return `You are a professional interviewer wrapping up a live spoken mock interview.${transitionInstruction} Briefly and warmly thank the candidate and let them know the interview is now complete. Do not mention or guess at their score or performance — that will be shared separately.
 
 ${SPOKEN_STYLE_RULES}
 

@@ -29,12 +29,28 @@ describe('buildTurnSystemPrompt', () => {
       questionNumber: 2,
       totalQuestions: 5,
       followUpCount: 1,
-      maxFollowUps: 4,
+      minFollowUps: 3,
+      maxFollowUps: 5,
       language: 'English',
     })
     expect(prompt).toContain('move_to_next_question')
     expect(prompt).toContain('question 2 of 5')
-    expect(prompt).toContain('1 of at most 4 follow-ups')
+    expect(prompt).toContain('1 of at most 5 follow-ups')
+  })
+
+  it('nudges toward wrapping up once past the soft follow-up floor', () => {
+    const prompt = buildTurnSystemPrompt({
+      topicLabel: 'System Design',
+      domain: 'software-development',
+      rubricFocus: ['Trade-offs'],
+      questionNumber: 2,
+      totalQuestions: 5,
+      followUpCount: 3,
+      minFollowUps: 3,
+      maxFollowUps: 5,
+      language: 'English',
+    })
+    expect(prompt).toContain('lean strongly toward moving on')
   })
 })
 

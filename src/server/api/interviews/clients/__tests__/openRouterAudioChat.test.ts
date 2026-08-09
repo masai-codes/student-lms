@@ -43,10 +43,19 @@ describe('requestInterviewTurnAudioStream', () => {
   }
 
   async function collect(
-    gen: AsyncGenerator<{ type: string; data?: string; spokenText?: string }>,
+    gen: AsyncGenerator<{
+      type: string
+      data?: string
+      spokenText?: string
+      textSoFar?: string
+    }>,
   ) {
-    const events: Array<{ type: string; data?: string; spokenText?: string }> =
-      []
+    const events: Array<{
+      type: string
+      data?: string
+      spokenText?: string
+      textSoFar?: string
+    }> = []
     for await (const event of gen) events.push(event)
     return events
   }
@@ -65,7 +74,9 @@ describe('requestInterviewTurnAudioStream', () => {
 
     const events = await collect(requestInterviewTurnAudioStream(baseInput))
     expect(events).toEqual([
+      { type: 'transcript', textSoFar: 'How do you ' },
       { type: 'audio', data: 'QUJD' },
+      { type: 'transcript', textSoFar: 'How do you handle collisions?' },
       { type: 'audio', data: 'REVG' },
       { type: 'final', spokenText: 'How do you handle collisions?' },
     ])

@@ -5,6 +5,7 @@ import { ApiError } from '@/server/api/http/apiError'
 import { requestInterviewTurnAudioStream } from '@/server/api/interviews/clients/openRouterAudioChat'
 import {
   INTERVIEW_MAX_FOLLOW_UPS,
+  INTERVIEW_MIN_FOLLOW_UPS,
   getInterviewAudioModel,
 } from '@/server/api/interviews/constants'
 import {
@@ -33,6 +34,15 @@ export type SubmitInterviewTurnResult =
 
 export type SubmitInterviewTurnStreamEvent =
   | { type: 'audio-delta'; data: string }
+  /** The next question's text, so far — for `advance` this is the full text,
+   * emitted once, immediately (it's pre-generated and already known before
+   * any TTS call starts). For a follow-up it's the model's in-progress
+   * spoken text, re-emitted as it streams in. Either way, the client can
+   * render it right away instead of waiting for the whole turn (including
+   * playback) to finish. `kind` tells the client which slot to render it
+   * into — a new planned question (with an incremented question number) vs.
+   * a follow-up on the current one. */
+  | { type: 'question-text'; text: string; kind: 'advance' | 'follow_up' }
   | { type: 'done'; result: SubmitInterviewTurnResult }
 
 type InterviewTurnAction = 'follow_up' | 'advance' | 'end_interview'
@@ -119,6 +129,7 @@ async function* runInterviewTurn(input: {
   language: string
 }): AsyncGenerator<
   | { type: 'audio-delta'; data: string }
+  | { type: 'question-text'; text: string; kind: 'advance' | 'follow_up' }
   | { type: 'decided'; decision: DecidedTurn }
 > {
   const isLastQuestion = input.nextQuestionText === null
@@ -137,6 +148,7 @@ async function* runInterviewTurn(input: {
       questionNumber: input.questionNumber,
       totalQuestions: input.totalQuestions,
       followUpCount: input.followUpCount,
+      minFollowUps: INTERVIEW_MIN_FOLLOW_UPS,
       maxFollowUps: INTERVIEW_MAX_FOLLOW_UPS,
       language: input.language,
     })
@@ -157,6 +169,16 @@ async function* runInterviewTurn(input: {
     })) {
       if (event.type === 'audio') {
         yield { type: 'audio-delta', data: event.data }
+      } else if (event.type === 'transcript') {
+        // A follow-up's text isn't known ahead of time like a planned
+        // question's — surface it as it's generated so the candidate isn't
+        // staring at a stale screen until the whole turn (audio included)
+        // finishes.
+        yield {
+          type: 'question-text',
+          text: event.textSoFar,
+          kind: 'follow_up',
+        }
       } else if (event.type === 'tool_call') {
         calledTool = true
       } else if (event.type === 'final') {
@@ -176,9 +198,18 @@ async function* runInterviewTurn(input: {
   }
 
   if (decision.action === 'advance') {
+    // The next planned question's text is already known from the session
+    // record — no reason to wait for TTS before showing it.
+    yield {
+      type: 'question-text',
+      text: input.nextQuestionText ?? '',
+      kind: 'advance',
+    }
+
     const systemPrompt = buildAskQuestionSystemPrompt({
       questionText: input.nextQuestionText ?? '',
       language: input.language,
+      forcedTransition: input.forced,
     })
     for await (const event of requestInterviewTurnAudioStream({
       messages: buildAskQuestionMessages(systemPrompt),
@@ -188,7 +219,10 @@ async function* runInterviewTurn(input: {
         yield { type: 'audio-delta', data: event.data }
     }
   } else if (decision.action === 'end_interview') {
-    const systemPrompt = buildClosingRemarksSystemPrompt(input.language)
+    const systemPrompt = buildClosingRemarksSystemPrompt(
+      input.language,
+      input.forced,
+    )
     for await (const event of requestInterviewTurnAudioStream({
       messages: buildClosingRemarksMessages(systemPrompt),
       model: getInterviewAudioModel(),
@@ -269,6 +303,8 @@ export async function* submitInterviewTurnStream(input: {
   })) {
     if (event.type === 'audio-delta') {
       yield { type: 'audio-delta', data: event.data }
+    } else if (event.type === 'question-text') {
+      yield { type: 'question-text', text: event.text, kind: event.kind }
     } else {
       decision = event.decision
     }

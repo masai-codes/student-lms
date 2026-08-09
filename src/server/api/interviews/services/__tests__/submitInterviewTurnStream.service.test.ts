@@ -116,7 +116,12 @@ describe('submitInterviewTurnStream', () => {
       }),
     )
 
-    expect(events.slice(0, 2)).toEqual([
+    expect(events.slice(0, 3)).toEqual([
+      {
+        type: 'question-text',
+        text: 'How do you handle collisions?',
+        kind: 'advance',
+      },
       { type: 'audio-delta', data: 'QUJD' },
       { type: 'audio-delta', data: 'REVG' },
     ])

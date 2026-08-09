@@ -63,13 +63,42 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('AnswerRecorder', () => {
-  it('shows the live waveform while recording with an active mic stream', () => {
+  it('shows the live waveform while recording with an active mic stream', async () => {
     hoisted.recorderState.state = 'recording'
     hoisted.recorderState.mediaStream = {} as MediaStream
 
     render(
       <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={vi.fn()} />,
     )
+    // Let the STT "connecting" phase (started in an effect on mount) settle
+    // before asserting on the ready-to-record UI.
+    await act(async () => {})
+    expect(screen.getByTestId('live-waveform')).toBeTruthy()
+  })
+
+  it('shows a connecting state until the live STT session finishes starting', async () => {
+    let resolveSttStart: () => void = () => {}
+    hoisted.liveSttState.start = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSttStart = resolve
+        }),
+    )
+    hoisted.recorderState.state = 'recording'
+    hoisted.recorderState.mediaStream = {} as MediaStream
+
+    render(
+      <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={vi.fn()} />,
+    )
+    await act(async () => {})
+
+    expect(screen.getByLabelText('Connecting')).toBeTruthy()
+    expect(screen.queryByTestId('live-waveform')).toBeNull()
+
+    await act(async () => {
+      resolveSttStart()
+    })
+
     expect(screen.getByTestId('live-waveform')).toBeTruthy()
   })
 
@@ -132,9 +161,10 @@ describe('AnswerRecorder', () => {
     expect(hoisted.liveSttState.cancel).toHaveBeenCalledTimes(1)
   })
 
-  it('stops the STT session before releasing the mic, then submits the transcript', async () => {
+  it('submits the transcript accumulated so far immediately, tearing STT/recorder down in the background', async () => {
     hoisted.recorderState.state = 'recording'
     hoisted.recorderState.mediaStream = {} as MediaStream
+    hoisted.liveSttState.partialTranscript = 'A hash map maps keys to values.'
     const onSubmit = vi.fn(async () => {})
     const callOrder: Array<string> = []
     hoisted.liveSttState.stop = vi.fn(async () => {
@@ -149,6 +179,7 @@ describe('AnswerRecorder', () => {
     render(
       <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={onSubmit} />,
     )
+    await act(async () => {})
     await act(async () => {
       fireEvent.click(screen.getByTestId('interview-submit-answer'))
     })
@@ -160,15 +191,16 @@ describe('AnswerRecorder', () => {
     })
   })
 
-  it('does not submit when the STT session produced an empty transcript', async () => {
+  it('does not submit when no transcript has accumulated yet', async () => {
     hoisted.recorderState.state = 'recording'
     hoisted.recorderState.mediaStream = {} as MediaStream
+    hoisted.liveSttState.partialTranscript = ''
     const onSubmit = vi.fn(async () => {})
-    hoisted.liveSttState.stop = vi.fn(async () => '')
 
     render(
       <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={onSubmit} />,
     )
+    await act(async () => {})
     await act(async () => {
       fireEvent.click(screen.getByTestId('interview-submit-answer'))
     })
@@ -176,30 +208,33 @@ describe('AnswerRecorder', () => {
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
-  it('enters the sending state immediately on click, before stop resolves', async () => {
+  it('enters the sending state immediately on click, before onSubmit resolves', async () => {
     hoisted.recorderState.state = 'recording'
     hoisted.recorderState.mediaStream = {} as MediaStream
-    let resolveSttStop: (text: string) => void = () => {}
-    hoisted.liveSttState.stop = vi.fn(
+    hoisted.liveSttState.partialTranscript = 'done'
+    let resolveOnSubmit: () => void = () => {}
+    const onSubmit = vi.fn(
       () =>
-        new Promise<string>((resolve) => {
-          resolveSttStop = resolve
+        new Promise<void>((resolve) => {
+          resolveOnSubmit = resolve
         }),
     )
-    const onSubmit = vi.fn(async () => {})
 
     render(
       <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={onSubmit} />,
     )
+    await act(async () => {})
 
     fireEvent.click(screen.getByTestId('interview-submit-answer'))
 
-    // Still awaiting the STT stop — the button must already reflect the
-    // sending state rather than looking untouched/clickable.
-    expect(screen.getByLabelText('Submitting')).toBeTruthy()
+    // Still awaiting onSubmit — the button must already reflect the sending
+    // state rather than looking untouched/clickable.
+    await waitFor(() =>
+      expect(screen.getByLabelText('Submitting')).toBeTruthy(),
+    )
 
     await act(async () => {
-      resolveSttStop('done')
+      resolveOnSubmit()
     })
   })
 })

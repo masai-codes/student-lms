@@ -6,11 +6,13 @@ import type { SubmitInterviewTurnResult } from '@/server/api/interviews/services
 /** Wire events emitted by `POST /api/interviews/sessions/$sessionId/turns/stream`. */
 export type InterviewTurnStreamEvent =
   | { type: 'audio-delta'; data: string }
+  | { type: 'question-text'; text: string; kind: 'advance' | 'follow_up' }
   | { type: 'done'; result: SubmitInterviewTurnResult }
   | { type: 'error'; code: string }
 
 export type StreamSubmitInterviewTurnHandlers = {
   onAudioDelta: (data: string) => void
+  onQuestionText: (text: string, kind: 'advance' | 'follow_up') => void
   onDone: (result: SubmitInterviewTurnResult) => void
   onError: (code: string) => void
 }
@@ -29,6 +31,8 @@ function parseEvent(payload: string): InterviewTurnStreamEvent | null {
   const record = parsed as {
     type?: unknown
     data?: unknown
+    text?: unknown
+    kind?: unknown
     result?: unknown
     code?: unknown
   }
@@ -37,6 +41,13 @@ function parseEvent(payload: string): InterviewTurnStreamEvent | null {
     return {
       type: 'audio-delta',
       data: typeof record.data === 'string' ? record.data : '',
+    }
+  }
+  if (record.type === 'question-text') {
+    return {
+      type: 'question-text',
+      text: typeof record.text === 'string' ? record.text : '',
+      kind: record.kind === 'advance' ? 'advance' : 'follow_up',
     }
   }
   if (record.type === 'done') {
@@ -138,6 +149,8 @@ async function runStream(
 
         if (event.type === 'audio-delta') {
           handlers.onAudioDelta(event.data)
+        } else if (event.type === 'question-text') {
+          handlers.onQuestionText(event.text, event.kind)
         } else if (event.type === 'done') {
           settled = true
           handlers.onDone(event.result)

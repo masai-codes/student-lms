@@ -154,7 +154,7 @@ describe('submitInterviewTurn', () => {
           answerAudioBase64: null,
           answerSource: 'typed',
           followUps: [
-            ...Array.from({ length: 3 }, (_, i) => ({
+            ...Array.from({ length: 4 }, (_, i) => ({
               prompt: `Follow-up ${i + 1}?`,
               transcript: `FA${i + 1}`,
               answerAudioBase64: null,
@@ -163,7 +163,7 @@ describe('submitInterviewTurn', () => {
               answeredAt: '2024-01-01T00:00:00.000Z',
             })),
             {
-              prompt: 'Follow-up 4?',
+              prompt: 'Follow-up 5?',
               transcript: '',
               answerAudioBase64: null,
               answerSource: 'voice',
