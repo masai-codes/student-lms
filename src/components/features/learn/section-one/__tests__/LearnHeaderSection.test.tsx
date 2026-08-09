@@ -29,6 +29,10 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
       useRouteContext: () => ({ user: { id: '1' } }),
     }),
     useNavigate: () => vi.fn(),
+    // Header + switcher read the live batch/pathname off router state; no
+    // RouterProvider here, so feed them a static location.
+    useRouterState: ({ select }: { select: (state: any) => unknown }) =>
+      select({ location: { pathname: '/learn', search: {} } }),
     Link: ({ to, children, ...props }: any) =>
       React.createElement('a', { href: to, ...props }, children),
   }

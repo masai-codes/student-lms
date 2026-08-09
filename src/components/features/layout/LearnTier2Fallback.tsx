@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { LearnTabSwitcher } from '@/components/features/learn/section-two/LearnTabSwitcher'
 import type { LearnTab } from '@/components/features/learn/shared/types'
-import { getLastSelectedBatchIdForUser } from '@/lib/learnBatchSelection'
+import { useSelectedLearnBatchId } from '@/hooks/useSelectedLearnBatchId'
 
 const layoutRouteApi = getRouteApi('/(protected)/_layout')
 
@@ -21,10 +21,7 @@ const layoutRouteApi = getRouteApi('/(protected)/_layout')
 export function LearnTier2Fallback() {
   const navigate = useNavigate()
   const { user } = layoutRouteApi.useRouteContext()
-  const lastSelectedBatchId = getLastSelectedBatchIdForUser(user.id)
-  const lastSelectedBatchIdNumber = lastSelectedBatchId
-    ? Number(lastSelectedBatchId)
-    : undefined
+  const selectedBatchId = useSelectedLearnBatchId(user.id)
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const learnItems: LearnTab[] = ['assignments', 'resources', 'lectures']
   const tabQuery = useRouterState({ select: (s) => s.location.search.tab })
@@ -46,7 +43,7 @@ export function LearnTier2Fallback() {
   const handleTabChange = (tab: LearnTab) => {
     void navigate({
       to: '/learn',
-      search: { tab, batchId: lastSelectedBatchIdNumber ?? undefined },
+      search: { tab, batchId: selectedBatchId },
     })
   }
 

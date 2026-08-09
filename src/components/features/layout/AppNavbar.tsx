@@ -13,6 +13,7 @@ import { DownloadAppModal } from '@/components/features/layout/DownloadAppModal'
 import { LearnTier2Fallback } from '@/components/features/layout/LearnTier2Fallback'
 import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
+import { useSelectedLearnBatchId } from '@/hooks/useSelectedLearnBatchId'
 import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { getAuthBranding } from '@/utils/authBranding'
 import type { NavItem } from '@/lib/navigation/navItemConfig'
@@ -173,6 +174,7 @@ export default function AppNavbar() {
   } = useAppNavItems()
   const showTryNew = useTryNewCtaVisible()
   const nextAction = useNextActionBannerView()
+  const selectedBatchId = useSelectedLearnBatchId(user.id)
 
   const { primary, secondary } = useMemo(
     () => resolveNavItemPriority(rightItems, !!nextAction),
@@ -198,6 +200,17 @@ export default function AppNavbar() {
               href: '/learn/discussions',
               openInNewTab: false,
               isActive: pathname.startsWith('/learn/discussions'),
+              // Navigated by hand so the currently selected batch rides along in
+              // the search params — without it the discussions feed falls back to
+              // the student's first enrolled batch.
+              onClick: (e: MouseEvent<HTMLAnchorElement>) => {
+                e.preventDefault()
+                void navigate({
+                  to: '/learn/discussions',
+                  search:
+                    selectedBatchId != null ? { batchId: selectedBatchId } : {},
+                })
+              },
             },
           ]}
         />

@@ -9,7 +9,6 @@ import { WelcomeSection } from '../section-welcome/WelcomeSection'
 import type { DashboardOverviewState } from '../shared/types'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 import { useServerTime } from '@/hooks/useServerTime'
-import { cn } from '@/lib/utils'
 
 interface DashboardLayoutProps {
   /** Signed-in user's name for the greeting (null while loading / unknown). */
@@ -22,8 +21,8 @@ interface DashboardLayoutProps {
 }
 
 // Top-level dashboard composition: an optional purple onboarding banner (T0
-// learners with pending guided-tour steps) sitting flush above the welcome
-// header + the two-column schedule / sidebar grid.
+// learners with pending guided-tour steps) above the welcome header + the
+// two-column schedule / sidebar grid.
 export function DashboardLayout({
   userName,
   overview,
@@ -59,18 +58,16 @@ export function DashboardLayout({
         </div>
       ) : null}
       {showOnboardingBanner ? (
-        <OnboardingStepsBanner
-          banners={onboardingBanners}
-          onResume={onResumeOnboarding}
-        />
+        <div className="mb-4">
+          <OnboardingStepsBanner
+            banners={onboardingBanners}
+            onResume={onResumeOnboarding}
+          />
+        </div>
       ) : null}
       <div
         data-testid="dashboard-content"
-        className={cn(
-          'relative flex flex-col gap-4 overflow-hidden',
-          // Square top so it meets the banner seamlessly when one is shown.
-          showOnboardingBanner && 'rounded-t-none',
-        )}
+        className="relative flex flex-col gap-4 overflow-hidden"
       >
         <div className="animate-dash-rise relative">
           <WelcomeSection
