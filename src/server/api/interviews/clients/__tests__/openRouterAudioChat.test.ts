@@ -147,4 +147,39 @@ describe('requestInterviewTurnAudioStream', () => {
       collect(requestInterviewTurnAudioStream(baseInput)),
     ).rejects.toThrow('INTERVIEW_OPENROUTER_TIMEOUT')
   })
+
+  function toolCallFrame(name: string) {
+    return JSON.stringify({
+      choices: [{ delta: { tool_calls: [{ function: { name } }] } }],
+    })
+  }
+
+  it('yields a tool_call event and stops, without a final spokenText, when the model calls a tool', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      body: sseBodyFromFrames([
+        toolCallFrame('move_to_next_question'),
+        '[DONE]',
+      ]),
+    } as Response)
+
+    const events = await collect(
+      requestInterviewTurnAudioStream({
+        ...baseInput,
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'move_to_next_question',
+              description: 'move on',
+              parameters: { type: 'object', properties: {} },
+            },
+          },
+        ],
+      }),
+    )
+    expect(events).toEqual([
+      { type: 'tool_call', name: 'move_to_next_question' },
+    ])
+  })
 })

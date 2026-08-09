@@ -4,7 +4,6 @@ import { X } from 'lucide-react'
 import { useInterviewSession } from '@/hooks/useInterviewSession'
 import { abandonInterviewSession } from '@/lib/api/interviews/interviewsApi'
 import { getOrCreateInterviewSttToken } from '@/lib/api/interviews/sttTokenCache'
-import { USE_LIVE_STT } from '@/lib/interviews/liveSttConfig'
 import {
   Modal,
   ModalContent,
@@ -105,7 +104,6 @@ export function InterviewSessionPage({ sessionId }: { sessionId: number }) {
   // in-progress session loads, so it's already available by the time the
   // first answer is recorded instead of being fetched mid-turn.
   useEffect(() => {
-    if (!USE_LIVE_STT) return
     if (session?.status !== 'in_progress') return
     getOrCreateInterviewSttToken(sessionId).catch((sttError: unknown) => {
       console.error('Failed to prefetch interview STT token', sttError)

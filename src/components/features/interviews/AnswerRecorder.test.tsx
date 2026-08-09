@@ -1,9 +1,4 @@
 // @vitest-environment jsdom
-// `USE_LIVE_STT` is evaluated once at import time from
-// `VITE_INTERVIEW_STT_PROVIDER` — force it unset here so this suite (the
-// default flow) is deterministic regardless of the developer's local
-// `.env.local` (Vitest, like Vite, loads it automatically). See
-// AnswerRecorder.liveStt.test.tsx for the flag-enabled behavior.
 import {
   act,
   cleanup,
@@ -12,21 +7,12 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react'
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest'
-import type { AnswerRecorder as AnswerRecorderComponent } from './AnswerRecorder'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { AnswerRecorder } from './AnswerRecorder'
 
 const hoisted = vi.hoisted(() => ({
   recorderState: {
-    state: 'idle',
+    state: 'idle' as 'idle' | 'recording' | 'recorded',
     seconds: 0,
     audioBlob: null as Blob | null,
     mediaStream: null as MediaStream | null,
@@ -40,31 +26,25 @@ const hoisted = vi.hoisted(() => ({
     stopAndSubmit: vi.fn(async () => null as Blob | null),
     stopAndDiscard: vi.fn(),
   },
+  liveSttState: {
+    partialTranscript: '',
+    start: vi.fn(async () => {}),
+    stop: vi.fn(async () => 'A hash map maps keys to values.'),
+    cancel: vi.fn(),
+  },
 }))
 
 vi.mock('@/hooks/useInterviewRecorder', () => ({
   useInterviewRecorder: () => hoisted.recorderState,
 }))
 
+vi.mock('@/hooks/useLiveInterviewStt', () => ({
+  useLiveInterviewStt: () => hoisted.liveSttState,
+}))
+
 vi.mock('./LiveWaveform', () => ({
   LiveWaveform: () => <div data-testid="live-waveform" />,
 }))
-
-vi.mock('@/lib/audio/encodeWav', () => ({
-  encodeWavFromBlob: vi.fn(async (blob: Blob) => blob),
-}))
-
-let AnswerRecorder: typeof AnswerRecorderComponent
-
-beforeAll(async () => {
-  vi.resetModules()
-  vi.stubEnv('VITE_INTERVIEW_STT_PROVIDER', '')
-  ;({ AnswerRecorder } = await import('./AnswerRecorder'))
-})
-
-afterAll(() => {
-  vi.unstubAllEnvs()
-})
 
 beforeEach(() => {
   hoisted.recorderState.state = 'idle'
@@ -73,6 +53,11 @@ beforeEach(() => {
   hoisted.recorderState.startRecording = vi.fn(async () => true)
   hoisted.recorderState.stopAndSubmit = vi.fn(async () => null)
   hoisted.recorderState.stopAndDiscard = vi.fn()
+  hoisted.liveSttState.start = vi.fn(async () => {})
+  hoisted.liveSttState.stop = vi.fn(
+    async () => 'A hash map maps keys to values.',
+  )
+  hoisted.liveSttState.cancel = vi.fn()
 })
 
 afterEach(cleanup)
@@ -109,7 +94,33 @@ describe('AnswerRecorder', () => {
     )
   })
 
-  it('calls stopAndDiscard when the cross button is clicked while recording', () => {
+  it('falls back to typed mode when live STT fails to start', async () => {
+    hoisted.liveSttState.start = vi.fn(async () => {
+      throw new Error('stt unavailable')
+    })
+
+    const { rerender } = render(
+      <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={vi.fn()} />,
+    )
+    hoisted.recorderState.state = 'recording'
+    hoisted.recorderState.mediaStream = {} as MediaStream
+    await act(async () => {
+      rerender(
+        <AnswerRecorder
+          sessionId={1}
+          isSubmitting={false}
+          onSubmit={vi.fn()}
+        />,
+      )
+    })
+
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText('Type your answer…')).toBeTruthy(),
+    )
+    expect(hoisted.recorderState.stopAndDiscard).toHaveBeenCalled()
+  })
+
+  it('calls stopAndDiscard and cancels STT when the cross button is clicked while recording', () => {
     hoisted.recorderState.state = 'recording'
     hoisted.recorderState.mediaStream = {} as MediaStream
 
@@ -118,14 +129,22 @@ describe('AnswerRecorder', () => {
     )
     fireEvent.click(screen.getByLabelText('Discard recording'))
     expect(hoisted.recorderState.stopAndDiscard).toHaveBeenCalledTimes(1)
+    expect(hoisted.liveSttState.cancel).toHaveBeenCalledTimes(1)
   })
 
-  it('calls stopAndSubmit and onSubmit when the send button is clicked while recording', async () => {
+  it('stops the STT session before releasing the mic, then submits the transcript', async () => {
     hoisted.recorderState.state = 'recording'
     hoisted.recorderState.mediaStream = {} as MediaStream
-    const blob = new Blob(['x'])
-    hoisted.recorderState.stopAndSubmit = vi.fn(async () => blob)
     const onSubmit = vi.fn(async () => {})
+    const callOrder: Array<string> = []
+    hoisted.liveSttState.stop = vi.fn(async () => {
+      callOrder.push('stt-stop')
+      return 'A hash map maps keys to values.'
+    })
+    hoisted.recorderState.stopAndSubmit = vi.fn(async () => {
+      callOrder.push('recorder-stop')
+      return new Blob(['x'])
+    })
 
     render(
       <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={onSubmit} />,
@@ -134,20 +153,37 @@ describe('AnswerRecorder', () => {
       fireEvent.click(screen.getByTestId('interview-submit-answer'))
     })
 
-    expect(hoisted.recorderState.stopAndSubmit).toHaveBeenCalledTimes(1)
-    await waitFor(() =>
-      expect(onSubmit).toHaveBeenCalledWith({ kind: 'audio', blob }),
-    )
+    expect(callOrder).toEqual(['stt-stop', 'recorder-stop'])
+    expect(onSubmit).toHaveBeenCalledWith({
+      kind: 'transcribed',
+      text: 'A hash map maps keys to values.',
+    })
   })
 
-  it('enters the sending state immediately on click, before stopAndSubmit resolves', async () => {
+  it('does not submit when the STT session produced an empty transcript', async () => {
     hoisted.recorderState.state = 'recording'
     hoisted.recorderState.mediaStream = {} as MediaStream
-    let resolveStopAndSubmit: (blob: Blob | null) => void = () => {}
-    hoisted.recorderState.stopAndSubmit = vi.fn(
+    const onSubmit = vi.fn(async () => {})
+    hoisted.liveSttState.stop = vi.fn(async () => '')
+
+    render(
+      <AnswerRecorder sessionId={1} isSubmitting={false} onSubmit={onSubmit} />,
+    )
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('interview-submit-answer'))
+    })
+
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('enters the sending state immediately on click, before stop resolves', async () => {
+    hoisted.recorderState.state = 'recording'
+    hoisted.recorderState.mediaStream = {} as MediaStream
+    let resolveSttStop: (text: string) => void = () => {}
+    hoisted.liveSttState.stop = vi.fn(
       () =>
-        new Promise<Blob | null>((resolve) => {
-          resolveStopAndSubmit = resolve
+        new Promise<string>((resolve) => {
+          resolveSttStop = resolve
         }),
     )
     const onSubmit = vi.fn(async () => {})
@@ -158,13 +194,12 @@ describe('AnswerRecorder', () => {
 
     fireEvent.click(screen.getByTestId('interview-submit-answer'))
 
-    // Still awaiting stopAndSubmit — the button must already reflect the
+    // Still awaiting the STT stop — the button must already reflect the
     // sending state rather than looking untouched/clickable.
     expect(screen.getByLabelText('Submitting')).toBeTruthy()
-    expect(screen.queryByLabelText('Send recording')).toBeNull()
 
     await act(async () => {
-      resolveStopAndSubmit(new Blob(['x']))
+      resolveSttStop('done')
     })
   })
 })

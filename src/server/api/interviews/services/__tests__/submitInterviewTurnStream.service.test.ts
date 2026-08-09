@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const hoisted = vi.hoisted(() => ({
   row: null as any,
   requestInterviewTurnAudioStream: vi.fn(),
-  requestOpenRouterChatCompletion: vi.fn(),
   generateInterviewReport: vi.fn(),
   updateCalls: [] as Array<Record<string, unknown>>,
 }))
@@ -28,10 +27,6 @@ vi.mock('@/server/api/interviews/clients/openRouterAudioChat', () => ({
   requestInterviewTurnAudioStream: hoisted.requestInterviewTurnAudioStream,
 }))
 
-vi.mock('@/server/api/interviews/clients/openRouterClient', () => ({
-  requestOpenRouterChatCompletion: hoisted.requestOpenRouterChatCompletion,
-}))
-
 vi.mock(
   '@/server/api/interviews/services/generateInterviewReport.service',
   () => ({
@@ -47,16 +42,27 @@ function baseRow(overrides: Partial<Record<string, unknown>> = {}) {
     topicLabel: 'DSA',
     domain: 'software-development',
     status: 'in_progress',
-    numQuestions: 5,
+    numQuestions: 2,
+    language: 'English',
     turns: [
       {
         questionIndex: 0,
-        turnKind: 'main',
         question: 'What is a hash map?',
+        askedAt: '2024-01-01T00:00:00.000Z',
         transcript: '',
         answerAudioBase64: null,
         answerSource: 'voice',
+        followUps: [],
+        answeredAt: '',
+      },
+      {
+        questionIndex: 1,
+        question: 'How do you handle collisions?',
         askedAt: '',
+        transcript: '',
+        answerAudioBase64: null,
+        answerSource: 'voice',
+        followUps: [],
         answeredAt: '',
       },
     ],
@@ -67,7 +73,9 @@ function baseRow(overrides: Partial<Record<string, unknown>> = {}) {
 
 async function* fakeAudioStream(
   events: Array<
-    { type: 'audio'; data: string } | { type: 'final'; spokenText: string }
+    | { type: 'audio'; data: string }
+    | { type: 'final'; spokenText: string }
+    | { type: 'tool_call'; name: string }
   >,
 ) {
   for (const event of events) yield event
@@ -85,17 +93,18 @@ beforeEach(() => {
 })
 
 describe('submitInterviewTurnStream', () => {
-  it('yields audio-delta events then a done event when more questions remain', async () => {
+  it('streams the next question audio and yields a done event when the model calls the tool', async () => {
     hoisted.row = baseRow()
-    hoisted.requestOpenRouterChatCompletion.mockResolvedValueOnce(
-      'ACTION: next_question\nTEXT: How do you handle collisions?',
-    )
-    hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
-      fakeAudioStream([
-        { type: 'audio', data: 'QUJD' },
-        { type: 'audio', data: 'REVG' },
-      ]),
-    )
+    hoisted.requestInterviewTurnAudioStream
+      .mockReturnValueOnce(
+        fakeAudioStream([{ type: 'tool_call', name: 'move_to_next_question' }]),
+      )
+      .mockReturnValueOnce(
+        fakeAudioStream([
+          { type: 'audio', data: 'QUJD' },
+          { type: 'audio', data: 'REVG' },
+        ]),
+      )
 
     const { submitInterviewTurnStream } =
       await import('../submitInterviewTurn.service')
@@ -119,43 +128,30 @@ describe('submitInterviewTurnStream', () => {
       },
     })
     const updatedTurns = hoisted.updateCalls[0].turns as Array<any>
-    expect(updatedTurns).toHaveLength(2)
-    expect(updatedTurns[1].question).toBe('How do you handle collisions?')
-    expect(updatedTurns[1].questionIndex).toBe(1)
+    expect(updatedTurns[1].askedAt).not.toBe('')
   })
 
-  it('generates the report and completes the session when the decision ends the interview', async () => {
-    const answeredPriorTurns = Array.from({ length: 4 }, (_, i) => ({
-      questionIndex: i,
-      turnKind: 'main' as const,
-      question: `Q${i + 1}?`,
-      transcript: `A${i + 1}`,
-      answerAudioBase64: null,
-      answerSource: 'typed' as const,
-      askedAt: '',
-      answeredAt: '2024-01-01T00:00:00.000Z',
-    }))
+  it('streams a closing remark, generates the report, and completes the session on the last question', async () => {
     hoisted.row = baseRow({
+      numQuestions: 1,
       turns: [
-        ...answeredPriorTurns,
         {
-          questionIndex: 4,
-          turnKind: 'main',
-          question: 'Q5?',
+          questionIndex: 0,
+          question: 'Q1?',
+          askedAt: '2024-01-01T00:00:00.000Z',
           transcript: '',
           answerAudioBase64: null,
           answerSource: 'voice',
-          askedAt: '',
+          followUps: [],
           answeredAt: '',
         },
       ],
     })
-    hoisted.requestOpenRouterChatCompletion.mockResolvedValueOnce(
-      'ACTION: end_interview\nTEXT: Thanks, that concludes the interview.',
-    )
-    hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
-      fakeAudioStream([{ type: 'audio', data: 'QUJD' }]),
-    )
+    hoisted.requestInterviewTurnAudioStream
+      .mockReturnValueOnce(
+        fakeAudioStream([{ type: 'tool_call', name: 'move_to_next_question' }]),
+      )
+      .mockReturnValueOnce(fakeAudioStream([{ type: 'audio', data: 'BYE' }]))
     const report = {
       overallScore: 90,
       rubric: [],
@@ -175,6 +171,7 @@ describe('submitInterviewTurnStream', () => {
       }),
     )
 
+    expect(events).toContainEqual({ type: 'audio-delta', data: 'BYE' })
     expect(events.at(-1)).toEqual({
       type: 'done',
       result: { status: 'completed', report },
@@ -185,11 +182,10 @@ describe('submitInterviewTurnStream', () => {
 
   it('stores a transcribed answer as a voice turn with its transcript populated', async () => {
     hoisted.row = baseRow()
-    hoisted.requestOpenRouterChatCompletion.mockResolvedValueOnce(
-      'ACTION: next_question\nTEXT: How do you handle collisions?',
-    )
     hoisted.requestInterviewTurnAudioStream.mockReturnValueOnce(
-      fakeAudioStream([{ type: 'audio', data: 'QUJD' }]),
+      fakeAudioStream([
+        { type: 'final', spokenText: 'How do you handle collisions?' },
+      ]),
     )
 
     const { submitInterviewTurnStream } =
@@ -242,7 +238,7 @@ describe('submitInterviewTurnStream', () => {
         submitInterviewTurnStream({
           userId: 1,
           sessionId: 7,
-          answer: { kind: 'audio', base64: 'abc', format: 'wav' },
+          answer: { kind: 'transcribed', text: 'abc' },
         }),
       ),
     ).rejects.toMatchObject({ code: 'INTERVIEW_RESPONSE_EMPTY' })

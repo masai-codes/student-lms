@@ -1,43 +1,59 @@
 import { describe, expect, it } from 'vitest'
 import {
-  buildInterviewMessages,
-  buildInterviewSystemPrompt,
+  MOVE_TO_NEXT_QUESTION_TOOL,
+  buildAskQuestionMessages,
+  buildAskQuestionSystemPrompt,
+  buildClosingRemarksMessages,
+  buildClosingRemarksSystemPrompt,
   buildOpeningTurnMessages,
   buildOpeningTurnSystemPrompt,
+  buildTurnMessages,
+  buildTurnSystemPrompt,
 } from '../buildInterviewPrompt'
 
-describe('buildInterviewSystemPrompt', () => {
-  it('instructs the model to ask the exact next question when not the last question', () => {
-    const prompt = buildInterviewSystemPrompt({
+describe('MOVE_TO_NEXT_QUESTION_TOOL', () => {
+  it('is a no-argument function tool named move_to_next_question', () => {
+    expect(MOVE_TO_NEXT_QUESTION_TOOL.type).toBe('function')
+    expect(MOVE_TO_NEXT_QUESTION_TOOL.function.name).toBe(
+      'move_to_next_question',
+    )
+  })
+})
+
+describe('buildTurnSystemPrompt', () => {
+  it('mentions the tool and the current follow-up count', () => {
+    const prompt = buildTurnSystemPrompt({
       topicLabel: 'System Design',
       domain: 'software-development',
       rubricFocus: ['Trade-offs'],
       questionNumber: 2,
       totalQuestions: 5,
-      followUpCount: 0,
+      followUpCount: 1,
       maxFollowUps: 4,
-      forced: false,
-      nextQuestionText: 'How would you shard this database?',
       language: 'English',
     })
-    expect(prompt).toContain('How would you shard this database?')
-    expect(prompt).not.toContain('FINAL question')
+    expect(prompt).toContain('move_to_next_question')
+    expect(prompt).toContain('question 2 of 5')
+    expect(prompt).toContain('1 of at most 4 follow-ups')
   })
+})
 
-  it('instructs the model to end the interview on the last question', () => {
-    const prompt = buildInterviewSystemPrompt({
-      topicLabel: 'System Design',
-      domain: 'software-development',
-      rubricFocus: ['Trade-offs'],
-      questionNumber: 5,
-      totalQuestions: 5,
-      followUpCount: 4,
-      maxFollowUps: 4,
-      forced: true,
-      nextQuestionText: null,
-      language: 'English',
+describe('buildTurnMessages', () => {
+  it('replays prior exchanges as plain assistant/user text pairs', () => {
+    const messages = buildTurnMessages({
+      systemPrompt: 'sys',
+      priorExchanges: [{ prompt: 'Q1?', transcript: 'A1' }],
+      currentPrompt: 'Q2?',
+      answerText: 'A2',
     })
-    expect(prompt).toContain('FINAL question')
+
+    expect(messages).toEqual([
+      { role: 'system', content: 'sys' },
+      { role: 'assistant', content: 'Q1?' },
+      { role: 'user', content: 'A1' },
+      { role: 'assistant', content: 'Q2?' },
+      { role: 'user', content: 'A2' },
+    ])
   })
 })
 
@@ -69,87 +85,37 @@ describe('buildOpeningTurnMessages', () => {
   })
 })
 
-describe('buildInterviewMessages', () => {
-  const typedPriorExchanges = [
-    {
-      prompt: 'Q1?',
-      transcript: 'A1',
-      answerAudioBase64: null,
-    },
-  ]
-
-  it('projects a typed prior exchange as an assistant/user text pair', () => {
-    const messages = buildInterviewMessages({
-      systemPrompt: 'sys',
-      priorExchanges: typedPriorExchanges,
-      currentPrompt: 'Q2?',
-      answer: { kind: 'typed', text: 'A2' },
+describe('buildAskQuestionSystemPrompt / buildAskQuestionMessages', () => {
+  it('asks the exact given question, without a greeting', () => {
+    const prompt = buildAskQuestionSystemPrompt({
+      questionText: 'How would you shard this database?',
+      language: 'English',
     })
-
-    expect(messages[0]).toEqual({ role: 'system', content: 'sys' })
-    expect(messages[1]).toEqual({ role: 'assistant', content: 'Q1?' })
-    expect(messages[2]).toEqual({
-      role: 'user',
-      content: [{ type: 'text', text: 'A1' }],
-    })
-    expect(messages[3]).toEqual({ role: 'assistant', content: 'Q2?' })
+    expect(prompt).toContain('How would you shard this database?')
+    expect(prompt).not.toContain('greeting')
   })
 
-  it('replays a voice prior exchange as raw audio, not text', () => {
-    const messages = buildInterviewMessages({
-      systemPrompt: 'sys',
-      priorExchanges: [
-        {
-          prompt: 'Q1?',
-          transcript: '',
-          answerAudioBase64: 'PRIORAUDIO',
-        },
-      ],
-      currentPrompt: 'Q2?',
-      answer: { kind: 'typed', text: 'A2' },
-    })
+  it('sends the system prompt plus a minimal trigger message', () => {
+    const messages = buildAskQuestionMessages('sys')
+    expect(messages).toEqual([
+      { role: 'system', content: 'sys' },
+      { role: 'user', content: 'Ask the question.' },
+    ])
+  })
+})
 
-    expect(messages[2]).toEqual({
-      role: 'user',
-      content: [
-        {
-          type: 'input_audio',
-          input_audio: { data: 'PRIORAUDIO', format: 'wav' },
-        },
-      ],
-    })
+describe('buildClosingRemarksSystemPrompt / buildClosingRemarksMessages', () => {
+  it('instructs the model not to reveal score or performance', () => {
+    const prompt = buildClosingRemarksSystemPrompt('English')
+    expect(prompt).toContain('Do not mention or guess at their score')
+    expect(prompt).toContain('complete')
   })
 
-  it('sends a text-only content part for typed answers', () => {
-    const messages = buildInterviewMessages({
-      systemPrompt: 'sys',
-      priorExchanges: [],
-      currentPrompt: 'Q1?',
-      answer: { kind: 'typed', text: 'typed answer' },
-    })
-    const last = messages.at(-1)
-    expect(last).toEqual({
-      role: 'user',
-      content: [{ type: 'text', text: 'typed answer' }],
-    })
-  })
-
-  it('sends an input_audio content part for voice answers', () => {
-    const messages = buildInterviewMessages({
-      systemPrompt: 'sys',
-      priorExchanges: [],
-      currentPrompt: 'Q1?',
-      answer: { kind: 'audio', base64: 'BASE64DATA', format: 'wav' },
-    })
-    const last = messages.at(-1)
-    expect(last).toEqual({
-      role: 'user',
-      content: [
-        {
-          type: 'input_audio',
-          input_audio: { data: 'BASE64DATA', format: 'wav' },
-        },
-      ],
-    })
+  it('sends the system prompt plus a minimal trigger message', () => {
+    const messages = buildClosingRemarksMessages('sys')
+    expect(messages).toEqual([
+      { role: 'system', content: 'sys' },
+      { role: 'user', content: 'Wrap up the interview.' },
+    ])
   })
 })

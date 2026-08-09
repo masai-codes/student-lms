@@ -67,8 +67,8 @@ async function parseErrorCode(response: Response): Promise<string> {
 
 function toFormData(answer: SubmitInterviewAnswerInput): FormData {
   const form = new FormData()
-  if (answer.kind === 'audio') {
-    form.append('audio', answer.blob, 'answer.wav')
+  if (answer.kind === 'transcribed') {
+    form.append('transcribedAnswer', answer.text)
   } else {
     form.append('typedAnswer', answer.text)
   }

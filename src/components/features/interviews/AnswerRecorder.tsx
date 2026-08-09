@@ -2,9 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Check, Loader2, Mic, Volume2, X } from 'lucide-react'
 import { useInterviewRecorder } from '@/hooks/useInterviewRecorder'
 import { useLiveInterviewStt } from '@/hooks/useLiveInterviewStt'
-import { encodeWavFromBlob } from '@/lib/audio/encodeWav'
 import type { SubmitInterviewAnswerInput } from '@/lib/api/interviews/interviewsApi'
-import { USE_LIVE_STT } from '@/lib/interviews/liveSttConfig'
 import { LiveWaveform } from './LiveWaveform'
 
 function formatDuration(totalSeconds: number): string {
@@ -54,27 +52,28 @@ export function AnswerRecorder({
 }) {
   const recorder = useInterviewRecorder()
   const liveStt = useLiveInterviewStt(sessionId)
-  const [isEncoding, setIsEncoding] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [typedMode, setTypedMode] = useState(false)
   const [typedAnswer, setTypedAnswer] = useState('')
   const [frozenSeconds, setFrozenSeconds] = useState(0)
   const sttStartedRef = useRef(false)
 
-  const busy = isSubmitting || isEncoding || isSending
+  const busy = isSubmitting || isSending
   const isRecording = recorder.state === 'recording'
 
   // Starts the live STT session once the mic stream shows up on a render
   // after `startRecording()` resolves — `recorder.mediaStream` is still null
   // in the same tick `startRecording()` returns, so this can't just happen
-  // inline in `handleStartRecording`.
+  // inline in `handleStartRecording`. If STT can't start, fall back to typed
+  // input rather than recording an answer that can never be transcribed.
   useEffect(() => {
-    if (!USE_LIVE_STT) return
     if (recorder.state === 'recording' && recorder.mediaStream) {
       if (sttStartedRef.current) return
       sttStartedRef.current = true
       liveStt.start(recorder.mediaStream).catch((error: unknown) => {
         console.error('Failed to start live interview STT session', error)
+        recorder.stopAndDiscard()
+        setTypedMode(true)
       })
     } else {
       sttStartedRef.current = false
@@ -87,7 +86,7 @@ export function AnswerRecorder({
   }
 
   async function handleDiscard() {
-    if (USE_LIVE_STT) liveStt.cancel()
+    liveStt.cancel()
     recorder.stopAndDiscard()
   }
 
@@ -101,26 +100,13 @@ export function AnswerRecorder({
     setFrozenSeconds(recorder.seconds)
 
     try {
-      if (USE_LIVE_STT) {
-        // Order matters: `stop()` sends the commit and awaits the final
-        // transcript segment over the still-live mic track — only stop the
-        // MediaRecorder (which kills that same track) once that's done.
-        const transcript = await liveStt.stop()
-        await recorder.stopAndSubmit()
-        if (!transcript) return
-        await onSubmit({ kind: 'transcribed', text: transcript })
-        return
-      }
-
-      const blob = await recorder.stopAndSubmit()
-      if (!blob) return
-      setIsEncoding(true)
-      try {
-        const wavBlob = await encodeWavFromBlob(blob)
-        await onSubmit({ kind: 'audio', blob: wavBlob })
-      } finally {
-        setIsEncoding(false)
-      }
+      // Order matters: `stop()` sends the commit and awaits the final
+      // transcript segment over the still-live mic track — only stop the
+      // MediaRecorder (which kills that same track) once that's done.
+      const transcript = await liveStt.stop()
+      await recorder.stopAndSubmit()
+      if (!transcript) return
+      await onSubmit({ kind: 'transcribed', text: transcript })
     } finally {
       setIsSending(false)
     }
@@ -275,7 +261,7 @@ export function AnswerRecorder({
         </button>
       </div>
 
-      {USE_LIVE_STT && isRecording ? (
+      {isRecording ? (
         <LiveTranscriptLine text={liveStt.partialTranscript} />
       ) : null}
 

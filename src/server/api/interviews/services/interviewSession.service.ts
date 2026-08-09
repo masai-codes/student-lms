@@ -113,7 +113,7 @@ export async function* createInterviewSessionStream(
   })) {
     if (event.type === 'audio') {
       yield { type: 'audio-delta', data: event.data }
-    } else {
+    } else if (event.type === 'final') {
       spokenText = event.spokenText
     }
   }
