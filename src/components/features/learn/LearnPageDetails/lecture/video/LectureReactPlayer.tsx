@@ -24,6 +24,7 @@ import {
   toggleLectureVideoFullscreen,
 } from './hooks/lectureVideoFullscreen.utils'
 import { seekPlayerToSeconds } from './hooks/lectureVideoResume'
+import { useHasLayoutBox } from './hooks/useHasLayoutBox'
 import {
   shouldUseHlsJsForSrc,
   useLectureVideoAttendance,
@@ -75,6 +76,15 @@ export function LectureReactPlayer({
   const videoRef = useRef<LectureChromePlayerRef>(null)
   const splitChat = useLectureSplitChatOptional()
   const isFullscreen = useIsElementFullscreen(fullscreenContainerRef)
+  // The lecture hero mounts this player TWICE — a desktop row and a mobile row
+  // swapped by CSS (`md:flex` / `md:hidden`) rather than conditional rendering,
+  // because unmounting the row that owns the fullscreen element would drop the
+  // user out of fullscreen (see `LectureRecordingExperience`). Both copies are
+  // therefore always mounted, and the quiz/poll popups portal to
+  // `document.body` — which escapes the hidden row's `display: none` and puts
+  // two identical popups on screen. Only the row that actually has a layout box
+  // owns them.
+  const ownsInLecturePopups = useHasLayoutBox(fullscreenContainerRef)
   // In fullscreen the chat becomes a resizable right-side split (same as inline)
   // rendered inside the fullscreen root so it's visible over the video.
   const chatWidth = useLectureChatWidth(fullscreenContainerRef)
@@ -472,7 +482,7 @@ export function LectureReactPlayer({
             visible={captionsOn && hasTranscript}
             liftForControls={controlsChromeVisible}
           />
-          {quiz.activeQuiz ? (
+          {ownsInLecturePopups && quiz.activeQuiz ? (
             <InLectureQuizModal
               // Remount fresh across the fullscreen boundary (see
               // `popupPortalContainer` above) instead of carrying over drag
@@ -485,7 +495,7 @@ export function LectureReactPlayer({
               onSkipToLecture={quiz.closeQuiz}
             />
           ) : null}
-          {poll.activePoll ? (
+          {ownsInLecturePopups && poll.activePoll ? (
             <InLecturePollModal
               key={isFullscreen ? 'fullscreen' : 'inline'}
               lectureId={lectureId}
