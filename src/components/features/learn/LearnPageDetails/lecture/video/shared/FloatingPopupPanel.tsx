@@ -22,11 +22,30 @@ const MIN_HEIGHT = 220
 /** Minimized geometry — collapsed to just the header bar, bottom-right corner. */
 const MINIMIZED_WIDTH = 280
 const MINIMIZED_HEIGHT = 56
+/**
+ * Movement (px) past which a press on the mobile pill is a drag rather than a
+ * tap. A finger never holds perfectly still, so without a slop every tap would
+ * nudge the pill and swallow the restore.
+ */
+const PILL_DRAG_SLOP = 6
 
 type Corner = 'nw' | 'ne' | 'sw' | 'se'
 
 /** Panel position (top-left) + size, in px within the viewport. */
 type Geom = { x: number; y: number; w: number; h: number }
+
+/** Mobile pill position (top-left), in px within the viewport. */
+type Point = { x: number; y: number }
+
+/** Live drag of the mobile pill, captured at pointer-down. */
+type PillGesture = Point & {
+  startX: number
+  startY: number
+  w: number
+  h: number
+  /** Whether the pointer has travelled past {@link PILL_DRAG_SLOP}. */
+  moved: boolean
+}
 
 /** Live drag/resize gesture, captured at pointer-down. */
 type Gesture = {
@@ -63,6 +82,20 @@ function clampToViewport(g: Geom): Geom {
   const w = Math.min(g.w, bw)
   const h = Math.min(g.h, bh)
   return { w, h, x: clamp(g.x, 0, bw - w), y: clamp(g.y, 0, bh - h) }
+}
+
+/**
+ * Keep the dragged pill inside the viewport. Its size is content-driven (the
+ * title can be any length), so it's measured off the live element rather than
+ * carried in state.
+ */
+function clampPillToViewport(pos: Point, el: HTMLElement | null): Point {
+  const w = el?.offsetWidth ?? 0
+  const h = el?.offsetHeight ?? 0
+  return {
+    x: clamp(pos.x, PANEL_MARGIN, window.innerWidth - w - PANEL_MARGIN),
+    y: clamp(pos.y, PANEL_MARGIN, window.innerHeight - h - PANEL_MARGIN),
+  }
 }
 
 const RESIZE_HANDLES: ReadonlyArray<{ corner: Corner; className: string }> = [
@@ -106,19 +139,21 @@ export type FloatingPopupPanelProps = {
 
 /**
  * Popup surface shared by the in-lecture quiz and poll modals. It renders as
- * one of two things, decided by `useIsMobileViewport` (`max-width: 767px`, i.e.
- * below Tailwind's `md`):
+ * one of two things, decided by `useIsMobileViewport` — a phone-sized viewport,
+ * measured on its short edge so that fullscreen's landscape lock doesn't flip a
+ * phone onto the tablet surface mid-lecture:
  *
  * - **tablet and up** — a non-blocking floating panel: portaled (to
  *   `portalContainer`, see above), `position: fixed`, dragged by the header and
  *   resized from any corner (pointer capture keeps the gesture alive over
  *   cross-origin content), collapsible to its header bar. A tablet has room for
  *   it, and the embedded quiz keeps its wide layout.
- * - **phones** — a {@link BottomDrawer} bottom sheet. Dragging a popup around a
- *   phone screen is pointless, and the floating panel would sit on top of the
- *   mobile tab bar; the sheet is the pattern the rest of the app already uses at
- *   this width. Collapsing it leaves a pill centered above that tab bar, in
- *   place of the panel's minimized header bar.
+ * - **phones** — a {@link BottomDrawer} bottom sheet. A resizable floating panel
+ *   on a phone screen is pointless and would sit on top of the mobile tab bar;
+ *   the sheet is the pattern the rest of the app already uses at this width.
+ *   Collapsing it leaves a pill centered above that tab bar, in place of the
+ *   panel's minimized header bar. That pill is draggable anywhere in the
+ *   viewport, the same as the panel's header bar — tap to restore, drag to move.
  *
  * Opening/closing by playback window is owned by the caller's hook either way.
  */
@@ -140,6 +175,14 @@ export function FloatingPopupPanel({
   const gestureRef = useRef<Gesture | null>(null)
   // The pre-minimize geometry, restored when un-minimizing.
   const restoreGeomRef = useRef<Geom | null>(null)
+  // Mobile pill only. `null` means "wherever the default classes put it";
+  // dragging pins it to explicit viewport coordinates instead. It survives a
+  // restore/re-minimize round trip on purpose — the user parked it there.
+  const [pillPos, setPillPos] = useState<Point | null>(null)
+  const pillRef = useRef<HTMLButtonElement | null>(null)
+  const pillGestureRef = useRef<PillGesture | null>(null)
+  // Whether the press that's about to produce a `click` was a drag.
+  const pillDraggedRef = useRef(false)
 
   useEffect(() => {
     setPortalTarget(portalContainer ?? document.body)
@@ -172,10 +215,68 @@ export function FloatingPopupPanel({
   }
 
   useEffect(() => {
-    const onResize = () => setGeom(clampToViewport)
+    const onResize = () => {
+      setGeom(clampToViewport)
+      setPillPos((prev) =>
+        prev ? clampPillToViewport(prev, pillRef.current) : prev,
+      )
+    }
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
   }, [])
+
+  const beginPillDrag = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    // Pointer capture keeps the drag alive when the finger slides over the
+    // video (or a cross-origin iframe) underneath.
+    e.currentTarget.setPointerCapture(e.pointerId)
+    pillDraggedRef.current = false
+    pillGestureRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      // Read off the rendered box: until the first drag the pill is positioned
+      // by classes, so there are no coordinates in state to start from.
+      x: rect.left,
+      y: rect.top,
+      w: rect.width,
+      h: rect.height,
+      moved: false,
+    }
+  }
+
+  const onPillPointerMove = (e: ReactPointerEvent) => {
+    const g = pillGestureRef.current
+    if (!g) return
+    const dx = e.clientX - g.startX
+    const dy = e.clientY - g.startY
+    if (!g.moved && Math.hypot(dx, dy) < PILL_DRAG_SLOP) return
+    g.moved = true
+    setPillPos(
+      clampPillToViewport({ x: g.x + dx, y: g.y + dy }, pillRef.current),
+    )
+  }
+
+  const endPillDrag = (e: ReactPointerEvent) => {
+    const g = pillGestureRef.current
+    if (!g) return
+    pillGestureRef.current = null
+    pillDraggedRef.current = g.moved
+    try {
+      ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
+    } catch {
+      /* pointer already released */
+    }
+  }
+
+  const onPillClick = () => {
+    // A drag ends in a `click` as well; only a tap should restore the sheet.
+    // Keyboard activation never sets the flag, so Enter/Space still restores.
+    if (pillDraggedRef.current) {
+      pillDraggedRef.current = false
+      return
+    }
+    toggleMinimized()
+  }
 
   const beginGesture =
     (kind: Gesture['kind'], corner?: Corner) => (e: ReactPointerEvent) => {
@@ -248,27 +349,60 @@ export function FloatingPopupPanel({
     onPointerCancel: endGesture,
   }
 
-  // Nothing renders until the mount effect has run, so the surface is picked
-  // once — mounting one and swapping to the other would reload the quiz iframe
-  // underneath.
+  // Nothing renders until the mount effect has run — the portal has no target
+  // before then. Note `isMobile` stays live afterwards: crossing the breakpoint
+  // swaps surfaces, and since these are different component types React
+  // remounts the subtree, reloading the quiz iframe. Fullscreen already
+  // remounts deliberately (callers key on it), and the short-edge breakpoint
+  // means plain rotation no longer crosses it on a phone.
   if (!portalTarget) return null
 
   if (isMobile) {
     // Collapsed sheet: a pill above the mobile tab bar, the sheet's stand-in for
-    // the panel's header-bar minimized state. Tapping it brings the sheet back.
+    // the panel's header-bar minimized state. Tapping it brings the sheet back;
+    // dragging moves it, so it can be parked off whatever it's covering (it
+    // starts centered over the video's own controls).
     if (minimized) {
       return createPortal(
         <button
           type="button"
+          ref={pillRef}
           aria-label="Restore"
-          onClick={toggleMinimized}
+          onPointerDown={beginPillDrag}
+          onPointerMove={onPillPointerMove}
+          onPointerUp={endPillDrag}
+          onPointerCancel={endPillDrag}
+          onClick={onPillClick}
           data-testid={testId}
-          className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-1/2 z-[210] flex max-w-[min(90vw,22rem)] -translate-x-1/2 items-center gap-3 rounded-2xl bg-brand px-5 py-3 shadow-[0_4px_24px_rgba(17,24,39,0.28)]"
+          // `touch-none`: without it the browser claims the gesture as a page
+          // scroll and the pill never sees the moves.
+          style={pillPos ? { left: pillPos.x, top: pillPos.y } : undefined}
+          className={cn(
+            'fixed z-[210] flex max-w-[min(90vw,22rem)] touch-none cursor-grab select-none items-center gap-3 rounded-2xl bg-brand px-5 py-3 shadow-[0_4px_24px_rgba(17,24,39,0.28)] active:cursor-grabbing',
+            // Default placement. Portrait clears the mobile tab bar. Landscape
+            // is the fullscreen player instead (the orientation lock puts it
+            // there), where 4.5rem would sit right on the progress track — so
+            // drop to the player chrome's own bottom padding, which lands the
+            // pill in the empty middle of the button row. Both use the same
+            // `max(0.5rem, safe-area)` as the chrome, so they shift together on
+            // a notched device and the ~13px gap to the visible bar holds.
+            !pillPos &&
+              'bottom-[calc(4.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 landscape:bottom-[max(0.5rem,env(safe-area-inset-bottom))]',
+          )}
         >
           <span className="type-b1-md truncate text-brand-foreground">
             {title}
           </span>
-          <CaretUp size={16} weight="bold" className="text-brand-foreground" />
+          {/* A `span`, not a nested `button` — the whole pill is already the
+              button. It's styled as a circular one purely so the chevron reads
+              as a tappable affordance rather than decoration. */}
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-foreground/20">
+            <CaretUp
+              size={16}
+              weight="bold"
+              className="text-brand-foreground"
+            />
+          </span>
         </button>,
         portalTarget,
       )
@@ -339,7 +473,9 @@ export function FloatingPopupPanel({
           aria-label={minimized ? 'Restore' : 'Minimize'}
           onPointerDown={(e) => e.stopPropagation()}
           onClick={toggleMinimized}
-          className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-brand-foreground/15"
+          // Circular and filled at rest, matching the pill's chevron — a
+          // hover-only background left it reading as decoration on first look.
+          className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-brand-foreground/20 transition-colors hover:bg-brand-foreground/35"
         >
           {minimized ? (
             <CaretUp size={16} weight="bold" />
