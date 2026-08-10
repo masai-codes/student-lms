@@ -321,6 +321,22 @@ Last updated: 2026-07-02
 - Test files: `src/server/api/webhooks/admissions/__tests__/{createEnrolment.service,cancelEnrolment.service,events.service,createEnrolment.schema,cancelEnrolment.schema,events.schema}.test.ts`, `src/server/api/webhooks/admissions/steps/__tests__/{applyTransferEvent,applyAdmissionDataEvent,applyPortalNewLmsDefaults,findBatchUserByEnrolmentId,resolveValidSections}.test.ts`, `src/server/api/webhooks/admissions/handlers/__tests__/*.test.ts`, `src/server/api/profile/__tests__/newLmsPreference.service.test.ts`, `src/server/batches/__tests__/portalEnrollmentCache.test.ts`
 - Notes: iitj enrolments default `users.meta.new_lms_pages_enabled` + `hide_switch_option` to true, hiding the old↔new switch in both LMSes. See `docs/testing/features/admissions-webhooks.md`
 
+## Masai Live login (admissions SSO bridge)
+
+- Area: `GET|POST /api/user-auth/masai-live-login` — port of experience-api `/user-auth/masai-live-login`. Resolves `batch_user.enrolment_id`, calls admissions `/auth/lms-auto-login`, returns `connectSid` (POST) or sets the shared-domain `connect.sid` cookie and 302s (GET). Dashboard Masai Live promo CTA uses the GET path. Listed in non-prod Swagger at `/api/docs`.
+- Status: Covered (cookie helpers, resolve service incl. not_found/config/admissions/no_cookie paths, GET/POST handlers)
+- Test files: `src/server/api/user-auth/services/__tests__/masaiLiveLoginCookies.test.ts`, `src/server/api/user-auth/services/__tests__/resolveMasaiLiveConnectSid.service.test.ts`, `src/server/api/user-auth/handlers/__tests__/masaiLiveLogin.handler.test.ts`
+- Notes: See `docs/testing/features/masai-live-login.md`
+  Last updated: 2026-08-10
+
+## API docs (Swagger / OpenAPI inventory)
+
+- Area: `GET /api/docs` (Swagger UI) + `GET /api/docs/openapi.json` (auto-scan of `src/routes/api/**` for path + methods + query/body mined from handlers). Returns 404 when `NODE_ENV=production`.
+- Status: Covered (scanner parsing, param extraction, OpenAPI builder, prod gate for UI + JSON handlers)
+- Test files: `src/server/api/docs/__tests__/scanApiRoutes.test.ts`, `src/server/api/docs/__tests__/extractOperationParams.test.ts`, `src/server/api/docs/__tests__/buildOpenApiDocument.test.ts`, `src/server/api/docs/__tests__/docs.handlers.test.ts`
+- Notes: See `docs/testing/features/api-docs.md`
+  Last updated: 2026-08-10
+
 ## Status Meaning
 
 - `Covered`: key behavior and edge paths are fully tested for current scope.
