@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/tooltip'
 import { setNewLmsPagesPreference } from '@/lib/api/profile/profileApi'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
+import { mapToLegacyPath } from '@/utils/legacyPathMap'
 import { isMigratedRoute } from '@/utils/migratedRoutes'
 
 /**
@@ -41,10 +42,11 @@ export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
       setEnabled(value)
       setFeedbackOpen(false)
       setFeedback('')
-      // Turned OFF on a migrated page → the old LMS now owns it: hand off to the
-      // same path (no search — the old LMS regenerates its own query params).
+      // Turned OFF on a migrated page → the old LMS now owns it: hand off to
+      // its equivalent path (no search — the old LMS regenerates its own query
+      // params). `mapToLegacyPath` covers the routes whose shape differs there.
       if (!value && isMigratedRoute(pathname)) {
-        const oldUiUrl = getOldStudentUiUrlForPath(pathname)
+        const oldUiUrl = getOldStudentUiUrlForPath(mapToLegacyPath(pathname))
         if (oldUiUrl) {
           window.location.assign(oldUiUrl)
           return
