@@ -45,5 +45,14 @@ export function isScheduledAfterCutoff(
 ): boolean {
   if (schedule == null || schedule === '') return false
   if (cutoff === RESTRICT_ALL_CUTOFF) return true
-  return toEpochMs(schedule, IST_OFFSET_MIN) > toEpochMs(cutoff, IST_OFFSET_MIN)
+
+  const scheduleMs = toEpochMs(schedule, IST_OFFSET_MIN)
+  const cutoffMs = toEpochMs(cutoff, IST_OFFSET_MIN)
+  // Fail closed: an admin-entered date we can't parse (e.g. "01-07-2026") makes
+  // both sides NaN, and every comparison against NaN is false — which would
+  // silently switch the restriction off and show ALL content. Treat unparseable
+  // input as "after the cutoff" so the content stays hidden instead.
+  if (Number.isNaN(scheduleMs) || Number.isNaN(cutoffMs)) return true
+
+  return scheduleMs > cutoffMs
 }
