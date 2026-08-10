@@ -33,14 +33,40 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
     if (!match) return null
     return Number(match[1]) * (match[2] === 'rem' ? REM_PX : 1)
   }
-  const evaluate = (query: string): boolean => {
-    const width = window.innerWidth
-    const min = lengthPx(query, 'min-width')
-    if (min !== null && width < min) return false
-    const max = lengthPx(query, 'max-width')
-    if (max !== null && width > max) return false
-    return min !== null || max !== null
+  // Height and `pointer` are supported alongside width because the phone
+  // breakpoint (`useIsMobileViewport`) is a query list that needs all three:
+  // a landscape phone is recognized by its short height plus a coarse pointer.
+  // `pointer` resolves off `navigator.maxTouchPoints`, which tests can redefine
+  // to simulate a touch device; jsdom leaves it 0, i.e. a fine pointer.
+  const evaluateClause = (clause: string): boolean => {
+    const axes = [
+      { feature: 'width', value: window.innerWidth },
+      { feature: 'height', value: window.innerHeight },
+    ]
+    let recognized = false
+    for (const { feature, value } of axes) {
+      const min = lengthPx(clause, `min-${feature}`)
+      if (min !== null) {
+        if (value < min) return false
+        recognized = true
+      }
+      const max = lengthPx(clause, `max-${feature}`)
+      if (max !== null) {
+        if (value > max) return false
+        recognized = true
+      }
+    }
+    const pointer = clause.match(/pointer:\s*(coarse|fine)/)?.[1]
+    if (pointer) {
+      const isCoarse = (navigator.maxTouchPoints ?? 0) > 0
+      if ((pointer === 'coarse') !== isCoarse) return false
+      recognized = true
+    }
+    return recognized
   }
+  // A comma-separated query list matches when any one of its clauses does.
+  const evaluate = (query: string): boolean =>
+    query.split(',').some((clause) => evaluateClause(clause.trim()))
   window.matchMedia = (query: string) => ({
     matches: evaluate(query),
     media: query,

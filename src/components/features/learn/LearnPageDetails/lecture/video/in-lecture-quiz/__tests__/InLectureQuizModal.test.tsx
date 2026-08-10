@@ -1,5 +1,12 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { InLectureQuizModal } from '../InLectureQuizModal'
@@ -41,6 +48,24 @@ function setViewportWidth(width: number) {
     configurable: true,
     writable: true,
   })
+}
+
+/** Collapse the phone sheet and hand back the pill it leaves behind. */
+async function minimizeToPill() {
+  screen.getByRole('button', { name: 'Minimize' }).click()
+  return screen.findByRole('button', { name: 'Restore' })
+}
+
+// jsdom implements neither of these, and the drag handlers call them to keep
+// the gesture alive over the video underneath. No-ops are enough here: capture
+// only affects which element receives subsequent events, and the tests fire
+// every pointer event at the pill directly.
+// Cast because the DOM lib declares both as always-present, which narrows the
+// `undefined` branch away.
+const elementProto = HTMLElement.prototype as Partial<HTMLElement>
+if (typeof elementProto.setPointerCapture !== 'function') {
+  elementProto.setPointerCapture = () => {}
+  elementProto.releasePointerCapture = () => {}
 }
 
 describe('InLectureQuizModal', () => {
@@ -96,6 +121,73 @@ describe('InLectureQuizModal', () => {
 
     // And back again.
     pill.click()
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Minimize' })).toBeTruthy(),
+    )
+  })
+
+  it('drags the collapsed pill around the phone viewport', async () => {
+    setViewportWidth(390)
+    hoisted.generateUrl.mockResolvedValue({
+      url: 'https://assess.example.com/t/1',
+      alreadySubmitted: false,
+    })
+    renderModal()
+    await screen.findByTestId('in-lecture-quiz-modal')
+
+    const pill = await minimizeToPill()
+    // Undragged, it's placed by class (centered above the tab bar).
+    expect(pill.style.left).toBe('')
+
+    fireEvent.pointerDown(pill, { pointerId: 1, clientX: 100, clientY: 100 })
+    fireEvent.pointerMove(pill, { pointerId: 1, clientX: 220, clientY: 500 })
+    fireEvent.pointerUp(pill, { pointerId: 1, clientX: 220, clientY: 500 })
+
+    // jsdom reports a zero-sized box at the origin, so the pill ends up on the
+    // raw pointer delta: +120 across, +400 down.
+    expect(pill.style.left).toBe('120px')
+    expect(pill.style.top).toBe('400px')
+    // A drag ends in a click — which must not restore the sheet.
+    pill.click()
+    expect(screen.queryByRole('button', { name: 'Minimize' })).toBeNull()
+  })
+
+  it('keeps a dragged pill inside the viewport', async () => {
+    setViewportWidth(390)
+    hoisted.generateUrl.mockResolvedValue({
+      url: 'https://assess.example.com/t/1',
+      alreadySubmitted: false,
+    })
+    renderModal()
+    await screen.findByTestId('in-lecture-quiz-modal')
+
+    const pill = await minimizeToPill()
+    fireEvent.pointerDown(pill, { pointerId: 1, clientX: 200, clientY: 700 })
+    // Well past the top-left corner — it should stop at the 16px margin.
+    fireEvent.pointerMove(pill, { pointerId: 1, clientX: -500, clientY: -500 })
+    fireEvent.pointerUp(pill, { pointerId: 1, clientX: -500, clientY: -500 })
+
+    expect(pill.style.left).toBe('16px')
+    expect(pill.style.top).toBe('16px')
+  })
+
+  it('still restores on a tap that wobbles under the drag threshold', async () => {
+    setViewportWidth(390)
+    hoisted.generateUrl.mockResolvedValue({
+      url: 'https://assess.example.com/t/1',
+      alreadySubmitted: false,
+    })
+    renderModal()
+    await screen.findByTestId('in-lecture-quiz-modal')
+
+    const pill = await minimizeToPill()
+    fireEvent.pointerDown(pill, { pointerId: 1, clientX: 200, clientY: 700 })
+    // 3px of finger jitter — a tap, not a drag.
+    fireEvent.pointerMove(pill, { pointerId: 1, clientX: 202, clientY: 702 })
+    fireEvent.pointerUp(pill, { pointerId: 1, clientX: 202, clientY: 702 })
+    pill.click()
+
+    expect(pill.style.left).toBe('')
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Minimize' })).toBeTruthy(),
     )
