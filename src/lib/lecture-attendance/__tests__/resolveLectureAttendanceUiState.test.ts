@@ -32,6 +32,59 @@ describe('resolveLectureAttendanceUiState', () => {
     ).toBe('att_window_over')
   })
 
+  it('keeps att_window_over after the video-watch backfill row is created', () => {
+    // First watch inserts a placeholder `student_attendances` row with
+    // `meta.notApplicable = true`; the window-over badge must survive it.
+    expect(
+      resolveLectureAttendanceUiState({
+        overallStatus: 0,
+        isCatchupWindowOver: true,
+        notApplicable: true,
+        hasStudentAttendanceEntry: true,
+        localWatchPercentage: 65,
+        daysRemaining: 0,
+      }),
+    ).toBe('att_window_over')
+  })
+
+  it('keeps att_window_over once the recording is fully watched', () => {
+    expect(
+      resolveLectureAttendanceUiState({
+        overallStatus: 0,
+        isCatchupWindowOver: true,
+        notApplicable: false,
+        hasStudentAttendanceEntry: true,
+        localWatchPercentage: 100,
+        daysRemaining: 0,
+      }),
+    ).toBe('att_window_over')
+  })
+
+  it('keeps absent when the placeholder row lands inside an open window', () => {
+    expect(
+      resolveLectureAttendanceUiState({
+        overallStatus: 0,
+        isCatchupWindowOver: false,
+        notApplicable: true,
+        hasStudentAttendanceEntry: true,
+        localWatchPercentage: 100,
+        daysRemaining: 2,
+      }),
+    ).toBe('absent')
+  })
+
+  it('still hides lectures whose attendance is genuinely not applicable', () => {
+    expect(
+      resolveLectureAttendanceUiState({
+        overallStatus: 0,
+        isCatchupWindowOver: null,
+        notApplicable: true,
+        hasStudentAttendanceEntry: true,
+        daysRemaining: null,
+      }),
+    ).toBe('hidden')
+  })
+
   it('returns null when status is unknown', () => {
     expect(resolveLectureAttendanceUiState({ overallStatus: null })).toBeNull()
   })
