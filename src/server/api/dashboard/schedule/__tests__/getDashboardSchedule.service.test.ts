@@ -8,6 +8,8 @@ const hoisted = vi.hoisted(() => ({
   fetchAssignments: vi.fn(),
   fetchAttendance: vi.fn(),
   fetchSubmissions: vi.fn(),
+  getRestrictions: vi.fn(),
+  getBatchIdsForSections: vi.fn(),
 }))
 
 vi.mock('@/server/batches/getSectionIdsForUser', () => ({
@@ -17,10 +19,10 @@ vi.mock('@/server/batches/getBatchIdsForEnrolledUser', () => ({
   getBatchIdsForEnrolledUser: hoisted.getBatchIds,
 }))
 vi.mock('@/server/restrictions/getUserBatchRestrictions', () => ({
-  getUserBatchRestrictions: vi.fn(async () => new Map()),
+  getUserBatchRestrictions: hoisted.getRestrictions,
 }))
 vi.mock('@/server/batches/getBatchIdsForSections', () => ({
-  getBatchIdsForSections: vi.fn(async () => new Map()),
+  getBatchIdsForSections: hoisted.getBatchIdsForSections,
   getBatchIdForSection: vi.fn(async () => null),
 }))
 vi.mock('../fetchScheduleLectures.service', () => ({
@@ -66,6 +68,8 @@ describe('getDashboardSchedule', () => {
     hoisted.fetchSubmissions.mockResolvedValue(new Map())
     hoisted.fetchLectures.mockResolvedValue([])
     hoisted.fetchAssignments.mockResolvedValue([])
+    hoisted.getRestrictions.mockResolvedValue(new Map())
+    hoisted.getBatchIdsForSections.mockResolvedValue(new Map([[5, 1]]))
   })
 
   it('returns [] without querying when the user has no sections', async () => {
@@ -145,5 +149,49 @@ describe('getDashboardSchedule', () => {
     const [assignment] = await getDashboardSchedule(42, NOW)
     expect(assignment.assignmentProgressStatus).toBe('overdue')
     expect(hoisted.fetchSubmissions).toHaveBeenCalledWith(42, [2])
+  })
+
+  describe('batch restrictions', () => {
+    const flags = (over: Record<string, unknown>) => ({
+      enrolmentCancelled: false,
+      enrolmentCancelledDate: null,
+      paused: false,
+      pausedDate: null,
+      agreementBanned: false,
+      agreementBannedDate: null,
+      ...over,
+    })
+
+    beforeEach(() => {
+      // Lecture before the pause date, assignment after it.
+      hoisted.fetchLectures.mockResolvedValue([
+        row({ id: 1, schedule: '2026-06-20 10:00:00' }),
+      ])
+      hoisted.fetchAssignments.mockResolvedValue([
+        row({ id: 2, type: 'assignment', schedule: '2026-07-05 10:00:00' }),
+      ])
+    })
+
+    it('hides only post-pause content when the batch is paused', async () => {
+      hoisted.getRestrictions.mockResolvedValue(
+        new Map([[1, flags({ paused: true, pausedDate: '2026-07-01' })]]),
+      )
+      const { getDashboardSchedule } =
+        await import('../getDashboardSchedule.service')
+
+      expect((await getDashboardSchedule(42, NOW)).map((i) => i.id)).toEqual([
+        1,
+      ])
+    })
+
+    it('hides everything when the enrolment is cancelled', async () => {
+      hoisted.getRestrictions.mockResolvedValue(
+        new Map([[1, flags({ enrolmentCancelled: true })]]),
+      )
+      const { getDashboardSchedule } =
+        await import('../getDashboardSchedule.service')
+
+      expect(await getDashboardSchedule(42, NOW)).toEqual([])
+    })
   })
 })
