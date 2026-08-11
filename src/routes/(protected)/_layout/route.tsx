@@ -23,6 +23,7 @@ import {
   getOldStudentUiUrlForPath,
   isLegacyStudentRedirectEnabled,
 } from '@/utils/authRedirect'
+import { mapToLegacyPath } from '@/utils/legacyPathMap'
 import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 
@@ -49,22 +50,6 @@ function isNewStudentExperienceRoute(pathname: string): boolean {
     return true
   }
   return false
-}
-
-/**
- * New→old path translation for pages whose old-LMS route differs. Anything not
- * listed keeps the same path on the old LMS.
- *   /my-courses  → /my-lectures      (course listing)
- *   /course/:id  → /new-courses/:id  (course detail)
- */
-function mapToLegacyPath(pathname: string): string {
-  if (pathname === '/my-courses' || pathname.startsWith('/my-courses/')) {
-    return pathname.replace(/^\/my-courses/, '/my-lectures')
-  }
-  if (pathname === '/course' || pathname.startsWith('/course/')) {
-    return pathname.replace(/^\/course/, '/new-courses')
-  }
-  return pathname
 }
 
 /** Lecture, assignment, and resource detail pages use in-header Raise Ticket instead. */
@@ -149,10 +134,11 @@ export const Route = createFileRoute('/(protected)/_layout')({
 
       if (shouldRedirectMigratedRoute || shouldRedirectOtherRoute) {
         // Migrated pages hand off path-only — the old LMS regenerates its own
-        // query params (batch/tab/page). Other legacy routes keep their search,
-        // with a path translation where the old-LMS route differs.
+        // query params (batch/tab/page). Other legacy routes keep their search.
+        // Both translate the path where the old-LMS route differs (e.g. this
+        // app's `/learn/discussions` is `/discussions` over there).
         const pathForLegacy = shouldRedirectMigratedRoute
-          ? url.pathname
+          ? mapToLegacyPath(url.pathname)
           : `${mapToLegacyPath(url.pathname)}${url.search}`
         const oldUiUrl = getOldStudentUiUrlForPath(pathForLegacy)
         if (oldUiUrl) {
