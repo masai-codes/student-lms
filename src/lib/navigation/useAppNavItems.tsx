@@ -15,7 +15,6 @@ import {
   LogOutIcon,
   Megaphone,
   MessagesSquare,
-  Mic,
   Smartphone,
   UserCircle,
 } from 'lucide-react'
@@ -177,16 +176,6 @@ export function useAppNavItems() {
         isActive: pathname.startsWith('/masaiverse'),
       })
     }
-
-    items.push({
-      id: 'interviews',
-      type: 'internal-link',
-      to: '/interviews',
-      label: 'Interviews',
-      icon: Mic,
-      uiType: 'primary',
-      isActive: pathname.startsWith('/interviews'),
-    })
 
     return items
   }, [gating.showChat, gating.showMasaiVerse, pathname])

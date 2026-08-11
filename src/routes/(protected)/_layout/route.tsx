@@ -33,10 +33,15 @@ const ENABLE_SUPPORT_FLOATER = true
 /** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
 /**
  * Paths served by this app when legacy redirect is enabled (everything else →
- * old LMS). Deliberately minimal: only the 5 migrated pages (flag-gated,
- * handled separately) plus `masaiverse`, `support`, `interviews`, and `chat`
- * stay on the new LMS. Everything else — announcements, messages, bookmarks,
- * whats-new, profile, my-courses, course, etc. — redirects to the old LMS.
+ * old LMS). Deliberately minimal: only the migrated pages (flag-gated, handled
+ * separately) plus `masaiverse`, `support` and `interviews` stay on the new LMS.
+ * Everything else — profile, my-courses, course, etc. — redirects to the old LMS.
+ *
+ * `support` is also a migrated route: the flag decides which app the *old* LMS
+ * sends the student to, but on this side it is always served — `/support` (and
+ * `/support/context`) is embedded in an old-LMS iframe, so an opted-out student
+ * must never be redirected back out of it. `chat` is purely flag-gated, like
+ * Dashboard and Learn.
  */
 function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/masaiverse')) return true
@@ -44,9 +49,6 @@ function isNewStudentExperienceRoute(pathname: string): boolean {
     return true
   }
   if (pathname === '/interviews' || pathname.startsWith('/interviews/')) {
-    return true
-  }
-  if (pathname === '/chat' || pathname.startsWith('/chat/')) {
     return true
   }
   return false
@@ -123,14 +125,22 @@ export const Route = createFileRoute('/(protected)/_layout')({
     if (shouldRedirectToLegacy) {
       const url = new URL(location.href, 'http://localhost')
 
-      // The 5 migrated routes ignore the static allowlist: the per-user flag
+      // The migrated routes ignore the static allowlist: the per-user flag
       // decides. Opted in → stay here; opted out → old LMS. Every other route
       // keeps the existing allowlist behaviour.
+      //
+      // Exception: a route that is both migrated *and* allowlisted (support,
+      // chat) is always served here — the old LMS embeds this app's `/support`
+      // in an iframe, so an opted-out student must not be bounced back (the old
+      // page would just re-embed us). For those the migrated listing only drives
+      // the old LMS hand-off and the "Try New" toggle.
+      const isAlwaysServedHere = isNewStudentExperienceRoute(location.pathname)
       const shouldRedirectMigratedRoute =
-        isMigratedRoute(location.pathname) && !user.newLmsPagesEnabled
+        isMigratedRoute(location.pathname) &&
+        !user.newLmsPagesEnabled &&
+        !isAlwaysServedHere
       const shouldRedirectOtherRoute =
-        !isMigratedRoute(location.pathname) &&
-        !isNewStudentExperienceRoute(location.pathname)
+        !isMigratedRoute(location.pathname) && !isAlwaysServedHere
 
       if (shouldRedirectMigratedRoute || shouldRedirectOtherRoute) {
         // Migrated pages hand off path-only — the old LMS regenerates its own
