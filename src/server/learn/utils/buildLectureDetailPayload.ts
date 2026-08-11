@@ -43,7 +43,7 @@ export function buildLectureDetailPayload(
   attendance: LectureAttendanceSummary | null,
   optionalAttendance: LectureAttendanceSummary | null,
   feedbackRecord: {
-    mode: 'zef' | 'legacy'
+    mode: 'zef' | 'legacy' | 'hidden'
     rating: number | null
     text: string | null
     tags: Array<string>
@@ -129,16 +129,19 @@ export function buildLectureDetailPayload(
 
   const feedback: LectureFeedbackState = {
     mode: feedbackRecord.mode,
-    // `zef` mode has no submission window — only `legacy` is time-gated.
+    // `zef` mode has no submission window and `hidden` renders nothing — only
+    // `legacy` is time-gated.
     canSubmit:
       feedbackRecord.mode === 'zef'
         ? true
-        : resolveLectureFeedbackWindow({
-            schedule: row.schedule,
-            concludes: row.concludes,
-            nowMs,
-            showFeedback: settings.showFeedback,
-          }),
+        : feedbackRecord.mode === 'hidden'
+          ? false
+          : resolveLectureFeedbackWindow({
+              schedule: row.schedule,
+              concludes: row.concludes,
+              nowMs,
+              showFeedback: settings.showFeedback,
+            }),
     rating: feedbackRecord.rating,
     text: feedbackRecord.text,
     tags: feedbackRecord.tags,

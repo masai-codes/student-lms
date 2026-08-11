@@ -36,7 +36,9 @@ async function fetchSubmissionViewUrl(opts: {
   clientId: string
   reportToken: string
 }): Promise<string | null> {
-  const url = new URL(`${opts.base}/student/submissions/get-submission-view-url`)
+  const url = new URL(
+    `${opts.base}/student/submissions/get-submission-view-url`,
+  )
   url.searchParams.set('reportToken', opts.reportToken)
 
   const response = await fetch(url.toString(), {
@@ -46,7 +48,10 @@ async function fetchSubmissionViewUrl(opts: {
       clientid: opts.clientId,
     },
   }).catch((err) => {
-    console.error('[in-lecture-quiz] get-submission-view-url request error', err)
+    console.error(
+      '[in-lecture-quiz] get-submission-view-url request error',
+      err,
+    )
     return null
   })
 
@@ -186,7 +191,11 @@ export async function generateInLectureQuizUrl(input: {
       // Stable per user + lecture + template so repeat opens don't spawn a new
       // assessment every time. Also how the `gradeAssessment` callback is
       // matched back to (user, lecture, template) — see inLectureQuizUniqueId.ts.
-      uniqueID: buildInLectureQuizUniqueId(userId, lectureId, assessmentTemplateId),
+      uniqueID: buildInLectureQuizUniqueId(
+        userId,
+        lectureId,
+        assessmentTemplateId,
+      ),
       assessmentTemplateId,
       redirectClientUrl: 'https://dont-redirect.com',
       email,
@@ -195,7 +204,8 @@ export async function generateInLectureQuizUrl(input: {
       groupId: String(lectureId),
       liveProgressCallbackUrl,
       noTimeBound: true,
-      skipSubjectiveGrading: false,
+      skipSubjectiveGrading: true,
+      showInstantAnswer: true,
     }),
   })
 

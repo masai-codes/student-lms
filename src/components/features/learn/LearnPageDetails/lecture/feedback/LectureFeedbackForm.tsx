@@ -102,6 +102,10 @@ export function LectureFeedbackForm({
   const [savedRating, setSavedRating] = useState(feedback.rating)
   const [savedTags, setSavedTags] = useState(feedback.tags ?? [])
 
+  // ZEF-owned lecture the user didn't attend: no form, and no legacy fallback
+  // either — not even a read-only summary of an older `lecture_feedback` row.
+  if (feedback.mode === 'hidden') return null
+
   if (!feedback.canSubmit) {
     if (savedRating == null) return null
     return (

@@ -172,6 +172,40 @@ describe('buildLectureDetailPayload', () => {
     expect(payload.adaptiveRecordingUrl).toBeNull()
   })
 
+  it('never allows submission in hidden mode, even inside an open window', () => {
+    const scheduleMs = new Date(schedule).getTime()
+    const payload = buildLectureDetailPayload(
+      core,
+      {
+        type: 'live',
+        schedule,
+        concludes,
+        zoomLink: null,
+        videos: null,
+        vimeoDownloadLinks: null,
+        vimeoPlayerEmbedUrl: null,
+        settings: { show_feedback: 1 },
+        hostAvatarUrl: null,
+        notes: null,
+      },
+      // Inside the legacy window — irrelevant, the lecture is ZEF-owned.
+      scheduleMs + 30 * 60 * 1000,
+      emptyTabs,
+      null,
+      null,
+      null,
+      { mode: 'hidden', rating: null, text: null, tags: [] },
+    )
+
+    expect(payload.feedback).toEqual({
+      mode: 'hidden',
+      canSubmit: false,
+      rating: null,
+      text: null,
+      tags: [],
+    })
+  })
+
   it('does not expose an adaptive recording link while a SAL lecture is live', () => {
     const scheduleMs = new Date(schedule).getTime()
     const payload = buildLectureDetailPayload(
