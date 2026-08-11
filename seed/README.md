@@ -5,7 +5,10 @@ Layered seed infrastructure for local development and future integration/e2e tes
 ## Prerequisites
 
 - Local `.env` with `DATABASE_URL` pointing at a **non-production** dev database
-- `NODE_ENV` must not be `production` (reset and seed are blocked in production)
+
+The only guard is the localhost check: seed and reset refuse to run unless
+`DATABASE_URL` contains `localhost`. `NODE_ENV` is not consulted, so you can seed a
+local database while running the app in production mode.
 
 ## Run a flow
 
@@ -215,4 +218,4 @@ Datetime fields use naive **IST** (`Asia/Kolkata`) strings via `formatMysqlDatet
 
 ## Database reset
 
-`resetDatabase()` truncates **all** app-data tables in the connected schema, preserving only `_prisma_migrations`. Use only against local/dev test databases.
+`resetDatabase()` truncates **all** app-data tables in the connected schema, preserving only `_prisma_migrations`. Use only against local/dev test databases — the localhost check in `seed/utils/assertLocalSeedDatabase.ts` is the sole thing standing between this and a remote database.

@@ -7,12 +7,6 @@ import { db } from '@/db'
 import { assertLocalSeedDatabase } from './utils/assertLocalSeedDatabase'
 import { PRESERVED_TABLES } from './utils/constants'
 
-function assertNotProduction(): void {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('Seeding and database reset are disabled in production.')
-  }
-}
-
 type SchemaRow = { TABLE_NAME: string }
 
 function normalizeRows(result: unknown): Array<SchemaRow> {
@@ -34,10 +28,11 @@ function normalizeRows(result: unknown): Array<SchemaRow> {
 
 /**
  * Truncates all app-data tables in the connected database, preserving migration
- * metadata. Intended for local/dev test databases only.
+ * metadata. Guarded solely by the localhost check in `assertLocalSeedDatabase` —
+ * a non-local DATABASE_URL is the thing that makes a reset dangerous, and
+ * NODE_ENV says nothing about which database is connected.
  */
 export async function resetDatabase(): Promise<{ truncatedTables: string[] }> {
-  assertNotProduction()
   assertLocalSeedDatabase()
 
   const result = await db.execute(sql`
