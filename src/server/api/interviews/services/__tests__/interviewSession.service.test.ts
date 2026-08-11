@@ -5,6 +5,7 @@ const hoisted = vi.hoisted(() => ({
   insertResults: [] as Array<Array<{ insertId: number }>>,
   requestInterviewTurnAudioStream: vi.fn(),
   resolveInterviewTopicSelection: vi.fn(),
+  requestOpenRouterChatCompletion: vi.fn(),
 }))
 
 vi.mock('@/db', () => {
@@ -36,6 +37,10 @@ vi.mock(
   }),
 )
 
+vi.mock('@/server/api/interviews/clients/openRouterClient', () => ({
+  requestOpenRouterChatCompletion: hoisted.requestOpenRouterChatCompletion,
+}))
+
 async function* fakeAudioStream(
   events: Array<
     { type: 'audio'; data: string } | { type: 'final'; spokenText: string }
@@ -54,6 +59,15 @@ beforeEach(() => {
     domain: 'software-development',
     rubricFocus: ['Complexity'],
   })
+  hoisted.requestOpenRouterChatCompletion.mockResolvedValue(
+    [
+      '1. What is a hash map?',
+      '2. Question 2',
+      '3. Question 3',
+      '4. Question 4',
+      '5. Question 5',
+    ].join('\n'),
+  )
 })
 
 describe('createInterviewSession', () => {
@@ -77,7 +91,7 @@ describe('createInterviewSession', () => {
 
     expect(result).toEqual({
       sessionId: 7,
-      question: 'Hi, welcome! Today we’ll cover DSA. What is a hash map?',
+      question: 'What is a hash map?',
     })
   })
 
