@@ -75,15 +75,17 @@ async function parseErrorCode(response: Response): Promise<string> {
  */
 export function streamCreateInterviewSession(
   topicId: string,
+  language: string,
   handlers: StreamCreateInterviewSessionHandlers,
 ): () => void {
   const controller = new AbortController()
-  void runStream(topicId, handlers, controller.signal)
+  void runStream(topicId, language, handlers, controller.signal)
   return () => controller.abort()
 }
 
 async function runStream(
   topicId: string,
+  language: string,
   handlers: StreamCreateInterviewSessionHandlers,
   signal: AbortSignal,
 ): Promise<void> {
@@ -96,7 +98,7 @@ async function runStream(
         Accept: 'text/event-stream',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ topicId }),
+      body: JSON.stringify({ topicId, language }),
       signal,
     })
   } catch {

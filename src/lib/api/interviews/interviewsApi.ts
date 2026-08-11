@@ -20,11 +20,12 @@ export async function fetchInterviewSessions(): Promise<
 
 export async function createInterviewSession(
   topicId: string,
+  language: string,
 ): Promise<CreateInterviewSessionResult> {
   return fetchJson<CreateInterviewSessionResult>(INTERVIEWS_API.createSession, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topicId }),
+    body: JSON.stringify({ topicId, language }),
   })
 }
 
@@ -35,7 +36,6 @@ export async function fetchInterviewSession(
 }
 
 export type SubmitInterviewAnswerInput =
-  | { kind: 'audio'; blob: Blob }
   | { kind: 'typed'; text: string }
   | { kind: 'transcribed'; text: string }
 
@@ -44,9 +44,7 @@ export async function submitInterviewTurn(
   answer: SubmitInterviewAnswerInput,
 ): Promise<SubmitInterviewTurnResult> {
   const form = new FormData()
-  if (answer.kind === 'audio') {
-    form.append('audio', answer.blob, 'answer.wav')
-  } else if (answer.kind === 'transcribed') {
+  if (answer.kind === 'transcribed') {
     form.append('transcribedAnswer', answer.text)
   } else {
     form.append('typedAnswer', answer.text)
@@ -70,4 +68,10 @@ export async function fetchInterviewSttToken(
   return fetchJson<InterviewSttToken>(INTERVIEWS_API.sttToken(sessionId), {
     method: 'POST',
   })
+}
+
+export async function abandonInterviewSession(
+  sessionId: number | string,
+): Promise<void> {
+  await fetchJson(INTERVIEWS_API.abandon(sessionId), { method: 'POST' })
 }

@@ -29,6 +29,7 @@ function lectures(
       trackingId: null,
       admissionsFormUrl: null,
     },
+    idCardApplicable: true,
     idCardUrl: null,
     ...over,
   }
@@ -321,5 +322,28 @@ describe('getIdCardState', () => {
       url: null,
       unlocked: false,
     })
+  })
+
+  // IITJ students issue their own IDs — no locked card either, even with the
+  // full flow complete.
+  it('is hidden when the client does not issue an LMS ID card', () => {
+    expect(
+      getIdCardState(
+        lectures({
+          idCardApplicable: false,
+          programLectures: [
+            {
+              id: 'p',
+              lectureId: 9,
+              title: 'Intro',
+              videoUrl: 'v',
+              lectureType: 'video',
+            },
+          ],
+          completedLectureIds: [9],
+        }),
+        'full',
+      ),
+    ).toEqual({ show: false, url: null, unlocked: false })
   })
 })

@@ -111,7 +111,11 @@ describe('dispatchSupportNavigate', () => {
     dispatchSupportNavigate({ category: 'lecture', entityId: 7 })
 
     expect(post).toHaveBeenCalledWith(
-      expect.objectContaining({ category: 'lecture', entityId: '7', href: null }),
+      expect.objectContaining({
+        category: 'lecture',
+        entityId: '7',
+        href: null,
+      }),
       '*',
     )
   })

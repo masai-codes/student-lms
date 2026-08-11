@@ -31,7 +31,7 @@ function runStream(response: Response): Promise<StreamResult> {
   const deltas: Array<string> = []
 
   return new Promise((resolve) => {
-    streamCreateInterviewSession('dsa', {
+    streamCreateInterviewSession('dsa', 'English', {
       onAudioDelta: (data) => deltas.push(data),
       onDone: (result) => resolve({ status: 'done', result, deltas }),
       onError: (code) => resolve({ status: 'error', code, deltas }),
@@ -100,7 +100,7 @@ describe('streamCreateInterviewSession', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     await new Promise<void>((resolve) => {
-      streamCreateInterviewSession('dsa', {
+      streamCreateInterviewSession('dsa', 'English', {
         onAudioDelta: () => {},
         onDone: () => resolve(),
         onError: () => resolve(),
@@ -111,6 +111,9 @@ describe('streamCreateInterviewSession', () => {
     expect(call[0]).toBe('/api/interviews/sessions/stream')
     const init = call[1] as RequestInit
     expect(init.credentials).toBe('same-origin')
-    expect(JSON.parse(String(init.body))).toEqual({ topicId: 'dsa' })
+    expect(JSON.parse(String(init.body))).toEqual({
+      topicId: 'dsa',
+      language: 'English',
+    })
   })
 })

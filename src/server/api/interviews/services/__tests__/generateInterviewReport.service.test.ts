@@ -18,12 +18,13 @@ const baseInput = {
   rubricFocus: ['Complexity'],
   turns: [
     {
-      index: 0,
+      questionIndex: 0,
       question: 'Explain arrays',
       transcript: '',
       answerAudioBase64: 'BASE64WAV',
       answerSource: 'voice' as const,
       askedAt: '',
+      followUps: [],
       answeredAt: '2024-01-01T00:00:00.000Z',
     },
   ],

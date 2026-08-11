@@ -60,6 +60,12 @@ function shouldHideSupportIcon(pathname: string): boolean {
   )
 }
 
+/** Live interview session screen is a full-screen, single-task surface — no
+ * navbar/tab bar chrome, same treatment as chat/masaiverse/lecture detail. */
+function isInterviewSessionRoute(pathname: string): boolean {
+  return /^\/interviews\/[^/]+$/.test(pathname)
+}
+
 export const Route = createFileRoute('/(protected)/_layout')({
   beforeLoad: async ({ context, location }) => {
     const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
@@ -200,6 +206,14 @@ function RouteComponent() {
   }, [user])
 
   if (isSupportRoute) {
+    return (
+      <ModalProvider>
+        <Outlet />
+      </ModalProvider>
+    )
+  }
+
+  if (isInterviewSessionRoute(renderedPathname)) {
     return (
       <ModalProvider>
         <Outlet />

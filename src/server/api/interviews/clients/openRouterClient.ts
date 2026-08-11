@@ -206,19 +206,29 @@ export async function* requestOpenRouterChatCompletionStream(input: {
 export type OpenRouterAudioStreamEvent =
   | { type: 'audio'; data: string }
   | { type: 'transcript'; text: string }
+  | { type: 'tool_call'; name: string }
+
+/** Minimal OpenAI-compatible function tool schema — this feature only ever
+ * needs no-argument tools, so `parameters` is fixed to an empty object shape. */
+export type OpenRouterTool = {
+  type: 'function'
+  function: { name: string; description: string; parameters: object }
+}
 
 /**
  * Posts to OpenRouter requesting spoken audio output (`modalities:
  * ['text','audio']` — OpenAI only accepts `['text']` or `['text','audio']`,
  * never `['audio']` alone — and audio output requires `stream: true`).
- * Yields both the base64 PCM16 audio chunks and the accompanying spoken-text
- * deltas as they arrive; callers that only want the audio can filter.
+ * Yields the base64 PCM16 audio chunks, the accompanying spoken-text deltas,
+ * and (when `tools` is passed and the model calls one) a `tool_call` event —
+ * a given response is either spoken audio or a tool call, never both.
  */
 export async function* requestOpenRouterAudioStream(input: {
   messages: Array<OpenRouterChatMessage>
   model: string
   voice: string
   format: 'pcm16'
+  tools?: Array<OpenRouterTool>
 }): AsyncGenerator<OpenRouterAudioStreamEvent> {
   for await (const raw of streamOpenRouterFrames(
     {
@@ -227,6 +237,7 @@ export async function* requestOpenRouterAudioStream(input: {
       modalities: ['text', 'audio'],
       audio: { voice: input.voice, format: input.format },
       stream: true,
+      ...(input.tools ? { tools: input.tools } : {}),
     },
     extractAudioFrame,
   )) {
@@ -236,10 +247,13 @@ export async function* requestOpenRouterAudioStream(input: {
 }
 
 /**
- * Audio deltas and transcript deltas arrive as distinct delta shapes on the
- * same stream — re-serialize whichever is present as a small tagged JSON
- * string so it can flow through the shared string-yielding frame loop above,
- * then get parsed back into a typed event by the caller.
+ * Audio deltas, transcript deltas, and tool-call deltas arrive as distinct
+ * delta shapes on the same stream — re-serialize whichever is present as a
+ * small tagged JSON string so it can flow through the shared string-yielding
+ * frame loop above, then get parsed back into a typed event by the caller.
+ * Tool-call names arrive whole in the delta that introduces them (arguments
+ * stream separately after, but this feature's tools take no arguments, so
+ * only the name is surfaced).
  */
 function extractAudioFrame(payload: string): string | null {
   if (payload === '[DONE]') return null
@@ -252,16 +266,28 @@ function extractAudioFrame(payload: string): string | null {
   const delta = (
     parsed as {
       choices?: Array<{
-        delta?: { audio?: { data?: string; transcript?: string } }
+        delta?: {
+          audio?: { data?: string; transcript?: string }
+          tool_calls?: Array<{ function?: { name?: string } }>
+        }
       }>
     }
-  )?.choices?.[0]?.delta?.audio
+  )?.choices?.[0]?.delta
 
-  if (typeof delta?.data === 'string' && delta.data.length > 0) {
-    return JSON.stringify({ type: 'audio', data: delta.data })
+  const toolName = delta?.tool_calls?.find((call) => call.function?.name)
+    ?.function?.name
+  if (typeof toolName === 'string' && toolName.length > 0) {
+    return JSON.stringify({ type: 'tool_call', name: toolName })
   }
-  if (typeof delta?.transcript === 'string' && delta.transcript.length > 0) {
-    return JSON.stringify({ type: 'transcript', text: delta.transcript })
+
+  if (typeof delta?.audio?.data === 'string' && delta.audio.data.length > 0) {
+    return JSON.stringify({ type: 'audio', data: delta.audio.data })
+  }
+  if (
+    typeof delta?.audio?.transcript === 'string' &&
+    delta.audio.transcript.length > 0
+  ) {
+    return JSON.stringify({ type: 'transcript', text: delta.audio.transcript })
   }
   return null
 }

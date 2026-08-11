@@ -8,6 +8,7 @@
  */
 
 import { ApiError, isApiError } from '@/server/api/http/apiError'
+import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 
 const OPENAI_CLIENT_SECRETS_URL =
   'https://api.openai.com/v1/realtime/client_secrets'
@@ -18,6 +19,24 @@ const CLIENT_SECRET_TTL_SECONDS = 300
 
 const INTERVIEW_STT_TRANSCRIBE_MODEL = 'gpt-4o-mini-transcribe'
 
+/**
+ * ISO-639-1 hints for `gpt-4o-mini-transcribe` — passing the candidate's
+ * chosen reply language measurably improves transcription accuracy for
+ * non-English speech instead of leaving the model to guess. Only a subset of
+ * `AiTutorChatLanguage` is listed here: the transcription API rejects
+ * `language` values outside its own fixed support list, which excludes
+ * several Indian languages we otherwise offer (Telugu, Malayalam, Bengali,
+ * Gujarati, Punjabi, Odia, Assamese) — those fall through to no hint
+ * (auto-detect) instead of a 400.
+ */
+const STT_LANGUAGE_HINTS: Partial<Record<AiTutorChatLanguage, string>> = {
+  English: 'en',
+  Hindi: 'hi',
+  Tamil: 'ta',
+  Kannada: 'kn',
+  Marathi: 'mr',
+}
+
 export type InterviewSttSession = {
   clientSecret: string
   /** Seconds from now until the secret expires — relative rather than an
@@ -26,7 +45,9 @@ export type InterviewSttSession = {
   expiresIn: number
 }
 
-export async function requestInterviewSttClientSecret(): Promise<InterviewSttSession> {
+export async function requestInterviewSttClientSecret(
+  language: AiTutorChatLanguage,
+): Promise<InterviewSttSession> {
   const apiKey = process.env.OPENAI_API_KEY?.trim()
   if (!apiKey) {
     throw new ApiError(503, 'INTERVIEW_OPENAI_NOT_CONFIGURED')
@@ -47,7 +68,10 @@ export async function requestInterviewSttClientSecret(): Promise<InterviewSttSes
           type: 'transcription',
           audio: {
             input: {
-              transcription: { model: INTERVIEW_STT_TRANSCRIBE_MODEL },
+              transcription: {
+                model: INTERVIEW_STT_TRANSCRIBE_MODEL,
+                language: STT_LANGUAGE_HINTS[language],
+              },
             },
           },
         },

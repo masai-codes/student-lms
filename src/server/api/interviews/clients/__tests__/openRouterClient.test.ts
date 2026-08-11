@@ -204,4 +204,47 @@ describe('requestOpenRouterAudioStream', () => {
       collectEvents(requestOpenRouterAudioStream(baseInput)),
     ).rejects.toThrow('INTERVIEW_OPENROUTER_EMPTY_RESPONSE')
   })
+
+  function toolCallFrame(name: string) {
+    return JSON.stringify({
+      choices: [{ delta: { tool_calls: [{ function: { name } }] } }],
+    })
+  }
+
+  it('yields a tool_call event when the model calls a tool', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      body: sseBodyFromFrames([toolCallFrame('move_to_next_question')]),
+    } as Response)
+
+    const events = await collectEvents(requestOpenRouterAudioStream(baseInput))
+    expect(events).toEqual([
+      { type: 'tool_call', name: 'move_to_next_question' },
+    ])
+  })
+
+  it('passes tools through in the request body', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      body: sseBodyFromFrames([toolCallFrame('move_to_next_question')]),
+    } as Response)
+
+    const tools = [
+      {
+        type: 'function' as const,
+        function: {
+          name: 'move_to_next_question',
+          description: 'move on',
+          parameters: { type: 'object', properties: {} },
+        },
+      },
+    ]
+    await collectEvents(requestOpenRouterAudioStream({ ...baseInput, tools }))
+
+    const call = vi.mocked(fetch).mock.calls[0]
+    const body = JSON.parse(String((call[1] as RequestInit).body)) as {
+      tools?: unknown
+    }
+    expect(body.tools).toEqual(tools)
+  })
 })

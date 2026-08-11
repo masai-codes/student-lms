@@ -5,7 +5,7 @@ import {
   createSseResponse,
   createSseStreamFromEvents,
 } from '@/server/api/http/sse'
-import { parseTopicId } from '@/server/api/interviews/handlers/parseCreateSessionRequest'
+import { parseCreateSessionRequest } from '@/server/api/interviews/handlers/parseCreateSessionRequest'
 import {
   createInterviewSessionStream,
   type CreateInterviewSessionStreamEvent,
@@ -41,9 +41,9 @@ export async function handleStreamCreateInterviewSession(
 ): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
-    const topicId = await parseTopicId(request)
+    const { topicId, language } = await parseCreateSessionRequest(request)
 
-    const generator = createInterviewSessionStream(userId, topicId)
+    const generator = createInterviewSessionStream(userId, topicId, language)
 
     // Pull the first value before committing to the SSE response: the
     // generator's daily-limit/topic validation runs before its first `yield`,
