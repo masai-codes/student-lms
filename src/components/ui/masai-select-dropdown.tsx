@@ -36,6 +36,8 @@ export type MasaiSelectDropdownProps = {
   contentAlign?: 'start' | 'center' | 'end'
   sideOffset?: number
   ['aria-label']?: string
+  /** `plain` drops the rounded blue chevron badge in favour of a bare icon. */
+  chevronVariant?: 'badge' | 'plain'
 }
 
 /**
@@ -55,6 +57,7 @@ export function MasaiSelectDropdown({
   contentAlign = 'start',
   sideOffset = 8,
   ['aria-label']: ariaLabel,
+  chevronVariant = 'badge',
 }: MasaiSelectDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const selected = options.find((option) => option.value === value)
@@ -86,7 +89,12 @@ export function MasaiSelectDropdown({
               </span>
             </span>
             <span
-              className="flex shrink-0 items-center justify-center rounded-full bg-blue-50 p-1.5 text-blue-500 transition-colors group-hover:bg-blue-100 dark:bg-info-subtle dark:text-info-subtle-foreground dark:group-hover:bg-info-subtle"
+              className={cn(
+                'flex shrink-0 items-center justify-center transition-colors',
+                chevronVariant === 'badge'
+                  ? 'rounded-full bg-blue-50 p-1.5 text-blue-500 group-hover:bg-blue-100 dark:bg-info-subtle dark:text-info-subtle-foreground dark:group-hover:bg-info-subtle'
+                  : 'text-foreground-muted',
+              )}
               aria-hidden
             >
               <ChevronDown

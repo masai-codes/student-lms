@@ -18,8 +18,12 @@ type InlineDrawerProps = {
   title?: string
 }
 
-/** Top offset (global nav height) so the desktop panel sits below the top bar. */
-const TOP_OFFSET = 72
+/**
+ * Top offset so the desktop panel sits flush under the global nav. Reads the
+ * `--app-navbar-h` custom property (styles.css) rather than hardcoding a
+ * height, so the panel can't drift away from the real navbar.
+ */
+const TOP_OFFSET = 'var(--app-navbar-h)'
 
 /** `md` breakpoint — desktop shows the inline side panel, mobile a bottom sheet. */
 const DESKTOP_MEDIA_QUERY = '(min-width: 768px)'
@@ -95,7 +99,7 @@ export default function InlineDrawer({
         style={{
           top: TOP_OFFSET,
           width: panelWidth,
-          height: `calc(100vh - ${TOP_OFFSET}px)`,
+          height: `calc(100vh - ${TOP_OFFSET})`,
         }}
         aria-hidden={!open}
       >

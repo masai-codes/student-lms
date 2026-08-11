@@ -230,10 +230,13 @@ function MasaiLivePromoCard({ wasDragged }: { wasDragged: () => boolean }) {
       event.preventDefault()
       return
     }
-    pushDashboardEvent(masaiLivePromoClickEvent(MASAI_LIVE_PROMO.analyticsKey), {
-      analytics_key: MASAI_LIVE_PROMO.analyticsKey,
-      title: MASAI_LIVE_PROMO.title,
-    })
+    pushDashboardEvent(
+      masaiLivePromoClickEvent(MASAI_LIVE_PROMO.analyticsKey),
+      {
+        analytics_key: MASAI_LIVE_PROMO.analyticsKey,
+        title: MASAI_LIVE_PROMO.title,
+      },
+    )
   }
 
   return (

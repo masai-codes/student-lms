@@ -49,14 +49,16 @@ describe('buildLectureDetailPayload', () => {
       null,
       null,
       null,
-      { rating: null, text: null },
+      { mode: 'legacy', rating: null, text: null, tags: [] },
     )
 
     expect(payload.lectureKind).toBe('live')
     expect(payload.feedback).toEqual({
+      mode: 'legacy',
       canSubmit: false,
       rating: null,
       text: null,
+      tags: [],
     })
     expect(payload.notes).toBe('Lecture notes')
     expect(payload.tabs.notes).toBe('Lecture notes')
@@ -94,7 +96,7 @@ describe('buildLectureDetailPayload', () => {
       null,
       null,
       null,
-      { rating: null, text: null },
+      { mode: 'legacy', rating: null, text: null, tags: [] },
     )
 
     expect(payload.livePhase).toBe('after')
@@ -104,6 +106,40 @@ describe('buildLectureDetailPayload', () => {
     expect(payload.adaptiveRecordingUrl).toBe(
       'https://experience-api.masaischool.com/api/adaptive-lecture/227/join',
     )
+  })
+
+  it('always allows submission in zef mode, ignoring the window', () => {
+    const concludesMs = new Date(concludes).getTime()
+    const payload = buildLectureDetailPayload(
+      core,
+      {
+        type: 'live',
+        schedule,
+        concludes,
+        zoomLink: null,
+        videos: null,
+        vimeoDownloadLinks: null,
+        vimeoPlayerEmbedUrl: null,
+        settings: null,
+        hostAvatarUrl: null,
+        notes: null,
+      },
+      // Well past any legacy window (concludes + several days).
+      concludesMs + 5 * 24 * 60 * 60 * 1000,
+      emptyTabs,
+      null,
+      null,
+      null,
+      { mode: 'zef', rating: 4, text: 'Nice', tags: ['Great examples'] },
+    )
+
+    expect(payload.feedback).toEqual({
+      mode: 'zef',
+      canSubmit: true,
+      rating: 4,
+      text: 'Nice',
+      tags: ['Great examples'],
+    })
   })
 
   it('does not expose an adaptive recording link before concludes + 30 min for SAL', () => {
@@ -129,11 +165,45 @@ describe('buildLectureDetailPayload', () => {
       null,
       null,
       null,
-      { rating: null, text: null },
+      { rating: null, text: null, mode: 'zef', tags: [] },
     )
 
     expect(payload.livePhase).toBe('during')
     expect(payload.adaptiveRecordingUrl).toBeNull()
+  })
+
+  it('never allows submission in hidden mode, even inside an open window', () => {
+    const scheduleMs = new Date(schedule).getTime()
+    const payload = buildLectureDetailPayload(
+      core,
+      {
+        type: 'live',
+        schedule,
+        concludes,
+        zoomLink: null,
+        videos: null,
+        vimeoDownloadLinks: null,
+        vimeoPlayerEmbedUrl: null,
+        settings: { show_feedback: 1 },
+        hostAvatarUrl: null,
+        notes: null,
+      },
+      // Inside the legacy window — irrelevant, the lecture is ZEF-owned.
+      scheduleMs + 30 * 60 * 1000,
+      emptyTabs,
+      null,
+      null,
+      null,
+      { mode: 'hidden', rating: null, text: null, tags: [] },
+    )
+
+    expect(payload.feedback).toEqual({
+      mode: 'hidden',
+      canSubmit: false,
+      rating: null,
+      text: null,
+      tags: [],
+    })
   })
 
   it('does not expose an adaptive recording link while a SAL lecture is live', () => {
@@ -159,7 +229,7 @@ describe('buildLectureDetailPayload', () => {
       null,
       null,
       null,
-      { rating: null, text: null },
+      { mode: 'legacy', rating: null, text: null, tags: [] },
     )
 
     expect(payload.livePhase).toBe('during')
@@ -187,7 +257,7 @@ describe('buildLectureDetailPayload', () => {
       null,
       null,
       null,
-      { rating: null, text: null },
+      { mode: 'legacy', rating: null, text: null, tags: [] },
     )
 
     expect(payload.lectureKind).toBe('video')
@@ -219,7 +289,7 @@ describe('buildLectureDetailPayload', () => {
       null,
       null,
       null,
-      { rating: null, text: null },
+      { mode: 'legacy', rating: null, text: null, tags: [] },
     )
 
     expect(payload.lectureKind).toBe('live')
@@ -248,7 +318,7 @@ describe('buildLectureDetailPayload', () => {
         null,
         null,
         null,
-        { rating: null, text: null },
+        { mode: 'legacy', rating: null, text: null, tags: [] },
       ),
     ).toThrow('LECTURE_DETAIL_UNSUPPORTED_TYPE')
   })

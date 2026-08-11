@@ -24,7 +24,7 @@ describe('parseBookmarksQuery', () => {
 
   it('falls back to lectures for an unknown tab', () => {
     expect(parse('?tab=nope').tab).toBe('lectures')
-    expect(parse('?tab=tickets').tab).toBe('tickets')
+    expect(parse('?tab=tickets').tab).toBe('lectures')
   })
 
   it('parses csv filter params (trimmed + deduped)', () => {

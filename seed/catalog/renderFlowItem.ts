@@ -15,15 +15,23 @@ function escapeHtml(value: string): string {
  * Parse a seedCommand string (which may contain `# comment` lines between commands)
  * into an array of { label, command } blocks — one entry per runnable command.
  */
-function parseSeedCommands(raw: string): Array<{ label: string; command: string }> {
-  const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean)
+function parseSeedCommands(
+  raw: string,
+): Array<{ label: string; command: string }> {
+  const lines = raw
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
   const blocks: Array<{ label: string; command: string }> = []
   let pendingLabel = ''
 
   for (const line of lines) {
     if (line.startsWith('#')) {
       // Strip leading `# ` and trailing `:` for a clean label
-      pendingLabel = line.replace(/^#+\s*/, '').replace(/:$/, '').trim()
+      pendingLabel = line
+        .replace(/^#+\s*/, '')
+        .replace(/:$/, '')
+        .trim()
     } else {
       blocks.push({ label: pendingLabel, command: line })
       pendingLabel = ''
@@ -225,7 +233,10 @@ export function renderFlowItem(
         </div>`
       : ''
 
-  const LECTURE_FLOW_IDS = new Set(['login-and-join-lecture', 'live-lecture-phases'])
+  const LECTURE_FLOW_IDS = new Set([
+    'login-and-join-lecture',
+    'live-lecture-phases',
+  ])
   const isLecture = LECTURE_FLOW_IDS.has(flow.id)
   const badgeClass = isLecture ? 'flow-badge lec' : 'flow-badge'
   const badgeLabel = isLecture ? 'LECTURE' : 'FLOW'

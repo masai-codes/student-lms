@@ -133,7 +133,7 @@ export function LectureVideoProgressTrack({
   }, [totalDuration])
 
   return (
-    <div className="flex w-full min-w-0 touch-none select-none flex-col pb-1 pt-0.5 md:pb-2">
+    <div className="flex w-full min-w-0 touch-none select-none flex-col pb-0 pt-0.5 md:pb-0">
       <div
         ref={trackRef}
         role="slider"

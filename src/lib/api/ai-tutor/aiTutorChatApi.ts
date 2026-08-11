@@ -32,6 +32,21 @@ export async function getAiTutorConversation(
   )
 }
 
+export async function submitPracticeQuestionAnswers(input: {
+  chatId: number
+  quizId: string
+  answers: Record<string, string>
+}): Promise<void> {
+  await fetchJson<{ chatId: number; quizId: string }>(
+    AI_TUTOR_API.practiceQuestionAnswers,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    },
+  )
+}
+
 export async function submitAiTutorFeedback(input: {
   lectureId: number
   chatId: number

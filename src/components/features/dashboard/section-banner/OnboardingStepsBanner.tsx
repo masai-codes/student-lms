@@ -20,8 +20,8 @@ interface OnboardingStepsBannerProps {
  * Purple onboarding banner shown at the top of the dashboard for T0 learners who
  * still have mandatory guided-tour steps pending. One slide per course (the
  * course title is shown so multi-course learners can tell them apart); embla
- * powers drag-to-swipe, with dots centered below (multi-course only). Its bottom
- * corners are square so it sits flush against the white content card below.
+ * powers drag-to-swipe, with dots centered below (multi-course only). It is a
+ * fully rounded card with a gap below it, matching the other dashboard banners.
  */
 export function OnboardingStepsBanner({
   banners,
@@ -75,7 +75,7 @@ export function OnboardingStepsBanner({
     <div
       {...autoplay}
       data-testid="dashboard-onboarding-banner"
-      className="rounded-t-2xl bg-gradient-to-r from-[#5B52A3] to-[#6E66B8] px-5 py-3.5 text-white"
+      className="rounded-2xl bg-gradient-to-r from-[#5B52A3] to-[#6E66B8] px-5 py-3.5 text-white"
     >
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">

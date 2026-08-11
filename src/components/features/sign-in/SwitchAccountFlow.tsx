@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { LinkedAccountsStepView } from '@/components/features/sign-in/LinkedAccountsStepView'
 import { takePendingPhoneOtpSignIn } from '@/components/features/sign-in/pendingPhoneOtpSignIn'
 import {
@@ -20,6 +21,7 @@ import {
   isLegacyStudentRedirectEnabled,
   redirectToOldStudentUi,
 } from '@/utils/authRedirect'
+import { invalidateMeQuery } from '@/query/me/meCache'
 
 function formatSwitchAccountError(err: unknown): string {
   if (err instanceof V2AuthRequestError) {
@@ -33,6 +35,7 @@ function formatSwitchAccountError(err: unknown): string {
 
 export function SwitchAccountFlow() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [accounts, setAccounts] = useState<Array<LinkedAccount>>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
@@ -41,6 +44,9 @@ export function SwitchAccountFlow() {
 
   const redirectAfterAccountSelection = useCallback(
     (context: { reason: string; extra: Record<string, unknown> }) => {
+      // The active session may now belong to a different account, so the cached
+      // `me` must go — otherwise the destination renders the previous user.
+      invalidateMeQuery(queryClient)
       const redirectTo = getRedirectToSearchParam()
       if (redirectTo) {
         redirectToResolvedUrl(redirectTo)
@@ -59,7 +65,7 @@ export function SwitchAccountFlow() {
       // Legacy redirect disabled: stay in this (new) app.
       void navigate({ to: '/' })
     },
-    [navigate],
+    [navigate, queryClient],
   )
 
   useEffect(() => {

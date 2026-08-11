@@ -202,20 +202,6 @@ function LearnPage() {
     <LearnLayout
       pageData={pageData}
       userId={user.id}
-      onBatchChange={(nextBatchId) => {
-        setLastSelectedBatchIdForUser(user.id, nextBatchId)
-        navigate({
-          search: (prev) => ({
-            ...prev,
-            batchId: nextBatchId,
-            // Section belongs to a batch — drop it so the new batch restores its own
-            // stored section (LearnLayout) or defaults to "Any".
-            sectionId: undefined,
-            page: 1,
-          }),
-          replace: true,
-        })
-      }}
       onSectionChange={(nextSectionId) => {
         if (batchId != null) {
           setLastSelectedSectionIdForUser(user.id, batchId, nextSectionId)

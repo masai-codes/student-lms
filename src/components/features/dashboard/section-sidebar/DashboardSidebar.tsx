@@ -34,7 +34,7 @@ export function DashboardSidebar({ overview }: DashboardSidebarProps) {
   const supportCard = <LmsSupportPanel session={overview.supportSession} />
 
   return (
-    <aside data-testid="dashboard-sidebar" className="flex flex-col gap-5">
+    <aside data-testid="dashboard-sidebar" className="flex flex-col gap-4">
       {isSupportLive && supportCard}
       {!announcementsEmpty && announcementsCard}
       <ProductUpdatesPanel

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Filter, Search } from 'lucide-react'
 
 import { LearnFiltersPanel } from './filters-modal/LearnFiltersPanel'
+import { LearnTabSwitcher } from './LearnTabSwitcher'
 import { useDebouncedCommit } from './useDebouncedCommit'
 import { pushLearnEvent } from '../shared/learnAnalytics'
 import type {
@@ -14,13 +15,13 @@ import type {
 } from '../shared/types'
 import { LEARN_SCHEDULE_HORIZON_OPTIONS } from '../shared/types'
 
+import type { EnrolledSection } from '@/server/learn/types'
 import type { MasaiDropdownCheckboxFilterOption } from '@/components/ui/masai-dropdown-checkbox-filter'
 import { MasaiDropdownCheckboxFilter } from '@/components/ui/masai-dropdown-checkbox-filter'
 import { MasaiSelectDropdown } from '@/components/ui/masai-select-dropdown'
 import { MasaiButton } from '@/components/masai-button'
 import { MasaiDrawer } from '@/components/ui/masai-drawer'
 import { MasaiInput } from '@/components/ui/masai-input'
-import { MasaiTab } from '@/components/ui/masai-tab'
 
 /** Debounce before committing the search term to the URL (keeps typing smooth). */
 const SEARCH_DEBOUNCE_MS = 1000
@@ -28,20 +29,14 @@ const SEARCH_DEBOUNCE_MS = 1000
 /** Shorter debounce for module checkboxes — ticks apply optimistically, fetch follows. */
 const MODULE_DEBOUNCE_MS = 400
 
-const LEARN_TAB_ICON_URL =
-  'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/tab-icon.svg'
-
-const LEARN_TAB_ITEMS: ReadonlyArray<{ value: LearnTab; label: string }> = [
-  { value: 'lectures', label: 'Lectures' },
-  { value: 'assignments', label: 'Assignments' },
-  { value: 'resources', label: 'Resources' },
-]
-
 const SEARCH_PLACEHOLDER_BY_TAB: Record<LearnTab, string> = {
   lectures: 'Search lectures',
   assignments: 'Search assignments',
   resources: 'Search resources',
 }
+
+/** Sentinel option value for "Any section". */
+const ANY_SECTION_VALUE = 'any'
 
 interface LearnControlsSectionProps {
   activeTab: LearnTab
@@ -58,6 +53,12 @@ interface LearnControlsSectionProps {
   onApplyModalFilters: (next: LearnModalFiltersState) => void
   horizon: LearnScheduleHorizon
   onHorizonChange: (horizon: LearnScheduleHorizon) => void
+  /** Section filter — opt-in per batch (`batches.meta.showSectionDropdown`). */
+  showSectionDropdown?: boolean
+  sections?: Array<EnrolledSection>
+  /** `null` when "Any section" is active. */
+  selectedSectionId?: number | null
+  onSectionChange?: (sectionId: number | null) => void
 }
 
 export function LearnControlsSection({
@@ -75,8 +76,29 @@ export function LearnControlsSection({
   onApplyModalFilters,
   horizon,
   onHorizonChange,
+  showSectionDropdown = false,
+  sections = [],
+  selectedSectionId = null,
+  onSectionChange,
 }: LearnControlsSectionProps) {
   const [filtersOpen, setFiltersOpen] = useState(false)
+
+  const sectionOptions = useMemo(
+    () => [
+      { value: ANY_SECTION_VALUE, label: 'All Courses' },
+      ...sections.map((section) => ({
+        value: section.sectionId.toString(),
+        label: section.name,
+      })),
+    ],
+    [sections],
+  )
+  // Show "Any" for a stale/unknown section id (LearnLayout clears it shortly after).
+  const sectionValue =
+    selectedSectionId != null &&
+    sections.some((section) => section.sectionId === selectedSectionId)
+      ? selectedSectionId.toString()
+      : ANY_SECTION_VALUE
 
   // Fire the search event only on the committed (debounced) value, not per
   // keystroke, and only when the query is non-empty.
@@ -152,48 +174,53 @@ export function LearnControlsSection({
 
   // Tabs stack above the controls on small screens; one row from `md` up.
   return (
-    <section className="py-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div
-        role="tablist"
-        aria-label="Learning content type"
-        className="flex flex-wrap items-center gap-4"
-      >
-        {LEARN_TAB_ITEMS.map((tab) => (
-          <MasaiTab
-            key={tab.value}
-            label={tab.label}
-            selected={activeTab === tab.value}
-            onClick={() => {
-              pushLearnEvent('l_learn_tab_change', { tab: tab.value })
-              onTabChange(tab.value)
-            }}
-            iconLeft={
-              <img
-                src={LEARN_TAB_ICON_URL}
-                alt=""
-                width={24}
-                height={24}
-                className="size-6 shrink-0 object-contain"
-              />
-            }
-          />
-        ))}
+    <section className="flex flex-col gap-2 py-0 items-start lg:flex-row lg:items-center lg:justify-between mt-1">
+      {/* Lectures/Assignments/Resources: inline on mobile (no Tier 2 nav there
+          yet); portaled into the desktop navbar's Tier 2 row on `lg`+, where
+          the inline copy is hidden via the ancestor's `max-lg:hidden`. Border
+          matches the hairline that separates the desktop navbar's Tier 2 row
+          from this same controls row, so mobile reads the same way. */}
+      <div className="w-full border-b border-border lg:hidden">
+        <LearnTabSwitcher activeTab={activeTab} onTabChange={onTabChange} />
       </div>
 
       {/* Search takes the full first line below `sm` so module + filter never
-          squeeze off-screen at 320px. */}
-      <div className="flex w-full min-w-0 flex-wrap items-center gap-3 md:ml-auto md:w-auto md:justify-end">
+          squeeze off-screen at 320px. Triggers are sized to match the Tier 2
+          navbar's compact program-picker pill (h-8, rounded-full, text-sm). */}
+      <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto md:justify-end layout-gutter-x">
         <MasaiInput
           type="search"
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
           placeholder={SEARCH_PLACEHOLDER_BY_TAB[activeTab]}
           iconLeft={<Search className="size-4 shrink-0" strokeWidth={2} />}
-          className="w-full min-w-0 sm:w-[300px]"
+          className="h-8 min-h-0 w-full min-w-0 rounded-lg px-3 py-0 text-sm sm:w-65 bg-muted lg:bg-surface"
         />
 
+        {showSectionDropdown ? (
+          <MasaiSelectDropdown
+            triggerLabel=""
+            menuLabel="Select a course"
+            aria-label="Filter by course"
+            options={sectionOptions}
+            value={sectionValue}
+            disabled={sections.length === 0}
+            onValueChange={(value) => {
+              const nextSectionId =
+                value === ANY_SECTION_VALUE ? null : Number(value)
+              pushLearnEvent('l_learn_section_change', {
+                section_id: nextSectionId ?? 'any',
+              })
+              onSectionChange?.(nextSectionId)
+            }}
+            className="min-w-30 flex-1 sm:w-40 sm:flex-none"
+            triggerClassName="h-8 min-h-0 min-w-0 w-full gap-1.5 rounded-lg px-3 py-0 text-sm"
+            chevronVariant="plain"
+          />
+        ) : null}
+
         <MasaiSelectDropdown
-          triggerLabel="Timeframe"
+          triggerLabel=""
           menuLabel="Select timeframe"
           aria-label="Filter by timeframe"
           options={LEARN_SCHEDULE_HORIZON_OPTIONS}
@@ -206,8 +233,9 @@ export function LearnControlsSection({
             })
             onHorizonChange(nextHorizon)
           }}
-          className="min-w-[150px] flex-1 sm:w-[210px] sm:flex-none"
-          triggerClassName="min-w-0 w-full"
+          className="min-w-[120px] flex-1 sm:w-[160px] sm:flex-none"
+          triggerClassName="h-8 min-h-0 min-w-0 w-full gap-1.5 rounded-lg px-3 py-0 text-sm"
+          chevronVariant="plain"
         />
 
         <MasaiDropdownCheckboxFilter
@@ -217,16 +245,17 @@ export function LearnControlsSection({
           value={selectedModules}
           onValueChange={setSelectedModules}
           disabled={!hasModuleChoices}
-          className="min-w-[150px] flex-1 sm:w-[190px] sm:flex-none"
-          triggerClassName="min-w-0 w-full"
+          className="min-w-[110px] flex-1 sm:w-[140px] sm:flex-none"
+          triggerClassName="h-8 min-h-0 min-w-0 w-full gap-1.5 rounded-lg px-3 py-0 text-sm"
+          chevronVariant="plain"
         />
 
-        <div className="relative shrink-0">
+        <div className="relative ml-auto shrink-0 grow flex justify-end">
           <MasaiButton
             type="tertiary"
-            size="md"
-            iconOnly
-            icon={<Filter className="size-6" strokeWidth={2} />}
+            size="sm"
+            icon={<Filter className="size-4" strokeWidth={2} />}
+            ctaText="More filters"
             htmlType="button"
             onClick={() => {
               pushLearnEvent('l_learn_filters_open', {
@@ -240,7 +269,7 @@ export function LearnControlsSection({
                 ? `Open filters, ${filterCount} active`
                 : 'Open filters'
             }
-            className="!border !border-border !text-foreground transition-all duration-200 hover:-translate-y-px hover:!border-brand/35 hover:!bg-surface-muted active:scale-95"
+            className="h-8 rounded-lg border! border-border! text-foreground! transition-all duration-200 hover:-translate-y-px hover:border-brand/35! hover:bg-surface-muted! active:scale-95 bg-surface"
           />
           {filterCount > 0 ? (
             <span

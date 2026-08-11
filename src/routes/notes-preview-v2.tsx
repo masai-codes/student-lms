@@ -47,9 +47,7 @@ export const Route = createFileRoute('/notes-preview-v2')({
       cleanParams.delete('token')
       const cleanSearch = cleanParams.toString()
       throw redirect({
-        href: `${location.pathname}${
-          cleanSearch ? `?${cleanSearch}` : ''
-        }`,
+        href: `${location.pathname}${cleanSearch ? `?${cleanSearch}` : ''}`,
         replace: true,
       })
     }

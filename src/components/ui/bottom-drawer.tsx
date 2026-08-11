@@ -19,6 +19,22 @@ type BottomDrawerProps = {
   className?: string
   /** Extra classes for the scrollable body. */
   bodyClassName?: string
+  /**
+   * Element to portal into, defaulting to `<body>`. Pass the fullscreen root
+   * when the drawer has to stay visible over a fullscreened element: the
+   * Fullscreen API paints only that element and its descendants, so a sheet
+   * portaled to `<body>` is hidden regardless of z-index.
+   */
+  container?: HTMLElement | null
+  /** `data-testid` for the sheet itself, for automation. */
+  testId?: string
+  /**
+   * Replaces the default ✕ glyph in the header button — e.g. a caret when the
+   * sheet collapses to something instead of going away.
+   */
+  closeIcon?: ReactNode
+  /** Accessible name for that button. Defaults to "Close". */
+  closeLabel?: string
 }
 
 /**
@@ -38,6 +54,10 @@ export default function BottomDrawer({
   children,
   className,
   bodyClassName,
+  container,
+  testId,
+  closeIcon,
+  closeLabel,
 }: BottomDrawerProps) {
   return (
     <Drawer.Root
@@ -45,10 +65,12 @@ export default function BottomDrawer({
       onOpenChange={(next) => {
         if (!next) onClose?.()
       }}
+      container={container ?? undefined}
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-[215] bg-black/50" />
         <Drawer.Content
+          data-testid={testId}
           className={cn(
             'fixed inset-x-0 bottom-0 z-[220] flex max-h-[88svh] flex-col rounded-t-2xl border-t border-border bg-surface font-poppins shadow-[0_-8px_24px_rgba(17,24,39,0.12)] outline-none',
             className,
@@ -65,10 +87,10 @@ export default function BottomDrawer({
               {title ?? ''}
             </Drawer.Title>
             <Drawer.Close
-              aria-label="Close"
+              aria-label={closeLabel ?? 'Close'}
               className="flex size-8 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
             >
-              <X size={18} />
+              {closeIcon ?? <X size={18} />}
             </Drawer.Close>
           </div>
 
