@@ -11,6 +11,9 @@ import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearni
 import type { LearnDiscussionListItem } from '@/server/learn/types'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 import { getAccessibleSectionIdsForUserInBatch } from '@/server/learn/utils/ensureLearnEntityAccess'
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
+import { getPausedCutoff } from '@/server/restrictions/enrollmentRestrictionScope'
+import { isScheduledAfterCutoff } from '@/server/restrictions/restrictionDates'
 
 /**
  * Every public discussion on content in the viewer's own sections of `batchId`,
@@ -34,6 +37,12 @@ import { getAccessibleSectionIdsForUserInBatch } from '@/server/learn/utils/ensu
  * `sections.batch_id` on a few hundred live rows, and the detail page ignores it,
  * so adding it would hide content the viewer can legitimately open. Rows with a
  * NULL `section_id` drop out for the same reason — the gate rejects them too.
+ *
+ * Paused batch: content scheduled after the pause cutoff is dropped, so its
+ * discussions disappear from the feed — the same rule the lecture/assignment
+ * listing applies via `bannedScheduleCutoff`, and what the detail page blocks on
+ * ({@link resolveLearnDetailRestriction}). Without it a paused student kept
+ * seeing (and could open) threads on content they are restricted from.
  */
 export async function listLearnDiscussionsForBatch(
   viewerUserId: number,
@@ -52,9 +61,14 @@ export async function listLearnDiscussionsForBatch(
     return []
   }
 
-  const [lectureRows, assignmentRows] = await Promise.all([
+  const [allLectureRows, allAssignmentRows, restrictions] = await Promise.all([
     db
-      .select({ id: lectures.id, title: lectures.title, type: lectures.type })
+      .select({
+        id: lectures.id,
+        title: lectures.title,
+        type: lectures.type,
+        schedule: lectures.schedule,
+      })
       .from(lectures)
       .where(
         and(
@@ -63,7 +77,11 @@ export async function listLearnDiscussionsForBatch(
         ),
       ),
     db
-      .select({ id: assignments.id, title: assignments.title })
+      .select({
+        id: assignments.id,
+        title: assignments.title,
+        schedule: assignments.schedule,
+      })
       .from(assignments)
       .where(
         and(
@@ -71,7 +89,15 @@ export async function listLearnDiscussionsForBatch(
           isNull(assignments.deletedAt),
         ),
       ),
+    getUserBatchRestrictions(viewerUserId),
   ])
+
+  const pausedCutoff = getPausedCutoff(restrictions, batchId)
+  const isVisible = (row: { schedule: string | null }) =>
+    pausedCutoff == null || !isScheduledAfterCutoff(row.schedule, pausedCutoff)
+
+  const lectureRows = allLectureRows.filter(isVisible)
+  const assignmentRows = allAssignmentRows.filter(isVisible)
 
   if (!lectureRows.length && !assignmentRows.length) {
     return []

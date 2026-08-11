@@ -25,7 +25,7 @@ export default function MasaiverseV2LeftSection() {
     : undefined
 
   return (
-    <aside className="sticky top-[72px] hidden h-[calc(100vh-72px)] w-[20%] shrink-0 self-start overflow-y-auto border-r border-border bg-surface py-6 pl-4 pr-4 md:block">
+    <aside className="sticky top-[var(--app-navbar-h)] hidden h-[calc(100vh-var(--app-navbar-h))] w-[20%] shrink-0 self-start overflow-y-auto border-r border-border bg-surface py-6 pl-4 pr-4 md:block">
       <div className="mb-5 flex justify-center border-b border-border px-1 pb-6">
         <img src="/Masaiverse.svg" alt="Masaiverse" className="h-16 w-auto" />
       </div>

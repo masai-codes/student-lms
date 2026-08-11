@@ -34,6 +34,21 @@
   @apply flex min-h-dvh flex-col bg-surface-muted;
 }
 
+/* Height of the sticky `AppNavbar` (the 56px tier-1 row + its 1px bottom
+   border) — the single source of truth for panels that pin themselves below
+   it (`position: sticky/fixed` + `calc(100vh - …)`). Hardcoded copies of this
+   drifted to 72px and left a dead 15px band under the navbar. The navbar is
+   `max-lg:hidden`, so below `lg` there is nothing to offset past. */
+:root {
+  --app-navbar-h: 0px;
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --app-navbar-h: 57px;
+  }
+}
+
 /* Full-viewport-width `<main>` variant (Masaiverse / chat / dashboard): no
    max-w cap, children own their own spacing. */
 @utility layout-full-width-main {
