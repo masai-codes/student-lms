@@ -18,7 +18,14 @@ vi.mock('@/db', () => ({
   },
 }))
 vi.mock('@/db/schema', () => ({
-  lectures: { id: {}, zoomDetails: {}, hostId: {}, settings: {}, batchId: {} },
+  lectures: {
+    id: {},
+    zoomDetails: {},
+    hostId: {},
+    settings: {},
+    batchId: {},
+    title: {},
+  },
   users: { id: {}, email: {} },
   batches: { id: {}, duration: {} },
 }))
@@ -29,7 +36,14 @@ const ADMIN = { id: 42, role: 'admin', name: 'IA', email: 'admin@x.com' }
 /** A lecture row as selected by the main fetch. */
 function lectureRow(over: Record<string, unknown> = {}) {
   return [
-    { zoomDetails: {}, hostId: null, settings: null, batchId: null, ...over },
+    {
+      zoomDetails: {},
+      hostId: null,
+      settings: null,
+      batchId: null,
+      title: 'DSA 101',
+      ...over,
+    },
   ]
 }
 
@@ -74,6 +88,7 @@ describe('generateZoomRedirectionUrl', () => {
       email: 'a@x.com',
     })
     expect(payloadOf(result.url)).not.toHaveProperty('isInstructor')
+    expect(payloadOf(result.url)).toHaveProperty('exp')
   })
 
   it('resolves the effective lecture id via groupLectureIdentifier', async () => {
@@ -124,6 +139,27 @@ describe('generateZoomRedirectionUrl', () => {
     )
   })
 
+  it('signs the ivs payload shape: lectureTitle, no email/role_zoom, no iat/exp', async () => {
+    hoisted.selectQueue = [
+      [{ zoomDetails: null }],
+      lectureRow({ zoomDetails: { redirectionType: 'ivs' } }),
+    ]
+    const generate = await load()
+
+    const result = await generate({ lectureId: '572', user: STUDENT })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(payloadOf(result.url)).toEqual({
+      lectureId: '572',
+      lectureTitle: 'DSA 101',
+      userId: '7',
+      username: 'Asha',
+      role: 'student',
+      isInstructor: false,
+    })
+  })
+
   it('gives the ivs primary host an admin token with isInstructor', async () => {
     hoisted.selectQueue = [
       [{ zoomDetails: null }],
@@ -137,9 +173,8 @@ describe('generateZoomRedirectionUrl', () => {
     if (!result.ok) return
     expect(payloadOf(result.url)).toMatchObject({
       role: 'admin',
-      role_zoom: 'admin',
+      // not prefixed with "Admin " — hosts join under their own name
       username: 'IA',
-      email: 'admin@x.com',
       isInstructor: true,
     })
   })
@@ -160,7 +195,8 @@ describe('generateZoomRedirectionUrl', () => {
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(payloadOf(result.url)).toMatchObject({
-      role_zoom: 'admin',
+      role: 'admin',
+      username: 'IA',
       isInstructor: false,
     })
   })

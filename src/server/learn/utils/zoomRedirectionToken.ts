@@ -26,6 +26,7 @@ type LectureRow = {
   hostId: number | null
   settings: Record<string, unknown> | null
   batchId: number | null
+  title: string | null
 }
 
 function parseJsonObject(raw: unknown): Record<string, unknown> | null {
@@ -176,6 +177,9 @@ async function resolveBaseUrl(
  *  - for ZEF with ZOOM admins, maps the dashboard email to the licensed host email
  *  - for ZEF with IVS admins, only the lecture's primary/secondary hosts get a
  *    token, and the primary host gets `isInstructor: true`
+ *  - signs a per-flow payload:
+ *      ZEF with IVS  → lectureId, lectureTitle, userId, username, role, isInstructor (no iat/exp)
+ *      ZEF with ZOOM → lectureId, role, role_zoom, userId, username, email (+ iat/exp, 4h)
  *  - picks the destination platform from `zoom_details.redirectionType`
  */
 export async function generateZoomRedirectionUrl(input: {
@@ -220,6 +224,7 @@ export async function generateZoomRedirectionUrl(input: {
       hostId: lectures.hostId,
       settings: lectures.settings,
       batchId: lectures.batchId,
+      title: lectures.title,
     })
     .from(lectures)
     .where(eq(lectures.id, effectiveLectureIdN))
@@ -241,7 +246,8 @@ export async function generateZoomRedirectionUrl(input: {
 
   if (roleLower === 'admin') {
     if (redirectionType === 'ivs') {
-      // ZEF with IVS: role_zoom simply mirrors role (no shared-license host swap).
+      // ZEF with IVS: role_zoom is not part of the IVS payload, but keep it in sync
+      // with role so the "Admin " username prefix (a ZOOM affordance) stays off.
       const ivs = resolveIvsAdmin(lecture, userIdT)
       if (!ivs.ok) {
         return {
@@ -270,23 +276,45 @@ export async function generateZoomRedirectionUrl(input: {
       ? `Admin ${usernameT}`
       : usernameT
 
-  const token = jwt.sign(
-    {
-      lectureId: effectiveLectureId,
-      role: payloadRole,
-      role_zoom: roleZoom,
-      userId: userIdT,
-      username: payloadUsername,
-      email: jwtEmail,
-      ...(isInstructor !== undefined ? { isInstructor } : {}),
-    },
-    secret,
-    {
-      algorithm: JWT_ALGORITHM,
-      header: { typ: 'JWT', alg: JWT_ALGORITHM },
-      expiresIn: '4h',
-    },
-  )
+  // The two flows carry different payloads:
+  //  - ZEF with IVS: exactly lectureId, lectureTitle, userId, username, role,
+  //    isInstructor — no email/role_zoom, and no iat/exp (noTimestamp, no expiry).
+  //  - ZEF with ZOOM: email/role_zoom plus the standard iat/exp, 4h expiry.
+  const token =
+    redirectionType === 'ivs'
+      ? jwt.sign(
+          {
+            lectureId: effectiveLectureId,
+            lectureTitle: String(lecture?.title ?? ''),
+            userId: userIdT,
+            username: payloadUsername,
+            role: payloadRole,
+            // Students are never instructors; for admins this was set by the host check above.
+            isInstructor: isInstructor === true,
+          },
+          secret,
+          {
+            algorithm: JWT_ALGORITHM,
+            header: { typ: 'JWT', alg: JWT_ALGORITHM },
+            noTimestamp: true,
+          },
+        )
+      : jwt.sign(
+          {
+            lectureId: effectiveLectureId,
+            role: payloadRole,
+            role_zoom: roleZoom,
+            userId: userIdT,
+            username: payloadUsername,
+            email: jwtEmail,
+          },
+          secret,
+          {
+            algorithm: JWT_ALGORITHM,
+            header: { typ: 'JWT', alg: JWT_ALGORITHM },
+            expiresIn: '4h',
+          },
+        )
 
   const baseUrl = await resolveBaseUrl(redirectionType, lecture?.batchId)
   return { ok: true, url: `${baseUrl}/?token=${encodeURIComponent(token)}` }
