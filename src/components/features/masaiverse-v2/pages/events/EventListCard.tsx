@@ -93,7 +93,7 @@ export default function EventListCard({
           )}
         >
           {isLive ? (
-            <span className="size-1.5 rounded-full bg-surface" />
+            <span className="size-1.5 rounded-full bg-danger-foreground" />
           ) : null}
           {isPast ? 'Ended' : badgeLabel}
         </span>

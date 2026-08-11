@@ -155,7 +155,7 @@ function ScheduleFeed({
           {week.rangeLabel}
         </span>
         <span
-          className="h-px flex-1 bg-gradient-to-r from-[#4F6BED]/30 via-gray-200 to-transparent"
+          className="h-px flex-1 bg-gradient-to-r from-[#4F6BED]/30 via-gray-200 dark:via-border to-transparent"
           aria-hidden
         />
       </div>
@@ -262,7 +262,7 @@ function PendingTasksFeed({
       >
         <span
           aria-hidden
-          className="animate-dash-pop flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-emerald-50 to-emerald-100 text-xl shadow-[0_0_0_6px_rgb(16_185_129_/_0.08)]"
+          className="animate-dash-pop flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-500/10 dark:to-emerald-500/20 text-xl shadow-[0_0_0_6px_rgb(16_185_129_/_0.08)]"
         >
           🎉
         </span>

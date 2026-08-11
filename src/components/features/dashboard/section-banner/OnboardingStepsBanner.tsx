@@ -123,7 +123,8 @@ export function OnboardingStepsBanner({
                 data-active={i === selected}
                 onClick={() => emblaApi?.scrollTo(i)}
                 className={`size-1.5 rounded-full transition-colors ${
-                  i === selected ? 'bg-surface' : 'bg-surface/40'
+                  // Constant white — the dots sit on the fixed purple gradient.
+                  i === selected ? 'bg-white' : 'bg-white/40'
                 }`}
               />
             ))}
@@ -177,7 +178,7 @@ function OnboardingSlide({
         type="button"
         onClick={onResume}
         data-testid="dashboard-onboarding-banner-resume"
-        className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-surface px-4 py-2 text-sm font-semibold text-brand transition-colors hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"
+        className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand dark:text-[#6962ac] transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"
       >
         Finish Now
         <ArrowRight size={16} weight="bold" />
@@ -198,8 +199,9 @@ function StepsLeftCounter({ remaining }: { remaining: number }) {
       className="flex shrink-0 items-center gap-2 rounded-xl bg-[#FFC24B] px-3 py-1.5 text-[#4A3F7A] shadow-sm"
     >
       <span className="relative flex size-2" aria-hidden>
-        <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand opacity-70" />
-        <span className="relative inline-flex size-2 rounded-full bg-brand" />
+        {/* Pin light-brand purple: the amber chip is a fixed color in both themes. */}
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand dark:bg-[#6962ac] opacity-70" />
+        <span className="relative inline-flex size-2 rounded-full bg-brand dark:bg-[#6962ac]" />
       </span>
       <span className="whitespace-nowrap font-bold leading-none">
         <span className="text-xl">{remaining}</span>

@@ -5,6 +5,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { Toaster } from 'sonner'
+import { useTheme } from '@/lib/theme'
 import appCss from '../styles.css?url'
 import type { RouterContext } from '@/types'
 import { captureAppMobileContextFromUrl } from '@/utils/appMobile'
@@ -72,6 +73,24 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   shellComponent: RootDocument,
 })
 
+/**
+ * Sonner renders outside the token system, so it needs the resolved theme
+ * passed explicitly (its own `system` detection wouldn't honor an explicit
+ * light/dark pin). Must live under <ThemeProvider>.
+ */
+function ThemedToaster() {
+  const { resolvedTheme, hydrated } = useTheme()
+  return (
+    <Toaster
+      position="top-center"
+      theme={hydrated ? resolvedTheme : 'light'}
+      richColors
+      closeButton
+      toastOptions={{ duration: 4000 }}
+    />
+  )
+}
+
 function RootDocument({ children }: { children: React.ReactNode }) {
   // The `QueryClient` and its provider now live in `getRouter()` (src/router.tsx):
   // routes need it in context to prime queries in `beforeLoad`, and the SSR-query
@@ -110,12 +129,7 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
       <body>
         <ThemeProvider>
           {children}
-          <Toaster
-            position="top-center"
-            richColors
-            closeButton
-            toastOptions={{ duration: 4000 }}
-          />
+          <ThemedToaster />
         </ThemeProvider>
         <Scripts />
       </body>

@@ -22,6 +22,8 @@ const SEEK_STEP_SECONDS = 5
 const seekIconClass = 'h-6 w-6 shrink-0 text-white md:h-7 md:w-7'
 
 const seekBadgeClass =
+  // Literal white glass (not `surface`): the seek badge floats on the video,
+  // which is fixed-dark in both themes.
   'flex h-16 w-16 flex-col items-center justify-center gap-0.5 rounded-full border border-white/15 bg-white/10 text-white shadow-[0_4px_24px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150 md:h-[4.5rem] md:w-[4.5rem]'
 
 const seekLabelClass = 'text-xs font-semibold leading-none text-white/90'

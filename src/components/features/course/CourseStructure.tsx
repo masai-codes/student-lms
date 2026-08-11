@@ -12,7 +12,7 @@ function ModuleDot({ status }: { status: CourseStructureModule['status'] }) {
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <path
             d="M2.5 7L5.5 10L11.5 4"
-            stroke="white"
+            stroke="var(--success-foreground)"
             strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -50,7 +50,7 @@ function ChevronIcon({ open }: { open: boolean }) {
     >
       <path
         d="M5 7.5L10 12.5L15 7.5"
-        stroke="#111928"
+        stroke="var(--surface-foreground)"
         strokeWidth="1.67"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -87,7 +87,7 @@ export function CourseStructure({ modules }: Props) {
                     left: 13,
                     top: 28,
                     bottom: -2,
-                    borderLeft: '1px dashed #D1D5DB',
+                    borderLeft: '1px dashed var(--border-strong)',
                     zIndex: 0,
                   }}
                 />

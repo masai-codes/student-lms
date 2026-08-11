@@ -54,7 +54,7 @@ function BannerCard({
       />
       <span
         aria-hidden
-        className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-masaiverse-orange to-[#FF8A3D]"
+        className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-accent-warm to-[#FF8A3D]"
       />
 
       {canManage ? (

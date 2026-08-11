@@ -93,7 +93,7 @@ export function CallbackReasonSelector({
                 key={reason}
                 type="button"
                 onClick={() => onSelect(reason)}
-                className="group flex shrink-0 items-center gap-[13px] p-[13px_12px] rounded-[14px] border border-[#e9e9f3] bg-white text-left cursor-pointer transition-all duration-150 ease-out hover:bg-[rgba(75,67,150,0.03)] hover:border-[#4b4396]/30 hover:translate-x-0.5"
+                className="group flex shrink-0 items-center gap-[13px] p-[13px_12px] rounded-[14px] border border-[#e9e9f3] bg-surface text-left cursor-pointer transition-all duration-150 ease-out hover:bg-[rgba(75,67,150,0.03)] hover:border-[#4b4396]/30 hover:translate-x-0.5"
               >
                 <div className="flex items-center justify-center shrink-0 size-[38px] rounded-[11px] bg-[rgba(75,67,150,0.06)] text-[#4b4396]">
                   <IconComponent weight="bold" className="size-[19px]" />

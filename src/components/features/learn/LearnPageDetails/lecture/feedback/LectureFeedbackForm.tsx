@@ -192,7 +192,7 @@ export function LectureFeedbackForm({
               onFocus={() => setHovered(item.value)}
               onBlur={() => setHovered(0)}
               onClick={() => selectRating(item.value)}
-              className="group relative flex items-center justify-center rounded-xl px-0.5 py-2 outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[#4F6BED]/40 disabled:cursor-not-allowed"
+              className="group relative flex items-center justify-center rounded-xl px-0.5 py-2 outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[#4F6BED]/40 dark:focus-visible:ring-info/50 disabled:cursor-not-allowed"
             >
               {/* Coloured halo that blooms behind the live emoji. */}
               <span
@@ -267,7 +267,7 @@ export function LectureFeedbackForm({
                 className={cn(
                   'type-b3-regular rounded-full border px-2.5 py-1 transition-colors duration-150 disabled:cursor-not-allowed',
                   isChecked
-                    ? 'border-[#4F6BED] bg-[#4F6BED]/10 text-[#4F6BED]'
+                    ? 'border-[#4F6BED] bg-[#4F6BED]/10 text-[#4F6BED] dark:border-info dark:bg-info/15 dark:text-info'
                     : 'border-border bg-surface text-foreground-subtle hover:bg-surface-muted',
                 )}
               >

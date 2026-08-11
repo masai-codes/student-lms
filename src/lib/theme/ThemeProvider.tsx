@@ -10,81 +10,139 @@ import {
 } from 'react'
 import type { ReactNode } from 'react'
 
-import { applyThemeToDocument, readStoredTheme } from './apply'
-import { DEFAULT_THEME_ID, STORAGE_KEY, THEMES, getTheme } from './themes'
-import type { ThemeDefinition, ThemeId } from './themes'
+import {
+  applyThemeToDocument,
+  getSystemTheme,
+  readStoredPreference,
+} from './apply'
+import {
+  DEFAULT_PREFERENCE,
+  STORAGE_KEY,
+  preferenceForExplicitPick,
+  resolveTheme,
+} from './themes'
+import type { ResolvedTheme, ThemePreference } from './themes'
 
 interface ThemeContextValue {
-  /** Currently active theme id. */
-  theme: ThemeId
-  /** Full definition of the active theme. */
-  themeDefinition: ThemeDefinition
-  /** All registered themes, in display order. */
-  themes: Array<ThemeDefinition>
-  /** Switch theme: updates <html>, persists to localStorage. */
-  setTheme: (id: ThemeId) => void
+  /** The persisted preference: `system`, `light`, or `dark`. */
+  preference: ThemePreference
+  /** The concrete theme currently on screen (`system` resolved). */
+  resolvedTheme: ResolvedTheme
+  /**
+   * Explicitly pick a mode. Applies the collapse-to-system rule: picking the
+   * mode the OS is already in persists `system`, so the app keeps following
+   * future OS switches.
+   */
+  setTheme: (mode: ResolvedTheme) => void
+  /** Flip between light and dark (same collapse-to-system persistence). */
+  toggleTheme: () => void
+  /** Persist a raw preference (used by settings UIs that expose `system`). */
+  setPreference: (preference: ThemePreference) => void
   /**
    * True once the client has mounted and reconciled with localStorage. Use to
-   * avoid rendering theme-dependent UI (e.g. the active check in the switcher)
-   * during SSR, which would otherwise hydrate mismatched.
+   * avoid rendering theme-dependent UI (e.g. the sun/moon toggle icon) during
+   * SSR, which would otherwise hydrate mismatched.
    */
   hydrated: boolean
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
+function persistPreference(preference: ThemePreference) {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, preference)
+  } catch {
+    // Ignore persistence failures (private mode, quota) — theme still applies.
+  }
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // SSR renders the default; the pre-hydration inline script has already set the
-  // real theme on <html>, and the effect below reconciles React state to it.
-  const [theme, setThemeState] = useState<ThemeId>(DEFAULT_THEME_ID)
+  // SSR renders defaults; the pre-hydration inline script has already set the
+  // real theme on <html>, and the mount effect reconciles React state to it.
+  const [preference, setPreferenceState] =
+    useState<ThemePreference>(DEFAULT_PREFERENCE)
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>('light')
   const [hydrated, setHydrated] = useState(false)
   const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => {
-    const stored = readStoredTheme(STORAGE_KEY)
-    setThemeState(stored)
-    // The inline script already applied it, but re-apply to be certain the
-    // classList/attribute match React's notion of the active theme.
-    applyThemeToDocument(stored)
-    setHydrated(true)
-  }, [])
+  const resolvedTheme = resolveTheme(preference, systemTheme)
 
-  // Keep in sync across tabs.
-  useEffect(() => {
-    function onStorage(e: StorageEvent) {
-      if (e.key !== STORAGE_KEY) return
-      const next = readStoredTheme(STORAGE_KEY)
-      setThemeState(next)
-      applyThemeToDocument(next)
-    }
-    window.addEventListener('storage', onStorage)
-    return () => window.removeEventListener('storage', onStorage)
-  }, [])
-
-  const setTheme = useCallback((id: ThemeId) => {
-    setThemeState(id)
-    try {
-      window.localStorage.setItem(STORAGE_KEY, id)
-    } catch {
-      // Ignore persistence failures (private mode, quota) — theme still applies.
-    }
-
-    // Enable the color-transition only for the duration of the switch, so the
-    // fade plays on switch but never interferes with normal interactions.
+  /** Apply with a brief cross-fade (scoped to color properties in styles.css). */
+  const applyWithTransition = useCallback((theme: ResolvedTheme) => {
     const root = document.documentElement
     root.setAttribute('data-theme-transition', '')
-    applyThemeToDocument(id)
+    applyThemeToDocument(theme)
     if (transitionTimer.current) clearTimeout(transitionTimer.current)
     transitionTimer.current = setTimeout(() => {
       root.removeAttribute('data-theme-transition')
     }, 400)
   }, [])
 
+  useEffect(() => {
+    const stored = readStoredPreference(STORAGE_KEY)
+    const system = getSystemTheme()
+    setPreferenceState(stored)
+    setSystemTheme(system)
+    // The inline script already applied it, but re-apply to be certain the
+    // classList/attribute match React's notion of the active theme.
+    applyThemeToDocument(resolveTheme(stored, system))
+    setHydrated(true)
+  }, [])
+
+  // Follow live OS switches while the preference is `system`.
+  useEffect(() => {
+    const mql = window.matchMedia('(prefers-color-scheme: dark)')
+    function onChange(e: MediaQueryListEvent) {
+      const system: ResolvedTheme = e.matches ? 'dark' : 'light'
+      setSystemTheme(system)
+      const stored = readStoredPreference(STORAGE_KEY)
+      if (stored === 'system') applyWithTransition(system)
+    }
+    mql.addEventListener('change', onChange)
+    return () => mql.removeEventListener('change', onChange)
+  }, [applyWithTransition])
+
+  // Keep in sync across tabs.
+  useEffect(() => {
+    function onStorage(e: StorageEvent) {
+      if (e.key !== STORAGE_KEY) return
+      const next = readStoredPreference(STORAGE_KEY)
+      setPreferenceState(next)
+      applyThemeToDocument(resolveTheme(next, getSystemTheme()))
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
+
+  const setPreference = useCallback(
+    (next: ThemePreference) => {
+      const system = getSystemTheme()
+      setSystemTheme(system)
+      setPreferenceState(next)
+      persistPreference(next)
+      applyWithTransition(resolveTheme(next, system))
+    },
+    [applyWithTransition],
+  )
+
+  const setTheme = useCallback(
+    (mode: ResolvedTheme) => {
+      setPreference(preferenceForExplicitPick(mode, getSystemTheme()))
+    },
+    [setPreference],
+  )
+
+  const toggleTheme = useCallback(() => {
+    const current = resolveTheme(readStoredPreference(STORAGE_KEY), getSystemTheme())
+    setTheme(current === 'dark' ? 'light' : 'dark')
+  }, [setTheme])
+
   const value: ThemeContextValue = {
-    theme,
-    themeDefinition: getTheme(theme),
-    themes: THEMES,
+    preference,
+    resolvedTheme,
     setTheme,
+    toggleTheme,
+    setPreference,
     hydrated,
   }
 

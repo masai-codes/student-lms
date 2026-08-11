@@ -179,7 +179,7 @@ export function MasaiPagination({
               interactive: !isFirst,
               state: isFirst ? 'disabled' : 'default',
             }),
-            !isFirst && '!text-primary-600',
+            !isFirst && '!text-primary-600 dark:!text-brand',
           )}
         >
           <ChevronLeft size={iconSize} aria-hidden />
@@ -235,7 +235,7 @@ export function MasaiPagination({
               interactive: !isLast,
               state: isLast ? 'disabled' : 'default',
             }),
-            !isLast && '!text-primary-600',
+            !isLast && '!text-primary-600 dark:!text-brand',
           )}
         >
           <ChevronRight size={iconSize} aria-hidden />

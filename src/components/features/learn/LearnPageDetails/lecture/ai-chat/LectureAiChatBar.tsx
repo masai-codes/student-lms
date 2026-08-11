@@ -88,7 +88,7 @@ export function LectureAiChatBar({
     const baseClasses =
       'flex size-9 items-center justify-center rounded-full transition-colors'
     const stateClasses = isMicEnabled
-      ? 'lecture-chat-mic-pulse bg-danger text-white hover:bg-red-600'
+      ? 'lecture-chat-mic-pulse bg-danger text-danger-foreground hover:bg-red-600 dark:hover:bg-danger/90'
       : 'bg-surface text-[#2f2f2f] shadow-sm hover:opacity-90 dark:text-foreground'
 
     return (
@@ -123,7 +123,7 @@ export function LectureAiChatBar({
             'flex size-9 items-center justify-center rounded-full transition-colors',
             canSend
               ? 'bg-primary-600 text-white hover:bg-primary-700'
-              : 'cursor-not-allowed bg-surface/10 text-foreground-muted',
+              : 'cursor-not-allowed bg-white/10 text-foreground-muted',
           )}
         >
           <PaperPlaneRight className="size-5" weight="fill" />
@@ -178,7 +178,7 @@ export function LectureAiChatBar({
               : 'Ask anything...'
           }
           aria-label="Ask the AI tutor"
-          className="type-b2-regular max-h-[7.5rem] min-h-6 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent py-1.5 text-white outline-none placeholder:text-foreground-subtle"
+          className="type-b2-regular max-h-[7.5rem] min-h-6 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent py-1.5 text-white outline-none placeholder:text-gray-400"
         />
 
         <div className="flex shrink-0 items-center gap-0.5 self-end">

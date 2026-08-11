@@ -184,22 +184,24 @@ code {
 /* ════════════════════════════════════════════════════════════════════════
    THEME TOKENS — single source of truth for every themeable color.
 
-   • `:root` holds the LMS Default theme. It is intentionally byte-identical to
-     the original shadcn values so the app renders exactly as before when no
-     theme (or `lms-default`) is selected, and so SSR / the no-flash fallback
-     always land on Default.
-   • Each `[data-theme='…']` block redefines the FULL token set. Never rely on
-     inheritance from `:root` for a theme — a partially-defined dark theme would
-     inherit light values and break contrast. Add a theme = add one block here
-     plus one entry in `src/lib/theme/themes.ts`. Zero component changes.
-   • Dark themes additionally get the `.dark` class on <html> (added by the
-     provider) so existing `dark:` utility variants still flip.
+   Exactly two themes exist: LIGHT and DARK.
+
+   • `:root` (= `[data-theme='light']`) holds the light theme. It is the SSR /
+     no-flash fallback, byte-identical to the original shadcn + Masai values.
+   • `.dark` / `[data-theme='dark']` redefines the FULL token set — never rely
+     on inheritance from `:root`; a partially-defined dark theme would inherit
+     light values and break contrast. The provider adds BOTH the `.dark` class
+     (so `dark:` utility variants flip) and `data-theme='dark'`.
+   • Components must consume semantic tokens (`bg-surface`, `text-foreground`,
+     `bg-success-subtle text-success-subtle-foreground`, …) — never raw palette
+     colors — so a future theme is one block here, zero component changes.
 
    Contrast is verified in CI by `scripts/check-contrast.mjs` (WCAG AA).
    ════════════════════════════════════════════════════════════════════════ */
 
 :root,
-[data-theme='lms-default'] {
+[data-theme='light'] {
+  color-scheme: light;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -268,397 +270,95 @@ code {
   --info-foreground: #ffffff;
   --info-subtle: #e1effe;
   --info-subtle-foreground: #1e429f;
+
+  /* Non-contrast-checked helpers (skeleton shimmer). */
+  --skeleton-base: #f3f4f6;
+  --skeleton-sheen: #e9ebf5;
 }
 
-/* Legacy shadcn dark palette. Our dark themes add `.dark` too (so `dark:`
-   utilities flip) and then override these values via their own data-theme
-   block, which is emitted after `.dark` and therefore wins. */
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: #ffffff;
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
-/* ── Midnight — deep indigo dark theme ──────────────────────────────────── */
-[data-theme='midnight'] {
-  --background: #0b0f1a;
-  --foreground: #e5e9f0;
+/* ── DARK — premium near-black with a cool cast; brand purple lifted for
+   dark backgrounds. Elevation is expressed by LIGHTER surfaces (background →
+   surface-muted → surface/card → popover), not by shadows, which read poorly
+   on dark. Status colors are brightened + their `-subtle` pairs become deep
+   tinted washes with pastel foregrounds. ─────────────────────────────────── */
+.dark,
+[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #0f1117;
+  --foreground: #e8ebf4;
   /* Retarget the legacy Masai typography color (type-* classes) to the theme
-     foreground so all body/heading text stays readable. LMS Default keeps the
-     original #111928 (set in masai-typography.css), so light stays identical. */
+     foreground so all body/heading text stays readable. Light keeps the
+     original #111928 (set in masai-typography.css). */
   --masai-text-color: var(--foreground);
-  --card: #232e48;
-  --card-foreground: #e5e9f0;
-  --popover: #232e48;
-  --popover-foreground: #e5e9f0;
-  --primary: #8da2fb;
-  --primary-foreground: #0b0f1a;
-  --secondary: #1c2438;
-  --secondary-foreground: #e5e9f0;
-  --muted: #1c2438;
-  --muted-foreground: #98a2b8;
-  --accent: #232c42;
-  --accent-foreground: #e5e9f0;
-  --destructive: #f98080;
+  --card: #1a1f2b;
+  --card-foreground: #e8ebf4;
+  --popover: #202636;
+  --popover-foreground: #e8ebf4;
+  --primary: #a9a3ec;
+  --primary-foreground: #15131f;
+  --secondary: #232939;
+  --secondary-foreground: #e8ebf4;
+  --muted: #232939;
+  --muted-foreground: #9ba3ba;
+  --accent: #2a3047;
+  --accent-foreground: #e8ebf4;
+  --destructive: #f87d7d;
   --destructive-foreground: #2b0b0b;
-  --border: #2a3350;
-  --input: #2a3350;
-  --ring: #8da2fb;
-  --chart-1: #8da2fb;
-  --chart-2: #31c48d;
-  --chart-3: #faca15;
-  --chart-4: #ac94fa;
-  --chart-5: #f17eb8;
-  --sidebar: #0f1524;
-  --sidebar-foreground: #e5e9f0;
-  --sidebar-primary: #8da2fb;
-  --sidebar-primary-foreground: #0b0f1a;
-  --sidebar-accent: #1c2438;
-  --sidebar-accent-foreground: #e5e9f0;
-  --sidebar-border: #2a3350;
-  --sidebar-ring: #8da2fb;
+  --border: #2b3244;
+  --input: #333b50;
+  --ring: #a9a3ec;
+  --chart-1: #a9a3ec;
+  --chart-2: #34d399;
+  --chart-3: #fbbf24;
+  --chart-4: #f472b6;
+  --chart-5: #38bdf8;
+  --sidebar: #141826;
+  --sidebar-foreground: #e8ebf4;
+  --sidebar-primary: #a9a3ec;
+  --sidebar-primary-foreground: #15131f;
+  --sidebar-accent: #232939;
+  --sidebar-accent-foreground: #e8ebf4;
+  --sidebar-border: #2b3244;
+  --sidebar-ring: #a9a3ec;
 
-  --surface: #232e48;
-  --surface-foreground: #e5e9f0;
-  --surface-muted: #1c2438;
-  --surface-muted-foreground: #aeb6c7;
-  --border-strong: #3a4568;
-  --foreground-muted: #aeb6c7;
-  --foreground-subtle: #6b7590;
+  /* Extended semantic tokens — dark. Note the elevation inversion vs light:
+     the page shell (`surface-muted`) sits BELOW cards (`surface`), so cards
+     read as raised, matching light mode's white-card-on-gray layout. */
+  --surface: #1a1f2b;
+  --surface-foreground: #e8ebf4;
+  --surface-muted: #151823;
+  --surface-muted-foreground: #aab1c5;
+  --border-strong: #3e4760;
+  --foreground-muted: #aab1c5;
+  --foreground-subtle: #767f97;
 
-  --brand: #8da2fb;
-  --brand-foreground: #0b0f1a;
-  --brand-subtle: #20294a;
-  --brand-subtle-foreground: #b4c6fc;
-  --accent-warm: #fb8a4c;
-  --accent-warm-foreground: #1a1206;
-  --accent-warm-hover: #e5763a;
+  --brand: #a9a3ec;
+  --brand-foreground: #15131f;
+  --brand-subtle: #272449;
+  --brand-subtle-foreground: #c9c5f4;
+  --accent-warm: #ff8a4a;
+  --accent-warm-foreground: #201206;
+  --accent-warm-hover: #f0783a;
 
-  --success: #31c48d;
-  --success-foreground: #04231a;
-  --success-subtle: #10281f;
-  --success-subtle-foreground: #84e1bc;
-  --warning: #faca15;
-  --warning-foreground: #231a02;
-  --warning-subtle: #2a2410;
-  --warning-subtle-foreground: #fce96a;
-  --danger: #f98080;
+  --success: #34d399;
+  --success-foreground: #052e1e;
+  --success-subtle: #122a20;
+  --success-subtle-foreground: #86e6bf;
+  --warning: #fbbf24;
+  --warning-foreground: #271a02;
+  --warning-subtle: #2b2410;
+  --warning-subtle-foreground: #fcd96a;
+  --danger: #f87d7d;
   --danger-foreground: #2b0b0b;
   --danger-subtle: #3a1620;
-  --danger-subtle-foreground: #f8b4b4;
-  --info: #76a9fa;
-  --info-foreground: #06122b;
-  --info-subtle: #16233f;
-  --info-subtle-foreground: #a4cafe;
-}
+  --danger-subtle-foreground: #f8b8b8;
+  --info: #7aa8f8;
+  --info-foreground: #071330;
+  --info-subtle: #182642;
+  --info-subtle-foreground: #a8c8fc;
 
-/* ── Cocoa — warm brown dark theme ──────────────────────────────────────── */
-[data-theme='cocoa'] {
-  --background: #1a1310;
-  --foreground: #f0e6dd;
-  --masai-text-color: var(--foreground);
-  --card: #38281e;
-  --card-foreground: #f0e6dd;
-  --popover: #38281e;
-  --popover-foreground: #f0e6dd;
-  --primary: #e8a87c;
-  --primary-foreground: #1a1310;
-  --secondary: #2e211a;
-  --secondary-foreground: #f0e6dd;
-  --muted: #2e211a;
-  --muted-foreground: #bda797;
-  --accent: #38271e;
-  --accent-foreground: #f0e6dd;
-  --destructive: #f4a4a4;
-  --destructive-foreground: #2b0b0b;
-  --border: #3a2a20;
-  --input: #3a2a20;
-  --ring: #e8a87c;
-  --chart-1: #e8a87c;
-  --chart-2: #6ec5a8;
-  --chart-3: #f2c94c;
-  --chart-4: #d99ad9;
-  --chart-5: #f2994a;
-  --sidebar: #160f0c;
-  --sidebar-foreground: #f0e6dd;
-  --sidebar-primary: #e8a87c;
-  --sidebar-primary-foreground: #1a1310;
-  --sidebar-accent: #2e211a;
-  --sidebar-accent-foreground: #f0e6dd;
-  --sidebar-border: #3a2a20;
-  --sidebar-ring: #e8a87c;
-
-  --surface: #38281e;
-  --surface-foreground: #f0e6dd;
-  --surface-muted: #2e211a;
-  --surface-muted-foreground: #c9b4a4;
-  --border-strong: #4d3a2d;
-  --foreground-muted: #c9b4a4;
-  --foreground-subtle: #8f7663;
-
-  --brand: #e8a87c;
-  --brand-foreground: #1a1310;
-  --brand-subtle: #38271e;
-  --brand-subtle-foreground: #f2c9a8;
-  --accent-warm: #f2994a;
-  --accent-warm-foreground: #1a1310;
-  --accent-warm-hover: #d9822f;
-
-  --success: #6ec5a8;
-  --success-foreground: #04231a;
-  --success-subtle: #16281f;
-  --success-subtle-foreground: #a7dcc9;
-  --warning: #f2c94c;
-  --warning-foreground: #231a02;
-  --warning-subtle: #2e2410;
-  --warning-subtle-foreground: #f6dd8a;
-  --danger: #f4a4a4;
-  --danger-foreground: #2b0b0b;
-  --danger-subtle: #3a1c1c;
-  --danger-subtle-foreground: #f6c4c4;
-  --info: #9ab8f5;
-  --info-foreground: #06122b;
-  --info-subtle: #1e2740;
-  --info-subtle-foreground: #c2d3f8;
-}
-
-/* ── Masaiverse — warm light orange ─────────────────────────────────────── */
-[data-theme='masaiverse'] {
-  --background: #fff8f1;
-  --foreground: #3a2410;
-  --masai-text-color: var(--foreground);
-  --card: #ffffff;
-  --card-foreground: #3a2410;
-  --popover: #ffffff;
-  --popover-foreground: #3a2410;
-  --primary: #f25c04;
-  --primary-foreground: #ffffff;
-  --secondary: #feecdc;
-  --secondary-foreground: #8a2c0d;
-  --muted: #feecdc;
-  --muted-foreground: #7a4b2e;
-  --accent: #fcd9bd;
-  --accent-foreground: #8a2c0d;
-  --destructive: #e02424;
-  --destructive-foreground: #ffffff;
-  --border: #fcd9bd;
-  --input: #fcd9bd;
-  --ring: #f25c04;
-  --chart-1: #f25c04;
-  --chart-2: #0e9f6e;
-  --chart-3: #c27803;
-  --chart-4: #7e3af2;
-  --chart-5: #e74694;
-  --sidebar: #fffaf4;
-  --sidebar-foreground: #3a2410;
-  --sidebar-primary: #f25c04;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #feecdc;
-  --sidebar-accent-foreground: #8a2c0d;
-  --sidebar-border: #fcd9bd;
-  --sidebar-ring: #f25c04;
-
-  --surface: #ffffff;
-  --surface-foreground: #3a2410;
-  --surface-muted: #fff3e6;
-  --surface-muted-foreground: #7a4b2e;
-  --border-strong: #fdba8c;
-  --foreground-muted: #7a4b2e;
-  --foreground-subtle: #a9805e;
-
-  --brand: #f25c04;
-  --brand-foreground: #ffffff;
-  --brand-subtle: #feecdc;
-  --brand-subtle-foreground: #8a2c0d;
-  --accent-warm: #d03801;
-  --accent-warm-foreground: #ffffff;
-  --accent-warm-hover: #b43403;
-
-  --success: #057a55;
-  --success-foreground: #ffffff;
-  --success-subtle: #def7ec;
-  --success-subtle-foreground: #03543f;
-  --warning: #b43403;
-  --warning-foreground: #ffffff;
-  --warning-subtle: #feecdc;
-  --warning-subtle-foreground: #8a2c0d;
-  --danger: #e02424;
-  --danger-foreground: #ffffff;
-  --danger-subtle: #fde8e8;
-  --danger-subtle-foreground: #9b1c1c;
-  --info: #1c64f2;
-  --info-foreground: #ffffff;
-  --info-subtle: #e1effe;
-  --info-subtle-foreground: #1e429f;
-}
-
-/* ── Blossom — soft cute pink ───────────────────────────────────────────── */
-[data-theme='blossom'] {
-  --background: #fff5f9;
-  --foreground: #4a1d3d;
-  --masai-text-color: var(--foreground);
-  --card: #ffffff;
-  --card-foreground: #4a1d3d;
-  --popover: #ffffff;
-  --popover-foreground: #4a1d3d;
-  --primary: #e74694;
-  --primary-foreground: #ffffff;
-  --secondary: #fce8f3;
-  --secondary-foreground: #99154b;
-  --muted: #fce8f3;
-  --muted-foreground: #8a5570;
-  --accent: #fad1e8;
-  --accent-foreground: #99154b;
-  --destructive: #e02424;
-  --destructive-foreground: #ffffff;
-  --border: #fad1e8;
-  --input: #fad1e8;
-  --ring: #e74694;
-  --chart-1: #e74694;
-  --chart-2: #0e9f6e;
-  --chart-3: #c27803;
-  --chart-4: #7e3af2;
-  --chart-5: #3f83f8;
-  --sidebar: #fff8fb;
-  --sidebar-foreground: #4a1d3d;
-  --sidebar-primary: #e74694;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #fce8f3;
-  --sidebar-accent-foreground: #99154b;
-  --sidebar-border: #fad1e8;
-  --sidebar-ring: #e74694;
-
-  --surface: #ffffff;
-  --surface-foreground: #4a1d3d;
-  --surface-muted: #fdeef5;
-  --surface-muted-foreground: #8a5570;
-  --border-strong: #f8b4d9;
-  --foreground-muted: #8a5570;
-  --foreground-subtle: #b98ba5;
-
-  --brand: #e74694;
-  --brand-foreground: #ffffff;
-  --brand-subtle: #fce8f3;
-  --brand-subtle-foreground: #99154b;
-  --accent-warm: #d61f69;
-  --accent-warm-foreground: #ffffff;
-  --accent-warm-hover: #bf125d;
-
-  --success: #057a55;
-  --success-foreground: #ffffff;
-  --success-subtle: #def7ec;
-  --success-subtle-foreground: #03543f;
-  --warning: #c27803;
-  --warning-foreground: #ffffff;
-  --warning-subtle: #fdf6b2;
-  --warning-subtle-foreground: #723b13;
-  --danger: #e02424;
-  --danger-foreground: #ffffff;
-  --danger-subtle: #fde8e8;
-  --danger-subtle-foreground: #9b1c1c;
-  --info: #1c64f2;
-  --info-foreground: #ffffff;
-  --info-subtle: #e1effe;
-  --info-subtle-foreground: #1e429f;
-}
-
-/* ── Anthropic — warm cream / clay (Claude-inspired) ────────────────────── */
-[data-theme='anthropic'] {
-  --background: #f5f1ea;
-  --foreground: #2b2a27;
-  --masai-text-color: var(--foreground);
-  --card: #fbf9f5;
-  --card-foreground: #2b2a27;
-  --popover: #fbf9f5;
-  --popover-foreground: #2b2a27;
-  --primary: #c15f3c;
-  --primary-foreground: #fbf9f5;
-  --secondary: #efe9de;
-  --secondary-foreground: #4a4740;
-  --muted: #efe9de;
-  --muted-foreground: #6b6558;
-  --accent: #e9e0d1;
-  --accent-foreground: #4a4740;
-  --destructive: #b3402a;
-  --destructive-foreground: #ffffff;
-  --border: #e2d9ca;
-  --input: #e2d9ca;
-  --ring: #c15f3c;
-  --chart-1: #c15f3c;
-  --chart-2: #6a8e6d;
-  --chart-3: #c9a227;
-  --chart-4: #8a6f9e;
-  --chart-5: #4f7a8a;
-  --sidebar: #f0ebe1;
-  --sidebar-foreground: #2b2a27;
-  --sidebar-primary: #c15f3c;
-  --sidebar-primary-foreground: #fbf9f5;
-  --sidebar-accent: #e9e0d1;
-  --sidebar-accent-foreground: #4a4740;
-  --sidebar-border: #e2d9ca;
-  --sidebar-ring: #c15f3c;
-
-  --surface: #fbf9f5;
-  --surface-foreground: #2b2a27;
-  --surface-muted: #efe9de;
-  --surface-muted-foreground: #6b6558;
-  --border-strong: #cfc3ae;
-  --foreground-muted: #6b6558;
-  --foreground-subtle: #9a9384;
-
-  --brand: #c15f3c;
-  --brand-foreground: #fbf9f5;
-  --brand-subtle: #efe0d6;
-  --brand-subtle-foreground: #7a3a22;
-  --accent-warm: #d97757;
-  --accent-warm-foreground: #2b1a10;
-  --accent-warm-hover: #c15f3c;
-
-  --success: #4f7a4f;
-  --success-foreground: #ffffff;
-  --success-subtle: #e3ecdf;
-  --success-subtle-foreground: #2f4a2f;
-  --warning: #a97b16;
-  --warning-foreground: #ffffff;
-  --warning-subtle: #f3e9cf;
-  --warning-subtle-foreground: #5c4410;
-  --danger: #b3402a;
-  --danger-foreground: #ffffff;
-  --danger-subtle: #f3ddd6;
-  --danger-subtle-foreground: #7a2818;
-  --info: #3f6a8a;
-  --info-foreground: #ffffff;
-  --info-subtle: #dde7ee;
-  --info-subtle-foreground: #274456;
+  --skeleton-base: #232939;
+  --skeleton-sheen: #2c3348;
 }
 
 /* Smooth cross-theme fade. Scoped to color properties so layout never shifts,
@@ -981,7 +681,12 @@ code {
   }
 }
 .dash-skeleton {
-  background: linear-gradient(100deg, #f3f4f6 40%, #e9ebf5 50%, #f3f4f6 60%);
+  background: linear-gradient(
+    100deg,
+    var(--skeleton-base) 40%,
+    var(--skeleton-sheen) 50%,
+    var(--skeleton-base) 60%
+  );
   background-size: 200% 100%;
   animation: dash-shimmer 1.6s linear infinite;
 }
@@ -999,6 +704,12 @@ code {
   box-shadow:
     0 8px 20px -6px rgb(79 70 229 / 0.16),
     0 2px 6px -2px rgb(0 0 0 / 0.08);
+}
+/* Dark: colored glows read as smears on near-black; use a deeper drop. */
+.dark .dash-lift:hover {
+  box-shadow:
+    0 8px 20px -6px rgb(0 0 0 / 0.55),
+    0 2px 6px -2px rgb(0 0 0 / 0.4);
 }
 .dash-lift:active {
   transform: translateY(0) scale(0.985);
@@ -1026,6 +737,15 @@ code {
 .dash-sheen:hover::after {
   transition: transform 0.7s ease;
   transform: translateX(130%) skewX(-18deg);
+}
+/* Dark: a 55%-white sheen glares on dark cards; keep it a faint glint. */
+.dark .dash-sheen::after {
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.09) 50%,
+    transparent 70%
+  );
 }
 
 /* Springy pop for count badges. */

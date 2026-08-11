@@ -257,7 +257,7 @@ export function ItemSelector({
             <button
               type="button"
               onClick={onRetry}
-              className="rounded-[10px] border border-[#e9e9f3] bg-white px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
+              className="rounded-[10px] border border-[#e9e9f3] bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
             >
               Try again
             </button>
@@ -353,11 +353,11 @@ export function ItemSelector({
                           Optional
                         </span>
                       ) : null}
-                      <span className="text-[11px] font-bold text-[#62647d] bg-[#f1f1f7] px-2 py-[2.5px] rounded-full group-hover:bg-white transition-colors truncate max-w-[140px]">
+                      <span className="text-[11px] font-bold text-[#62647d] bg-[#f1f1f7] px-2 py-[2.5px] rounded-full group-hover:bg-surface transition-colors truncate max-w-[140px]">
                         {item.meta}
                       </span>
                       {showModulePill ? (
-                        <span className="text-[11px] font-bold text-[#62647d] bg-[#f1f1f7] px-2 py-[2.5px] rounded-full group-hover:bg-white transition-colors truncate max-w-[140px]">
+                        <span className="text-[11px] font-bold text-[#62647d] bg-[#f1f1f7] px-2 py-[2.5px] rounded-full group-hover:bg-surface transition-colors truncate max-w-[140px]">
                           {item.moduleName}
                         </span>
                       ) : null}
@@ -384,7 +384,7 @@ export function ItemSelector({
                   className={cn(
                     'flex items-center justify-center size-[26px] rounded-full transition-all duration-200',
                     pagination.hasPreviousPage
-                      ? 'text-[#15162c] hover:bg-white hover:shadow-sm hover:scale-105 active:scale-95'
+                      ? 'text-[#15162c] hover:bg-surface hover:shadow-sm hover:scale-105 active:scale-95'
                       : 'text-[#c4c5d4] cursor-not-allowed',
                   )}
                 >
@@ -405,7 +405,7 @@ export function ItemSelector({
                   className={cn(
                     'flex items-center justify-center size-[26px] rounded-full transition-all duration-200',
                     pagination.hasNextPage
-                      ? 'text-[#15162c] hover:bg-white hover:shadow-sm hover:scale-105 active:scale-95'
+                      ? 'text-[#15162c] hover:bg-surface hover:shadow-sm hover:scale-105 active:scale-95'
                       : 'text-[#c4c5d4] cursor-not-allowed',
                   )}
                 >

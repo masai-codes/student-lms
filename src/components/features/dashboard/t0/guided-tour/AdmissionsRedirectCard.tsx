@@ -17,7 +17,7 @@ interface AdmissionsRedirectCardProps {
 const CARD_CENTER =
   'flex min-h-[360px] w-full flex-col items-center justify-center rounded-2xl border border-border bg-surface p-10 text-center shadow-sm'
 const CTA =
-  'inline-flex h-11 items-center justify-center rounded-lg bg-brand px-8 text-sm font-semibold text-brand-foreground transition-colors hover:bg-[#5a4f96]'
+  'inline-flex h-11 items-center justify-center rounded-lg bg-brand px-8 text-sm font-semibold text-brand-foreground transition-colors hover:bg-[#5a4f96] dark:hover:bg-brand/90'
 
 /**
  * Shared "Redirecting you to Admissions" card — reused by the document-upload

@@ -203,7 +203,7 @@ export function BatchTickets() {
                         {contact.text ? ': ' : ''}
                         <a
                           href={`tel:${contact.phone}`}
-                          className="font-semibold text-[#2b67d1] hover:underline"
+                          className="font-semibold text-[#2b67d1] dark:text-info hover:underline"
                         >
                           {contact.phone}
                         </a>
@@ -450,7 +450,7 @@ function HelpTab(props: {
           value={helpSearchQuery}
           onChange={(e) => setHelpSearchQuery(e.target.value)}
           placeholder="Search category and subcategory here"
-          className="font-poppins w-full rounded-xl border border-border bg-surface py-3 pl-11 pr-4 text-[14px] text-foreground placeholder:text-foreground-subtle outline-none transition-colors focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
+          className="font-poppins w-full rounded-xl border border-border bg-surface py-3 pl-11 pr-4 text-[14px] text-foreground placeholder:text-foreground-subtle outline-none transition-colors focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:focus:border-border-strong dark:focus:ring-white/10"
         />
       </div>
     </div>
@@ -623,7 +623,7 @@ function CallbackFlow(props: {
             <button
               type="button"
               onClick={onClose}
-              className="w-full max-w-[150px] py-2 rounded-lg bg-brand hover:bg-[#5B548F] text-brand-foreground font-poppins font-semibold text-[14px] transition-colors"
+              className="w-full max-w-[150px] py-2 rounded-lg bg-brand hover:bg-[#5B548F] dark:hover:bg-brand/90 text-brand-foreground font-poppins font-semibold text-[14px] transition-colors"
             >
               Got It
             </button>

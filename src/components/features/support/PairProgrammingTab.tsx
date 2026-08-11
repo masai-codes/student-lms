@@ -27,7 +27,7 @@ function BookButton({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#242C3C] px-3 py-2 font-poppins text-[13px] font-semibold text-white transition-colors hover:bg-[#1B2130]"
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#242C3C] px-3 py-2 font-poppins text-[13px] font-semibold text-white transition-colors hover:bg-[#1B2130] dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90"
     >
       <CalendarCheck className="size-4" />
       {label}

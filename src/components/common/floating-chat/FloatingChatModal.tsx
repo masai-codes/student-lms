@@ -851,7 +851,7 @@ export function FloatingChatModal({
       <div
         data-testid="floating-chat-panel"
         className={cn(
-          'fixed flex flex-col overflow-hidden bg-white border border-[#e9e9f3] z-[210]',
+          'fixed flex flex-col overflow-hidden bg-surface border border-[#e9e9f3] z-[210]',
           isFullPage
             ? 'inset-0 h-dvh w-full rounded-none border-0 shadow-none'
             : cn(
@@ -920,7 +920,7 @@ export function FloatingChatModal({
                 <button
                   type="button"
                   onClick={onInboxRetry}
-                  className="rounded-[10px] border border-[#e9e9f3] bg-white px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
+                  className="rounded-[10px] border border-[#e9e9f3] bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
                 >
                   Try again
                 </button>
@@ -1139,7 +1139,7 @@ export function FloatingChatModal({
                     <button
                       type="button"
                       onClick={onInboxRetry}
-                      className="rounded-[10px] border border-[#e9e9f3] bg-white px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
+                      className="rounded-[10px] border border-[#e9e9f3] bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
                     >
                       Try again
                     </button>
@@ -1166,7 +1166,7 @@ export function FloatingChatModal({
                     <button
                       type="button"
                       onClick={onInboxRetry}
-                      className="rounded-[10px] border border-[#e9e9f3] bg-white px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
+                      className="rounded-[10px] border border-[#e9e9f3] bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
                     >
                       Try again
                     </button>
@@ -1235,7 +1235,7 @@ export function FloatingChatModal({
         )}
 
         {view === 'home' && step === 2.8 && (
-          <div className="shrink-0 p-[12px_18px_14px] border-t border-[#e9e9f3] bg-white transition-all duration-200 ease-out">
+          <div className="shrink-0 p-[12px_18px_14px] border-t border-[#e9e9f3] bg-surface transition-all duration-200 ease-out">
             <button
               type="button"
               onClick={() => {
@@ -1268,7 +1268,7 @@ export function FloatingChatModal({
           />
         )}
 
-        <div className="flex shrink-0 border-t border-[#e9e9f3] bg-white z-10 relative">
+        <div className="flex shrink-0 border-t border-[#e9e9f3] bg-surface z-10 relative">
           <button
             type="button"
             onClick={() => handleSwitchTab('home')}

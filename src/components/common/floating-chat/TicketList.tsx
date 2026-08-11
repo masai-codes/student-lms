@@ -33,12 +33,24 @@ function statusChip(status: TicketStatus): {
   className: string
 } {
   if (status === 're-opened') {
-    return { label: 'Reopened', className: 'bg-[#fef3e2] text-[#b45309]' }
+    return {
+      label: 'Reopened',
+      className:
+        'bg-[#fef3e2] text-[#b45309] dark:bg-warning-subtle dark:text-warning-subtle-foreground',
+    }
   }
   if (isResolvedTicketStatus(status)) {
-    return { label: 'Resolved', className: 'bg-[#e8f7ee] text-[#0E9F6E]' }
+    return {
+      label: 'Resolved',
+      className:
+        'bg-[#e8f7ee] text-[#0E9F6E] dark:bg-success-subtle dark:text-success-subtle-foreground',
+    }
   }
-  return { label: 'Open', className: 'bg-[#f0f0fd] text-[#4338ca]' }
+  return {
+    label: 'Open',
+    className:
+      'bg-[#f0f0fd] text-[#4338ca] dark:bg-brand-subtle dark:text-brand-subtle-foreground',
+  }
 }
 
 function callbackStatusChip(status: string): {
@@ -46,9 +58,17 @@ function callbackStatusChip(status: string): {
   className: string
 } {
   if (status.toLowerCase() === 'resolved') {
-    return { label: 'Resolved', className: 'bg-[#e8f7ee] text-[#0E9F6E]' }
+    return {
+      label: 'Resolved',
+      className:
+        'bg-[#e8f7ee] text-[#0E9F6E] dark:bg-success-subtle dark:text-success-subtle-foreground',
+    }
   }
-  return { label: status, className: 'bg-[#fef3e2] text-[#b45309]' }
+  return {
+    label: status,
+    className:
+      'bg-[#fef3e2] text-[#b45309] dark:bg-warning-subtle dark:text-warning-subtle-foreground',
+  }
 }
 
 export function TicketList({
@@ -90,7 +110,7 @@ export function TicketList({
                   'px-[13px] py-[6px] rounded-full text-[12px] font-bold whitespace-nowrap transition-all',
                   isActive
                     ? 'bg-[#4b4396] text-white shadow-sm'
-                    : 'bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396]',
+                    : 'bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396] dark:bg-muted dark:text-foreground-muted dark:hover:bg-accent dark:hover:text-brand',
                 )}
               >
                 {labels[f]}
@@ -109,13 +129,13 @@ export function TicketList({
               key={`ticket-${ticket.id}`}
               type="button"
               onClick={() => onTicketSelect(ticket.id)}
-              className="w-full text-left p-[13px_12px] border border-[#e9e9f3] rounded-[14px] shrink-0 cursor-pointer transition-colors hover:bg-[#f0f0fd] hover:border-[#e3e3fb]"
+              className="w-full text-left p-[13px_12px] border border-[#e9e9f3] rounded-[14px] shrink-0 cursor-pointer transition-colors hover:bg-[#f0f0fd] hover:border-[#e3e3fb] dark:border-border dark:hover:bg-accent dark:hover:border-border-strong"
             >
               <div className="flex items-center justify-between gap-2 mb-[7px]">
-                <div className="flex items-center gap-1.5 text-[#62647d] text-[11.8px] font-bold min-w-0">
+                <div className="flex items-center gap-1.5 text-[#62647d] dark:text-foreground-muted text-[11.8px] font-bold min-w-0">
                   <Ticket
                     weight="fill"
-                    className="size-[14px] text-[#4b4396] shrink-0"
+                    className="size-[14px] text-[#4b4396] dark:text-brand shrink-0"
                   />
                   <span className="truncate capitalize">
                     {ticket.category.replace(/[-_]/g, ' ')}
@@ -130,10 +150,10 @@ export function TicketList({
                   {chip.label}
                 </span>
               </div>
-              <div className="text-[13.8px] font-bold text-[#15162c] mb-1 truncate">
+              <div className="text-[13.8px] font-bold text-[#15162c] dark:text-foreground mb-1 truncate">
                 {ticket.title}
               </div>
-              <div className="text-[11.2px] text-[#9496ab]">
+              <div className="text-[11.2px] text-[#9496ab] dark:text-foreground-subtle">
                 #{ticket.id}
                 {ticket.createdAt
                   ? ` · raised ${formatSocialPostTime(ticket.createdAt)}`
@@ -150,13 +170,13 @@ export function TicketList({
         return (
           <div
             key={`callback-${cb.id}`}
-            className="p-[13px_12px] border border-[#e3e3fb] rounded-[14px] shrink-0 bg-[#fafaff]"
+            className="p-[13px_12px] border border-[#e3e3fb] rounded-[14px] shrink-0 bg-[#fafaff] dark:border-border dark:bg-surface-muted"
           >
             <div className="flex items-center justify-between gap-2 mb-[7px]">
-              <div className="flex items-center gap-1.5 text-[#62647d] text-[11.8px] font-bold min-w-0">
+              <div className="flex items-center gap-1.5 text-[#62647d] dark:text-foreground-muted text-[11.8px] font-bold min-w-0">
                 <Phone
                   weight="fill"
-                  className="size-[14px] text-[#4b4396] shrink-0"
+                  className="size-[14px] text-[#4b4396] dark:text-brand shrink-0"
                 />
                 <span>Callback request</span>
               </div>
@@ -169,15 +189,15 @@ export function TicketList({
                 {chip.label}
               </span>
             </div>
-            <div className="text-[13.8px] font-bold text-[#15162c] mb-1 truncate capitalize">
+            <div className="text-[13.8px] font-bold text-[#15162c] dark:text-foreground mb-1 truncate capitalize">
               {cb.category.replace(/[-_]/g, ' ')}
             </div>
-            <div className="text-[12.4px] text-[#62647d] mb-[7px] truncate">
+            <div className="text-[12.4px] text-[#62647d] dark:text-foreground-muted mb-[7px] truncate">
               {cb.preferredTimeSlot
                 ? `Preferred slot: ${cb.preferredTimeSlot}`
                 : 'Callback scheduled'}
             </div>
-            <div className="text-[11.2px] text-[#9496ab]">
+            <div className="text-[11.2px] text-[#9496ab] dark:text-foreground-subtle">
               #{cb.id}
               {timestamp ? ` · raised ${formatSocialPostTime(timestamp)}` : ''}
             </div>
@@ -187,8 +207,8 @@ export function TicketList({
 
       {isEmpty && (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 py-10 text-center">
-          <p className="text-[14px] font-bold text-[#15162c]">No tickets yet</p>
-          <p className="text-[12.5px] text-[#62647d]">
+          <p className="text-[14px] font-bold text-[#15162c] dark:text-foreground">No tickets yet</p>
+          <p className="text-[12.5px] text-[#62647d] dark:text-foreground-muted">
             Raise a ticket from Help and it&apos;ll show up here.
           </p>
         </div>

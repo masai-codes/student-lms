@@ -22,17 +22,17 @@ export function CourseSelector({
             key={batch.id}
             onClick={() => onSelect(batch.id)}
             className={cn(
-              'group relative flex items-center shrink-0 gap-[13px] p-[14px_14px_14px_16px] border-[1.5px] rounded-[14px] bg-white cursor-pointer transition-all duration-150 ease-out',
+              'group relative flex items-center shrink-0 gap-[13px] p-[14px_14px_14px_16px] border-[1.5px] rounded-[14px] bg-surface cursor-pointer transition-all duration-150 ease-out',
               isSelected
-                ? 'border-[#4b4396] shadow-[0_0_0_3px_rgba(75,67,150,0.15)] bg-[rgba(75,67,150,0.06)]'
-                : 'border-[#e9e9f3] hover:border-[#4b4396]/30 hover:bg-[rgba(75,67,150,0.03)] hover:translate-x-0.5 hover:shadow-[0_1px_2px_rgba(20,20,43,0.05)]',
+                ? 'border-[#4b4396] dark:border-brand shadow-[0_0_0_3px_rgba(75,67,150,0.15)] dark:shadow-[0_0_0_3px_rgba(169,163,236,0.2)] bg-[rgba(75,67,150,0.06)] dark:bg-brand/15'
+                : 'border-[#e9e9f3] dark:border-border hover:border-[#4b4396]/30 dark:hover:border-brand/40 hover:bg-[rgba(75,67,150,0.03)] dark:hover:bg-brand/10 hover:translate-x-0.5 hover:shadow-[0_1px_2px_rgba(20,20,43,0.05)]',
             )}
           >
             <div className="flex-1 min-w-0">
-              <div className="text-[10.8px] font-bold text-[#9496ab] uppercase tracking-wider mb-0.5">
+              <div className="text-[10.8px] font-bold text-[#9496ab] dark:text-foreground-subtle uppercase tracking-wider mb-0.5">
                 Batch
               </div>
-              <div className="text-[14px] font-extrabold text-[#15162c] leading-tight truncate">
+              <div className="text-[14px] font-extrabold text-[#15162c] dark:text-foreground leading-tight truncate">
                 {batch.name || `Batch ${batch.id}`}
               </div>
             </div>
@@ -40,8 +40,8 @@ export function CourseSelector({
               className={cn(
                 'shrink-0 transition-colors duration-150',
                 isSelected
-                  ? 'text-[#4b4396]'
-                  : 'text-[#9496ab] group-hover:text-[#4b4396]',
+                  ? 'text-[#4b4396] dark:text-brand'
+                  : 'text-[#9496ab] dark:text-foreground-subtle group-hover:text-[#4b4396] dark:group-hover:text-brand',
               )}
             >
               <CaretRight weight="bold" className="size-4" />

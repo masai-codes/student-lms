@@ -13,6 +13,7 @@ import MDEditor, {
 
 import { cn } from '@/lib/utils'
 import { toast } from '@/lib/toast'
+import { useTheme } from '@/lib/theme'
 
 /**
  * Toolbar matches the old LMS ticket editor (experience-ui
@@ -57,6 +58,9 @@ export function MarkdownComposer({
 }) {
   const height = Math.max(rows * 38, 100)
 
+  // MDEditor themes itself off this attribute, outside our token system.
+  const { resolvedTheme, hydrated } = useTheme()
+
   // MDEditor needs `window`; render it only after mount to stay SSR-safe.
   const [mounted, setMounted] = React.useState(false)
   React.useEffect(() => setMounted(true), [])
@@ -80,7 +84,7 @@ export function MarkdownComposer({
         'w-full overflow-hidden rounded-xl border border-border bg-surface',
         className,
       )}
-      data-color-mode="light"
+      data-color-mode={hydrated ? resolvedTheme : 'light'}
     >
       {mounted ? (
         <MDEditor

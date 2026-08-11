@@ -124,7 +124,7 @@ export function SidebarPanelLink({
       type="button"
       onClick={onClick}
       data-testid={testId}
-      className="group inline-flex items-center gap-0.5 text-sm font-medium text-[#4F46E5] transition-colors hover:text-[#4338CA] focus-visible:outline-none focus-visible:underline"
+      className="group inline-flex items-center gap-0.5 text-sm font-medium text-[#4F46E5] transition-colors hover:text-[#4338CA] dark:text-indigo-400 dark:hover:text-indigo-300 focus-visible:outline-none focus-visible:underline"
     >
       <span>{label}</span>
       <span

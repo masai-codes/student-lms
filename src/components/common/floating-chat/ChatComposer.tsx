@@ -166,22 +166,22 @@ export function ChatComposer({
   }
 
   const formatButtonClass =
-    'flex items-center justify-center size-[26px] rounded-[6px] text-[#62647d] hover:text-[#15162c] hover:bg-[#f0f0fd] transition-colors disabled:cursor-not-allowed disabled:opacity-50'
+    'flex items-center justify-center size-[26px] rounded-[6px] text-[#62647d] hover:text-[#15162c] hover:bg-[#f0f0fd] dark:text-foreground-muted dark:hover:text-foreground dark:hover:bg-accent transition-colors disabled:cursor-not-allowed disabled:opacity-50'
 
   const tabButtonClass = (active: boolean) =>
     cn(
       'px-2.5 py-[3px] text-[11.5px] font-medium rounded-[6px] transition-colors',
       active
-        ? 'bg-[#f0f0fd] text-[#4b4396]'
-        : 'text-[#9496ab] hover:text-[#62647d]',
+        ? 'bg-[#f0f0fd] text-[#4b4396] dark:bg-brand-subtle dark:text-brand-subtle-foreground'
+        : 'text-[#9496ab] hover:text-[#62647d] dark:text-foreground-subtle dark:hover:text-foreground-muted',
     )
 
   return (
-    <div className="shrink-0 flex flex-col p-[16px_18px] border-t border-[#e9e9f3] bg-white animate-in slide-in-from-bottom-2 fade-in duration-200">
-      <div className="border border-[#e9e9f3] rounded-[16px] flex flex-col bg-white overflow-hidden focus-within:border-[#4b4396] focus-within:ring-1 focus-within:ring-[#4b4396]/20 transition-all shadow-sm">
+    <div className="shrink-0 flex flex-col p-[16px_18px] border-t border-[#e9e9f3] dark:border-border bg-surface animate-in slide-in-from-bottom-2 fade-in duration-200">
+      <div className="border border-[#e9e9f3] rounded-[16px] flex flex-col bg-surface overflow-hidden focus-within:border-[#4b4396] focus-within:ring-1 focus-within:ring-[#4b4396]/20 dark:border-border dark:focus-within:border-brand dark:focus-within:ring-brand/30 transition-all shadow-sm">
         {selectedTopic && (
           <div className="px-3 pt-3 flex items-start justify-between gap-2">
-            <div className="inline-flex items-center gap-1.5 bg-[#f0f0fd] px-3 py-1.5 rounded-[10px] text-[#4b4396] max-w-[90%]">
+            <div className="inline-flex items-center gap-1.5 bg-[#f0f0fd] px-3 py-1.5 rounded-[10px] text-[#4b4396] dark:bg-brand-subtle dark:text-brand-subtle-foreground max-w-[90%]">
               <span className="text-[11.5px] font-bold uppercase tracking-wide shrink-0">
                 Topic:
               </span>
@@ -193,7 +193,7 @@ export function ChatComposer({
               <button
                 type="button"
                 onClick={onClearTopic}
-                className="text-[#9496ab] hover:text-[#15162c] p-1.5 rounded-full hover:bg-gray-50 transition-colors shrink-0"
+                className="text-[#9496ab] hover:text-[#15162c] dark:text-foreground-subtle dark:hover:text-foreground p-1.5 rounded-full hover:bg-surface-muted dark:hover:bg-accent transition-colors shrink-0"
                 aria-label="Remove topic"
               >
                 <X weight="bold" className="size-3.5" />
@@ -230,11 +230,11 @@ export function ChatComposer({
             }}
           >
             {message.trim().length > 0 ? (
-              <SupportMarkdown className="text-[13.6px] text-[#15162c]">
+              <SupportMarkdown className="text-[13.6px] text-[#15162c] dark:text-foreground">
                 {message}
               </SupportMarkdown>
             ) : (
-              <p className="text-[13.6px] text-[#9496ab]">
+              <p className="text-[13.6px] text-[#9496ab] dark:text-foreground-subtle">
                 Nothing to preview yet.
               </p>
             )}
@@ -251,7 +251,7 @@ export function ChatComposer({
               minHeight: MIN_TEXTAREA_HEIGHT,
               maxHeight: MAX_TEXTAREA_HEIGHT,
             }}
-            className="w-full resize-none p-[14px_16px_4px] text-[13.6px] leading-[1.5] outline-none text-[#15162c] font-[inherit] bg-transparent placeholder:text-[#9496ab] disabled:opacity-60"
+            className="w-full resize-none p-[14px_16px_4px] text-[13.6px] leading-[1.5] outline-none text-[#15162c] dark:text-foreground font-[inherit] bg-transparent placeholder:text-[#9496ab] dark:placeholder:text-foreground-subtle disabled:opacity-60"
           />
         )}
 
@@ -260,7 +260,7 @@ export function ChatComposer({
             {files.map((file, index) => (
               <span
                 key={`${file.name}-${index}`}
-                className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#f0f0fd] px-2.5 py-1 text-[11.5px] text-[#4b4396]"
+                className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#f0f0fd] px-2.5 py-1 text-[11.5px] text-[#4b4396] dark:bg-brand-subtle dark:text-brand-subtle-foreground"
               >
                 <Paperclip weight="bold" className="size-3 shrink-0" />
                 <span className="truncate max-w-[160px]">{file.name}</span>
@@ -269,7 +269,7 @@ export function ChatComposer({
                     type="button"
                     aria-label={`Remove ${file.name}`}
                     onClick={() => onRemoveFile(index)}
-                    className="text-[#9496ab] hover:text-[#15162c]"
+                    className="text-[#9496ab] hover:text-[#15162c] dark:text-foreground-subtle dark:hover:text-foreground"
                   >
                     <X weight="bold" className="size-3" />
                   </button>
@@ -353,7 +353,7 @@ export function ChatComposer({
                 >
                   <Link weight="bold" className="size-[15px]" />
                 </button>
-                <div className="w-[1px] h-[16px] bg-[#e9e9f3] mx-1" />
+                <div className="w-[1px] h-[16px] bg-[#e9e9f3] dark:bg-border mx-1" />
               </>
             )}
             <input
@@ -378,7 +378,7 @@ export function ChatComposer({
                 disabled || uploading || atFileLimit || !onFilesSelected
               }
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center justify-center size-[26px] rounded-[6px] text-[#62647d] hover:text-[#15162c] hover:bg-[#f0f0fd] transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center justify-center size-[26px] rounded-[6px] text-[#62647d] hover:text-[#15162c] hover:bg-[#f0f0fd] dark:text-foreground-muted dark:hover:text-foreground dark:hover:bg-accent transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Paperclip weight="bold" className="size-[15px]" />
             </button>
@@ -396,7 +396,7 @@ export function ChatComposer({
               'flex items-center justify-center shrink-0 size-[32px] rounded-full transition-all duration-150',
               canSend
                 ? 'text-white hover:scale-105 active:scale-95 cursor-pointer shadow-sm'
-                : 'bg-[#f1f1f7] text-[#9496ab] cursor-not-allowed',
+                : 'bg-[#f1f1f7] text-[#9496ab] dark:bg-muted dark:text-foreground-subtle cursor-not-allowed',
             )}
             style={canSend ? { background: gradientBg } : {}}
           >
@@ -409,10 +409,10 @@ export function ChatComposer({
       </div>
 
       {uploadError ? (
-        <p className="mt-2 text-[12px] text-red-600">{uploadError}</p>
+        <p className="mt-2 text-[12px] text-danger">{uploadError}</p>
       ) : null}
       {uploading ? (
-        <p className="mt-2 text-[12px] text-[#62647d]">
+        <p className="mt-2 text-[12px] text-[#62647d] dark:text-foreground-muted">
           Uploading attachments…
         </p>
       ) : null}

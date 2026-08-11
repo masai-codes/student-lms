@@ -187,7 +187,7 @@ function BannerCard({
       draggable={false}
       data-testid="dashboard-welcome-banner-item"
       onClick={handleClick}
-      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(79_107_237_/_0.22)] ring-1 ring-inset ring-[#4F6BED]/10 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(79_107_237_/_0.30)]"
+      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(79_107_237_/_0.22)] ring-1 ring-inset ring-[#4F6BED]/10 dark:ring-white/10 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(79_107_237_/_0.30)]"
     >
       {/* Base blue/purple wash. */}
       <span
@@ -247,7 +247,7 @@ function MasaiLivePromoCard({ wasDragged }: { wasDragged: () => boolean }) {
       draggable={false}
       data-testid="dashboard-masai-live-promo"
       onClick={handleClick}
-      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(225_29_72_/_0.25)] ring-1 ring-inset ring-[#E11D48]/15 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(225_29_72_/_0.32)]"
+      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(225_29_72_/_0.25)] ring-1 ring-inset ring-[#E11D48]/15 dark:ring-white/10 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(225_29_72_/_0.32)]"
     >
       {/* Base pink wash. */}
       <span

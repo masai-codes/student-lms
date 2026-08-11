@@ -113,7 +113,7 @@ export function FloatingChatHeader({
     (view === 'tickets' && selectedTicketId != null)
 
   return (
-    <div className="shrink-0 p-[18px_20px_16px] border-b border-[#e9e9f3] bg-white transition-all">
+    <div className="shrink-0 p-[18px_20px_16px] border-b border-[#e9e9f3] bg-surface transition-all">
       <div className="flex items-start gap-3">
         {showBackButton && (
           <button

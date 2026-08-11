@@ -118,7 +118,7 @@ function ImageCard({
         >
           <button
             type="button"
-            className="absolute top-4 right-4 text-white/70 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            className="absolute top-4 right-4 text-white/70 hover:text-white p-2 rounded-full bg-surface/10 hover:bg-surface/20 transition-colors"
             onClick={() => setExpanded(false)}
             aria-label="Close preview"
           >
@@ -202,7 +202,7 @@ function VideoCard({
     <div
       className={`mt-1.5 flex items-center gap-3 p-3 rounded-[10px] transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer group ${
         variant === 'user'
-          ? 'bg-white/10 ring-1 ring-white/20 hover:bg-white/15'
+          ? 'bg-surface/10 ring-1 ring-white/20 hover:bg-surface/15'
           : 'bg-[#f1f1f7] ring-1 ring-[#e9e9f3] hover:bg-[#e9e9f3]'
       }`}
       onClick={() => setPlaying(true)}
@@ -213,7 +213,7 @@ function VideoCard({
     >
       <div
         className={`flex items-center justify-center shrink-0 size-[44px] rounded-[10px] ${
-          variant === 'user' ? 'bg-white/15' : 'bg-[#4b4396]/10'
+          variant === 'user' ? 'bg-surface/15' : 'bg-[#4b4396]/10'
         }`}
       >
         <PlayCircle
@@ -243,7 +243,7 @@ function VideoCard({
         onClick={(e) => e.stopPropagation()}
         className={`shrink-0 p-1.5 rounded-full transition-colors ${
           variant === 'user'
-            ? 'text-white/60 hover:text-white hover:bg-white/10'
+            ? 'text-white/60 hover:text-white hover:bg-surface/10'
             : 'text-[#9496ab] hover:text-[#15162c] hover:bg-[#e0e0ef]'
         }`}
         aria-label="Open in new tab"
@@ -278,7 +278,7 @@ function FileCard({
       rel="noopener noreferrer"
       className={`mt-1.5 flex items-center gap-3 p-3 rounded-[10px] transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] no-underline group ${
         variant === 'user'
-          ? 'bg-white/10 ring-1 ring-white/20 hover:bg-white/15'
+          ? 'bg-surface/10 ring-1 ring-white/20 hover:bg-surface/15'
           : 'bg-[#f1f1f7] ring-1 ring-[#e9e9f3] hover:bg-[#e9e9f3]'
       }`}
       aria-label={`Open ${label}`}

@@ -201,7 +201,7 @@ export function InLecturePollModal({
                               className="flex-1 type-b2-regular text-foreground"
                             />
                             {isSelected ? (
-                              <span className="shrink-0 rounded-full bg-brand px-2 py-0.5 type-caption text-white">
+                              <span className="shrink-0 rounded-full bg-brand px-2 py-0.5 type-caption text-brand-foreground">
                                 Your answer
                               </span>
                             ) : null}

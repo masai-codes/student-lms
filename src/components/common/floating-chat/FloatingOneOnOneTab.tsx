@@ -28,7 +28,7 @@ function BookButton({ href, label }: { href: string; label: string }) {
 
 function CoordinatorChip({ coordinator }: { coordinator: SupportCoordinator }) {
   return (
-    <div className="flex min-w-0 items-center gap-2 rounded-[10px] border border-[#e9e9f3] bg-white px-2.5 py-2">
+    <div className="flex min-w-0 items-center gap-2 rounded-[10px] border border-[#e9e9f3] bg-surface px-2.5 py-2">
       <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f0f0fd] text-[10.5px] font-extrabold text-[#4b4396]">
         {coordinator.name.slice(0, 2).toUpperCase()}
       </div>
@@ -46,7 +46,7 @@ function CoordinatorChip({ coordinator }: { coordinator: SupportCoordinator }) {
 
 function SectionCard({ section }: { section: OneOnOneSection }) {
   return (
-    <div className="rounded-[14px] border border-[#e9e9f3] bg-white p-3.5">
+    <div className="rounded-[14px] border border-[#e9e9f3] bg-surface p-3.5">
       <div className="mb-2.5 flex items-start justify-between gap-3">
         <h4 className="text-[13.5px] font-bold text-[#15162c] leading-snug pt-0.5">
           {section.sectionName}

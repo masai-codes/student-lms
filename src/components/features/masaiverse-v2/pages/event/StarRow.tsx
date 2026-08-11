@@ -41,7 +41,7 @@ export default function StarRow({
             weight="fill"
             className={cn(
               'animate-masaiverse-star-pop',
-              star <= value ? 'text-amber-400' : 'text-[#E5E7EB]',
+              star <= value ? 'text-amber-400' : 'text-[#E5E7EB] dark:text-border-strong',
             )}
             style={{ animationDelay: `${star * 60}ms` }}
           />

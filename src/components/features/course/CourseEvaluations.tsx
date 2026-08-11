@@ -29,24 +29,16 @@ export function CourseEvaluations({ evaluations }: Props) {
                 </span>
                 <div className="flex items-center gap-3 flex-wrap">
                   {ev.scheduleDisplay && (
-                    <span
-                      className="text-sm font-medium"
-                      style={{ color: '#E74694' }}
-                    >
+                    // Decorative pink accent (no semantic token) — lifted a step in dark for contrast.
+                    <span className="text-sm font-medium text-[#E74694] dark:text-[#F17EB8]">
                       {ev.scheduleDisplay}
                     </span>
                   )}
                   {ev.scheduleDisplay && ev.durationMinutes > 0 && (
-                    <span
-                      className="w-1 h-1 rounded-full shrink-0"
-                      style={{ background: '#E2E2E2' }}
-                    />
+                    <span className="w-1 h-1 rounded-full shrink-0 bg-border" />
                   )}
                   {ev.durationMinutes > 0 && (
-                    <span
-                      className="text-sm font-medium"
-                      style={{ color: '#7E3AF2' }}
-                    >
+                    <span className="text-sm font-medium text-[#7E3AF2] dark:text-brand">
                       {ev.durationMinutes} mins (Duration)
                     </span>
                   )}

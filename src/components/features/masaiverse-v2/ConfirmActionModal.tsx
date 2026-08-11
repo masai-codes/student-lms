@@ -90,7 +90,7 @@ export default function ConfirmActionModal({
             type="button"
             onClick={onConfirm}
             disabled={!acknowledged || isPending}
-            className="rounded-[12px] bg-gradient-to-r from-masaiverse-orange to-[#FF7A29] px-5 py-2.5 text-[14px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+            className="rounded-[12px] bg-gradient-to-r from-accent-warm to-[#FF7A29] px-5 py-2.5 text-[14px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
           >
             {confirmLabel}
           </button>

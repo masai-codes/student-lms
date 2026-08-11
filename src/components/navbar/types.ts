@@ -165,7 +165,7 @@ export type NavbarProps = {
   className?: string
   /**
    * Force the navbar to render in dark mode regardless of the active theme.
-   * Stamps the `midnight` dark-theme token block + `.dark` onto the navbar's
+   * Stamps the `dark` theme token block + `.dark` onto the navbar's
    * own `<header>`, so only this subtree flips dark (the rest of the page keeps
    * the user's theme). Used on immersive pages like lecture detail.
    */
