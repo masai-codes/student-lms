@@ -167,13 +167,17 @@ export interface IdCardState {
 
 /**
  * State for the ID-card capstone shown beneath the Program Onboarding steps
- * (not a step itself). Hidden for the lite (non-T0) flow.
+ * (not a step itself). Hidden for the lite (non-T0) flow, and for clients that
+ * don't issue an LMS ID card at all (IITJ — `idCardApplicable: false` from the
+ * backend), where neither the locked nor the unlocked card should appear.
  */
 export function getIdCardState(
   lectures: T0FlowLecturesResult,
   flowVariant: 'full' | 'lite',
 ): IdCardState {
-  if (flowVariant === 'lite') return { show: false, url: null, unlocked: false }
+  if (flowVariant === 'lite' || !lectures.idCardApplicable) {
+    return { show: false, url: null, unlocked: false }
+  }
 
   const completedIds = new Set(lectures.completedLectureIds)
   const videosComplete = lectures.programLectures.every((l) =>

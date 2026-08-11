@@ -21,12 +21,14 @@ import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_
 import { Route as ApiWhatsNewIndexRouteImport } from './routes/api/whats-new/index'
 import { Route as ApiProfileIndexRouteImport } from './routes/api/profile/index'
 import { Route as ApiMyCoursesIndexRouteImport } from './routes/api/my-courses/index'
+import { Route as ApiDocsIndexRouteImport } from './routes/api/docs/index'
 import { Route as ApiBookmarksIndexRouteImport } from './routes/api/bookmarks/index'
 import { Route as ApiAnnouncementIndexRouteImport } from './routes/api/announcement/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
 import { Route as authSwitchAccountIndexRouteImport } from './routes/(auth)/switch-account/index'
 import { Route as authSigninIndexRouteImport } from './routes/(auth)/signin/index'
 import { Route as authLoginIndexRouteImport } from './routes/(auth)/login/index'
+import { Route as ApiUserAuthMasaiLiveLoginRouteImport } from './routes/api/user-auth/masai-live-login'
 import { Route as ApiUploadsPresignRouteImport } from './routes/api/uploads/presign'
 import { Route as ApiSupportTicketsRouteImport } from './routes/api/support/tickets'
 import { Route as ApiSupportSubcategoriesRouteImport } from './routes/api/support/subcategories'
@@ -47,6 +49,7 @@ import { Route as ApiMasaiverseV2AdminModeRouteImport } from './routes/api/masai
 import { Route as ApiLearnPageRouteImport } from './routes/api/learn/page'
 import { Route as ApiLearnDiscussionsRouteImport } from './routes/api/learn/discussions'
 import { Route as ApiInterviewsTopicsRouteImport } from './routes/api/interviews/topics'
+import { Route as ApiDocsOpenapiDotjsonRouteImport } from './routes/api/docs/openapi[.]json'
 import { Route as ApiDashboardWelcomeModalDismissRouteImport } from './routes/api/dashboard/welcome-modal-dismiss'
 import { Route as ApiDashboardT0FlowStepCompleteRouteImport } from './routes/api/dashboard/t0-flow-step-complete'
 import { Route as ApiDashboardT0FlowLecturesRouteImport } from './routes/api/dashboard/t0-flow-lectures'
@@ -284,6 +287,11 @@ const ApiMyCoursesIndexRoute = ApiMyCoursesIndexRouteImport.update({
   path: '/api/my-courses/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDocsIndexRoute = ApiDocsIndexRouteImport.update({
+  id: '/api/docs/',
+  path: '/api/docs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBookmarksIndexRoute = ApiBookmarksIndexRouteImport.update({
   id: '/api/bookmarks/',
   path: '/api/bookmarks/',
@@ -314,6 +322,12 @@ const authLoginIndexRoute = authLoginIndexRouteImport.update({
   path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUserAuthMasaiLiveLoginRoute =
+  ApiUserAuthMasaiLiveLoginRouteImport.update({
+    id: '/api/user-auth/masai-live-login',
+    path: '/api/user-auth/masai-live-login',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiUploadsPresignRoute = ApiUploadsPresignRouteImport.update({
   id: '/api/uploads/presign',
   path: '/api/uploads/presign',
@@ -417,6 +431,11 @@ const ApiLearnDiscussionsRoute = ApiLearnDiscussionsRouteImport.update({
 const ApiInterviewsTopicsRoute = ApiInterviewsTopicsRouteImport.update({
   id: '/api/interviews/topics',
   path: '/api/interviews/topics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDocsOpenapiDotjsonRoute = ApiDocsOpenapiDotjsonRouteImport.update({
+  id: '/api/docs/openapi.json',
+  path: '/api/docs/openapi.json',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDashboardWelcomeModalDismissRoute =
@@ -1475,6 +1494,7 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
+  '/api/docs/openapi.json': typeof ApiDocsOpenapiDotjsonRoute
   '/api/interviews/topics': typeof ApiInterviewsTopicsRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
@@ -1495,12 +1515,14 @@ export interface FileRoutesByFullPath {
   '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
   '/api/uploads/presign': typeof ApiUploadsPresignRoute
+  '/api/user-auth/masai-live-login': typeof ApiUserAuthMasaiLiveLoginRoute
   '/login/': typeof authLoginIndexRoute
   '/signin/': typeof authSigninIndexRoute
   '/switch-account/': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/api/announcement/': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
+  '/api/docs/': typeof ApiDocsIndexRoute
   '/api/my-courses/': typeof ApiMyCoursesIndexRoute
   '/api/profile/': typeof ApiProfileIndexRoute
   '/api/whats-new/': typeof ApiWhatsNewIndexRoute
@@ -1688,6 +1710,7 @@ export interface FileRoutesByTo {
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
+  '/api/docs/openapi.json': typeof ApiDocsOpenapiDotjsonRoute
   '/api/interviews/topics': typeof ApiInterviewsTopicsRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
@@ -1708,12 +1731,14 @@ export interface FileRoutesByTo {
   '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
   '/api/uploads/presign': typeof ApiUploadsPresignRoute
+  '/api/user-auth/masai-live-login': typeof ApiUserAuthMasaiLiveLoginRoute
   '/login': typeof authLoginIndexRoute
   '/signin': typeof authSigninIndexRoute
   '/switch-account': typeof authSwitchAccountIndexRoute
   '/': typeof protectedLayoutIndexRoute
   '/api/announcement': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks': typeof ApiBookmarksIndexRoute
+  '/api/docs': typeof ApiDocsIndexRoute
   '/api/my-courses': typeof ApiMyCoursesIndexRoute
   '/api/profile': typeof ApiProfileIndexRoute
   '/api/whats-new': typeof ApiWhatsNewIndexRoute
@@ -1904,6 +1929,7 @@ export interface FileRoutesById {
   '/api/dashboard/t0-flow-lectures': typeof ApiDashboardT0FlowLecturesRoute
   '/api/dashboard/t0-flow-step-complete': typeof ApiDashboardT0FlowStepCompleteRoute
   '/api/dashboard/welcome-modal-dismiss': typeof ApiDashboardWelcomeModalDismissRoute
+  '/api/docs/openapi.json': typeof ApiDocsOpenapiDotjsonRoute
   '/api/interviews/topics': typeof ApiInterviewsTopicsRoute
   '/api/learn/discussions': typeof ApiLearnDiscussionsRouteWithChildren
   '/api/learn/page': typeof ApiLearnPageRoute
@@ -1924,12 +1950,14 @@ export interface FileRoutesById {
   '/api/support/subcategories': typeof ApiSupportSubcategoriesRoute
   '/api/support/tickets': typeof ApiSupportTicketsRouteWithChildren
   '/api/uploads/presign': typeof ApiUploadsPresignRoute
+  '/api/user-auth/masai-live-login': typeof ApiUserAuthMasaiLiveLoginRoute
   '/(auth)/login/': typeof authLoginIndexRoute
   '/(auth)/signin/': typeof authSigninIndexRoute
   '/(auth)/switch-account/': typeof authSwitchAccountIndexRoute
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/api/announcement/': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
+  '/api/docs/': typeof ApiDocsIndexRoute
   '/api/my-courses/': typeof ApiMyCoursesIndexRoute
   '/api/profile/': typeof ApiProfileIndexRoute
   '/api/whats-new/': typeof ApiWhatsNewIndexRoute
@@ -2120,6 +2148,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
+    | '/api/docs/openapi.json'
     | '/api/interviews/topics'
     | '/api/learn/discussions'
     | '/api/learn/page'
@@ -2140,12 +2169,14 @@ export interface FileRouteTypes {
     | '/api/support/subcategories'
     | '/api/support/tickets'
     | '/api/uploads/presign'
+    | '/api/user-auth/masai-live-login'
     | '/login/'
     | '/signin/'
     | '/switch-account/'
     | '/'
     | '/api/announcement/'
     | '/api/bookmarks/'
+    | '/api/docs/'
     | '/api/my-courses/'
     | '/api/profile/'
     | '/api/whats-new/'
@@ -2333,6 +2364,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
+    | '/api/docs/openapi.json'
     | '/api/interviews/topics'
     | '/api/learn/discussions'
     | '/api/learn/page'
@@ -2353,12 +2385,14 @@ export interface FileRouteTypes {
     | '/api/support/subcategories'
     | '/api/support/tickets'
     | '/api/uploads/presign'
+    | '/api/user-auth/masai-live-login'
     | '/login'
     | '/signin'
     | '/switch-account'
     | '/'
     | '/api/announcement'
     | '/api/bookmarks'
+    | '/api/docs'
     | '/api/my-courses'
     | '/api/profile'
     | '/api/whats-new'
@@ -2548,6 +2582,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/t0-flow-lectures'
     | '/api/dashboard/t0-flow-step-complete'
     | '/api/dashboard/welcome-modal-dismiss'
+    | '/api/docs/openapi.json'
     | '/api/interviews/topics'
     | '/api/learn/discussions'
     | '/api/learn/page'
@@ -2568,12 +2603,14 @@ export interface FileRouteTypes {
     | '/api/support/subcategories'
     | '/api/support/tickets'
     | '/api/uploads/presign'
+    | '/api/user-auth/masai-live-login'
     | '/(auth)/login/'
     | '/(auth)/signin/'
     | '/(auth)/switch-account/'
     | '/(protected)/_layout/'
     | '/api/announcement/'
     | '/api/bookmarks/'
+    | '/api/docs/'
     | '/api/my-courses/'
     | '/api/profile/'
     | '/api/whats-new/'
@@ -2760,6 +2797,7 @@ export interface RootRouteChildren {
   ApiDashboardT0FlowLecturesRoute: typeof ApiDashboardT0FlowLecturesRoute
   ApiDashboardT0FlowStepCompleteRoute: typeof ApiDashboardT0FlowStepCompleteRoute
   ApiDashboardWelcomeModalDismissRoute: typeof ApiDashboardWelcomeModalDismissRoute
+  ApiDocsOpenapiDotjsonRoute: typeof ApiDocsOpenapiDotjsonRoute
   ApiInterviewsTopicsRoute: typeof ApiInterviewsTopicsRoute
   ApiLearnDiscussionsRoute: typeof ApiLearnDiscussionsRouteWithChildren
   ApiLearnPageRoute: typeof ApiLearnPageRoute
@@ -2780,11 +2818,13 @@ export interface RootRouteChildren {
   ApiSupportSubcategoriesRoute: typeof ApiSupportSubcategoriesRoute
   ApiSupportTicketsRoute: typeof ApiSupportTicketsRouteWithChildren
   ApiUploadsPresignRoute: typeof ApiUploadsPresignRoute
+  ApiUserAuthMasaiLiveLoginRoute: typeof ApiUserAuthMasaiLiveLoginRoute
   authLoginIndexRoute: typeof authLoginIndexRoute
   authSigninIndexRoute: typeof authSigninIndexRoute
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
   ApiAnnouncementIndexRoute: typeof ApiAnnouncementIndexRoute
   ApiBookmarksIndexRoute: typeof ApiBookmarksIndexRoute
+  ApiDocsIndexRoute: typeof ApiDocsIndexRoute
   ApiMyCoursesIndexRoute: typeof ApiMyCoursesIndexRoute
   ApiProfileIndexRoute: typeof ApiProfileIndexRoute
   ApiWhatsNewIndexRoute: typeof ApiWhatsNewIndexRoute
@@ -2963,6 +3003,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMyCoursesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/docs/': {
+      id: '/api/docs/'
+      path: '/api/docs'
+      fullPath: '/api/docs/'
+      preLoaderRoute: typeof ApiDocsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/bookmarks/': {
       id: '/api/bookmarks/'
       path: '/api/bookmarks'
@@ -3003,6 +3050,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login/'
       preLoaderRoute: typeof authLoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/user-auth/masai-live-login': {
+      id: '/api/user-auth/masai-live-login'
+      path: '/api/user-auth/masai-live-login'
+      fullPath: '/api/user-auth/masai-live-login'
+      preLoaderRoute: typeof ApiUserAuthMasaiLiveLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/uploads/presign': {
@@ -3143,6 +3197,13 @@ declare module '@tanstack/react-router' {
       path: '/api/interviews/topics'
       fullPath: '/api/interviews/topics'
       preLoaderRoute: typeof ApiInterviewsTopicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/docs/openapi.json': {
+      id: '/api/docs/openapi.json'
+      path: '/api/docs/openapi.json'
+      fullPath: '/api/docs/openapi.json'
+      preLoaderRoute: typeof ApiDocsOpenapiDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/dashboard/welcome-modal-dismiss': {
@@ -4770,6 +4831,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardT0FlowLecturesRoute: ApiDashboardT0FlowLecturesRoute,
   ApiDashboardT0FlowStepCompleteRoute: ApiDashboardT0FlowStepCompleteRoute,
   ApiDashboardWelcomeModalDismissRoute: ApiDashboardWelcomeModalDismissRoute,
+  ApiDocsOpenapiDotjsonRoute: ApiDocsOpenapiDotjsonRoute,
   ApiInterviewsTopicsRoute: ApiInterviewsTopicsRoute,
   ApiLearnDiscussionsRoute: ApiLearnDiscussionsRouteWithChildren,
   ApiLearnPageRoute: ApiLearnPageRoute,
@@ -4790,11 +4852,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSupportSubcategoriesRoute: ApiSupportSubcategoriesRoute,
   ApiSupportTicketsRoute: ApiSupportTicketsRouteWithChildren,
   ApiUploadsPresignRoute: ApiUploadsPresignRoute,
+  ApiUserAuthMasaiLiveLoginRoute: ApiUserAuthMasaiLiveLoginRoute,
   authLoginIndexRoute: authLoginIndexRoute,
   authSigninIndexRoute: authSigninIndexRoute,
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
   ApiAnnouncementIndexRoute: ApiAnnouncementIndexRoute,
   ApiBookmarksIndexRoute: ApiBookmarksIndexRoute,
+  ApiDocsIndexRoute: ApiDocsIndexRoute,
   ApiMyCoursesIndexRoute: ApiMyCoursesIndexRoute,
   ApiProfileIndexRoute: ApiProfileIndexRoute,
   ApiWhatsNewIndexRoute: ApiWhatsNewIndexRoute,
