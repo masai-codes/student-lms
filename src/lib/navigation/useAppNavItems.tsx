@@ -8,6 +8,7 @@ import {
 import {
   Bookmark,
   Bug,
+  CalendarDays,
   Gift,
   GraduationCap,
   Headphones,
@@ -245,6 +246,24 @@ export function useAppNavItems() {
         label: 'Onboarding',
         icon: HandWaving,
         tooltip: 'Onboarding',
+        uiType: 'secondary',
+      })
+    }
+
+    // Calendar still lives on the legacy student app — every portal gets it,
+    // but only when a legacy base URL is configured for this origin (otherwise
+    // the icon would point nowhere).
+    const calendarHref = getOldStudentUiUrlForPath(
+      OLD_STUDENT_UI_NAV_PATHS.calendar,
+    )
+    if (calendarHref) {
+      items.push({
+        id: 'calendar',
+        type: 'external-link',
+        href: calendarHref,
+        label: 'Calendar',
+        icon: CalendarDays,
+        tooltip: 'Calendar',
         uiType: 'secondary',
       })
     }
