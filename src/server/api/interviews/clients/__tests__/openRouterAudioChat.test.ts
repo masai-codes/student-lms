@@ -43,10 +43,19 @@ describe('requestInterviewTurnAudioStream', () => {
   }
 
   async function collect(
-    gen: AsyncGenerator<{ type: string; data?: string; spokenText?: string }>,
+    gen: AsyncGenerator<{
+      type: string
+      data?: string
+      spokenText?: string
+      textSoFar?: string
+    }>,
   ) {
-    const events: Array<{ type: string; data?: string; spokenText?: string }> =
-      []
+    const events: Array<{
+      type: string
+      data?: string
+      spokenText?: string
+      textSoFar?: string
+    }> = []
     for await (const event of gen) events.push(event)
     return events
   }
@@ -65,7 +74,9 @@ describe('requestInterviewTurnAudioStream', () => {
 
     const events = await collect(requestInterviewTurnAudioStream(baseInput))
     expect(events).toEqual([
+      { type: 'transcript', textSoFar: 'How do you ' },
       { type: 'audio', data: 'QUJD' },
+      { type: 'transcript', textSoFar: 'How do you handle collisions?' },
       { type: 'audio', data: 'REVG' },
       { type: 'final', spokenText: 'How do you handle collisions?' },
     ])
@@ -146,5 +157,40 @@ describe('requestInterviewTurnAudioStream', () => {
     await expect(
       collect(requestInterviewTurnAudioStream(baseInput)),
     ).rejects.toThrow('INTERVIEW_OPENROUTER_TIMEOUT')
+  })
+
+  function toolCallFrame(name: string) {
+    return JSON.stringify({
+      choices: [{ delta: { tool_calls: [{ function: { name } }] } }],
+    })
+  }
+
+  it('yields a tool_call event and stops, without a final spokenText, when the model calls a tool', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      body: sseBodyFromFrames([
+        toolCallFrame('move_to_next_question'),
+        '[DONE]',
+      ]),
+    } as Response)
+
+    const events = await collect(
+      requestInterviewTurnAudioStream({
+        ...baseInput,
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'move_to_next_question',
+              description: 'move on',
+              parameters: { type: 'object', properties: {} },
+            },
+          },
+        ],
+      }),
+    )
+    expect(events).toEqual([
+      { type: 'tool_call', name: 'move_to_next_question' },
+    ])
   })
 })

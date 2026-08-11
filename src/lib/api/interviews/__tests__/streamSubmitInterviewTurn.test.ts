@@ -36,6 +36,7 @@ function runStream(response: Response): Promise<StreamResult> {
       { kind: 'typed', text: 'my answer' },
       {
         onAudioDelta: (data) => deltas.push(data),
+        onQuestionText: () => {},
         onDone: (result) => resolve({ status: 'done', result, deltas }),
         onError: (code) => resolve({ status: 'error', code, deltas }),
       },
@@ -112,6 +113,7 @@ describe('streamSubmitInterviewTurn', () => {
         { kind: 'typed', text: 'hello' },
         {
           onAudioDelta: () => {},
+          onQuestionText: () => {},
           onDone: () => resolve(),
           onError: () => resolve(),
         },

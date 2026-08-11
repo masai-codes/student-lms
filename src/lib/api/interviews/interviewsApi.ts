@@ -36,7 +36,6 @@ export async function fetchInterviewSession(
 }
 
 export type SubmitInterviewAnswerInput =
-  | { kind: 'audio'; blob: Blob }
   | { kind: 'typed'; text: string }
   | { kind: 'transcribed'; text: string }
 
@@ -45,9 +44,7 @@ export async function submitInterviewTurn(
   answer: SubmitInterviewAnswerInput,
 ): Promise<SubmitInterviewTurnResult> {
   const form = new FormData()
-  if (answer.kind === 'audio') {
-    form.append('audio', answer.blob, 'answer.wav')
-  } else if (answer.kind === 'transcribed') {
+  if (answer.kind === 'transcribed') {
     form.append('transcribedAnswer', answer.text)
   } else {
     form.append('typedAnswer', answer.text)

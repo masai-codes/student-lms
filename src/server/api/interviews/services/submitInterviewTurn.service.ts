@@ -3,24 +3,21 @@ import { db } from '@/db'
 import { interviewSessions } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { requestInterviewTurnAudioStream } from '@/server/api/interviews/clients/openRouterAudioChat'
-import { requestOpenRouterChatCompletion } from '@/server/api/interviews/clients/openRouterClient'
 import {
-  getInterviewAudioModel,
-  getInterviewReportModel,
   INTERVIEW_MAX_FOLLOW_UPS,
+  INTERVIEW_MIN_FOLLOW_UPS,
+  getInterviewAudioModel,
 } from '@/server/api/interviews/constants'
 import {
-  buildClassifyActionMessages,
-  buildDecisionMessages,
-  buildDecisionSystemPrompt,
-  buildInterviewMessages,
-  buildInterviewSystemPrompt,
-  buildSpeakExactMessages,
-  parseClassifiedAction,
-  parseDecision,
+  MOVE_TO_NEXT_QUESTION_TOOL,
+  buildAskQuestionMessages,
+  buildAskQuestionSystemPrompt,
+  buildClosingRemarksMessages,
+  buildClosingRemarksSystemPrompt,
+  buildTurnMessages,
+  buildTurnSystemPrompt,
   type ConversationExchange,
   type InterviewAnswerInput,
-  type InterviewTurnAction,
 } from '@/server/api/interviews/services/buildInterviewPrompt'
 import { generateInterviewReport } from '@/server/api/interviews/services/generateInterviewReport.service'
 import { getInterviewSessionRowForUser } from '@/server/api/interviews/services/interviewSession.service'
@@ -37,10 +34,24 @@ export type SubmitInterviewTurnResult =
 
 export type SubmitInterviewTurnStreamEvent =
   | { type: 'audio-delta'; data: string }
+  /** The next question's text, so far — for `advance` this is the full text,
+   * emitted once, immediately (it's pre-generated and already known before
+   * any TTS call starts). For a follow-up it's the model's in-progress
+   * spoken text, re-emitted as it streams in. Either way, the client can
+   * render it right away instead of waiting for the whole turn (including
+   * playback) to finish. `kind` tells the client which slot to render it
+   * into — a new planned question (with an incremented question number) vs.
+   * a follow-up on the current one. */
+  | { type: 'question-text'; text: string; kind: 'advance' | 'follow_up' }
   | { type: 'done'; result: SubmitInterviewTurnResult }
+
+type InterviewTurnAction = 'follow_up' | 'advance' | 'end_interview'
 
 type DecidedTurn = {
   action: InterviewTurnAction
+  /** For `follow_up`, the follow-up question the model just spoke. Empty for
+   * `advance`/`end_interview` — those are always silent (either a tool call,
+   * or a system-forced move once the follow-up cap is hit). */
   text: string
 }
 
@@ -62,15 +73,10 @@ function findPendingSlot(turn: InterviewTurn): {
 
 function turnToExchanges(turn: InterviewTurn): Array<ConversationExchange> {
   return [
-    {
-      prompt: turn.question,
-      transcript: turn.transcript,
-      answerAudioBase64: turn.answerAudioBase64,
-    },
+    { prompt: turn.question, transcript: turn.transcript },
     ...turn.followUps.map((followUp) => ({
       prompt: followUp.prompt,
       transcript: followUp.transcript,
-      answerAudioBase64: followUp.answerAudioBase64,
     })),
   ]
 }
@@ -94,27 +100,21 @@ function buildPriorExchanges(
 
   return [
     ...earlier,
-    {
-      prompt: currentTurn.question,
-      transcript: currentTurn.transcript,
-      answerAudioBase64: currentTurn.answerAudioBase64,
-    },
+    { prompt: currentTurn.question, transcript: currentTurn.transcript },
     ...currentTurn.followUps.slice(0, -1).map((followUp) => ({
       prompt: followUp.prompt,
       transcript: followUp.transcript,
-      answerAudioBase64: followUp.answerAudioBase64,
     })),
   ]
 }
 
 /**
- * Answers that arrive as text (`typed`, or `transcribed` via live client-side
- * STT) already give us the candidate's words up front, so the follow-up vs.
- * advance decision can be made by a plain text-only call (with a structured
- * plain-text response) BEFORE speaking anything — the exact decided wording
- * is then handed to the audio model to speak verbatim.
+ * Decides the outcome of one answer and, for `advance`/`end_interview`,
+ * immediately chains the follow-on TTS call (next question, or closing
+ * remarks) so the candidate hears it in the same response — a tool call (or
+ * a forced move) is silent on its own, so something always has to speak next.
  */
-async function decideFromText(input: {
+async function* runInterviewTurn(input: {
   topicLabel: string
   domain: string
   rubricFocus: Array<string>
@@ -125,172 +125,110 @@ async function decideFromText(input: {
   totalQuestions: number
   followUpCount: number
   forced: boolean
-  language: string
-}): Promise<DecidedTurn> {
-  const systemPrompt = buildDecisionSystemPrompt({
-    topicLabel: input.topicLabel,
-    domain: input.domain,
-    rubricFocus: input.rubricFocus,
-    questionNumber: input.questionNumber,
-    totalQuestions: input.totalQuestions,
-    followUpCount: input.followUpCount,
-    maxFollowUps: INTERVIEW_MAX_FOLLOW_UPS,
-    forced: input.forced,
-    language: input.language,
-  })
-
-  const messages = buildDecisionMessages({
-    systemPrompt,
-    priorExchanges: input.priorExchanges,
-    currentPrompt: input.currentPrompt,
-    answerText: input.answerText,
-  })
-
-  const raw = await requestOpenRouterChatCompletion({
-    model: getInterviewReportModel(),
-    messages,
-  })
-
-  const isLastQuestion = input.questionNumber >= input.totalQuestions
-  return parseDecision(raw, isLastQuestion)
-}
-
-/**
- * Audio answers go through a single combined audio-in/audio-out call that
- * both hears the candidate and speaks its response — there's no separate
- * decision step to read, so the resulting spoken transcript is classified
- * after the fact into the same follow_up/advance/end_interview shape.
- */
-async function decideFromAudio(input: {
-  spokenText: string
-  questionNumber: number
-  totalQuestions: number
-  forced: boolean
-}): Promise<DecidedTurn> {
-  const isLastQuestion = input.questionNumber >= input.totalQuestions
-
-  if (input.forced) {
-    return {
-      action: isLastQuestion ? 'end_interview' : 'advance',
-      text: input.spokenText,
-    }
-  }
-
-  const raw = await requestOpenRouterChatCompletion({
-    model: getInterviewReportModel(),
-    messages: buildClassifyActionMessages({
-      spokenText: input.spokenText,
-      isLastQuestion,
-    }),
-  })
-
-  return {
-    action: parseClassifiedAction(raw, isLastQuestion),
-    text: input.spokenText,
-  }
-}
-
-/**
- * One turn of the interview's per-question follow-up loop. For text answers,
- * the decision is made first (text-only) and the exact wording is then
- * spoken verbatim by the audio model — for `advance`, that's the decided
- * transition line immediately followed by the next question's fixed text,
- * spoken together as one natural utterance. For audio answers, the model
- * decides and speaks in the same breath, and the outcome is classified
- * afterwards. Either way, audio is streamed to the client as it's generated.
- */
-async function* runInterviewTurn(input: {
-  topicLabel: string
-  domain: string
-  rubricFocus: Array<string>
-  priorExchanges: Array<ConversationExchange>
-  currentPrompt: string
-  answer: InterviewAnswerInput
-  questionNumber: number
-  totalQuestions: number
-  followUpCount: number
-  forced: boolean
   nextQuestionText: string | null
   language: string
 }): AsyncGenerator<
   | { type: 'audio-delta'; data: string }
+  | { type: 'question-text'; text: string; kind: 'advance' | 'follow_up' }
   | { type: 'decided'; decision: DecidedTurn }
 > {
-  if (input.answer.kind === 'audio') {
-    const systemPrompt = buildInterviewSystemPrompt({
+  const isLastQuestion = input.nextQuestionText === null
+
+  let decision: DecidedTurn
+  if (input.forced) {
+    decision = {
+      action: isLastQuestion ? 'end_interview' : 'advance',
+      text: '',
+    }
+  } else {
+    const systemPrompt = buildTurnSystemPrompt({
       topicLabel: input.topicLabel,
       domain: input.domain,
       rubricFocus: input.rubricFocus,
       questionNumber: input.questionNumber,
       totalQuestions: input.totalQuestions,
       followUpCount: input.followUpCount,
+      minFollowUps: INTERVIEW_MIN_FOLLOW_UPS,
       maxFollowUps: INTERVIEW_MAX_FOLLOW_UPS,
-      forced: input.forced,
-      nextQuestionText: input.nextQuestionText,
       language: input.language,
     })
 
-    const messages = buildInterviewMessages({
+    const messages = buildTurnMessages({
       systemPrompt,
       priorExchanges: input.priorExchanges,
       currentPrompt: input.currentPrompt,
-      answer: input.answer,
+      answerText: input.answerText,
     })
 
     let spokenText = ''
+    let calledTool = false
     for await (const event of requestInterviewTurnAudioStream({
       messages,
       model: getInterviewAudioModel(),
+      tools: [MOVE_TO_NEXT_QUESTION_TOOL],
     })) {
       if (event.type === 'audio') {
         yield { type: 'audio-delta', data: event.data }
-      } else {
+      } else if (event.type === 'transcript') {
+        // A follow-up's text isn't known ahead of time like a planned
+        // question's — surface it as it's generated so the candidate isn't
+        // staring at a stale screen until the whole turn (audio included)
+        // finishes.
+        yield {
+          type: 'question-text',
+          text: event.textSoFar,
+          kind: 'follow_up',
+        }
+      } else if (event.type === 'tool_call') {
+        calledTool = true
+      } else if (event.type === 'final') {
         spokenText = event.spokenText
       }
     }
 
-    if (!spokenText) throw new ApiError(422, 'INTERVIEW_RESPONSE_EMPTY')
-
-    const decision = await decideFromAudio({
-      spokenText,
-      questionNumber: input.questionNumber,
-      totalQuestions: input.totalQuestions,
-      forced: input.forced,
-    })
-    yield { type: 'decided', decision }
-    return
+    if (calledTool) {
+      decision = {
+        action: isLastQuestion ? 'end_interview' : 'advance',
+        text: '',
+      }
+    } else {
+      if (!spokenText) throw new ApiError(422, 'INTERVIEW_RESPONSE_EMPTY')
+      decision = { action: 'follow_up', text: spokenText }
+    }
   }
 
-  const decision = await decideFromText({
-    topicLabel: input.topicLabel,
-    domain: input.domain,
-    rubricFocus: input.rubricFocus,
-    priorExchanges: input.priorExchanges,
-    currentPrompt: input.currentPrompt,
-    answerText: input.answer.text,
-    questionNumber: input.questionNumber,
-    totalQuestions: input.totalQuestions,
-    followUpCount: input.followUpCount,
-    forced: input.forced,
-    language: input.language,
-  })
+  if (decision.action === 'advance') {
+    // The next planned question's text is already known from the session
+    // record — no reason to wait for TTS before showing it.
+    yield {
+      type: 'question-text',
+      text: input.nextQuestionText ?? '',
+      kind: 'advance',
+    }
 
-  if (!decision.text) throw new ApiError(422, 'INTERVIEW_RESPONSE_EMPTY')
-
-  // For `advance`, speak the decided transition line and the next fixed
-  // question together as one natural utterance ("Great, let's move on to
-  // the next question. <question>") rather than two separate audio calls.
-  const spokenText =
-    decision.action === 'advance' && input.nextQuestionText
-      ? `${decision.text} ${input.nextQuestionText}`
-      : decision.text
-
-  for await (const event of requestInterviewTurnAudioStream({
-    messages: buildSpeakExactMessages(spokenText),
-    model: getInterviewAudioModel(),
-  })) {
-    if (event.type === 'audio') {
-      yield { type: 'audio-delta', data: event.data }
+    const systemPrompt = buildAskQuestionSystemPrompt({
+      questionText: input.nextQuestionText ?? '',
+      language: input.language,
+      forcedTransition: input.forced,
+    })
+    for await (const event of requestInterviewTurnAudioStream({
+      messages: buildAskQuestionMessages(systemPrompt),
+      model: getInterviewAudioModel(),
+    })) {
+      if (event.type === 'audio')
+        yield { type: 'audio-delta', data: event.data }
+    }
+  } else if (decision.action === 'end_interview') {
+    const systemPrompt = buildClosingRemarksSystemPrompt(
+      input.language,
+      input.forced,
+    )
+    for await (const event of requestInterviewTurnAudioStream({
+      messages: buildClosingRemarksMessages(systemPrompt),
+      model: getInterviewAudioModel(),
+    })) {
+      if (event.type === 'audio')
+        yield { type: 'audio-delta', data: event.data }
     }
   }
 
@@ -355,7 +293,7 @@ export async function* submitInterviewTurnStream(input: {
     rubricFocus,
     priorExchanges,
     currentPrompt,
-    answer: input.answer,
+    answerText: input.answer.text,
     questionNumber,
     totalQuestions,
     followUpCount,
@@ -365,6 +303,8 @@ export async function* submitInterviewTurnStream(input: {
   })) {
     if (event.type === 'audio-delta') {
       yield { type: 'audio-delta', data: event.data }
+    } else if (event.type === 'question-text') {
+      yield { type: 'question-text', text: event.text, kind: event.kind }
     } else {
       decision = event.decision
     }
@@ -372,13 +312,8 @@ export async function* submitInterviewTurnStream(input: {
   if (!decision) throw new ApiError(422, 'INTERVIEW_RESPONSE_EMPTY')
 
   const now = new Date().toISOString()
-  const answerTranscript =
-    input.answer.kind === 'typed' || input.answer.kind === 'transcribed'
-      ? input.answer.text.trim()
-      : ''
-  const answerAudioBase64 =
-    input.answer.kind === 'audio' ? input.answer.base64 : null
-  const answerSource = input.answer.kind === 'typed' ? 'typed' : 'voice'
+  const answerTranscript = input.answer.text.trim()
+  const answerSource = 'voice' as const
 
   // Fill in whichever slot was pending, regardless of what happens next.
   let turnsWithAnswer = updateTurn(turns, pendingTurn.questionIndex, (turn) => {
@@ -386,7 +321,7 @@ export async function* submitInterviewTurnStream(input: {
       return {
         ...turn,
         transcript: answerTranscript,
-        answerAudioBase64,
+        answerAudioBase64: null,
         answerSource,
       }
     }
@@ -397,7 +332,7 @@ export async function* submitInterviewTurnStream(input: {
           ? {
               ...followUp,
               transcript: answerTranscript,
-              answerAudioBase64,
+              answerAudioBase64: null,
               answerSource,
               answeredAt: now,
             }
