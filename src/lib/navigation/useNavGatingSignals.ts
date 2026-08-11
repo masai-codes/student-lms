@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getMasaiverseAccessDebugServer } from '@/server/masaiverse/getMasaiverseAccessDebugServer'
 import { isAppInstalledForUserServer } from '@/server/devices/isAppInstalledForUserServer'
 import {
+  isChatPortal,
   isIHubPortal,
   isIitjPortal,
   isMasaiPortal,
@@ -33,9 +34,10 @@ export function useNavGatingSignals(userId: number) {
   })
 
   return {
-    // Chat is shown to everyone except iHub and IIT Jodhpur — portal-based
-    // only, no per-batch flag exists for it (unlike MasaiVerse).
-    showChat: !isIHub && !isIitj,
+    // Chat is portal-based only — no per-batch flag exists for it (unlike
+    // MasaiVerse). The allowlist (`CHAT_PORTALS`: masai + iitj) is the single
+    // source of truth; don't re-derive it as a "not iHub, not IITJ" check here.
+    showChat: isChatPortal(),
     showMasaiVerse: canShowMasaiVerse,
     // Refer & Earn is disabled entirely for iHub and IIT Jodhpur.
     showReferAndEarn: !isIHub && !isIitj,
