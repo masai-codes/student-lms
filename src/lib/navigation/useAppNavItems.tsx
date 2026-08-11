@@ -177,6 +177,16 @@ export function useAppNavItems() {
       })
     }
 
+    items.push({
+      id: 'support',
+      type: 'internal-link',
+      to: '/support',
+      label: 'Support',
+      icon: Headphones,
+      uiType: 'primary',
+      isActive: pathname.startsWith('/support'),
+    })
+
     return items
   }, [gating.showChat, gating.showMasaiVerse, pathname])
 
@@ -278,14 +288,6 @@ export function useAppNavItems() {
         to: '/my-courses',
         label: 'My Programs',
         icon: GraduationCap,
-        uiType: 'tertiary',
-      },
-      {
-        id: 'support',
-        type: 'internal-link',
-        to: '/support',
-        label: 'Support',
-        icon: Headphones,
         uiType: 'tertiary',
       },
       {
