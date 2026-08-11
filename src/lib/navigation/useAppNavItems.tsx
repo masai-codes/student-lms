@@ -22,6 +22,7 @@ import type { NavItem } from './navItemConfig'
 import { useNavGatingSignals } from './useNavGatingSignals'
 import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
 import { LevelUpIcon } from '@/components/common/LevelUpIcon'
+import { useFloatingChatOptional } from '@/components/common/floating-chat/FloatingChatProvider'
 import { getBugReportFormUrl } from '@/utils/bugReportFormUrl'
 import { logout } from '@/server/auth/logout'
 import {
@@ -57,6 +58,7 @@ export function useAppNavItems() {
   const navigate = useNavigate()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const gating = useNavGatingSignals(user.id)
+  const floatingChat = useFloatingChatOptional()
 
   const [downloadAppOpen, setDownloadAppOpen] = useState(false)
   const [isLevelupLoading, setIsLevelupLoading] = useState(false)
@@ -128,6 +130,14 @@ export function useAppNavItems() {
     window.location.assign(fallbackHref)
   }, [isReferralUrlLoading, referralUrl])
 
+  const handleSupportClick = useCallback(() => {
+    if (floatingChat) {
+      floatingChat.open()
+      return
+    }
+    void navigate({ to: '/support', search: {} })
+  }, [floatingChat, navigate])
+
   // Tier 1 — left side. All carry an icon; Chat/MasaiVerse are independent
   // (no combined "Community" tab), each shown only when eligible.
   const tier1: NavItem[] = useMemo(() => {
@@ -177,10 +187,14 @@ export function useAppNavItems() {
       })
     }
 
+    // Support opens the floating chat (same surface as the bottom-right
+    // sphere) rather than routing. On surfaces where the provider isn't
+    // mounted (support page itself, MasaiVerse, floater disabled) it falls
+    // back to the full support page.
     items.push({
       id: 'support',
-      type: 'internal-link',
-      to: '/support',
+      type: 'action',
+      onClick: handleSupportClick,
       label: 'Support',
       icon: Headphones,
       uiType: 'primary',
@@ -188,7 +202,7 @@ export function useAppNavItems() {
     })
 
     return items
-  }, [gating.showChat, gating.showMasaiVerse, pathname])
+  }, [gating.showChat, gating.showMasaiVerse, handleSupportClick, pathname])
 
   // Right side — fed through `resolveNavItemPriority` by the caller. "Get the
   // app" is primary only when the app isn't installed; Refer & Earn is
