@@ -4,6 +4,10 @@ import { db } from '@/db'
 import { assignments, batches, submissions, users } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { getExperienceApiBaseUrl } from '@/server/api/http/experienceApiFetch'
+import {
+  assessProductAuthHeaders,
+  logAssessAuthWarning,
+} from '@/server/assess/productAuth'
 import { buildAssessSectionTiming } from '@/server/assignments/utils/buildAssessSectionTiming'
 import { acquireLock, releaseLock } from '@/server/redis/lock'
 import { getIstNowSqlDatetime } from '@/server/time/istClock'
@@ -319,9 +323,14 @@ export async function createAssessPlatformUrl(input: {
       headers: {
         adminauthtoken: adminAuthToken,
         'Content-Type': 'application/json; charset=utf-8',
+        ...assessProductAuthHeaders(
+          typeof clientId === 'string' ? clientId : null,
+        ),
       },
       body: JSON.stringify(payload),
     })
+
+    logAssessAuthWarning(response, { route: 'generate-test', submissionId })
 
     if (!response.ok) await parseAssessError(response)
     const responseBody = (await response.json().catch(() => ({}))) as {
