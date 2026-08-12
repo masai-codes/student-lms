@@ -26,6 +26,7 @@ import { formatTimestampIST } from '@/utils/timeZoneHandler'
 import { capitalize } from '@/utils/capitalize'
 import { MarkdownContent } from '@/components/shared/markdown-content/MarkdownContent'
 import { useInterviewRecorder } from '@/hooks/useInterviewRecorder'
+import { useTheme } from '@/lib/theme'
 
 interface MessageDetailPageProps {
   detail: AnnouncementDetail
@@ -82,6 +83,10 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
     togglePlayback: toggleWavePlay,
   } = useInterviewRecorder()
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // MDEditor themes itself off `data-color-mode`, outside our token system —
+  // follow the app theme (same pattern as ui/markdown-composer.tsx).
+  const { resolvedTheme, hydrated } = useTheme()
 
   // Message ids are BigInt — keep as a string to avoid Number precision loss.
   const messageId = detail.id
@@ -303,7 +308,7 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
       {/* ── Reply area ──────────────────────────────────────────────────────── */}
       <div
         className="shrink-0 border-t border-border px-4 md:px-6 py-4 bg-surface flex flex-col gap-3"
-        data-color-mode="light"
+        data-color-mode={hydrated ? resolvedTheme : 'light'}
       >
         {/* Recording UI */}
         {/* Markdown editor — always visible */}

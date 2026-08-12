@@ -73,7 +73,7 @@ export default function ClubDetailBanner({ club }: ClubDetailBannerProps) {
                     className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold ${
                       pill.accent
                         ? 'bg-accent-warm/20 text-accent-warm'
-                        : 'bg-surface/[0.07] text-white/70'
+                        : 'bg-white/[0.07] text-white/70'
                     }`}
                   >
                     {pill.label}

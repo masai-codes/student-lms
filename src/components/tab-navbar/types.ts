@@ -30,9 +30,9 @@ export type TabNavbarProps = {
    */
   labelClassName?: string
   /**
-   * Text/icon color applied to the active tab. Defaults to the Masai indigo
-   * (`text-[#6962AC]`); pass e.g. `text-masaiverse-orange` to theme the active
-   * tab for Masaiverse.
+   * Text/icon color applied to the active tab. Defaults to the themed brand
+   * accent (`text-brand`); pass e.g. `text-masaiverse-orange` to theme the
+   * active tab for Masaiverse.
    */
   activeClassName?: string
   /** Passed to the wrapping `<nav>` for screen readers. */

@@ -158,7 +158,9 @@ export function LectureAiChatPanel({
                 status.tone === 'listening' && 'bg-danger/15 !text-red-300',
                 status.tone === 'speaking' &&
                   'bg-primary-500/15 !text-primary-200',
-                status.tone === 'connecting' && 'bg-surface/10 !text-gray-200',
+                // Fixed-dark panel: constant white/10, not `surface` (which
+                // goes dark in dark mode and would vanish on #1c1c1c).
+                status.tone === 'connecting' && 'bg-white/10 !text-gray-200',
               )}
               aria-live="polite"
             >
@@ -180,7 +182,7 @@ export function LectureAiChatPanel({
               type="button"
               onClick={onClose}
               aria-label="Close chat"
-              className="ml-auto flex size-8 items-center justify-center rounded-full text-foreground-subtle transition-colors hover:bg-surface/10 hover:text-white"
+              className="ml-auto flex size-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
             >
               <X className="size-5" weight="bold" />
             </button>

@@ -210,7 +210,7 @@ export function TicketConversationPanel({
         className="flex-1 overflow-y-auto px-4 py-5 space-y-4"
         ref={scrollRef}
       >
-        <div className="rounded-3xl bg-brand-subtle border border-[#E6E3FF] px-4 py-4 text-[13px] text-foreground font-poppins leading-relaxed">
+        <div className="rounded-3xl bg-brand-subtle border border-[#E6E3FF] dark:border-border px-4 py-4 text-[13px] text-foreground font-poppins leading-relaxed">
           Share the details of your issue so our support team can reach out with
           the right help.
         </div>
@@ -261,7 +261,7 @@ export function TicketConversationPanel({
             <button
               onClick={() => void handleSubmit()}
               disabled={submitting || (!message.trim() && files.length === 0)}
-              className="px-4 py-2.5 bg-[#242C3C] rounded-[12px] text-white font-semibold text-[14px] hover:bg-[#1B2130] transition disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-4 py-2.5 bg-[#242C3C] rounded-[12px] text-white font-semibold text-[14px] hover:bg-[#1B2130] dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {uploading ? 'Uploading…' : submitting ? 'Sending…' : 'Send'}
             </button>
@@ -272,11 +272,9 @@ export function TicketConversationPanel({
       {/* Rating + escalate (resolved/closed tickets) */}
       {isExisting && capabilities?.canRate && (
         <div
-          className="mx-4 mb-4 rounded-2xl p-4 shrink-0"
-          style={{
-            background:
-              'linear-gradient(121deg, #EBE9FB 14.37%, #EFE5FF 35.13%, #FCE9EE 63.97%, #EBE9FB 98.71%)',
-          }}
+          // Decorative pastel wash: in dark the light gradient would sit under
+          // light `text-foreground`, so it gets a dim same-hue analog instead.
+          className="mx-4 mb-4 rounded-2xl p-4 shrink-0 bg-[linear-gradient(121deg,#EBE9FB_14.37%,#EFE5FF_35.13%,#FCE9EE_63.97%,#EBE9FB_98.71%)] dark:bg-[linear-gradient(121deg,#26233b_14.37%,#2b2444_35.13%,#372430_63.97%,#26233b_98.71%)]"
         >
           <p className="text-[13px] font-poppins text-foreground text-center mb-2">
             This ticket has been marked as {status}
@@ -303,7 +301,7 @@ export function TicketConversationPanel({
           {capabilities.canEscalate && (
             <div className="flex justify-end mt-2">
               <button
-                className="font-poppins text-[13px] bg-surface border border-gray-800 rounded-[10px] px-3 py-2 text-foreground font-semibold hover:bg-surface-muted transition disabled:opacity-60"
+                className="font-poppins text-[13px] bg-surface border border-gray-800 dark:border-border-strong rounded-[10px] px-3 py-2 text-foreground font-semibold hover:bg-surface-muted transition disabled:opacity-60"
                 onClick={() => escalateMutation.mutate()}
                 disabled={escalateMutation.isPending}
               >

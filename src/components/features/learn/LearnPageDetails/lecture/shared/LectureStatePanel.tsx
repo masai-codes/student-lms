@@ -16,8 +16,8 @@ type LectureStatePanelProps = {
   action?: ReactNode
   className?: string
   /**
-   * Render on a black, video-player-style backdrop. Applies the `midnight`
-   * dark-theme token block to this subtree so the foreground/primary text
+   * Render on a black, video-player-style backdrop. Applies the `dark`
+   * theme token block to this subtree so the foreground/primary text
    * colors flip to light automatically, then paints the panel pure black.
    */
   dark?: boolean
@@ -37,7 +37,7 @@ export function LectureStatePanel({
   return (
     <div
       data-testid="lecture-state-panel"
-      data-theme={dark ? 'midnight' : undefined}
+      data-theme={dark ? 'dark' : undefined}
       className={cn(
         'flex min-h-[min(52vh,420px)] w-full flex-col items-center justify-center gap-4 px-6 py-12 text-center',
         dark ? 'dark bg-black' : 'bg-muted',

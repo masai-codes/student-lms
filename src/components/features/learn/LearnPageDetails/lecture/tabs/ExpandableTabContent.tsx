@@ -83,7 +83,9 @@ export function ExpandableTabContent({
           <div
             aria-hidden
             data-testid="expandable-tab-content-fade"
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-gray-100 to-transparent"
+            // Fade must match the surrounding LectureTabPanel fill: gray-100 in
+            // light, `surface` in dark (the panel is `dark:bg-surface`).
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-gray-100 to-transparent dark:from-surface"
           />
         ) : null}
       </div>
@@ -92,7 +94,7 @@ export function ExpandableTabContent({
           type="button"
           onMouseDown={(event) => event.preventDefault()}
           onClick={handleToggle}
-          className="type-b2-md mt-3 text-primary-600 hover:underline"
+          className="type-b2-md mt-3 text-primary-600 hover:underline dark:text-brand"
         >
           {expanded ? 'Show less' : 'Show more'}
         </button>

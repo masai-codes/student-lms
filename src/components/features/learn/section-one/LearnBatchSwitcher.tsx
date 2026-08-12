@@ -127,7 +127,7 @@ export function LearnBatchSwitcher({
             <button
               type="button"
               aria-label="Open batch selection"
-              className="group flex min-w-0 cursor-pointer items-center gap-3 rounded-lg text-left transition-transform duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 active:scale-[0.98]"
+              className="group flex min-w-0 cursor-pointer items-center gap-3 rounded-lg text-left transition-transform duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 dark:focus-visible:ring-ring dark:ring-offset-background active:scale-[0.98]"
             >
               <h4 className="type-h4 min-w-0 break-words">
                 {selectedBatchLabel}

@@ -47,9 +47,19 @@ describe('AnnouncementCard', () => {
   })
 
   it('tints the icon red for critical announcements', () => {
-    render(<AnnouncementCard item={{ ...baseItem, type: 'critical' }} />)
-    const icon = document.querySelector('img[alt=""]') as HTMLImageElement
-    expect(icon.style.filter).not.toBe('')
+    const { unmount } = render(
+      <AnnouncementCard item={{ ...baseItem, type: 'critical' }} />,
+    )
+    expect(document.querySelector('svg')?.getAttribute('class')).toContain(
+      'text-danger',
+    )
+    unmount()
+
+    // Non-critical rides the theme accent instead (purple light / red dark).
+    render(<AnnouncementCard item={{ ...baseItem, type: null }} />)
+    expect(document.querySelector('svg')?.getAttribute('class')).toContain(
+      'text-brand',
+    )
   })
 
   it('shows the unread dot and For-you badge when applicable', () => {

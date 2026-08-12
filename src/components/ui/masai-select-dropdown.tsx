@@ -73,7 +73,7 @@ export function MasaiSelectDropdown({
             className={cn(
               'group flex min-h-[44px] min-w-[150px] max-w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-2 text-left transition-all duration-200',
               'hover:-translate-y-px hover:border-brand/35 hover:bg-surface-muted',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               'active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 data-[state=open]:border-brand/40',
               triggerClassName,
             )}

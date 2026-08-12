@@ -1,11 +1,17 @@
 export { ThemeProvider, useTheme } from './ThemeProvider'
 export { buildThemeInitScript } from './theme-script'
 export {
-  DEFAULT_THEME_ID,
+  applyThemeToDocument,
+  getSystemTheme,
+  readStoredPreference,
+} from './apply'
+export {
+  DEFAULT_PREFERENCE,
+  RESOLVED_THEMES,
   STORAGE_KEY,
-  THEMES,
-  THEME_IDS,
-  getTheme,
-  isThemeId,
+  isResolvedTheme,
+  isThemePreference,
+  preferenceForExplicitPick,
+  resolveTheme,
 } from './themes'
-export type { ThemeDefinition, ThemeId, ThemeMode } from './themes'
+export type { ResolvedTheme, ThemePreference } from './themes'

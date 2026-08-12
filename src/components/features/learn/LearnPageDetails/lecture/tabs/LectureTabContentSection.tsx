@@ -19,9 +19,7 @@ export function LectureTabContentSection({
   className,
 }: LectureTabContentSectionProps) {
   return (
-    <section
-      className={cn('border-b border-border bg-surface py-5', className)}
-    >
+    <section className={cn('py-5', className)}>
       <LectureTabPanel key={tabId} tabId={tabId} tabs={tabs} />
     </section>
   )

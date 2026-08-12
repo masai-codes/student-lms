@@ -4,10 +4,10 @@ import type {
 } from '@/server/api/support/support.types'
 
 const TONE_CLASS: Record<AssignmentSupportSnapshotTone, string> = {
-  neutral: 'text-[#62647d]',
-  success: 'text-[#0E9F6E]',
-  warning: 'text-[#f59e0b]',
-  danger: 'text-[#ef4444]',
+  neutral: 'text-[#62647d] dark:text-foreground-muted',
+  success: 'text-[#0E9F6E] dark:text-success',
+  warning: 'text-[#f59e0b] dark:text-warning',
+  danger: 'text-[#ef4444] dark:text-danger',
 }
 
 export function getAssignmentSnapshotStatusClassName(

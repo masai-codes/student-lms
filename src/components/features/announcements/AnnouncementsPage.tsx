@@ -4,6 +4,7 @@ import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { MasaiInput } from '@/components/ui/masai-input'
 import AppPagination from '@/components/common/Pagination'
+import { AnnouncementIcon } from '@/components/common/Icon'
 import { fetchAnnouncements } from '@/lib/api/announcement/announcementApi'
 import { ANNOUNCEMENTS_PER_PAGE } from './announcementsConfig'
 import { AnnouncementCard } from './AnnouncementCard'
@@ -156,11 +157,10 @@ export function AnnouncementsPage() {
               data-testid="announcements-empty"
               className="rounded-xl border border-dashed border-border px-4 py-10 text-center"
             >
-              <img
-                src="/AnnouncementIconGrey.svg"
-                alt=""
-                className="mx-auto mb-3 size-10 opacity-50 animate-dash-float"
-              />
+              {/* `text-border-strong` matches the asset's `#D1D5DB` in light;
+                  dark lifts to `foreground-subtle` so the placeholder keeps a
+                  comparable presence instead of sinking into the near-black. */}
+              <AnnouncementIcon className="mx-auto mb-3 size-10 text-border-strong opacity-50 animate-dash-float dark:text-foreground-subtle" />
               <p className="text-sm text-foreground-subtle">
                 No announcements found.
               </p>

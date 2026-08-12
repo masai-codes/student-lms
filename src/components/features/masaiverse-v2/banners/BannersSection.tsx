@@ -54,7 +54,7 @@ function BannerCard({
       />
       <span
         aria-hidden
-        className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-masaiverse-orange to-[#FF8A3D]"
+        className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-accent-warm to-[#FF8A3D]"
       />
 
       {canManage ? (
@@ -133,7 +133,7 @@ function BannerCard({
                     cta_url: banner.ctaUrl,
                   })
                 }
-                className="inline-flex items-center rounded-lg bg-accent-warm px-4 py-2 text-[13px] font-bold text-accent-warm-foreground shadow-[0_4px_12px_-3px_rgba(242,92,4,0.5)] transition-transform hover:scale-[1.02] active:scale-95"
+                className="inline-flex items-center rounded-lg bg-accent-warm px-4 py-2 text-[13px] font-bold text-accent-warm-foreground shadow-[0_4px_12px_-3px_rgba(242,92,4,0.5)] dark:shadow-[0_4px_12px_-3px_rgba(244,69,63,0.45)] transition-transform hover:scale-[1.02] active:scale-95"
               >
                 {banner.ctaText}
               </a>
