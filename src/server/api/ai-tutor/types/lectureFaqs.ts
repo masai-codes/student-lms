@@ -5,7 +5,7 @@ export type LectureAiFaq = {
 }
 
 /** Cap on how many FAQs the chat empty state offers as suggestions. */
-export const LECTURE_AI_FAQ_LIMIT = 3
+const LECTURE_AI_FAQ_LIMIT = 3
 
 function readTrimmedString(value: unknown): string | null {
   if (typeof value !== 'string') return null
@@ -18,7 +18,13 @@ function readTrimmedString(value: unknown): string | null {
  * an array of `{ question, answer }` entries, e.g.
  * `[{ "question": "...", "answer": "..." }]`.
  */
-export function parseLectureAiFaqs(faqs: unknown): Array<LectureAiFaq> {
+export function parseLectureAiFaqs(faqsRaw: unknown): Array<LectureAiFaq> {
+  if (typeof faqsRaw !== 'object' || faqsRaw === null) return []
+  const faqs = Array.isArray(faqsRaw)
+    ? faqsRaw
+    : 'faqs' in faqsRaw
+      ? faqsRaw.faqs
+      : undefined
   if (!Array.isArray(faqs)) return []
 
   const results: Array<LectureAiFaq> = []
