@@ -16,6 +16,7 @@ import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fe
 import { buildLectureVideoAttendanceState } from '@/server/learn/utils/buildLectureVideoAttendanceState'
 import { toLearningPriority } from '@/server/learn/utils/learningDataMappers'
 import { resolveEnableZoomWebView } from '@/server/learn/utils/resolveEnableZoomWebView'
+import { isIvsZoomRedirection } from '@/server/learn/utils/isIvsZoomRedirection'
 import {
   buildLectureDetailPayload,
   isSupportedLectureDetailType,
@@ -195,6 +196,7 @@ export async function getLectureLearningDetailForUser(
       settings: row.settings,
       hostAvatarUrl: row.hostAvatarUrl,
       notes: row.notes,
+      zoomDetails: row.zoomDetails,
     },
     Date.now(),
     tabs,
@@ -220,7 +222,10 @@ export async function getLectureLearningDetailForUser(
   return {
     ...payload,
     isBookmarked,
-    isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    // An IVS lecture always joins through ZEF — it has no raw link to fall back
+    // on, so never leave the CTA pointing at nothing if the flag column lags.
+    isNewZoomRedirection:
+      row.isNewZoomRedirection === 1 || isIvsZoomRedirection(row.zoomDetails),
     enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
     restriction,
     // When restricted the whole page is blocked client-side; don't leak the

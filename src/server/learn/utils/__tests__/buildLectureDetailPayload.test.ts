@@ -106,6 +106,64 @@ describe('buildLectureDetailPayload', () => {
     )
   })
 
+  it('shows the join CTA for an IVS lecture that carries no zoom link', () => {
+    const scheduleMs = new Date(schedule).getTime()
+    const payload = buildLectureDetailPayload(
+      core,
+      {
+        type: 'live',
+        schedule,
+        concludes,
+        // ZEF-with-IVS mints the join URL at click time.
+        zoomLink: null,
+        videos: null,
+        vimeoDownloadLinks: null,
+        vimeoPlayerEmbedUrl: null,
+        settings: null,
+        hostAvatarUrl: null,
+        notes: null,
+        zoomDetails: { redirectionType: 'ivs' },
+      },
+      scheduleMs + 5 * 60 * 1000,
+      emptyTabs,
+      null,
+      null,
+      null,
+      { rating: null, text: null },
+    )
+
+    expect(payload.zoomLink).toBeNull()
+    expect(payload.joinLiveButtonState).toBe('active')
+  })
+
+  it('hides the join CTA for a non-IVS lecture with no zoom link', () => {
+    const scheduleMs = new Date(schedule).getTime()
+    const payload = buildLectureDetailPayload(
+      core,
+      {
+        type: 'live',
+        schedule,
+        concludes,
+        zoomLink: null,
+        videos: null,
+        vimeoDownloadLinks: null,
+        vimeoPlayerEmbedUrl: null,
+        settings: null,
+        hostAvatarUrl: null,
+        notes: null,
+        zoomDetails: { redirectionType: 'zoom' },
+      },
+      scheduleMs + 5 * 60 * 1000,
+      emptyTabs,
+      null,
+      null,
+      null,
+      { rating: null, text: null },
+    )
+
+    expect(payload.joinLiveButtonState).toBe('hidden')
+  })
+
   it('does not expose an adaptive recording link before concludes + 30 min for SAL', () => {
     const concludesMs = new Date(concludes).getTime()
     const payload = buildLectureDetailPayload(
