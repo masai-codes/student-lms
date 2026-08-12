@@ -190,8 +190,8 @@ export function useAppNavItems() {
 
     // Support opens the floating chat (same surface as the bottom-right
     // sphere) rather than routing. On surfaces where the provider isn't
-    // mounted (support page itself, MasaiVerse, floater disabled) it falls
-    // back to the full support page.
+    // mounted (support page itself, floater disabled) it falls back to the
+    // full support page.
     items.push({
       id: 'support',
       type: 'action',

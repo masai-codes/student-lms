@@ -86,7 +86,7 @@ describe('live lecture snapshot matrix — section settings × student state', (
 
       expect(result).toEqual({
         label: 'Present',
-        colorClass: 'text-[#0E9F6E]',
+        colorClass: 'text-[#0E9F6E] dark:text-success',
         showAbsentReason: false,
         absentReason: null,
       })
@@ -216,7 +216,7 @@ describe('live lecture snapshot matrix — section settings × student state', (
 
       expect(result).toEqual({
         label: 'N/A',
-        colorClass: 'text-[#62647d]',
+        colorClass: 'text-[#62647d] dark:text-foreground-muted',
         showAbsentReason: false,
         absentReason: null,
       })

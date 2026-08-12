@@ -167,7 +167,7 @@
 .markdown-content th,
 .markdown-content td {
   padding: 8px 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
 }
 
 /* Code blocks + inline code */
@@ -307,4 +307,92 @@
 .markdown-content--detail h6 {
   font-size: 0.85em;
   color: var(--foreground-muted);
+}
+
+/*
+ * Dark theme (red & black). Placed last so these outrank both the shared
+ * `.markdown-content` defaults and the `--detail` variant by source order.
+ * Light values above are untouched.
+ */
+
+/* Links: the constant purple palette var doesn't re-theme, so land on brand
+   (red in dark); hover lifts to the pastel brand foreground. */
+.dark .markdown-content a {
+  color: var(--brand);
+}
+
+.dark .markdown-content a:hover {
+  color: var(--brand-subtle-foreground);
+}
+
+/* Code blocks: a near-black well recessed below the card surface. */
+.dark .markdown-content pre {
+  background: var(--background);
+  border-color: var(--border);
+}
+
+.dark .markdown-content :not(pre) > code {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+/* Syntax highlighting — GitHub-dark counterpart of the light theme above. */
+.dark .markdown-content .hljs {
+  color: #e6edf3;
+}
+.dark .markdown-content .hljs-comment,
+.dark .markdown-content .hljs-quote {
+  color: #8b949e;
+}
+.dark .markdown-content .hljs-keyword,
+.dark .markdown-content .hljs-selector-tag,
+.dark .markdown-content .hljs-literal,
+.dark .markdown-content .hljs-type {
+  color: #ff7b72;
+}
+.dark .markdown-content .hljs-string,
+.dark .markdown-content .hljs-attr,
+.dark .markdown-content .hljs-meta-string {
+  color: #a5d6ff;
+}
+.dark .markdown-content .hljs-number,
+.dark .markdown-content .hljs-symbol,
+.dark .markdown-content .hljs-bullet,
+.dark .markdown-content .hljs-regexp {
+  color: #79c0ff;
+}
+.dark .markdown-content .hljs-title,
+.dark .markdown-content .hljs-section,
+.dark .markdown-content .hljs-name {
+  color: #d2a8ff;
+}
+.dark .markdown-content .hljs-attribute,
+.dark .markdown-content .hljs-variable,
+.dark .markdown-content .hljs-template-variable {
+  color: #ffa657;
+}
+.dark .markdown-content .hljs-built_in,
+.dark .markdown-content .hljs-builtin-name {
+  color: #79c0ff;
+}
+.dark .markdown-content .hljs-meta {
+  color: #8b949e;
+}
+
+/* Detail variant — body text and GitHub-blue links re-theme via tokens. */
+.dark .markdown-content--detail {
+  color: var(--foreground);
+}
+
+.dark .markdown-content--detail a {
+  color: var(--info);
+}
+
+.dark .markdown-content--detail a:hover {
+  color: var(--info-subtle-foreground);
+}
+
+.dark .markdown-content--detail h1,
+.dark .markdown-content--detail h2 {
+  border-bottom-color: var(--border);
 }

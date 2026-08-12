@@ -111,7 +111,7 @@ export function SupportMarkdown({
               <code
                 {...props}
                 className={cn(
-                  'rounded-[4px] border border-[#d1d2d3] bg-[#f8f8fa] px-[5px] py-[1px] font-mono text-[12.5px] text-[#e01e5a]',
+                  'rounded-[4px] border border-[#d1d2d3] bg-[#f8f8fa] px-[5px] py-[1px] font-mono text-[12.5px] text-[#e01e5a] dark:border-border dark:bg-muted dark:text-danger-subtle-foreground',
                   codeClassName,
                 )}
               >
@@ -125,7 +125,7 @@ export function SupportMarkdown({
             <pre
               {...props}
               className={cn(
-                'rounded-[6px] border border-[#d1d2d3] bg-[#f8f8fa] p-3 overflow-x-auto',
+                'rounded-[6px] border border-[#d1d2d3] bg-[#f8f8fa] p-3 overflow-x-auto dark:border-border dark:bg-muted',
                 preClassName,
               )}
             />

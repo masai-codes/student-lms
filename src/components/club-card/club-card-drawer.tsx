@@ -144,7 +144,11 @@ export function ClubCardDrawer({
               />
               {memberCount !== null ? (
                 <div className="mt-[12px] flex w-fit items-center gap-[6px] rounded-[32px] border border-border px-[12px] py-[4px] text-foreground">
-                  <Users size={20} aria-hidden="true" color="#374151" />
+                  <Users
+                    size={20}
+                    aria-hidden="true"
+                    className="text-foreground"
+                  />
                   <p className="font-poppins text-[12px] font-[500] leading-[16px] text-foreground">
                     {memberCount} {memberCount === 1 ? 'member' : 'members'}
                   </p>

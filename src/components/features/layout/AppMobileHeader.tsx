@@ -11,6 +11,7 @@ import {
   useNextActionBannerView,
 } from '@/components/features/layout/NextActionBanner'
 import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
 import { useAppNavItems } from '@/lib/navigation/useAppNavItems'
 import { hidesMasaiOnlyFeatures } from '@/utils/portal'
@@ -76,6 +77,7 @@ export default function AppMobileHeader() {
         {showTryNew && !user.hideSwitchOption ? (
           <TryNewToggle initialEnabled={user.newLmsPagesEnabled} />
         ) : null}
+        <ThemeToggle size="mobile" />
         <button
           type="button"
           onClick={handleAnnouncementsClick}

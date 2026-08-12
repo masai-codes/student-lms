@@ -26,7 +26,7 @@ export function FloatingChatFullPage({
   }, [initialEntityLaunchIntent])
 
   return (
-    <div className="min-h-dvh bg-white" data-testid="support-page-root">
+    <div className="min-h-dvh bg-surface" data-testid="support-page-root">
       <FloatingChatModal
         presentation="fullPage"
         isOpen

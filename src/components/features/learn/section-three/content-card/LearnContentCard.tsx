@@ -13,7 +13,7 @@ import {
   shouldShowAssignmentStatusChip,
 } from '@/lib/learn/listingCardPresentation'
 import { cn } from '@/lib/utils'
-import { CommonIcon } from '@/components/common/Icon'
+import { CommonIcon, LEARN_TYPE_ICON_CLASS } from '@/components/common/Icon'
 
 const learnContentTagChipPalette = {
   backgroundClassName: 'bg-surface-muted',
@@ -89,14 +89,11 @@ function LearnSectionChip({
 }
 
 function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
-  const color =
-    type === 'lecture'
-      ? '#3F83F8'
-      : type === 'assignment'
-        ? '#16BDCA'
-        : '#FF8A4C'
   return (
-    <CommonIcon className="size-6 md:size-8" style={{ color }} name={type} />
+    <CommonIcon
+      className={cn('size-6 md:size-8', LEARN_TYPE_ICON_CLASS[type])}
+      name={type}
+    />
   )
 }
 

@@ -95,7 +95,7 @@ function EditCard({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder={placeholder}
-            className="w-full rounded-[8px] border border-border bg-surface-muted px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
+            className="w-full rounded-[8px] border border-border bg-surface-muted px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-400 dark:focus:border-brand dark:focus:ring-ring focus:ring-offset-2 ring-offset-background"
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             onKeyDown={(e) => {
@@ -163,7 +163,7 @@ function PasswordInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-[10px] border border-border bg-surface-muted px-4 py-3 pr-11 text-sm text-foreground outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
+          className="w-full rounded-[10px] border border-border bg-surface-muted px-4 py-3 pr-11 text-sm text-foreground outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-400 dark:focus:border-brand dark:focus:ring-ring focus:ring-offset-2 ring-offset-background"
         />
         <button
           type="button"
@@ -285,7 +285,7 @@ function PasswordCard({
               type="button"
               onClick={cancelEdit}
               disabled={saving}
-              className="px-6 py-2.5 rounded-[10px] border-2 border-gray-800 text-sm font-semibold text-foreground bg-surface hover:bg-surface-muted disabled:opacity-60 transition-colors"
+              className="px-6 py-2.5 rounded-[10px] border-2 border-gray-800 dark:border-border-strong text-sm font-semibold text-foreground bg-surface hover:bg-surface-muted disabled:opacity-60 transition-colors"
             >
               Cancel
             </button>

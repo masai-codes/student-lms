@@ -18,7 +18,7 @@ function BookButton({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-[10px] bg-[#4b4396] px-3 py-2 text-[12.5px] font-bold text-white transition-all hover:bg-[#3d3680] active:scale-[0.98]"
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-[10px] bg-[#4b4396] px-3 py-2 text-[12.5px] font-bold text-white transition-all hover:bg-[#3d3680] dark:bg-brand dark:hover:bg-brand/85 active:scale-[0.98]"
     >
       <CalendarCheck weight="bold" className="size-3.5" />
       {label}
@@ -28,15 +28,15 @@ function BookButton({ href, label }: { href: string; label: string }) {
 
 function CoordinatorChip({ coordinator }: { coordinator: SupportCoordinator }) {
   return (
-    <div className="flex min-w-0 items-center gap-2 rounded-[10px] border border-[#e9e9f3] bg-white px-2.5 py-2">
-      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f0f0fd] text-[10.5px] font-extrabold text-[#4b4396]">
+    <div className="flex min-w-0 items-center gap-2 rounded-[10px] border border-[#e9e9f3] dark:border-border bg-surface px-2.5 py-2">
+      <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f0f0fd] dark:bg-brand/15 text-[10.5px] font-extrabold text-[#4b4396] dark:text-brand">
         {coordinator.name.slice(0, 2).toUpperCase()}
       </div>
       <div className="min-w-0">
-        <p className="truncate text-[12px] font-semibold text-[#15162c]">
+        <p className="truncate text-[12px] font-semibold text-[#15162c] dark:text-foreground">
           {coordinator.name}
         </p>
-        <p className="text-[10.5px] font-medium text-[#9496ab]">
+        <p className="text-[10.5px] font-medium text-[#9496ab] dark:text-foreground-subtle">
           {KIND_LABEL[coordinator.kind]}
         </p>
       </div>
@@ -46,9 +46,9 @@ function CoordinatorChip({ coordinator }: { coordinator: SupportCoordinator }) {
 
 function SectionCard({ section }: { section: OneOnOneSection }) {
   return (
-    <div className="rounded-[14px] border border-[#e9e9f3] bg-white p-3.5">
+    <div className="rounded-[14px] border border-[#e9e9f3] dark:border-border bg-surface p-3.5">
       <div className="mb-2.5 flex items-start justify-between gap-3">
-        <h4 className="text-[13.5px] font-bold text-[#15162c] leading-snug pt-0.5">
+        <h4 className="text-[13.5px] font-bold text-[#15162c] dark:text-foreground leading-snug pt-0.5">
           {section.sectionName}
         </h4>
         <BookButton href={section.ppLink} label="Book 1:1" />
@@ -75,10 +75,10 @@ export function FloatingOneOnOneTab({
   if (groups.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-2 py-10 px-4 text-center">
-        <p className="text-[14px] font-bold text-[#15162c]">
+        <p className="text-[14px] font-bold text-[#15162c] dark:text-foreground">
           1:1 sessions unavailable
         </p>
-        <p className="text-[12.5px] text-[#62647d] leading-relaxed max-w-[280px]">
+        <p className="text-[12.5px] text-[#62647d] dark:text-foreground-muted leading-relaxed max-w-[280px]">
           1:1 Support Sessions are currently unavailable for your sections.
         </p>
       </div>
@@ -91,15 +91,15 @@ export function FloatingOneOnOneTab({
         <div
           key={group.batchId ?? 'unknown'}
           className={cn(
-            'rounded-[16px] border border-[#e9e9f3] bg-[#f8f8fc] p-3.5',
+            'rounded-[16px] border border-[#e9e9f3] bg-[#f8f8fc] dark:border-border dark:bg-surface-muted p-3.5',
           )}
         >
           <div className="mb-3 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#9496ab] mb-0.5">
+              <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#9496ab] dark:text-foreground-subtle mb-0.5">
                 Batch
               </p>
-              <h3 className="text-[15px] font-extrabold text-[#15162c] truncate">
+              <h3 className="text-[15px] font-extrabold text-[#15162c] dark:text-foreground truncate">
                 {group.batchName}
               </h3>
             </div>

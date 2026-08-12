@@ -34,7 +34,7 @@ export function AgreementValidationSummary({
 
   return (
     <div
-      className="rounded-xl border border-red-200 bg-danger-subtle p-4"
+      className="rounded-xl border border-red-200 dark:border-danger/40 bg-danger-subtle p-4"
       role="alert"
       data-testid="agreement-validation-summary"
     >

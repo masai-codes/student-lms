@@ -156,7 +156,7 @@ export function SwitchAccountFlow() {
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-amber-50/70 p-5 shadow-sm">
+        <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-amber-50/70 dark:to-amber-400/10 p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             Switch account
           </p>

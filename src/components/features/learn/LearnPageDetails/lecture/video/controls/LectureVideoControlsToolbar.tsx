@@ -298,7 +298,9 @@ export function LectureVideoControlsToolbar({
 
   // Frosted-glass chrome: standalone circular pills for primary actions and a
   // grouped capsule for secondary ones, floating over the video like the new
-  // YouTube glass player.
+  // YouTube glass player. Literal white/black (never `surface` tokens): the
+  // player chrome is intentionally fixed-dark in BOTH themes — a themed token
+  // would flip near-black in dark mode and dissolve the glass on the video.
   const glassPillClass =
     'border border-white/15 bg-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl'
   const clusterButtonClass =

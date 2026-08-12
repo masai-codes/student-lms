@@ -24,14 +24,7 @@ import { dirname, join } from 'node:path'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const CSS_PATH = join(__dirname, '..', 'src', 'styles.css')
 
-const THEME_IDS = [
-  'lms-default',
-  'midnight',
-  'cocoa',
-  'masaiverse',
-  'blossom',
-  'anthropic',
-]
+const THEME_IDS = ['light', 'dark']
 
 /** [foreground token, background token, category] */
 const PAIRS = [
@@ -73,7 +66,7 @@ const MIN = { text: 4.5, ui: 3.0, hint: 3.0 }
  */
 const EXCEPTIONS = {
   // shadcn's stock secondary-text-on-muted-fill (oklch .556 on .97) = 4.34:1.
-  'lms-default:muted-foreground:muted': 4.3,
+  'light:muted-foreground:muted': 4.3,
 }
 
 // ── color math ────────────────────────────────────────────────────────────
@@ -135,7 +128,9 @@ function contrast(fg, bg) {
 // ── parse styles.css ────────────────────────────────────────────────────────
 
 function extractBlock(css, themeId) {
-  const marker = `[data-theme='${themeId}']`
+  // Anchor to the selector at line start so mentions of the attribute inside
+  // comments can't be mistaken for the block itself.
+  const marker = `\n[data-theme='${themeId}'] {`
   const idx = css.indexOf(marker)
   if (idx === -1) throw new Error(`Theme block not found: ${themeId}`)
   const open = css.indexOf('{', idx)

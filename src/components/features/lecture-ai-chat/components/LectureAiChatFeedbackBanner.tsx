@@ -47,10 +47,12 @@ export function LectureAiChatFeedbackBanner({
   return (
     <div
       className={cn(
+        // Light purple wash (#F0EFFA ≈ brand-subtle) with a slightly stronger
+        // purple hairline; the border has no token so it gets a dark override.
         'mx-auto w-full max-w-3xl rounded-2xl border p-3',
+        'bg-brand-subtle border-[#D4D2F0] dark:border-brand/25',
         className,
       )}
-      style={{ background: '#F0EFFA', borderColor: '#D4D2F0' }}
     >
       <div className="flex items-start justify-between gap-2">
         <div>

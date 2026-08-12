@@ -39,7 +39,7 @@ export function ScheduleSection({
   return (
     <section
       data-testid="dashboard-schedule-section"
-      className="flex h-full flex-col gap-5 rounded-2xl md:border border-border md:bg-surface py-2 px-2 md:p-4 transition-colors duration-300 hover:border-[#4F6BED]/25 sm:p-5"
+      className="flex h-full flex-col gap-5 rounded-2xl md:border border-border md:bg-surface py-2 px-2 md:p-4 transition-colors duration-300 hover:border-[#4F6BED]/25 dark:hover:border-brand/30 sm:p-5"
     >
       <div className="flex items-center gap-2 sm:gap-3">
         <TabButton
@@ -155,7 +155,7 @@ function ScheduleFeed({
           {week.rangeLabel}
         </span>
         <span
-          className="h-px flex-1 bg-gradient-to-r from-[#4F6BED]/30 via-gray-200 to-transparent"
+          className="h-px flex-1 bg-gradient-to-r from-[#4F6BED]/30 dark:from-brand/30 via-gray-200 dark:via-border to-transparent"
           aria-hidden
         />
       </div>
@@ -202,7 +202,7 @@ function DayBadge({ day }: { day: ScheduleDayRow }) {
     <div
       className={`flex h-fit w-11 shrink-0 flex-col items-center rounded-lg py-1.5 transition-transform duration-200 ${
         day.isToday
-          ? 'animate-dash-glow bg-gradient-to-b from-[#5F79F2] to-[#4F6BED] text-white'
+          ? 'animate-dash-glow bg-gradient-to-b from-[#5F79F2] to-[#4F6BED] text-white dark:from-brand dark:to-[#c93a3a]'
           : 'text-foreground-muted hover:bg-surface-muted'
       }`}
     >
@@ -262,7 +262,7 @@ function PendingTasksFeed({
       >
         <span
           aria-hidden
-          className="animate-dash-pop flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-emerald-50 to-emerald-100 text-xl shadow-[0_0_0_6px_rgb(16_185_129_/_0.08)]"
+          className="animate-dash-pop flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-500/10 dark:to-emerald-500/20 text-xl shadow-[0_0_0_6px_rgb(16_185_129_/_0.08)]"
         >
           🎉
         </span>

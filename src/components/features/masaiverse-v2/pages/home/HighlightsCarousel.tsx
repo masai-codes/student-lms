@@ -7,14 +7,16 @@ import type { MasaiverseV2HomeHighlight } from '@/server/api/masaiverse-v2/servi
 import 'swiper/css'
 import 'swiper/css/navigation'
 
-/** Left-edge accent palette; cycled per card so adjacent recaps differ. */
+/** Left-edge accent palette; cycled per card so adjacent recaps differ.
+ * Light values are the originals; `light-dark()` swaps in brighter same-hue
+ * variants so the 4px bars stay visible on the near-black dark surfaces. */
 const HIGHLIGHT_ACCENT_COLORS = [
-  'var(--color-masaiverse-orange)',
-  '#2E7D46',
-  '#6D28D9',
-  '#2563EB',
-  '#D97706',
-  '#DB2777',
+  'var(--accent-warm)',
+  'light-dark(#2E7D46, #7FD6A0)',
+  'light-dark(#6D28D9, #C4A8F5)',
+  'light-dark(#2563EB, #8FB4F9)',
+  'light-dark(#D97706, #F3C57C)',
+  'light-dark(#DB2777, #F5A3C8)',
 ]
 
 type HighlightsCarouselProps = {

@@ -190,7 +190,7 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
                 })
                 openExternal(link)
               }}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-accent-warm to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99]"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-accent-warm to-[#FF7A29] dark:to-[#c9302b] px-5 py-3.5 text-[15px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] dark:shadow-[0_8px_20px_-6px_rgba(244,69,63,0.45)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] dark:hover:shadow-[0_10px_26px_-6px_rgba(244,69,63,0.55)] active:scale-[0.99]"
             >
               <OpenIcon size={18} weight="bold" />
               {openLabel}
@@ -210,7 +210,7 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
             type="button"
             onClick={handleJoinClick}
             disabled={joinMutation.isPending}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-accent-warm to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:opacity-70 disabled:shadow-none"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-accent-warm to-[#FF7A29] dark:to-[#c9302b] px-5 py-3.5 text-[15px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] dark:shadow-[0_8px_20px_-6px_rgba(244,69,63,0.45)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] dark:hover:shadow-[0_10px_26px_-6px_rgba(244,69,63,0.55)] active:scale-[0.99] disabled:opacity-70 disabled:shadow-none"
           >
             <Plus size={18} weight="bold" />
             {joinMutation.isPending ? 'Joining…' : 'Join club'}
@@ -221,7 +221,7 @@ export default function EventRegisterCard({ event }: EventRegisterCardProps) {
           type="button"
           onClick={handleRegisterClick}
           disabled={mutation.isPending}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-accent-warm to-[#FF7A29] px-5 py-3.5 text-[15px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] active:scale-[0.99] disabled:opacity-70 disabled:shadow-none"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-accent-warm to-[#FF7A29] dark:to-[#c9302b] px-5 py-3.5 text-[15px] font-bold text-accent-warm-foreground shadow-[0_8px_20px_-6px_rgba(242,92,4,0.5)] dark:shadow-[0_8px_20px_-6px_rgba(244,69,63,0.45)] transition-all hover:shadow-[0_10px_26px_-6px_rgba(242,92,4,0.6)] dark:hover:shadow-[0_10px_26px_-6px_rgba(244,69,63,0.55)] active:scale-[0.99] disabled:opacity-70 disabled:shadow-none"
         >
           <Ticket size={18} weight="fill" />
           {mutation.isPending ? 'Registering…' : 'Register'}

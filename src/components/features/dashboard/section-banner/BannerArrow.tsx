@@ -26,7 +26,8 @@ export function BannerArrow({
   const isPrev = direction === 'prev'
   const toneCls =
     tone === 'dark'
-      ? 'bg-surface/15 text-white hover:bg-surface/25'
+      ? // Constant white tints — "dark" tone sits on fixed gradient banners.
+        'bg-white/15 text-white hover:bg-white/25'
       : 'bg-surface text-brand shadow-sm hover:bg-surface/90'
   return (
     <button

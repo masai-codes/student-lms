@@ -38,7 +38,7 @@ export function MasaiTabs({
             onClick={() => onValueChange(item.value)}
             className={`cursor-pointer rounded-[40px] px-4 py-2 text-[14px] font-medium leading-5 transition-colors ${
               isSelected
-                ? 'bg-surface text-[#EF8833]'
+                ? 'bg-surface text-[#EF8833] dark:text-accent-warm'
                 : 'bg-transparent text-foreground-muted hover:text-foreground-muted'
             }`}
           >

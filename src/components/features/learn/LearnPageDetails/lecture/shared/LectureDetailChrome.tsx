@@ -8,6 +8,17 @@ import type { LearningPriority } from '@/server/learn/types'
 import { resolveLectureAttendanceBanner } from '@/lib/lecture-attendance/resolveLectureAttendanceBanner'
 import { cn } from '@/lib/utils'
 
+/**
+ * Horizontal gutter for every row below the hero (header, attendance banner,
+ * footer/tabs/discussions). Declared once so the rows can't drift out of
+ * alignment. It keeps widening past `lg` because this page is full-bleed — with
+ * a flat 24px the bordered surfaces inside it (notably the discussion composer
+ * and the discussion cards, which span nearly the whole row) sat right on the
+ * viewport edge. Each step up exists for the same reason on wider monitors,
+ * where the previous value still reads as the card touching the edge.
+ */
+const LECTURE_GUTTER_X = 'px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16'
+
 type LectureDetailChromeProps = {
   title: string
   tags: Array<string>
@@ -72,7 +83,7 @@ export function LectureDetailChrome({
         {hero}
         <div
           data-lecture-viewport-chrome
-          className={cn('w-full px-4 md:px-6', 'relative z-20 shrink-0')}
+          className={cn('w-full', LECTURE_GUTTER_X, 'relative z-20 shrink-0')}
         >
           {/* Content below the video rises in with a gentle stagger (header →
               attendance banner → footer). The hero stays untouched — its
@@ -99,7 +110,8 @@ export function LectureDetailChrome({
       {footer ? (
         <div
           className={cn(
-            'w-full px-4 md:px-6',
+            'w-full',
+            LECTURE_GUTTER_X,
             'animate-dash-rise bg-surface dark:bg-transparent [--dash-delay:0.16s]',
           )}
         >

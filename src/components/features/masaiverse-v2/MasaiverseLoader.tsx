@@ -1,10 +1,12 @@
+import { ThemedLogo } from '@/components/common/ThemedLogo'
+
 /**
  * Masaiverse-branded loading indicator.
  *
  * Shows the Masai logo with a soft pulse plus a sweeping accent progress bar,
  * so route/data transitions feel intentional instead of flashing a bare
- * "Loading…" string. The logo asset matches the one used in the sidebar
- * (`public/Masaiverse.svg`).
+ * "Loading…" string. The logo assets match the ones used in the sidebar
+ * (`public/Masaiverse.svg`, `public/masaiverse-dark.svg`).
  */
 type MasaiverseLoaderProps = {
   /** Optional helper text shown under the logo. */
@@ -26,8 +28,9 @@ export default function MasaiverseLoader({
         fullHeight ? 'min-h-[60vh]' : 'py-16'
       }`}
     >
-      <img
-        src="/Masaiverse.svg"
+      <ThemedLogo
+        lightSrc="/Masaiverse.svg"
+        darkSrc="/masaiverse-dark.svg"
         alt="Masaiverse"
         className="h-14 w-auto animate-pulse"
       />

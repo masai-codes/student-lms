@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as TanstackRouter from '@tanstack/react-router'
 import type { AnnouncementDetail } from '@/server/api/announcement/getAnnouncementById.service'
 import { MessageDetailPage } from './MessageDetailPage'
+import { ThemeProvider } from '@/lib/theme'
 
 const hoisted = vi.hoisted(() => ({
   recorderState: {
@@ -70,7 +71,10 @@ function renderPage() {
   const queryClient = new QueryClient()
   return render(
     <QueryClientProvider client={queryClient}>
-      <MessageDetailPage detail={baseDetail} />
+      {/* MessageDetailPage themes its MDEditor via useTheme. */}
+      <ThemeProvider>
+        <MessageDetailPage detail={baseDetail} />
+      </ThemeProvider>
     </QueryClientProvider>,
   )
 }

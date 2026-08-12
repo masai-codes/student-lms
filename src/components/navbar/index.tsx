@@ -7,14 +7,14 @@ import { NavbarTrailingActions } from './navbar-trailing-actions'
 import type { NavbarProps } from './types'
 
 import { cn } from '@/lib/utils'
-// import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
 
 /**
- * Dark theme applied to the navbar subtree when `forceDark` is set. Matches a
- * real `[data-theme='…']` block in `styles.css`; setting it on `<header>`
+ * Dark theme applied to the navbar subtree when `forceDark` is set. Matches
+ * the `[data-theme='dark']` block in `styles.css`; setting it on `<header>`
  * redefines the semantic tokens (surface/foreground/…) for just this subtree.
  */
-const FORCE_DARK_THEME_ID = 'midnight'
+const FORCE_DARK_THEME_ID = 'dark'
 
 /** Hairline vertical rule separating groups inside a row. */
 function RowDivider({ className }: { className?: string }) {
@@ -93,7 +93,7 @@ export function Navbar({
           {actionsSlot ?? null}
           {hasSecondaryLinks && hasIconCluster ? <RowDivider /> : null}
           <NavbarTrailingActions items={trailingActions ?? []} />
-          {/* <ThemeSwitcher /> */}
+          <ThemeToggle />
           <NavbarProfileMenu profile={profile} />
         </div>
       </div>

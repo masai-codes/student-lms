@@ -91,13 +91,13 @@ export default function PhotoLightbox({
             />
           </div>
 
-          <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-surface/10 px-2 py-1.5 backdrop-blur">
+          <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/10 px-2 py-1.5 backdrop-blur">
             <button
               type="button"
               aria-label="Zoom out"
               onClick={() => zoomTo(scale - STEP)}
               disabled={scale <= MIN_SCALE}
-              className="flex size-9 items-center justify-center rounded-full text-white hover:bg-surface/15 disabled:opacity-40"
+              className="flex size-9 items-center justify-center rounded-full text-white hover:bg-white/15 disabled:opacity-40"
             >
               <MagnifyingGlassMinus size={20} />
             </button>
@@ -109,7 +109,7 @@ export default function PhotoLightbox({
               aria-label="Zoom in"
               onClick={() => zoomTo(scale + STEP)}
               disabled={scale >= MAX_SCALE}
-              className="flex size-9 items-center justify-center rounded-full text-white hover:bg-surface/15 disabled:opacity-40"
+              className="flex size-9 items-center justify-center rounded-full text-white hover:bg-white/15 disabled:opacity-40"
             >
               <MagnifyingGlassPlus size={20} />
             </button>
@@ -117,7 +117,7 @@ export default function PhotoLightbox({
 
           <Dialog.Close
             aria-label="Close"
-            className="absolute right-5 top-5 flex size-10 items-center justify-center rounded-full bg-surface/10 text-white hover:bg-surface/20"
+            className="absolute right-5 top-5 flex size-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
           >
             <X size={22} />
           </Dialog.Close>

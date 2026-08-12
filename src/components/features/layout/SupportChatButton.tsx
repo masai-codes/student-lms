@@ -17,7 +17,7 @@ export default function SupportChatButton() {
       onClick={() => {
         void navigate({ to: '/support' })
       }}
-      className="fixed right-4 md:right-6 z-[150] flex h-14 w-14 items-center justify-center rounded-full bg-[#9061F9] text-white shadow-lg transition-all hover:bg-[#7C4FEB] hover:shadow-xl"
+      className="fixed right-4 md:right-6 z-[150] flex h-14 w-14 items-center justify-center rounded-full bg-[#9061F9] text-white shadow-lg transition-all hover:bg-[#7C4FEB] hover:shadow-xl dark:bg-brand dark:text-brand-foreground dark:hover:bg-brand/90"
       style={{
         bottom: 'calc(6rem + env(safe-area-inset-bottom, 0px))',
       }}

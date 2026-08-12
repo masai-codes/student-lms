@@ -57,13 +57,14 @@ export function AssociatedContentEntryCta({
         aria-label={`Open ${ASSOCIATED_CONTENT_DRAWER_TITLE}`}
       >
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600 transition-transform duration-200 group-hover:scale-110">
+          {/* `brand-subtle` equals the old `primary-50` in light and re-themes in dark. */}
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-subtle text-primary-600 transition-transform duration-200 group-hover:scale-110 dark:text-brand-subtle-foreground">
             <Link2 className="size-5" strokeWidth={2} aria-hidden />
           </span>
           <span className="type-b2-md text-foreground">
             {ASSOCIATED_CONTENT_DRAWER_TITLE}
           </span>
-          <span className="type-t2 animate-dash-pop flex size-5 shrink-0 items-center justify-center rounded-full bg-primary-500 text-white">
+          <span className="type-t2 animate-dash-pop flex size-5 shrink-0 items-center justify-center rounded-full bg-primary-500 text-white dark:bg-brand dark:text-brand-foreground">
             {items.length}
           </span>
         </div>

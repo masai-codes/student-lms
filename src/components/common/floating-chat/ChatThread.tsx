@@ -28,11 +28,11 @@ interface ChatThreadProps {
 function AssigneeDivider({ name }: { name: string }) {
   return (
     <div className="flex items-center gap-2.5 py-1 px-0.5 animate-in fade-in duration-300">
-      <div className="h-px flex-1 bg-[#e9e9f3]" />
-      <span className="shrink-0 rounded-full border border-[#e3e3fb] bg-[#f8f8fc] px-3 py-1 text-[11.5px] font-bold text-[#4b4396] whitespace-nowrap">
+      <div className="h-px flex-1 bg-[#e9e9f3] dark:bg-border" />
+      <span className="shrink-0 rounded-full border border-[#e3e3fb] bg-[#f8f8fc] px-3 py-1 text-[11.5px] font-bold text-[#4b4396] dark:border-border dark:bg-brand-subtle dark:text-brand-subtle-foreground whitespace-nowrap">
         Chat with <span className="font-extrabold">{name}</span>
       </span>
-      <div className="h-px flex-1 bg-[#e9e9f3]" />
+      <div className="h-px flex-1 bg-[#e9e9f3] dark:bg-border" />
     </div>
   )
 }
@@ -124,7 +124,6 @@ export function ChatThread({
   reopenedAt,
   ticketStatus,
 }: ChatThreadProps) {
-  const primaryColor = '#4b4396'
   const dividerPlacements = assigneeDividerPlacements(
     messages,
     assignee?.name,
@@ -137,13 +136,10 @@ export function ChatThread({
     return (
       <div className="flex flex-col h-full pb-[6px]">
         <div className="flex gap-[9px] max-w-[92%] animate-in slide-in-from-bottom-2 duration-300 fade-in">
-          <div
-            className="flex items-center justify-center shrink-0 size-[26px] rounded-full text-white"
-            style={{ background: primaryColor }}
-          >
+          <div className="flex items-center justify-center shrink-0 size-[26px] rounded-full text-white bg-[#4b4396] dark:bg-brand">
             <Sparkle weight="fill" className="size-[13px]" />
           </div>
-          <div className="text-[13.6px] leading-[1.45] p-[10px_13px] rounded-[14px_14px_14px_4px] bg-[#f1f1f7] text-[#15162c]">
+          <div className="text-[13.6px] leading-[1.45] p-[10px_13px] rounded-[14px_14px_14px_4px] bg-[#f1f1f7] text-[#15162c] dark:bg-muted dark:text-foreground">
             Hi! I'm here to help
             {categoryObj?.id !== 'general' && selectedItemTitle ? (
               <span>
@@ -189,7 +185,11 @@ export function ChatThread({
                 <div
                   className={cn(
                     'flex items-center justify-center shrink-0 size-[26px] rounded-full text-white',
-                    isAgent ? 'bg-[#15162c]' : 'bg-[#4b4396]',
+                    // Agent's dark-ink avatar would vanish on near-black
+                    // surfaces, so it inverts in dark (bot avatar goes brand).
+                    isAgent
+                      ? 'bg-[#15162c] dark:bg-foreground dark:text-background'
+                      : 'bg-[#4b4396] dark:bg-brand',
                   )}
                 >
                   {isAgent ? (
@@ -206,7 +206,7 @@ export function ChatThread({
                 )}
               >
                 {senderLabel ? (
-                  <span className="text-[11px] font-bold text-[#62647d] ml-1">
+                  <span className="text-[11px] font-bold text-[#62647d] dark:text-foreground-muted ml-1">
                     {senderLabel}
                   </span>
                 ) : null}
@@ -216,8 +216,8 @@ export function ChatThread({
                     className={cn(
                       'p-[10px_13px]',
                       isUser
-                        ? 'bg-[#4b4396] rounded-[14px_14px_4px_14px]'
-                        : 'bg-[#f1f1f7] rounded-[14px_14px_14px_4px]',
+                        ? 'bg-[#4b4396] dark:bg-brand rounded-[14px_14px_4px_14px]'
+                        : 'bg-[#f1f1f7] dark:bg-muted rounded-[14px_14px_14px_4px]',
                     )}
                   >
                     <SupportMarkdown
@@ -226,7 +226,7 @@ export function ChatThread({
                         'text-[13.6px] leading-[1.45] prose-p:my-0 prose-p:leading-[1.45]',
                         isUser
                           ? 'text-white prose-headings:text-white prose-p:text-white prose-strong:text-white prose-a:text-white'
-                          : 'text-[#15162c]',
+                          : 'text-[#15162c] dark:text-foreground',
                       )}
                     >
                       {cleanText}
@@ -269,7 +269,7 @@ export function ChatThread({
                 )}
 
                 {sentAtLabel ? (
-                  <span className="text-[10.5px] text-[#9496ab] px-1">
+                  <span className="text-[10.5px] text-[#9496ab] dark:text-foreground-subtle px-1">
                     {sentAtLabel}
                   </span>
                 ) : null}
