@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { fetchMyCourses } from '@/lib/api/my-courses/myCoursesApi'
 import { MyCoursesPageSkeleton } from '@/components/skeleton/my-courses/MyCoursesPageSkeleton'
+import { ThemedLogo } from '@/components/common/ThemedLogo'
 import type { MyCoursesItem } from '@/server/api/my-courses/getMyLectures.service'
 import { getAuthBranding } from '@/utils/authBranding'
 import { getPortal } from '@/utils/portal'
@@ -27,8 +28,12 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
             className="h-full w-auto object-contain"
           />
         ) : (
-          <img
-            src={getAuthBranding(getPortal()).logoSrc}
+          <ThemedLogo
+            lightSrc={getAuthBranding(getPortal()).logoSrc}
+            darkSrc={
+              getAuthBranding(getPortal()).logoDarkSrc ??
+              getAuthBranding(getPortal()).logoSrc
+            }
             alt={getAuthBranding(getPortal()).logoAlt}
             className="h-full w-auto object-contain"
           />

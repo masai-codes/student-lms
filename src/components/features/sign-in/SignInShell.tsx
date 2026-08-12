@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
+import { ThemedLogo } from '@/components/common/ThemedLogo'
 import { cn } from '@/lib/utils'
 import { getAuthBranding } from '@/utils/authBranding'
 
@@ -26,10 +27,15 @@ export function SignInShell({
             to="/signin"
             className="mx-auto block w-fit rounded-md ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <img
-              className={branding.logoClassName}
-              src={branding.logoSrc}
+            {/* Portals with a purpose-made dark artwork (IITJ) swap it in on the
+                dark theme; the rest keep one artwork, recoloured via
+                `logoClassName`. */}
+            <ThemedLogo
+              lightSrc={branding.logoSrc}
+              darkSrc={branding.logoDarkSrc ?? branding.logoSrc}
               alt={branding.logoAlt}
+              className={branding.logoClassName}
+              loading="eager"
             />
           </Link>
         </div>
