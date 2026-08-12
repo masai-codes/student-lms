@@ -66,6 +66,23 @@ export function portalHasSupport(portal: AppOrigin): boolean {
 }
 
 /**
+ * Portals that get the ID-card capstone in the guided tour (the locked/unlocked
+ * card beneath the Program Onboarding steps). IIT Jodhpur issues its own student
+ * IDs, so its students see no card at all — neither locked nor unlocked.
+ *
+ * Unlike the other capabilities here, this one is keyed off the student's
+ * `users.client` rather than the request domain: IITJ students can sign in
+ * through the Masai mobile app (see `canAccessPortal`), so the domain alone
+ * would leak the card back in.
+ */
+export const ID_CARD_PORTALS: ReadonlyArray<AppOrigin> = ['masai', 'ihub']
+
+/** Whether the guided-tour ID-card capstone shows for `portal`. */
+export function portalHasIdCard(portal: AppOrigin): boolean {
+  return ID_CARD_PORTALS.includes(portal)
+}
+
+/**
  * Portals that show the section label as an extra chip on `/learn` listing cards
  * (after the type/category/module tags). IIT Jodhpur students take the same
  * course across several sections and need to tell the listings apart; Masai and

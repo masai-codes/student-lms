@@ -1,15 +1,8 @@
-import { Link, getRouteApi, useNavigate } from '@tanstack/react-router'
+import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
 import { BOOKMARKS_PER_PAGE, BOOKMARK_TABS } from './bookmarksConfig'
 import type { BookmarkTab } from './bookmarksConfig'
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
 import { MasaiInput } from '@/components/ui/masai-input'
 import AppPagination from '@/components/common/Pagination'
 import { fetchBookmarks } from '@/lib/api/bookmarks/bookmarksApi'
@@ -94,29 +87,7 @@ export function BookmarksPage() {
   }
 
   return (
-    <div className="mx-4 mb-6 mt-4 md:mx-8 flex flex-col gap-4">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link
-                to="/"
-                className="text-sm text-foreground-muted hover:text-foreground"
-              >
-                Home
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <span className="text-sm text-foreground font-medium">
-              Bookmarks
-            </span>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
+    <div className="mx-4 mb-6 md:mx-8 flex flex-col gap-4">
       <h1 className="text-2xl font-bold text-foreground">Bookmarks</h1>
 
       {/* Tabs row + search/filter */}

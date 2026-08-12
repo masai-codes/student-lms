@@ -37,6 +37,8 @@ export type MasaiDropdownCheckboxFilterProps = {
   triggerClassName?: string
   contentAlign?: 'start' | 'center' | 'end'
   sideOffset?: number
+  /** `plain` drops the rounded blue chevron badge in favour of a bare icon. */
+  chevronVariant?: 'badge' | 'plain'
 }
 
 function toggleSelected(
@@ -65,6 +67,7 @@ export function MasaiDropdownCheckboxFilter({
   triggerClassName,
   contentAlign = 'start',
   sideOffset = 8,
+  chevronVariant = 'badge',
 }: MasaiDropdownCheckboxFilterProps) {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -95,7 +98,12 @@ export function MasaiDropdownCheckboxFilter({
                 </span>
               ) : null}
               <span
-                className="flex shrink-0 items-center justify-center rounded-full bg-blue-50 p-1.5 text-blue-500 transition-colors group-hover:bg-blue-100 dark:bg-info-subtle dark:text-info-subtle-foreground dark:group-hover:bg-info-subtle"
+                className={cn(
+                  'flex shrink-0 items-center justify-center transition-colors',
+                  chevronVariant === 'badge'
+                    ? 'rounded-full bg-blue-50 p-1.5 text-blue-500 group-hover:bg-blue-100 dark:bg-info-subtle dark:text-info-subtle-foreground dark:group-hover:bg-info-subtle'
+                    : 'text-foreground-muted',
+                )}
                 aria-hidden
               >
                 <ChevronDown

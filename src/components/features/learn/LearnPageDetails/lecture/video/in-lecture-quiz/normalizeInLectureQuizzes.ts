@@ -1,57 +1,46 @@
-import type { InLecturePopupQuiz } from '@/server/learn/lectureDetailTypes'
+import type { InLecturePopupQuizElement } from '@/server/learn/lectureDetailTypes'
 
 /**
- * A validated, second-based popup quiz derived from the raw `HH:MM:SS` payload.
- * `id` is stable across renders (template + start) so per-quiz trigger state can
- * be keyed by it instead of by array index.
+ * A validated popup quiz derived from the API's already-second-based element.
+ * `id` is the element's stable DB id (from `zef_lms_quiz`), so per-quiz trigger
+ * state can be keyed by it instead of by array index.
  */
 export type NormalizedInLectureQuiz = {
   id: string
   startSec: number
   endSec: number
-  assessmentTemplate: string
-}
-
-/** Parse `HH:MM:SS` (or `MM:SS`) into whole seconds, or `null` when malformed. */
-export function parseTimestampToSeconds(value: string): number | null {
-  const parts = value.split(':')
-  if (parts.length < 2 || parts.length > 3) return null
-  let seconds = 0
-  for (const part of parts) {
-    const n = Number(part)
-    if (!Number.isFinite(n) || n < 0) return null
-    seconds = seconds * 60 + n
-  }
-  return seconds
+  assessmentId: string
 }
 
 /**
- * Convert the raw payload into validated, sorted quizzes:
- * - start/end parsed from `HH:MM:SS`, `start < end`, both finite and >= 0
+ * Validate + clamp the API's popup quiz elements against the loaded video:
+ * - `startSec` / `endSec` come pre-converted from the server (video-relative
+ *   seconds); here we only enforce a sane window and the real duration.
+ * - dropped when the window is malformed (`startSec < 0`, `startSec >= endSec`)
  * - dropped when the window starts at/after the video's end (when known)
+ * - `endSec` clamped to the real duration so "skip to lecture" can't seek past
+ *   the end once metadata is known
  * - sorted by `startSec` so "one active at a time" queueing is deterministic
  */
 export function normalizeInLectureQuizzes(
-  quizzes: Array<InLecturePopupQuiz>,
+  quizzes: Array<InLecturePopupQuizElement>,
   totalDuration: number,
 ): Array<NormalizedInLectureQuiz> {
   const hasDuration = Number.isFinite(totalDuration) && totalDuration > 0
   const normalized: Array<NormalizedInLectureQuiz> = []
 
   for (const quiz of quizzes) {
-    const startSec = parseTimestampToSeconds(quiz.timeStamp.start)
-    const endSec = parseTimestampToSeconds(quiz.timeStamp.end)
-    if (startSec === null || endSec === null) continue
+    const { startSec, endSec, assessmentId } = quiz
+    if (!Number.isFinite(startSec) || !Number.isFinite(endSec)) continue
+    if (startSec < 0) continue
     if (startSec >= endSec) continue
     if (hasDuration && startSec >= totalDuration) continue
 
     normalized.push({
-      id: `${quiz.assessmentTemplate}@${startSec}`,
+      id: String(quiz.id),
       startSec,
-      // Clamp the resume point to the real duration so "skip to lecture" can
-      // never seek past the end once metadata is known.
       endSec: hasDuration ? Math.min(endSec, totalDuration) : endSec,
-      assessmentTemplate: quiz.assessmentTemplate,
+      assessmentId,
     })
   }
 

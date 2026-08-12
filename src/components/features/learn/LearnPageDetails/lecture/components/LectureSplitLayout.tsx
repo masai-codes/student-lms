@@ -1,6 +1,6 @@
 'use client'
 
-import { type ReactNode, useRef } from 'react'
+import { type ReactNode, useEffect, useRef } from 'react'
 
 import { LectureChatSidePanel } from './LectureChatSidePanel'
 import { LectureSplitChatProvider } from '../hooks/LectureSplitChatContext'
@@ -61,6 +61,14 @@ export function LectureSplitLayout({
     'web-desktop',
     feedback.notifyFirstReplyCompleted,
   )
+
+  // Chat is "active" — and the feedback prompt withheld — while a reply is
+  // in flight/streaming or the learner is typing in the composer, across
+  // whichever surface (rail, in-video fullscreen, mobile drawer) is mounted.
+  const isChatActive = chat.isSending || chat.input.length > 0
+  useEffect(() => {
+    feedback.reportActivity(isChatActive)
+  }, [feedback, isChatActive])
 
   return (
     <LectureSplitChatProvider value={{ ...splitChat, chat, feedback }}>

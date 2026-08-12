@@ -53,6 +53,17 @@ describe('isScheduledAfterCutoff', () => {
     )
   })
 
+  it('fails closed on an unparseable cutoff or schedule', () => {
+    // An admin-entered "01-07-2026" must not silently disable the restriction.
+    expect(
+      isScheduledAfterCutoff(
+        '2026-07-03 00:00:00',
+        normalizeRestrictionCutoff('01-07-2026'),
+      ),
+    ).toBe(true)
+    expect(isScheduledAfterCutoff('not a date', cutoff)).toBe(true)
+  })
+
   it('restricts everything when the cutoff is the RESTRICT_ALL sentinel', () => {
     expect(
       isScheduledAfterCutoff('2000-01-01 00:00:00', RESTRICT_ALL_CUTOFF),

@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   CHAT_PORTALS,
+  ID_CARD_PORTALS,
   MASAI_LIVE_PROMO_PORTALS,
   MOBILE_APP_PORTALS,
   SECTION_ON_LEARN_CARD_PORTALS,
   SUPPORT_PORTALS,
   portalHasChat,
+  portalHasIdCard,
   portalHasMasaiLivePromo,
   portalHasMobileApp,
   portalHasSupport,
@@ -59,6 +61,18 @@ describe('portalHasSupport', () => {
 
   it('stays in sync with the allowlist', () => {
     expect([...SUPPORT_PORTALS]).toEqual(['masai', 'ihub'])
+  })
+})
+
+describe('portalHasIdCard', () => {
+  it('hides the ID card on IIT Jodhpur only', () => {
+    expect(portalHasIdCard('masai')).toBe(true)
+    expect(portalHasIdCard('ihub')).toBe(true)
+    expect(portalHasIdCard('iitj')).toBe(false)
+  })
+
+  it('stays in sync with the allowlist', () => {
+    expect([...ID_CARD_PORTALS]).toEqual(['masai', 'ihub'])
   })
 })
 

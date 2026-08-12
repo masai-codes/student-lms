@@ -6,6 +6,7 @@ import type {
   sectionUser,
   sections,
   userBatchAdmissionData,
+  userDeviceTokens,
   users,
 } from '@/db/schema'
 
@@ -41,9 +42,13 @@ export type LoginAndJoinLectureEntities = {
 export type LiveLecturePhasesEntities = {
   admin: typeof users.$inferSelect
   student: typeof users.$inferSelect
+  student2: typeof users.$inferSelect
+  student3: typeof users.$inferSelect
   batch: typeof batches.$inferSelect
   section: typeof sections.$inferSelect
   enrollment: typeof sectionUser.$inferSelect
+  enrollmentStudent2: typeof sectionUser.$inferSelect
+  enrollmentStudent3: typeof sectionUser.$inferSelect
   sections: {
     recordingAttendanceOff: typeof sections.$inferSelect
     recordingAttendanceOn: typeof sections.$inferSelect
@@ -64,6 +69,7 @@ export type LiveLecturePhasesEntities = {
     optionalLiveDuringJoin: typeof lectures.$inferSelect
     transcriptSegmented: typeof lectures.$inferSelect
     transcriptPlainText: typeof lectures.$inferSelect
+    operatorsInJavascript: typeof lectures.$inferSelect
   }
   attendanceOffExtras: {
     associatedLecture: typeof lectures.$inferSelect
@@ -72,11 +78,23 @@ export type LiveLecturePhasesEntities = {
     segmentedAi: typeof lecturesAi.$inferSelect
     plainTextAi: typeof lecturesAi.$inferSelect
   }
+  operatorsExtras: {
+    lecturesAi: typeof lecturesAi.$inferSelect
+  }
   attendanceOnExtras: {
     lecturesAi: typeof import('@/db/schema').lecturesAi.$inferSelect
     associatedLecture: typeof lectures.$inferSelect
     associatedNotesLecture: typeof lectures.$inferSelect
     associatedAssignment: typeof import('@/db/schema').assignments.$inferSelect
+  }
+  discussions: {
+    onLecture: typeof import('@/db/schema').discussions.$inferSelect
+    onLectureThreads: Array<typeof import('@/db/schema').threads.$inferSelect>
+    onAssignment: typeof import('@/db/schema').discussions.$inferSelect
+    onResource: typeof import('@/db/schema').discussions.$inferSelect
+    onResourceThreads: Array<typeof import('@/db/schema').threads.$inferSelect>
+    onLectureByStudent2: typeof import('@/db/schema').discussions.$inferSelect
+    onAssignmentByStudent3: typeof import('@/db/schema').discussions.$inferSelect
   }
 }
 
@@ -123,11 +141,84 @@ export type OnboardingEntities = {
   profile: typeof profiles.$inferSelect | null
 }
 
+export type MasaiverseAccessEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  section: typeof sections.$inferSelect
+  enrollment: typeof sectionUser.$inferSelect
+}
+
+export type AppInstalledEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  section: typeof sections.$inferSelect
+  enrollment: typeof sectionUser.$inferSelect
+  deviceToken: typeof userDeviceTokens.$inferSelect
+}
+
+export type MultiProgramStudentEntities = LiveLecturePhasesEntities & {
+  secondBatch: typeof batches.$inferSelect
+  secondSection: typeof sections.$inferSelect
+  secondEnrollment: typeof sectionUser.$inferSelect
+  secondBatchLecture: typeof lectures.$inferSelect
+}
+
+export type DiscussionsCancelledEnrollmentEntities = {
+  admin: typeof users.$inferSelect
+  /**
+   * Enrolled in both batches — cancelled at the batch level in `batch`,
+   * still active (healthy) in `secondBatch`.
+   */
+  student: typeof users.$inferSelect
+  /** Healthy student, `batch`/`section` only — discussion author there. */
+  authorStudent: typeof users.$inferSelect
+  /** Healthy student, `secondBatch`/`secondSection` only — discussion author there. */
+  authorStudent2: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  section: typeof sections.$inferSelect
+  secondBatch: typeof batches.$inferSelect
+  secondSection: typeof sections.$inferSelect
+  cancelledEnrollment: typeof sectionUser.$inferSelect
+  authorEnrollment: typeof sectionUser.$inferSelect
+  /** `student`'s healthy enrolment into `secondSection`/`secondBatch`. */
+  secondEnrollment: typeof sectionUser.$inferSelect
+  secondAuthorEnrollment: typeof sectionUser.$inferSelect
+  lecture: typeof lectures.$inferSelect
+  secondLecture: typeof lectures.$inferSelect
+  /** `authorStudent`'s public discussion on `lecture` (batch A). */
+  discussion: typeof import('@/db/schema').discussions.$inferSelect
+  /** `student`'s public discussion on `lecture` (batch A) — posted while their `section_user` row is still active. */
+  discussionByStudentOnBatch: typeof import('@/db/schema').discussions.$inferSelect
+  /** `authorStudent2`'s public discussion on `secondLecture` (batch B). */
+  secondDiscussion: typeof import('@/db/schema').discussions.$inferSelect
+  /** `student`'s public discussion on `secondLecture` (batch B), where their enrolment is healthy. */
+  discussionByStudentOnSecondBatch: typeof import('@/db/schema').discussions.$inferSelect
+  /** Batch-level cancellation for `student` on `batch` only. */
+  cancelledBatchUser: typeof import('@/db/schema').batchUser.$inferSelect
+}
+
+export type SectionDropdownBatchEntities = {
+  admin: typeof users.$inferSelect
+  student: typeof users.$inferSelect
+  batch: typeof batches.$inferSelect
+  sections: Array<typeof sections.$inferSelect>
+  enrollments: Array<typeof sectionUser.$inferSelect>
+  lectures: Array<typeof lectures.$inferSelect>
+  assignments: Array<typeof import('@/db/schema').assignments.$inferSelect>
+}
+
 export type SeedFlowEntities =
   | LoginAndJoinLectureEntities
   | LiveLecturePhasesEntities
   | OnboardingEntities
   | DashboardHomeEntities
+  | MasaiverseAccessEntities
+  | MultiProgramStudentEntities
+  | AppInstalledEntities
+  | SectionDropdownBatchEntities
+  | DiscussionsCancelledEnrollmentEntities
 
 export type SeedFlowResult = {
   flowId: string
@@ -157,6 +248,12 @@ export function isOnboardingEntities(
   entities: SeedFlowEntities,
 ): entities is OnboardingEntities {
   return 'sections' in entities
+}
+
+export function isMultiProgramStudentEntities(
+  entities: SeedFlowEntities,
+): entities is MultiProgramStudentEntities {
+  return 'secondBatch' in entities && 'secondEnrollment' in entities
 }
 
 export function isDashboardHomeEntities(

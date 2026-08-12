@@ -2,6 +2,7 @@ import { and, desc, eq } from 'drizzle-orm'
 import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
 import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 import type { AiChatHistoryEntry } from '@/server/api/ai-tutor/types/chatHistory'
+import type { PracticeQuestionsPayload } from '@/server/api/ai-tutor/types/practiceQuestions'
 import type { SubmitAiTutorFeedbackResponse } from '@/server/api/ai-tutor/types/feedback'
 import { AI_TUTOR_FEEDBACK_MAX_LENGTH } from '@/server/api/ai-tutor/constants'
 import { db } from '@/db'
@@ -184,6 +185,55 @@ export async function submitChatPracticeFeedback(input: {
   }
 }
 
+/** Records a student's submitted answers for one already-generated quiz. */
+export async function submitPracticeQuestionAnswers(input: {
+  userId: number
+  chatId: number
+  quizId: string
+  answers: Record<string, string>
+}): Promise<void> {
+  const rows = await db
+    .select({
+      id: aiChatPracticeQuestions.id,
+      chatHistory: aiChatPracticeQuestions.chatHistory,
+    })
+    .from(aiChatPracticeQuestions)
+    .where(
+      and(
+        eq(aiChatPracticeQuestions.id, input.chatId),
+        eq(aiChatPracticeQuestions.userId, input.userId),
+      ),
+    )
+    .limit(1)
+
+  if (rows.length === 0) {
+    throw new ApiError(404, 'AI_TUTOR_CHAT_NOT_FOUND')
+  }
+
+  const history = parseChatHistory(rows[0].chatHistory)
+  const entryIndex = history.findIndex(
+    (entry) => entry.practiceQuestions?.quizId === input.quizId,
+  )
+  if (entryIndex === -1) {
+    throw new ApiError(404, 'AI_TUTOR_QUIZ_NOT_FOUND')
+  }
+
+  const entry = history[entryIndex]
+  const nextHistory = [...history]
+  nextHistory[entryIndex] = {
+    ...entry,
+    practiceQuestions: {
+      ...entry.practiceQuestions!,
+      answers: input.answers,
+    },
+  }
+
+  await db
+    .update(aiChatPracticeQuestions)
+    .set({ chatHistory: nextHistory, updatedAt: nowTimestamp() })
+    .where(eq(aiChatPracticeQuestions.id, input.chatId))
+}
+
 export async function appendChatPracticeHistory(input: {
   rowId: number
   userMessage: string
@@ -191,6 +241,7 @@ export async function appendChatPracticeHistory(input: {
   platform: AiTutorFeedbackPlatform
   language: AiTutorChatLanguage
   existingHistory: Array<AiChatHistoryEntry>
+  practiceQuestions?: PracticeQuestionsPayload
 }): Promise<void> {
   const nextHistory: Array<AiChatHistoryEntry> = [
     ...input.existingHistory,
@@ -199,6 +250,9 @@ export async function appendChatPracticeHistory(input: {
       aiMessage: input.aiMessage,
       platform: input.platform,
       language: input.language,
+      ...(input.practiceQuestions
+        ? { practiceQuestions: input.practiceQuestions }
+        : {}),
     },
   ]
 

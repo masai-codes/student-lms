@@ -1,6 +1,9 @@
 'use client'
 
-import { ArrowSquareOut, MicrophoneSlash } from '@phosphor-icons/react'
+import {
+  ArrowSquareOutIcon as ArrowSquareOut,
+  MicrophoneSlashIcon,
+} from '@phosphor-icons/react'
 import { useState } from 'react'
 
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
@@ -108,7 +111,7 @@ export function JoinLiveSessionCard({
   return (
     <div
       data-testid="lecture-join-live-card"
-      className="dash-lift animate-dash-rise mx-auto flex w-full max-w-lg flex-col items-center gap-3 rounded-xl border border-border bg-background p-6 shadow-sm hover:border-brand/35"
+      className=" animate-dash-rise mx-auto flex w-full max-w-lg flex-col items-center gap-3"
     >
       <p className="type-b2-regular text-center text-foreground-muted">
         {isActive
@@ -116,13 +119,13 @@ export function JoinLiveSessionCard({
           : 'The join button will activate shortly before the session starts.'}
       </p>
       {isActive && (
-        <div className="flex w-fit max-w-full items-start gap-2 rounded-lg border border-warning-subtle bg-warning-subtle px-3 py-2.5 text-warning-subtle-foreground">
-          <MicrophoneSlash
+        <div className="flex w-fit max-w-full items-start gap-2 px-3 py-2.5 text-warning-subtle-foreground">
+          <MicrophoneSlashIcon
             weight="fill"
             className="mt-0.5 size-4 shrink-0"
             aria-hidden
           />
-          <p className="min-w-0 break-words text-sm">
+          <p className="min-w-0 wrap-break-word text-sm">
             Please mute your microphone when joining the lecture.
           </p>
         </div>
@@ -135,7 +138,7 @@ export function JoinLiveSessionCard({
           onClick={isNewZoomRedirection ? handleZefJoin : handleAdaptiveJoin}
           data-testid="lecture-join-live-cta"
         >
-          {pending ? 'Opening…' : 'Join live session'}
+          {pending ? 'Opening…' : 'Join live session.'}
           <ArrowSquareOut className="ml-2 size-4" aria-hidden />
         </Button>
       ) : (

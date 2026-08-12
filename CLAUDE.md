@@ -23,9 +23,21 @@ Two project skills automate this — invoke them via the Skill tool:
   `data-testid` selectors they depend on.
 
 **Auth for local/automation:** protected routes need a session. Use the dev-only backdoor
+Open path /seed-catalog to see all the seed logins.
 `GET /api/secret-login?token=<SECRET_LOGIN_TOKEN>&userId=<id>` (token from `.env.local`;
 seeded students are `<flow-id>.student@example.com`, seed with `npm run seed:all`). Treat
 `SECRET_LOGIN_TOKEN` as a secret — never print or commit it.
+
+# Seed data
+
+- When we create some new flow, we should create seed data. Instructions to seed data can be read from seed/README.md
+- To test a workflow of a user, go to /seed-catalog and login with the required user
+
+# Validation of changes
+
+- Login with the user if required based on seed data
+- If data is not there to test a required flow, add the seed data
+- Reset the db by running npm run seed:all
 
 **Automation selectors are `data-testid` only** (already the repo convention on 120+ files;
 see the coding guidelines' "Automation Test Hooks"). agenthand/Puppeteer target

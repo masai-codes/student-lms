@@ -13,7 +13,6 @@ import { LectureAiChatBar } from './LectureAiChatBar'
 import { LectureAiChatPanel } from './LectureAiChatPanel'
 import { useLectureAiChatStateContext } from './LectureAiChatStateContext'
 
-import { lectureDetailContentClasses } from '@/lib/layout'
 import { cn } from '@/lib/utils'
 
 type LectureAiChatDockProps = {
@@ -103,7 +102,7 @@ export function LectureAiChatDock({
             'max-md:pb-[max(0.5rem,env(safe-area-inset-bottom))]',
           )}
         >
-          <div className={cn(lectureDetailContentClasses, 'flex flex-col')}>
+          <div className={cn('w-full px-4 md:px-6', 'flex flex-col')}>
             <LectureAiChatPanel variant="raised" {...panelProps} />
             <div className="py-3">{bar}</div>
           </div>

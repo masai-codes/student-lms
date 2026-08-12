@@ -17,7 +17,7 @@ export function LectureAttendanceBanner({
   return (
     <div
       data-testid={banner.testId}
-      className="mt-4 flex w-fit max-w-full items-start gap-2 rounded-lg border border-info-subtle bg-info-subtle px-3 py-2.5 text-info-subtle-foreground"
+      className="mt-0 flex w-fit max-w-full items-start gap-2 rounded-lg border border-info-subtle bg-info-subtle px-3 py-2.5 text-info-subtle-foreground"
     >
       <Info weight="fill" className="mt-0.5 size-4 shrink-0" aria-hidden />
       <p className="min-w-0 break-words text-sm">{banner.text}</p>

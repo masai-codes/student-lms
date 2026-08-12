@@ -29,9 +29,10 @@ describe('getEnrolledBatchesForUser service', () => {
     expect(hoisted.dbSelect).not.toHaveBeenCalled()
   })
 
-  it('maps db rows to {batchId, courseTitle} and preserves enrollment order', async () => {
+  it('maps db rows to {batchId, courseTitle} and returns newest enrollment first', async () => {
     const { getEnrolledBatchesForUser } =
       await import('../services/getEnrolledBatches.service')
+    // Enrollment order from the shared query is oldest-first: batch 1, then batch 2.
     hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([1, 2])
     hoisted.dbSelect.mockReturnValueOnce({
       from: () => ({
@@ -43,10 +44,11 @@ describe('getEnrolledBatchesForUser service', () => {
       }),
     })
 
+    // …so the dropdown gets batch 2 (newest enrollment) first.
     await expect(getEnrolledBatchesForUser(77)).resolves.toEqual([
       {
-        batchId: 1,
-        courseTitle: 'Cohort A',
+        batchId: 2,
+        courseTitle: 'DS Cohort B',
         courseLogo: null,
         showAttendanceReport: false,
         showEvaluationReport: false,
@@ -54,8 +56,8 @@ describe('getEnrolledBatchesForUser service', () => {
         showSectionDropdown: false,
       },
       {
-        batchId: 2,
-        courseTitle: 'DS Cohort B',
+        batchId: 1,
+        courseTitle: 'Cohort A',
         courseLogo: null,
         showAttendanceReport: false,
         showEvaluationReport: false,
