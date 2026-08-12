@@ -2,6 +2,13 @@
 
 Last updated: 2026-08-12
 
+## My Programs listing (`/my-programs`)
+
+- Area: Rebuild of the old LMS's live `/my-lectures` program listing (the other two old course-listing pages, `/new-courses` and `/my-courses`, are dead — see `docs/my-courses-listing-migration.md`). One REST endpoint `GET /api/courses` (route → handler → service, Drizzle query builder) returning `active` (from `getBatchIdsForEnrolledUser`, newest enrolment first) and `cancelled` (from `getUserBatchRestrictions`, intersected with the user's `section_user` batches). Shared `courseMeta.ts` extracted so the listing and the already-shipped course detail page derive title/institute/logo/progress identically; the detail page's progress switched from milestone-count to the old LMS's elapsed-time formula. Cards keep old-LMS parity — a batch without `settings.showBatchDetails` stays inert — with a skeleton, empty state, error state, semantic theme tokens, `role="progressbar"`, logo fallback, `data-testid` and GTM added.
+- Status: Covered (service ordering + fallbacks + all cancelled/never-enrolled/paused/soft-deleted edge cases; handler 200/401/500; progress formula boundaries; restriction-date parsing for both wire shapes; every card, section and page UI state).
+- Test files: `src/server/api/courses/__tests__/*.test.ts`, `src/server/api/course/__tests__/courseMeta.test.ts`, `src/components/features/my-courses/*.test.tsx`, `src/lib/api/courses/coursesApi.test.ts`, `src/utils/formatRestrictionDate.test.ts`
+- Notes: See `docs/testing/features/my-courses.md` and `docs/my-courses-listing-migration.md`. `/my-programs` is **not** in `isMigratedRoute()` yet, so opted-out students still redirect to the old `/my-lectures`. Cancelled-enrolment branch verified by unit tests only (seeding would write to a shared remote RDS); browser visual QA in light/dark not run.
+
 ## Profile page (`/profile`)
 
 - Area: Full rebuild of the old LMS's `/profile` — header card (initials/photo + avatar upload, `batch_user`-sourced student codes linking to `/course/$batchId`), Achievements panel (program → module grouping over `badge_configs` so locked badges are visible; earned-first ordering, `xN` repeats, LinkedIn share via experience-api's OG landing page), and seven tabs behind `?tab=`: Profile Details (inline name/phone edit + change password), Student Kit, Acknowledgements, Account Activity, Certificates, My Invoices, Email Preferences. All REST (`src/routes/api/profile/**` → handler → service, Drizzle query builder); tab visibility derives from `hasFullFees`/`isNewUserJourney` on one `GET /api/profile`; each tab's query is lazily `enabled`. Extracted `s3ToCloudFront.ts` out of `resolveLectureVideoUrl.ts` for reuse by badge images.

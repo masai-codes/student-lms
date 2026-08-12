@@ -21,6 +21,7 @@ import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_
 import { Route as ApiWhatsNewIndexRouteImport } from './routes/api/whats-new/index'
 import { Route as ApiProfileIndexRouteImport } from './routes/api/profile/index'
 import { Route as ApiDocsIndexRouteImport } from './routes/api/docs/index'
+import { Route as ApiCoursesIndexRouteImport } from './routes/api/courses/index'
 import { Route as ApiBookmarksIndexRouteImport } from './routes/api/bookmarks/index'
 import { Route as ApiAnnouncementIndexRouteImport } from './routes/api/announcement/index'
 import { Route as protectedLayoutIndexRouteImport } from './routes/(protected)/_layout/index'
@@ -68,6 +69,8 @@ import { Route as ApiAnnouncementPopupsRouteImport } from './routes/api/announce
 import { Route as ApiAnnouncementFilterOptionsRouteImport } from './routes/api/announcement/filter-options'
 import { Route as ApiAdmissionsEnrolmentPaymentRedirectRouteImport } from './routes/api/admissions/enrolment-payment-redirect'
 import { Route as protectedLayoutThemeLabRouteImport } from './routes/(protected)/_layout/theme-lab'
+import { Route as protectedLayoutMyProgramsRouteImport } from './routes/(protected)/_layout/my-programs'
+import { Route as protectedLayoutMyLecturesRouteImport } from './routes/(protected)/_layout/my-lectures'
 import { Route as protectedLayoutMyCoursesRouteImport } from './routes/(protected)/_layout/my-courses'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
@@ -288,6 +291,11 @@ const ApiProfileIndexRoute = ApiProfileIndexRouteImport.update({
 const ApiDocsIndexRoute = ApiDocsIndexRouteImport.update({
   id: '/api/docs/',
   path: '/api/docs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCoursesIndexRoute = ApiCoursesIndexRouteImport.update({
+  id: '/api/courses/',
+  path: '/api/courses/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiBookmarksIndexRoute = ApiBookmarksIndexRouteImport.update({
@@ -542,6 +550,18 @@ const protectedLayoutThemeLabRoute = protectedLayoutThemeLabRouteImport.update({
   path: '/theme-lab',
   getParentRoute: () => protectedLayoutRouteRoute,
 } as any)
+const protectedLayoutMyProgramsRoute =
+  protectedLayoutMyProgramsRouteImport.update({
+    id: '/my-programs',
+    path: '/my-programs',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutMyLecturesRoute =
+  protectedLayoutMyLecturesRouteImport.update({
+    id: '/my-lectures',
+    path: '/my-lectures',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const protectedLayoutMyCoursesRoute =
   protectedLayoutMyCoursesRouteImport.update({
     id: '/my-courses',
@@ -1496,6 +1516,8 @@ export interface FileRoutesByFullPath {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/my-lectures': typeof protectedLayoutMyLecturesRoute
+  '/my-programs': typeof protectedLayoutMyProgramsRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
@@ -1543,6 +1565,7 @@ export interface FileRoutesByFullPath {
   '/': typeof protectedLayoutIndexRoute
   '/api/announcement/': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
+  '/api/courses/': typeof ApiCoursesIndexRoute
   '/api/docs/': typeof ApiDocsIndexRoute
   '/api/profile/': typeof ApiProfileIndexRoute
   '/api/whats-new/': typeof ApiWhatsNewIndexRoute
@@ -1715,6 +1738,8 @@ export interface FileRoutesByTo {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/my-lectures': typeof protectedLayoutMyLecturesRoute
+  '/my-programs': typeof protectedLayoutMyProgramsRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
@@ -1762,6 +1787,7 @@ export interface FileRoutesByTo {
   '/': typeof protectedLayoutIndexRoute
   '/api/announcement': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks': typeof ApiBookmarksIndexRoute
+  '/api/courses': typeof ApiCoursesIndexRoute
   '/api/docs': typeof ApiDocsIndexRoute
   '/api/profile': typeof ApiProfileIndexRoute
   '/api/whats-new': typeof ApiWhatsNewIndexRoute
@@ -1937,6 +1963,8 @@ export interface FileRoutesById {
   '/(auth)/v2/me': typeof authV2MeRoute
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/(protected)/_layout/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/(protected)/_layout/my-lectures': typeof protectedLayoutMyLecturesRoute
+  '/(protected)/_layout/my-programs': typeof protectedLayoutMyProgramsRoute
   '/(protected)/_layout/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
@@ -1984,6 +2012,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/': typeof protectedLayoutIndexRoute
   '/api/announcement/': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
+  '/api/courses/': typeof ApiCoursesIndexRoute
   '/api/docs/': typeof ApiDocsIndexRoute
   '/api/profile/': typeof ApiProfileIndexRoute
   '/api/whats-new/': typeof ApiWhatsNewIndexRoute
@@ -2159,6 +2188,8 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/my-courses'
+    | '/my-lectures'
+    | '/my-programs'
     | '/theme-lab'
     | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
@@ -2206,6 +2237,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api/announcement/'
     | '/api/bookmarks/'
+    | '/api/courses/'
     | '/api/docs/'
     | '/api/profile/'
     | '/api/whats-new/'
@@ -2378,6 +2410,8 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/my-courses'
+    | '/my-lectures'
+    | '/my-programs'
     | '/theme-lab'
     | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
@@ -2425,6 +2459,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api/announcement'
     | '/api/bookmarks'
+    | '/api/courses'
     | '/api/docs'
     | '/api/profile'
     | '/api/whats-new'
@@ -2599,6 +2634,8 @@ export interface FileRouteTypes {
     | '/(auth)/v2/me'
     | '/(auth)/v2/reset-password'
     | '/(protected)/_layout/my-courses'
+    | '/(protected)/_layout/my-lectures'
+    | '/(protected)/_layout/my-programs'
     | '/(protected)/_layout/theme-lab'
     | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
@@ -2646,6 +2683,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/'
     | '/api/announcement/'
     | '/api/bookmarks/'
+    | '/api/courses/'
     | '/api/docs/'
     | '/api/profile/'
     | '/api/whats-new/'
@@ -2863,6 +2901,7 @@ export interface RootRouteChildren {
   authSwitchAccountIndexRoute: typeof authSwitchAccountIndexRoute
   ApiAnnouncementIndexRoute: typeof ApiAnnouncementIndexRoute
   ApiBookmarksIndexRoute: typeof ApiBookmarksIndexRoute
+  ApiCoursesIndexRoute: typeof ApiCoursesIndexRoute
   ApiDocsIndexRoute: typeof ApiDocsIndexRoute
   ApiProfileIndexRoute: typeof ApiProfileIndexRoute
   ApiWhatsNewIndexRoute: typeof ApiWhatsNewIndexRoute
@@ -3040,6 +3079,13 @@ declare module '@tanstack/react-router' {
       path: '/api/docs'
       fullPath: '/api/docs/'
       preLoaderRoute: typeof ApiDocsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/courses/': {
+      id: '/api/courses/'
+      path: '/api/courses'
+      fullPath: '/api/courses/'
+      preLoaderRoute: typeof ApiCoursesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/bookmarks/': {
@@ -3369,6 +3415,20 @@ declare module '@tanstack/react-router' {
       path: '/theme-lab'
       fullPath: '/theme-lab'
       preLoaderRoute: typeof protectedLayoutThemeLabRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/my-programs': {
+      id: '/(protected)/_layout/my-programs'
+      path: '/my-programs'
+      fullPath: '/my-programs'
+      preLoaderRoute: typeof protectedLayoutMyProgramsRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/my-lectures': {
+      id: '/(protected)/_layout/my-lectures'
+      path: '/my-lectures'
+      fullPath: '/my-lectures'
+      preLoaderRoute: typeof protectedLayoutMyLecturesRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/my-courses': {
@@ -4562,6 +4622,8 @@ const protectedLayoutLearnAssignmentsAssignmentIdRouteRouteWithChildren =
 interface protectedLayoutRouteRouteChildren {
   protectedLayoutMasaiverseRouteRoute: typeof protectedLayoutMasaiverseRouteRouteWithChildren
   protectedLayoutMyCoursesRoute: typeof protectedLayoutMyCoursesRoute
+  protectedLayoutMyLecturesRoute: typeof protectedLayoutMyLecturesRoute
+  protectedLayoutMyProgramsRoute: typeof protectedLayoutMyProgramsRoute
   protectedLayoutThemeLabRoute: typeof protectedLayoutThemeLabRoute
   protectedLayoutIndexRoute: typeof protectedLayoutIndexRoute
   protectedLayoutAnnouncementsIdRouteRoute: typeof protectedLayoutAnnouncementsIdRouteRoute
@@ -4592,6 +4654,8 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutMasaiverseRouteRoute:
     protectedLayoutMasaiverseRouteRouteWithChildren,
   protectedLayoutMyCoursesRoute: protectedLayoutMyCoursesRoute,
+  protectedLayoutMyLecturesRoute: protectedLayoutMyLecturesRoute,
+  protectedLayoutMyProgramsRoute: protectedLayoutMyProgramsRoute,
   protectedLayoutThemeLabRoute: protectedLayoutThemeLabRoute,
   protectedLayoutIndexRoute: protectedLayoutIndexRoute,
   protectedLayoutAnnouncementsIdRouteRoute:
@@ -4921,6 +4985,7 @@ const rootRouteChildren: RootRouteChildren = {
   authSwitchAccountIndexRoute: authSwitchAccountIndexRoute,
   ApiAnnouncementIndexRoute: ApiAnnouncementIndexRoute,
   ApiBookmarksIndexRoute: ApiBookmarksIndexRoute,
+  ApiCoursesIndexRoute: ApiCoursesIndexRoute,
   ApiDocsIndexRoute: ApiDocsIndexRoute,
   ApiProfileIndexRoute: ApiProfileIndexRoute,
   ApiWhatsNewIndexRoute: ApiWhatsNewIndexRoute,

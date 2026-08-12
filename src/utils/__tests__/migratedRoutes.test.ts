@@ -25,7 +25,9 @@ describe('isMigratedRoute', () => {
     // Zoom web view is served only by the old LMS — must never switch.
     '/lectures/1/zoom',
     '/profile',
+    '/my-programs',
     '/my-courses',
+    '/my-lectures',
     '/masaiverse',
     '/interviews',
     // Support deep-link embedded in the old-LMS iframe: not a hand-off target.
