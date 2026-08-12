@@ -81,5 +81,3 @@ export const MANAGED_TABLES = [
   'zef_lms_quiz_submission',
   'zef_lms_sql_sandbox',
 ] as const
-
-type ManagedTable = (typeof MANAGED_TABLES)[number]

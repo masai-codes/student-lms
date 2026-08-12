@@ -2,8 +2,6 @@ import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import { fromIni } from '@aws-sdk/credential-providers'
 import dotenv from 'dotenv'
 
-let secretsPromise: Promise<void> | null = null
-
 function isLocalEnvironment() {
   return process.env.NODE_ENV === 'development'
 }
@@ -37,18 +35,14 @@ function loadLocalSecrets() {
   }
 }
 
-async function loadSecrets() {
-  if (isLocalEnvironment()) {
-    loadLocalSecrets()
-  }
+if (isLocalEnvironment()) {
+  loadLocalSecrets()
+}
 
-  const paramName = import.meta.env.VITE_SSM_AWS_SECRET_NAME
+const paramName = import.meta.env.VITE_SSM_AWS_SECRET_NAME
 
-  // In local/dev, allow running with only .env values (no SSM required).
-  if (!paramName) {
-    return
-  }
-
+// In local/dev, allow running with only .env values (no SSM required).
+if (paramName) {
   const command = new GetParameterCommand({
     Name: paramName,
     WithDecryption: true,
@@ -108,11 +102,4 @@ export function resolveCertificateS3Config(): {
     region,
     ...(credentials !== undefined ? { credentials } : {}),
   }
-}
-
-async function ensureSecrets() {
-  if (!secretsPromise) {
-    secretsPromise = loadSecrets()
-  }
-  await secretsPromise
 }

@@ -23,11 +23,6 @@ export function getRequestPortal(): EmailPortal {
   }
 }
 
-/** Whether the current request is on the iHub portal. */
-function isIHubPortalRequest(): boolean {
-  return getRequestPortal() === 'ihub'
-}
-
 /**
  * Whether the mobile app exists for the portal this request came from. Server
  * counterpart to the frontend's `isMobileAppPortal()`; both read the same

@@ -37,3 +37,5 @@ seed/catalog/seed-state.json
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+.claude

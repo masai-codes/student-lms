@@ -1,7 +1,6 @@
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
-import type { InLecturePopupQuiz } from '@/server/learn/utils/parseLectureSettings'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
 
 /**

@@ -38,9 +38,6 @@ const RESOLVED_STATUSES = ['closed', 'resolved', 'automatic', 'chatbot']
 /** Statuses for the default "unresolved" tab — matches legacy. */
 const UNRESOLVED_STATUSES = ['open', 're-opened']
 
-/** Rows per page in the Raised Tickets list. */
-const TICKETS_PAGE_SIZE = PAGE_SIZE
-
 function reopenedAtFromLogstamps(
   logstamps: Record<string, unknown> | null | undefined,
 ): string | null {

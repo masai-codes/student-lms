@@ -7,14 +7,3 @@ export type LearnDiscussionThreadItem = {
   author: DiscussionAuthorPreview | null
   authorProfileImageUrl: string | null
 }
-
-type LearnDiscussionDetail = {
-  id: number
-  title: string
-  message: string
-  isClosed: boolean
-  createdAt: string | null
-  author: DiscussionAuthorPreview | null
-  authorProfileImageUrl: string | null
-  threads: Array<LearnDiscussionThreadItem>
-}

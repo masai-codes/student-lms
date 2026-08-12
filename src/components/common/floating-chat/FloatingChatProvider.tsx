@@ -23,14 +23,6 @@ interface FloatingChatContextValue {
 
 const FloatingChatContext = createContext<FloatingChatContextValue | null>(null)
 
-function useFloatingChat(): FloatingChatContextValue {
-  const value = useContext(FloatingChatContext)
-  if (!value) {
-    throw new Error('useFloatingChat must be used within FloatingChatProvider')
-  }
-  return value
-}
-
 interface FloatingChatProviderProps {
   children: ReactNode
   /** When false, only exposes context — no sphere (e.g. learn detail pages). */

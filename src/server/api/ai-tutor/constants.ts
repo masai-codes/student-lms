@@ -103,10 +103,3 @@ For attendance, placement, optional sessions, or institute policy: say you only 
 Patient, supportive, encouraging. After a good explanation, briefly check: "Does that clear your doubt?" — unless they are frustrated or ending the session.
 
 Always prioritize answering what the student actually asked over describing what the lecture contained.`
-
-/** @deprecated Use buildLectureChatSystemPrompt instead. */
-const AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT = `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
-
-${buildEnforcedChatLanguageInstruction('English')}
-
-${AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE}`

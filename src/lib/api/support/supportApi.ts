@@ -12,7 +12,6 @@
 
 import type {
   AssignmentSupportSnapshot,
-  FaqVote,
   FloatingChatInbox,
   LectureSupportSnapshot,
   SupportEntityContext,
@@ -97,14 +96,6 @@ export async function fetchSubcategoriesByCategory(
   return fetchJson(
     `${SUPPORT_API.subcategories}?category=${encodeURIComponent(category)}`,
   )
-}
-
-/** POST an FAQ vote; returns the new aggregate counts. */
-async function voteSupportFaq(input: {
-  faqId: number
-  vote: FaqVote
-}): Promise<{ faqId: number; upvotes: number; downvotes: number }> {
-  return fetchJson(SUPPORT_API.faqVote, jsonPost(input))
 }
 
 /** GET the student's tickets for a tab (with the total count for pagination). */

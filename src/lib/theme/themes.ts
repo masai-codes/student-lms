@@ -20,8 +20,6 @@ export type ResolvedTheme = 'light' | 'dark'
 /** What we persist: an explicit theme or "follow the OS". */
 export type ThemePreference = ResolvedTheme | 'system'
 
-const RESOLVED_THEMES: Array<ResolvedTheme> = ['light', 'dark']
-
 export const DEFAULT_PREFERENCE: ThemePreference = 'system'
 
 export const STORAGE_KEY = 'masai-lms-theme'
