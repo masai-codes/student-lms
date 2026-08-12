@@ -98,7 +98,7 @@ describe('prepareLectureChatContext', () => {
     expect(context.systemPrompt).toContain('retrieveLectureContent')
   })
 
-  it('includes enforced language instructions when language is provided', async () => {
+  it('includes language instructions when language is provided', async () => {
     const { prepareLectureChatContext } =
       await import('../streamAiTutorChat.service')
 
@@ -111,7 +111,6 @@ describe('prepareLectureChatContext', () => {
       supportedUIElements: ['quiz'],
     })
 
-    expect(context.systemPrompt).toContain('You MUST respond ONLY in Tamil')
     expect(context.language).toBe('Tamil')
   })
 

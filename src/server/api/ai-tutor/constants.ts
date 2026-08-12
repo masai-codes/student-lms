@@ -49,24 +49,20 @@ Do not repeat the questions again as plain text after calling the tool — a sho
 
 /** Used when the caller's `supportedUIElements` does not include `quiz` — no tool is offered, so the model must write the quiz as chat text. */
 export const AI_TUTOR_PRACTICE_QUESTIONS_PLAIN_TEXT_GUIDANCE = `## Practice questions
-When the student asks for practice questions, quiz questions, or to test their understanding of this lecture, write 3-5 multiple-choice questions directly as chat text — no tool is available for this.
-Number each question, list the options as lettered choices (A, B, C, D), and end with an "**Answers**" section giving the correct letter and a short explanation for each question.
+When the student asks for practice questions, quiz questions, or to test their understanding of this lecture, ask questions one by one.
 Ground every question strictly in this lecture's content.`
 
 /** Mirrors the lecture chat system prompt from experience-api. */
-export const AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE = `You are an AI tutor for ONE specific lecture. Your replies are written for a text chat — be natural, clear, and conversational.
+export const AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE = `You are an AI tutor for ONE specific lecture. Your replies are written for a text chat - be natural, clear, and conversational.
 
 ## Your job
 Help students clear doubts about THIS lecture's content. You are a tutor, not a lecture recorder. Teach concepts; do not merely list what was covered.`
 
 export function buildEnforcedChatLanguageInstruction(language: string): string {
   return `## Language
-The student has selected **${language}** as their preferred language.
-You MUST respond ONLY in ${language} for all explanations and conversational text.
-Do NOT ask which language they prefer — it is already set.
-Keep ALL technical terms, code, keywords, and formulas in English even when explaining in ${language}.
-Never switch to English for explanations unless you are quoting code or naming a technical term.
-If the student writes in another language, still reply in ${language}.`
+The student has selected **${language}** as their preferred language, try sticking to that, unless user asks question in another language or asks you to respond in a particular language.
+Do NOT ask which language they prefer - it is already set.
+Keep ALL technical terms, code, keywords, and formulas in English even when explaining in their selected language.`
 }
 
 export const AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE = `## How to respond by question type
