@@ -61,7 +61,7 @@ export default function AppMobileTabBar() {
       ),
       isActive: pathname.startsWith('/profile'),
       onClick: () => {
-        void navigate({ to: '/profile', search: { tab: 'profile-details' } })
+        void navigate({ to: '/profile', search: { tab: 'details' } })
       },
     },
   ]

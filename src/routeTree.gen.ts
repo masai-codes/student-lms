@@ -19,6 +19,7 @@ import { Route as ApiAssessmentCallbackRouteRouteImport } from './routes/api/ass
 import { Route as ApiAssessNpsCallbackRouteRouteImport } from './routes/api/assess-nps-callback/route'
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as ApiWhatsNewIndexRouteImport } from './routes/api/whats-new/index'
+import { Route as ApiProfileIndexRouteImport } from './routes/api/profile/index'
 import { Route as ApiMyCoursesIndexRouteImport } from './routes/api/my-courses/index'
 import { Route as ApiDocsIndexRouteImport } from './routes/api/docs/index'
 import { Route as ApiBookmarksIndexRouteImport } from './routes/api/bookmarks/index'
@@ -34,7 +35,13 @@ import { Route as ApiSupportSubcategoriesRouteImport } from './routes/api/suppor
 import { Route as ApiSupportOverviewRouteImport } from './routes/api/support/overview'
 import { Route as ApiSupportFaqsRouteImport } from './routes/api/support/faqs'
 import { Route as ApiProfileTryNewTourRouteImport } from './routes/api/profile/try-new-tour'
+import { Route as ApiProfileStudentKitRouteImport } from './routes/api/profile/student-kit'
+import { Route as ApiProfilePasswordRouteImport } from './routes/api/profile/password'
 import { Route as ApiProfileNewLmsPagesRouteImport } from './routes/api/profile/new-lms-pages'
+import { Route as ApiProfileInvoicesRouteImport } from './routes/api/profile/invoices'
+import { Route as ApiProfileEmailPreferencesRouteImport } from './routes/api/profile/email-preferences'
+import { Route as ApiProfileCertificatesRouteImport } from './routes/api/profile/certificates'
+import { Route as ApiProfileAchievementsRouteImport } from './routes/api/profile/achievements'
 import { Route as ApiMessageUploadRouteImport } from './routes/api/message/upload'
 import { Route as ApiMasaiverseV2VisitedRouteImport } from './routes/api/masaiverse-v2/visited'
 import { Route as ApiMasaiverseV2LeaderboardRouteImport } from './routes/api/masaiverse-v2/leaderboard'
@@ -68,6 +75,8 @@ import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
 import { Route as authV2ForgotPasswordRouteImport } from './routes/(auth)/v2/forgot-password'
 import { Route as protectedLayoutMasaiverseRouteRouteImport } from './routes/(protected)/_layout/masaiverse/route'
 import { Route as ApiWhatsNewIdIndexRouteImport } from './routes/api/whats-new/$id/index'
+import { Route as ApiProfileUndertakingsIndexRouteImport } from './routes/api/profile/undertakings/index'
+import { Route as ApiProfileSessionsIndexRouteImport } from './routes/api/profile/sessions/index'
 import { Route as ApiMessageIdIndexRouteImport } from './routes/api/message/$id/index'
 import { Route as ApiInterviewsSessionsIndexRouteImport } from './routes/api/interviews/sessions/index'
 import { Route as ApiCourseBatchIdIndexRouteImport } from './routes/api/course/$batchId/index'
@@ -96,6 +105,7 @@ import { Route as ApiSupportFloatingChatInboxRouteImport } from './routes/api/su
 import { Route as ApiSupportFloatingChatContextRouteImport } from './routes/api/support/floating-chat/context'
 import { Route as ApiSupportFaqsVoteRouteImport } from './routes/api/support/faqs/vote'
 import { Route as ApiSupportCallbackCreateRouteImport } from './routes/api/support/callback/create'
+import { Route as ApiProfileSessionsSessionIdRouteImport } from './routes/api/profile/sessions/$sessionId'
 import { Route as ApiMigrationsBatchUserSetEnrolmentIdRouteImport } from './routes/api/migrations/batch-user/set-enrolment-id'
 import { Route as ApiMessageIdReplyRouteImport } from './routes/api/message/$id/reply'
 import { Route as ApiMessageIdMarkUnreadRouteImport } from './routes/api/message/$id/mark-unread'
@@ -172,6 +182,7 @@ import { Route as ApiAiTutorChatConversationsIndexRouteImport } from './routes/a
 import { Route as protectedLayoutSupportSupportIdIndexRouteImport } from './routes/(protected)/_layout/support/$supportId/index'
 import { Route as ApiSupportFloatingChatLecturesLectureIdRouteImport } from './routes/api/support/floating-chat/lectures/$lectureId'
 import { Route as ApiSupportFloatingChatAssignmentsAssignmentIdRouteImport } from './routes/api/support/floating-chat/assignments/$assignmentId'
+import { Route as ApiProfileUndertakingsSectionIdAcceptRouteImport } from './routes/api/profile/undertakings/$sectionId.accept'
 import { Route as ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport } from './routes/api/learn/submissions/$submissionId/view-on-platform'
 import { Route as ApiLearnSolutionsSolutionIdFileRouteImport } from './routes/api/learn/solutions/$solutionId/file'
 import { Route as ApiLearnResourcesResourceIdBookmarkRouteImport } from './routes/api/learn/resources/$resourceId/bookmark'
@@ -270,6 +281,11 @@ const ApiWhatsNewIndexRoute = ApiWhatsNewIndexRouteImport.update({
   path: '/api/whats-new/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProfileIndexRoute = ApiProfileIndexRouteImport.update({
+  id: '/api/profile/',
+  path: '/api/profile/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMyCoursesIndexRoute = ApiMyCoursesIndexRouteImport.update({
   id: '/api/my-courses/',
   path: '/api/my-courses/',
@@ -346,9 +362,40 @@ const ApiProfileTryNewTourRoute = ApiProfileTryNewTourRouteImport.update({
   path: '/api/profile/try-new-tour',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProfileStudentKitRoute = ApiProfileStudentKitRouteImport.update({
+  id: '/api/profile/student-kit',
+  path: '/api/profile/student-kit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProfilePasswordRoute = ApiProfilePasswordRouteImport.update({
+  id: '/api/profile/password',
+  path: '/api/profile/password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiProfileNewLmsPagesRoute = ApiProfileNewLmsPagesRouteImport.update({
   id: '/api/profile/new-lms-pages',
   path: '/api/profile/new-lms-pages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProfileInvoicesRoute = ApiProfileInvoicesRouteImport.update({
+  id: '/api/profile/invoices',
+  path: '/api/profile/invoices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProfileEmailPreferencesRoute =
+  ApiProfileEmailPreferencesRouteImport.update({
+    id: '/api/profile/email-preferences',
+    path: '/api/profile/email-preferences',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProfileCertificatesRoute = ApiProfileCertificatesRouteImport.update({
+  id: '/api/profile/certificates',
+  path: '/api/profile/certificates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProfileAchievementsRoute = ApiProfileAchievementsRouteImport.update({
+  id: '/api/profile/achievements',
+  path: '/api/profile/achievements',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMessageUploadRoute = ApiMessageUploadRouteImport.update({
@@ -533,6 +580,17 @@ const ApiWhatsNewIdIndexRoute = ApiWhatsNewIdIndexRouteImport.update({
   path: '/api/whats-new/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProfileUndertakingsIndexRoute =
+  ApiProfileUndertakingsIndexRouteImport.update({
+    id: '/api/profile/undertakings/',
+    path: '/api/profile/undertakings/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProfileSessionsIndexRoute = ApiProfileSessionsIndexRouteImport.update({
+  id: '/api/profile/sessions/',
+  path: '/api/profile/sessions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMessageIdIndexRoute = ApiMessageIdIndexRouteImport.update({
   id: '/api/message/$id/',
   path: '/api/message/$id/',
@@ -689,6 +747,12 @@ const ApiSupportCallbackCreateRoute =
   ApiSupportCallbackCreateRouteImport.update({
     id: '/api/support/callback/create',
     path: '/api/support/callback/create',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiProfileSessionsSessionIdRoute =
+  ApiProfileSessionsSessionIdRouteImport.update({
+    id: '/api/profile/sessions/$sessionId',
+    path: '/api/profile/sessions/$sessionId',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiMigrationsBatchUserSetEnrolmentIdRoute =
@@ -1136,6 +1200,12 @@ const ApiSupportFloatingChatAssignmentsAssignmentIdRoute =
     path: '/api/support/floating-chat/assignments/$assignmentId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiProfileUndertakingsSectionIdAcceptRoute =
+  ApiProfileUndertakingsSectionIdAcceptRouteImport.update({
+    id: '/api/profile/undertakings/$sectionId/accept',
+    path: '/api/profile/undertakings/$sectionId/accept',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute =
   ApiLearnSubmissionsSubmissionIdViewOnPlatformRouteImport.update({
     id: '/view-on-platform',
@@ -1459,7 +1529,13 @@ export interface FileRoutesByFullPath {
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/api/message/upload': typeof ApiMessageUploadRoute
+  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
+  '/api/profile/certificates': typeof ApiProfileCertificatesRoute
+  '/api/profile/email-preferences': typeof ApiProfileEmailPreferencesRoute
+  '/api/profile/invoices': typeof ApiProfileInvoicesRoute
   '/api/profile/new-lms-pages': typeof ApiProfileNewLmsPagesRoute
+  '/api/profile/password': typeof ApiProfilePasswordRoute
+  '/api/profile/student-kit': typeof ApiProfileStudentKitRoute
   '/api/profile/try-new-tour': typeof ApiProfileTryNewTourRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
@@ -1475,6 +1551,7 @@ export interface FileRoutesByFullPath {
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
   '/api/docs/': typeof ApiDocsIndexRoute
   '/api/my-courses/': typeof ApiMyCoursesIndexRoute
+  '/api/profile/': typeof ApiProfileIndexRoute
   '/api/whats-new/': typeof ApiWhatsNewIndexRoute
   '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRouteWithChildren
@@ -1547,6 +1624,7 @@ export interface FileRoutesByFullPath {
   '/api/message/$id/mark-unread': typeof ApiMessageIdMarkUnreadRoute
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
   '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
+  '/api/profile/sessions/$sessionId': typeof ApiProfileSessionsSessionIdRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
   '/api/support/floating-chat/context': typeof ApiSupportFloatingChatContextRoute
@@ -1575,6 +1653,8 @@ export interface FileRoutesByFullPath {
   '/api/course/$batchId/': typeof ApiCourseBatchIdIndexRoute
   '/api/interviews/sessions/': typeof ApiInterviewsSessionsIndexRoute
   '/api/message/$id/': typeof ApiMessageIdIndexRoute
+  '/api/profile/sessions/': typeof ApiProfileSessionsIndexRoute
+  '/api/profile/undertakings/': typeof ApiProfileUndertakingsIndexRoute
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/learn/assignments/$assignmentId': typeof protectedLayoutLearnAssignmentsAssignmentIdRouteRouteWithChildren
   '/learn/lectures/$lectureId': typeof protectedLayoutLearnLecturesLectureIdRouteRoute
@@ -1616,6 +1696,7 @@ export interface FileRoutesByFullPath {
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
+  '/api/profile/undertakings/$sectionId/accept': typeof ApiProfileUndertakingsSectionIdAcceptRoute
   '/api/support/floating-chat/assignments/$assignmentId': typeof ApiSupportFloatingChatAssignmentsAssignmentIdRoute
   '/api/support/floating-chat/lectures/$lectureId': typeof ApiSupportFloatingChatLecturesLectureIdRoute
   '/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
@@ -1668,7 +1749,13 @@ export interface FileRoutesByTo {
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/api/message/upload': typeof ApiMessageUploadRoute
+  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
+  '/api/profile/certificates': typeof ApiProfileCertificatesRoute
+  '/api/profile/email-preferences': typeof ApiProfileEmailPreferencesRoute
+  '/api/profile/invoices': typeof ApiProfileInvoicesRoute
   '/api/profile/new-lms-pages': typeof ApiProfileNewLmsPagesRoute
+  '/api/profile/password': typeof ApiProfilePasswordRoute
+  '/api/profile/student-kit': typeof ApiProfileStudentKitRoute
   '/api/profile/try-new-tour': typeof ApiProfileTryNewTourRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
@@ -1684,6 +1771,7 @@ export interface FileRoutesByTo {
   '/api/bookmarks': typeof ApiBookmarksIndexRoute
   '/api/docs': typeof ApiDocsIndexRoute
   '/api/my-courses': typeof ApiMyCoursesIndexRoute
+  '/api/profile': typeof ApiProfileIndexRoute
   '/api/whats-new': typeof ApiWhatsNewIndexRoute
   '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/assignments/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRouteWithChildren
@@ -1756,6 +1844,7 @@ export interface FileRoutesByTo {
   '/api/message/$id/mark-unread': typeof ApiMessageIdMarkUnreadRoute
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
   '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
+  '/api/profile/sessions/$sessionId': typeof ApiProfileSessionsSessionIdRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
   '/api/support/floating-chat/context': typeof ApiSupportFloatingChatContextRoute
@@ -1784,6 +1873,8 @@ export interface FileRoutesByTo {
   '/api/course/$batchId': typeof ApiCourseBatchIdIndexRoute
   '/api/interviews/sessions': typeof ApiInterviewsSessionsIndexRoute
   '/api/message/$id': typeof ApiMessageIdIndexRoute
+  '/api/profile/sessions': typeof ApiProfileSessionsIndexRoute
+  '/api/profile/undertakings': typeof ApiProfileUndertakingsIndexRoute
   '/api/whats-new/$id': typeof ApiWhatsNewIdIndexRoute
   '/learn/assignments/$assignmentId': typeof protectedLayoutLearnAssignmentsAssignmentIdRouteRouteWithChildren
   '/learn/lectures/$lectureId': typeof protectedLayoutLearnLecturesLectureIdRouteRoute
@@ -1825,6 +1916,7 @@ export interface FileRoutesByTo {
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
+  '/api/profile/undertakings/$sectionId/accept': typeof ApiProfileUndertakingsSectionIdAcceptRoute
   '/api/support/floating-chat/assignments/$assignmentId': typeof ApiSupportFloatingChatAssignmentsAssignmentIdRoute
   '/api/support/floating-chat/lectures/$lectureId': typeof ApiSupportFloatingChatLecturesLectureIdRoute
   '/support/$supportId': typeof protectedLayoutSupportSupportIdIndexRoute
@@ -1880,7 +1972,13 @@ export interface FileRoutesById {
   '/api/masaiverse-v2/leaderboard': typeof ApiMasaiverseV2LeaderboardRoute
   '/api/masaiverse-v2/visited': typeof ApiMasaiverseV2VisitedRoute
   '/api/message/upload': typeof ApiMessageUploadRoute
+  '/api/profile/achievements': typeof ApiProfileAchievementsRoute
+  '/api/profile/certificates': typeof ApiProfileCertificatesRoute
+  '/api/profile/email-preferences': typeof ApiProfileEmailPreferencesRoute
+  '/api/profile/invoices': typeof ApiProfileInvoicesRoute
   '/api/profile/new-lms-pages': typeof ApiProfileNewLmsPagesRoute
+  '/api/profile/password': typeof ApiProfilePasswordRoute
+  '/api/profile/student-kit': typeof ApiProfileStudentKitRoute
   '/api/profile/try-new-tour': typeof ApiProfileTryNewTourRoute
   '/api/support/faqs': typeof ApiSupportFaqsRouteWithChildren
   '/api/support/overview': typeof ApiSupportOverviewRoute
@@ -1896,6 +1994,7 @@ export interface FileRoutesById {
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
   '/api/docs/': typeof ApiDocsIndexRoute
   '/api/my-courses/': typeof ApiMyCoursesIndexRoute
+  '/api/profile/': typeof ApiProfileIndexRoute
   '/api/whats-new/': typeof ApiWhatsNewIndexRoute
   '/(protected)/_layout/announcements_/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
   '/(protected)/_layout/assignments_/$assignmentId': typeof protectedLayoutAssignmentsAssignmentIdRouteRouteWithChildren
@@ -1968,6 +2067,7 @@ export interface FileRoutesById {
   '/api/message/$id/mark-unread': typeof ApiMessageIdMarkUnreadRoute
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
   '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
+  '/api/profile/sessions/$sessionId': typeof ApiProfileSessionsSessionIdRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
   '/api/support/floating-chat/context': typeof ApiSupportFloatingChatContextRoute
@@ -1996,6 +2096,8 @@ export interface FileRoutesById {
   '/api/course/$batchId/': typeof ApiCourseBatchIdIndexRoute
   '/api/interviews/sessions/': typeof ApiInterviewsSessionsIndexRoute
   '/api/message/$id/': typeof ApiMessageIdIndexRoute
+  '/api/profile/sessions/': typeof ApiProfileSessionsIndexRoute
+  '/api/profile/undertakings/': typeof ApiProfileUndertakingsIndexRoute
   '/api/whats-new/$id/': typeof ApiWhatsNewIdIndexRoute
   '/(protected)/_layout/learn/assignments_/$assignmentId': typeof protectedLayoutLearnAssignmentsAssignmentIdRouteRouteWithChildren
   '/(protected)/_layout/learn/lectures_/$lectureId': typeof protectedLayoutLearnLecturesLectureIdRouteRoute
@@ -2037,6 +2139,7 @@ export interface FileRoutesById {
   '/api/learn/resources/$resourceId/bookmark': typeof ApiLearnResourcesResourceIdBookmarkRoute
   '/api/learn/solutions/$solutionId/file': typeof ApiLearnSolutionsSolutionIdFileRoute
   '/api/learn/submissions/$submissionId/view-on-platform': typeof ApiLearnSubmissionsSubmissionIdViewOnPlatformRoute
+  '/api/profile/undertakings/$sectionId/accept': typeof ApiProfileUndertakingsSectionIdAcceptRoute
   '/api/support/floating-chat/assignments/$assignmentId': typeof ApiSupportFloatingChatAssignmentsAssignmentIdRoute
   '/api/support/floating-chat/lectures/$lectureId': typeof ApiSupportFloatingChatLecturesLectureIdRoute
   '/(protected)/_layout/support/$supportId/': typeof protectedLayoutSupportSupportIdIndexRoute
@@ -2092,7 +2195,13 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/leaderboard'
     | '/api/masaiverse-v2/visited'
     | '/api/message/upload'
+    | '/api/profile/achievements'
+    | '/api/profile/certificates'
+    | '/api/profile/email-preferences'
+    | '/api/profile/invoices'
     | '/api/profile/new-lms-pages'
+    | '/api/profile/password'
+    | '/api/profile/student-kit'
     | '/api/profile/try-new-tour'
     | '/api/support/faqs'
     | '/api/support/overview'
@@ -2108,6 +2217,7 @@ export interface FileRouteTypes {
     | '/api/bookmarks/'
     | '/api/docs/'
     | '/api/my-courses/'
+    | '/api/profile/'
     | '/api/whats-new/'
     | '/announcements/$id'
     | '/assignments/$assignmentId'
@@ -2180,6 +2290,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/mark-unread'
     | '/api/message/$id/reply'
     | '/api/migrations/batch-user/set-enrolment-id'
+    | '/api/profile/sessions/$sessionId'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
     | '/api/support/floating-chat/context'
@@ -2208,6 +2319,8 @@ export interface FileRouteTypes {
     | '/api/course/$batchId/'
     | '/api/interviews/sessions/'
     | '/api/message/$id/'
+    | '/api/profile/sessions/'
+    | '/api/profile/undertakings/'
     | '/api/whats-new/$id/'
     | '/learn/assignments/$assignmentId'
     | '/learn/lectures/$lectureId'
@@ -2249,6 +2362,7 @@ export interface FileRouteTypes {
     | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
+    | '/api/profile/undertakings/$sectionId/accept'
     | '/api/support/floating-chat/assignments/$assignmentId'
     | '/api/support/floating-chat/lectures/$lectureId'
     | '/support/$supportId/'
@@ -2301,7 +2415,13 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/leaderboard'
     | '/api/masaiverse-v2/visited'
     | '/api/message/upload'
+    | '/api/profile/achievements'
+    | '/api/profile/certificates'
+    | '/api/profile/email-preferences'
+    | '/api/profile/invoices'
     | '/api/profile/new-lms-pages'
+    | '/api/profile/password'
+    | '/api/profile/student-kit'
     | '/api/profile/try-new-tour'
     | '/api/support/faqs'
     | '/api/support/overview'
@@ -2317,6 +2437,7 @@ export interface FileRouteTypes {
     | '/api/bookmarks'
     | '/api/docs'
     | '/api/my-courses'
+    | '/api/profile'
     | '/api/whats-new'
     | '/announcements/$id'
     | '/assignments/$assignmentId'
@@ -2389,6 +2510,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/mark-unread'
     | '/api/message/$id/reply'
     | '/api/migrations/batch-user/set-enrolment-id'
+    | '/api/profile/sessions/$sessionId'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
     | '/api/support/floating-chat/context'
@@ -2417,6 +2539,8 @@ export interface FileRouteTypes {
     | '/api/course/$batchId'
     | '/api/interviews/sessions'
     | '/api/message/$id'
+    | '/api/profile/sessions'
+    | '/api/profile/undertakings'
     | '/api/whats-new/$id'
     | '/learn/assignments/$assignmentId'
     | '/learn/lectures/$lectureId'
@@ -2458,6 +2582,7 @@ export interface FileRouteTypes {
     | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
+    | '/api/profile/undertakings/$sectionId/accept'
     | '/api/support/floating-chat/assignments/$assignmentId'
     | '/api/support/floating-chat/lectures/$lectureId'
     | '/support/$supportId'
@@ -2512,7 +2637,13 @@ export interface FileRouteTypes {
     | '/api/masaiverse-v2/leaderboard'
     | '/api/masaiverse-v2/visited'
     | '/api/message/upload'
+    | '/api/profile/achievements'
+    | '/api/profile/certificates'
+    | '/api/profile/email-preferences'
+    | '/api/profile/invoices'
     | '/api/profile/new-lms-pages'
+    | '/api/profile/password'
+    | '/api/profile/student-kit'
     | '/api/profile/try-new-tour'
     | '/api/support/faqs'
     | '/api/support/overview'
@@ -2528,6 +2659,7 @@ export interface FileRouteTypes {
     | '/api/bookmarks/'
     | '/api/docs/'
     | '/api/my-courses/'
+    | '/api/profile/'
     | '/api/whats-new/'
     | '/(protected)/_layout/announcements_/$id'
     | '/(protected)/_layout/assignments_/$assignmentId'
@@ -2600,6 +2732,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/mark-unread'
     | '/api/message/$id/reply'
     | '/api/migrations/batch-user/set-enrolment-id'
+    | '/api/profile/sessions/$sessionId'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
     | '/api/support/floating-chat/context'
@@ -2628,6 +2761,8 @@ export interface FileRouteTypes {
     | '/api/course/$batchId/'
     | '/api/interviews/sessions/'
     | '/api/message/$id/'
+    | '/api/profile/sessions/'
+    | '/api/profile/undertakings/'
     | '/api/whats-new/$id/'
     | '/(protected)/_layout/learn/assignments_/$assignmentId'
     | '/(protected)/_layout/learn/lectures_/$lectureId'
@@ -2669,6 +2804,7 @@ export interface FileRouteTypes {
     | '/api/learn/resources/$resourceId/bookmark'
     | '/api/learn/solutions/$solutionId/file'
     | '/api/learn/submissions/$submissionId/view-on-platform'
+    | '/api/profile/undertakings/$sectionId/accept'
     | '/api/support/floating-chat/assignments/$assignmentId'
     | '/api/support/floating-chat/lectures/$lectureId'
     | '/(protected)/_layout/support/$supportId/'
@@ -2720,7 +2856,13 @@ export interface RootRouteChildren {
   ApiMasaiverseV2LeaderboardRoute: typeof ApiMasaiverseV2LeaderboardRoute
   ApiMasaiverseV2VisitedRoute: typeof ApiMasaiverseV2VisitedRoute
   ApiMessageUploadRoute: typeof ApiMessageUploadRoute
+  ApiProfileAchievementsRoute: typeof ApiProfileAchievementsRoute
+  ApiProfileCertificatesRoute: typeof ApiProfileCertificatesRoute
+  ApiProfileEmailPreferencesRoute: typeof ApiProfileEmailPreferencesRoute
+  ApiProfileInvoicesRoute: typeof ApiProfileInvoicesRoute
   ApiProfileNewLmsPagesRoute: typeof ApiProfileNewLmsPagesRoute
+  ApiProfilePasswordRoute: typeof ApiProfilePasswordRoute
+  ApiProfileStudentKitRoute: typeof ApiProfileStudentKitRoute
   ApiProfileTryNewTourRoute: typeof ApiProfileTryNewTourRoute
   ApiSupportFaqsRoute: typeof ApiSupportFaqsRouteWithChildren
   ApiSupportOverviewRoute: typeof ApiSupportOverviewRoute
@@ -2735,6 +2877,7 @@ export interface RootRouteChildren {
   ApiBookmarksIndexRoute: typeof ApiBookmarksIndexRoute
   ApiDocsIndexRoute: typeof ApiDocsIndexRoute
   ApiMyCoursesIndexRoute: typeof ApiMyCoursesIndexRoute
+  ApiProfileIndexRoute: typeof ApiProfileIndexRoute
   ApiWhatsNewIndexRoute: typeof ApiWhatsNewIndexRoute
   authV2AuthLinkedAccountsRoute: typeof authV2AuthLinkedAccountsRoute
   authV2AuthUseAccountRoute: typeof authV2AuthUseAccountRoute
@@ -2789,6 +2932,7 @@ export interface RootRouteChildren {
   ApiMessageIdMarkUnreadRoute: typeof ApiMessageIdMarkUnreadRoute
   ApiMessageIdReplyRoute: typeof ApiMessageIdReplyRoute
   ApiMigrationsBatchUserSetEnrolmentIdRoute: typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
+  ApiProfileSessionsSessionIdRoute: typeof ApiProfileSessionsSessionIdRoute
   ApiSupportCallbackCreateRoute: typeof ApiSupportCallbackCreateRoute
   ApiSupportFloatingChatContextRoute: typeof ApiSupportFloatingChatContextRoute
   ApiSupportFloatingChatInboxRoute: typeof ApiSupportFloatingChatInboxRoute
@@ -2801,6 +2945,8 @@ export interface RootRouteChildren {
   ApiCourseBatchIdIndexRoute: typeof ApiCourseBatchIdIndexRoute
   ApiInterviewsSessionsIndexRoute: typeof ApiInterviewsSessionsIndexRoute
   ApiMessageIdIndexRoute: typeof ApiMessageIdIndexRoute
+  ApiProfileSessionsIndexRoute: typeof ApiProfileSessionsIndexRoute
+  ApiProfileUndertakingsIndexRoute: typeof ApiProfileUndertakingsIndexRoute
   ApiWhatsNewIdIndexRoute: typeof ApiWhatsNewIdIndexRoute
   ApiAiTutorChatConversationsChatIdRoute: typeof ApiAiTutorChatConversationsChatIdRoute
   ApiAiTutorChatPracticeQuestionsAnswersRoute: typeof ApiAiTutorChatPracticeQuestionsAnswersRoute
@@ -2815,6 +2961,7 @@ export interface RootRouteChildren {
   ApiLearnAiTutorLectureIdFeedbackRoute: typeof ApiLearnAiTutorLectureIdFeedbackRoute
   ApiLearnAiTutorLectureIdSessionRoute: typeof ApiLearnAiTutorLectureIdSessionRoute
   ApiLearnAiTutorLectureIdTranscriptRoute: typeof ApiLearnAiTutorLectureIdTranscriptRoute
+  ApiProfileUndertakingsSectionIdAcceptRoute: typeof ApiProfileUndertakingsSectionIdAcceptRoute
   ApiSupportFloatingChatAssignmentsAssignmentIdRoute: typeof ApiSupportFloatingChatAssignmentsAssignmentIdRoute
   ApiSupportFloatingChatLecturesLectureIdRoute: typeof ApiSupportFloatingChatLecturesLectureIdRoute
   ApiAiTutorChatConversationsIndexRoute: typeof ApiAiTutorChatConversationsIndexRoute
@@ -2892,6 +3039,13 @@ declare module '@tanstack/react-router' {
       path: '/api/whats-new'
       fullPath: '/api/whats-new/'
       preLoaderRoute: typeof ApiWhatsNewIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/': {
+      id: '/api/profile/'
+      path: '/api/profile'
+      fullPath: '/api/profile/'
+      preLoaderRoute: typeof ApiProfileIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/my-courses/': {
@@ -2999,11 +3153,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProfileTryNewTourRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/profile/student-kit': {
+      id: '/api/profile/student-kit'
+      path: '/api/profile/student-kit'
+      fullPath: '/api/profile/student-kit'
+      preLoaderRoute: typeof ApiProfileStudentKitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/password': {
+      id: '/api/profile/password'
+      path: '/api/profile/password'
+      fullPath: '/api/profile/password'
+      preLoaderRoute: typeof ApiProfilePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/profile/new-lms-pages': {
       id: '/api/profile/new-lms-pages'
       path: '/api/profile/new-lms-pages'
       fullPath: '/api/profile/new-lms-pages'
       preLoaderRoute: typeof ApiProfileNewLmsPagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/invoices': {
+      id: '/api/profile/invoices'
+      path: '/api/profile/invoices'
+      fullPath: '/api/profile/invoices'
+      preLoaderRoute: typeof ApiProfileInvoicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/email-preferences': {
+      id: '/api/profile/email-preferences'
+      path: '/api/profile/email-preferences'
+      fullPath: '/api/profile/email-preferences'
+      preLoaderRoute: typeof ApiProfileEmailPreferencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/certificates': {
+      id: '/api/profile/certificates'
+      path: '/api/profile/certificates'
+      fullPath: '/api/profile/certificates'
+      preLoaderRoute: typeof ApiProfileCertificatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/achievements': {
+      id: '/api/profile/achievements'
+      path: '/api/profile/achievements'
+      fullPath: '/api/profile/achievements'
+      preLoaderRoute: typeof ApiProfileAchievementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/message/upload': {
@@ -3237,6 +3433,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWhatsNewIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/profile/undertakings/': {
+      id: '/api/profile/undertakings/'
+      path: '/api/profile/undertakings'
+      fullPath: '/api/profile/undertakings/'
+      preLoaderRoute: typeof ApiProfileUndertakingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/sessions/': {
+      id: '/api/profile/sessions/'
+      path: '/api/profile/sessions'
+      fullPath: '/api/profile/sessions/'
+      preLoaderRoute: typeof ApiProfileSessionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/message/$id/': {
       id: '/api/message/$id/'
       path: '/api/message/$id'
@@ -3431,6 +3641,13 @@ declare module '@tanstack/react-router' {
       path: '/api/support/callback/create'
       fullPath: '/api/support/callback/create'
       preLoaderRoute: typeof ApiSupportCallbackCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/sessions/$sessionId': {
+      id: '/api/profile/sessions/$sessionId'
+      path: '/api/profile/sessions/$sessionId'
+      fullPath: '/api/profile/sessions/$sessionId'
+      preLoaderRoute: typeof ApiProfileSessionsSessionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/migrations/batch-user/set-enrolment-id': {
@@ -3963,6 +4180,13 @@ declare module '@tanstack/react-router' {
       path: '/api/support/floating-chat/assignments/$assignmentId'
       fullPath: '/api/support/floating-chat/assignments/$assignmentId'
       preLoaderRoute: typeof ApiSupportFloatingChatAssignmentsAssignmentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/profile/undertakings/$sectionId/accept': {
+      id: '/api/profile/undertakings/$sectionId/accept'
+      path: '/api/profile/undertakings/$sectionId/accept'
+      fullPath: '/api/profile/undertakings/$sectionId/accept'
+      preLoaderRoute: typeof ApiProfileUndertakingsSectionIdAcceptRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/learn/submissions/$submissionId/view-on-platform': {
@@ -4698,7 +4922,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMasaiverseV2LeaderboardRoute: ApiMasaiverseV2LeaderboardRoute,
   ApiMasaiverseV2VisitedRoute: ApiMasaiverseV2VisitedRoute,
   ApiMessageUploadRoute: ApiMessageUploadRoute,
+  ApiProfileAchievementsRoute: ApiProfileAchievementsRoute,
+  ApiProfileCertificatesRoute: ApiProfileCertificatesRoute,
+  ApiProfileEmailPreferencesRoute: ApiProfileEmailPreferencesRoute,
+  ApiProfileInvoicesRoute: ApiProfileInvoicesRoute,
   ApiProfileNewLmsPagesRoute: ApiProfileNewLmsPagesRoute,
+  ApiProfilePasswordRoute: ApiProfilePasswordRoute,
+  ApiProfileStudentKitRoute: ApiProfileStudentKitRoute,
   ApiProfileTryNewTourRoute: ApiProfileTryNewTourRoute,
   ApiSupportFaqsRoute: ApiSupportFaqsRouteWithChildren,
   ApiSupportOverviewRoute: ApiSupportOverviewRoute,
@@ -4713,6 +4943,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBookmarksIndexRoute: ApiBookmarksIndexRoute,
   ApiDocsIndexRoute: ApiDocsIndexRoute,
   ApiMyCoursesIndexRoute: ApiMyCoursesIndexRoute,
+  ApiProfileIndexRoute: ApiProfileIndexRoute,
   ApiWhatsNewIndexRoute: ApiWhatsNewIndexRoute,
   authV2AuthLinkedAccountsRoute: authV2AuthLinkedAccountsRoute,
   authV2AuthUseAccountRoute: authV2AuthUseAccountRoute,
@@ -4772,6 +5003,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMessageIdReplyRoute: ApiMessageIdReplyRoute,
   ApiMigrationsBatchUserSetEnrolmentIdRoute:
     ApiMigrationsBatchUserSetEnrolmentIdRoute,
+  ApiProfileSessionsSessionIdRoute: ApiProfileSessionsSessionIdRoute,
   ApiSupportCallbackCreateRoute: ApiSupportCallbackCreateRoute,
   ApiSupportFloatingChatContextRoute: ApiSupportFloatingChatContextRoute,
   ApiSupportFloatingChatInboxRoute: ApiSupportFloatingChatInboxRoute,
@@ -4786,6 +5018,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCourseBatchIdIndexRoute: ApiCourseBatchIdIndexRoute,
   ApiInterviewsSessionsIndexRoute: ApiInterviewsSessionsIndexRoute,
   ApiMessageIdIndexRoute: ApiMessageIdIndexRoute,
+  ApiProfileSessionsIndexRoute: ApiProfileSessionsIndexRoute,
+  ApiProfileUndertakingsIndexRoute: ApiProfileUndertakingsIndexRoute,
   ApiWhatsNewIdIndexRoute: ApiWhatsNewIdIndexRoute,
   ApiAiTutorChatConversationsChatIdRoute:
     ApiAiTutorChatConversationsChatIdRoute,
@@ -4807,6 +5041,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLearnAiTutorLectureIdSessionRoute: ApiLearnAiTutorLectureIdSessionRoute,
   ApiLearnAiTutorLectureIdTranscriptRoute:
     ApiLearnAiTutorLectureIdTranscriptRoute,
+  ApiProfileUndertakingsSectionIdAcceptRoute:
+    ApiProfileUndertakingsSectionIdAcceptRoute,
   ApiSupportFloatingChatAssignmentsAssignmentIdRoute:
     ApiSupportFloatingChatAssignmentsAssignmentIdRoute,
   ApiSupportFloatingChatLecturesLectureIdRoute:

@@ -1,16 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { ProfilePage } from '@/components/features/profile/ProfilePage'
+import { PROFILE_TABS } from '@/components/features/profile/profileTabsConfig'
+import type { ProfileTab } from '@/components/features/profile/profileTabsConfig'
 
-/**
- * Blank slate — the profile page (UI + APIs) was removed and will be rebuilt.
- * The route itself is kept because nav items and the mobile tab bar link here.
- */
+const VALID_TABS = new Set<string>(PROFILE_TABS)
+
 export const Route = createFileRoute('/(protected)/_layout/profile/')({
-  validateSearch: (raw): { tab?: string } => ({
-    tab: typeof raw.tab === 'string' ? raw.tab : undefined,
+  validateSearch: (raw): { tab?: ProfileTab } => ({
+    // An unknown value resolves to the first available tab at render time; the
+    // gating flags needed to know which tabs exist aren't loaded here yet.
+    tab:
+      typeof raw.tab === 'string' && VALID_TABS.has(raw.tab)
+        ? (raw.tab as ProfileTab)
+        : undefined,
   }),
   component: ProfilePage,
 })
-
-function ProfilePage() {
-  return <div className="mx-4 mb-6 mt-4 md:mx-8" />
-}
