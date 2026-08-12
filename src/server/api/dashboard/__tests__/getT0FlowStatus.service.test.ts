@@ -6,12 +6,16 @@ const hoisted = vi.hoisted(() => ({
   getBatchIds: vi.fn(),
   computeFull: vi.fn(),
   computeLite: vi.fn(),
+  appDownloaded: vi.fn(),
 }))
 
 vi.mock('@/db', () => ({
   db: { execute: hoisted.execute, select: hoisted.select },
 }))
-vi.mock('@/db/schema', () => ({ batches: {}, userDeviceTokens: {} }))
+vi.mock('@/db/schema', () => ({ batches: {} }))
+vi.mock('@/server/devices/hasCompletedAppDownload', () => ({
+  hasCompletedAppDownload: hoisted.appDownloaded,
+}))
 vi.mock('@/server/batches/getBatchIdsForEnrolledUser', () => ({
   getBatchIdsForEnrolledUser: hoisted.getBatchIds,
 }))
@@ -33,23 +37,20 @@ describe('getT0FlowStatus', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // The four parallel loads, in evaluation order: admission rows (execute),
-    // batch rows (select), profile (execute), device tokens (select).
+    // batch rows (select), profile (execute), app-download signal (helper).
     hoisted.execute
       .mockResolvedValueOnce([{ batch_id: 348, full_fees_paid: 1, meta: '{}' }]) // admission
       .mockResolvedValueOnce([{ meta: null, legal_data: null }]) // profile
-    hoisted.select
-      .mockReturnValueOnce({
-        from: () => ({
-          where: () => [
-            { id: 348, name: 'BITSoM PM', meta: null },
-            { id: 354, name: 'IITP BuildStack AI', meta: null },
-            { id: 999, name: 'Legacy no-agreement', meta: null },
-          ],
-        }),
-      })
-      .mockReturnValueOnce({
-        from: () => ({ where: () => ({ limit: () => [] }) }),
-      })
+    hoisted.select.mockReturnValueOnce({
+      from: () => ({
+        where: () => [
+          { id: 348, name: 'BITSoM PM', meta: null },
+          { id: 354, name: 'IITP BuildStack AI', meta: null },
+          { id: 999, name: 'Legacy no-agreement', meta: null },
+        ],
+      }),
+    })
+    hoisted.appDownloaded.mockResolvedValue(false)
     hoisted.getBatchIds.mockResolvedValue([348, 354, 999])
     // Batch 348 has an admission row → full flow, walkthrough + program pending.
     hoisted.computeFull.mockResolvedValue({
@@ -99,6 +100,26 @@ describe('getT0FlowStatus', () => {
     expect(lite.program?.complete).toBe(false) // agreement pending
     expect(status.showGuidedTour).toBe(true)
   })
+
+  it('reports download-app complete from the app-download signal, and passes it into progress', async () => {
+    hoisted.appDownloaded.mockResolvedValue(true)
+    const { getT0FlowStatus } = await import('../getT0FlowStatus.service')
+    const status = await getT0FlowStatus(10030696)
+
+    expect(status.downloadAppCompleted).toBe(true)
+    // 6th positional arg of computeGuidedTourProgress is the app-download flag.
+    expect(hoisted.computeFull.mock.calls[0][5]).toBe(true)
+    expect(hoisted.computeLite.mock.calls[0][4]).toBe(true)
+  })
+
+  it('reports download-app incomplete when neither signal is present', async () => {
+    hoisted.appDownloaded.mockResolvedValue(false)
+    const { getT0FlowStatus } = await import('../getT0FlowStatus.service')
+    const status = await getT0FlowStatus(10030696)
+
+    expect(status.downloadAppCompleted).toBe(false)
+    expect(hoisted.computeFull.mock.calls[0][5]).toBe(false)
+  })
 })
 
 describe('getT0FlowStatus — non-T0 multi-batch (no admission rows)', () => {
@@ -108,19 +129,16 @@ describe('getT0FlowStatus — non-T0 multi-batch (no admission rows)', () => {
     hoisted.execute
       .mockResolvedValueOnce([]) // admission: none → pure-lite path
       .mockResolvedValueOnce([{ meta: null, legal_data: null }]) // profile
-    hoisted.select
-      .mockReturnValueOnce({
-        from: () => ({
-          where: () => [
-            { id: 10, name: 'Batch A', meta: null },
-            { id: 20, name: 'Batch B', meta: null },
-            { id: 30, name: 'Batch C (no agreement)', meta: null },
-          ],
-        }),
-      })
-      .mockReturnValueOnce({
-        from: () => ({ where: () => ({ limit: () => [] }) }),
-      })
+    hoisted.select.mockReturnValueOnce({
+      from: () => ({
+        where: () => [
+          { id: 10, name: 'Batch A', meta: null },
+          { id: 20, name: 'Batch B', meta: null },
+          { id: 30, name: 'Batch C (no agreement)', meta: null },
+        ],
+      }),
+    })
+    hoisted.appDownloaded.mockResolvedValue(false)
     hoisted.getBatchIds.mockResolvedValue([10, 20, 30])
   })
 

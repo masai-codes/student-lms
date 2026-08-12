@@ -10,6 +10,7 @@ import type { AgreementFormValues, AgreementStepDoc } from './agreementShared'
 import { db } from '@/db'
 import { batches, profiles, sectionUser, users } from '@/db/schema'
 import { resolveSectionLabelFromColumns } from '@/server/batches/resolveSectionLabel'
+import { resolveStudentCode } from '@/server/users/getStudentCode'
 
 export interface AgreementSection {
   sectionId: number
@@ -18,7 +19,7 @@ export interface AgreementSection {
   batchName: string
   /** Learner's registered email — shown on the signature certificate. */
   email: string
-  /** Learner's student code (username) — shown on the signature certificate. */
+  /** Learner's student code (batch_user.username) — shown on the signature certificate. */
   studentCode: string
   steps: Array<AgreementStepDoc>
   /** Prefill: user's profile defaults merged with any previously-saved values. */
@@ -116,7 +117,7 @@ export async function getAgreementRenderData(
   )
   if (!sectionRows.length) return []
 
-  const [[batch], [user], [profile]] = await Promise.all([
+  const [[batch], [user], [profile], studentCode] = await Promise.all([
     db
       .select({ name: batches.name, program: batches.program })
       .from(batches)
@@ -126,7 +127,6 @@ export async function getAgreementRenderData(
       .select({
         name: users.name,
         email: users.email,
-        username: users.username,
       })
       .from(users)
       .where(eq(users.id, userId))
@@ -136,6 +136,8 @@ export async function getAgreementRenderData(
       .from(profiles)
       .where(and(eq(profiles.userId, userId), isNull(profiles.deletedAt)))
       .limit(1),
+    // Student code comes from this batch's batch_user row, never users.username.
+    resolveStudentCode(userId, batchId),
   ])
 
   const baseValues = profilePrefill(
@@ -179,7 +181,7 @@ export async function getAgreementRenderData(
       programName: batch?.program ?? '',
       batchName: batch?.name ?? '',
       email: user?.email ?? '',
-      studentCode: user?.username ?? '',
+      studentCode,
       steps,
       savedValues: { ...baseValues, ...pickAgreementFormValues(stored) },
       acceptedStepKeys,

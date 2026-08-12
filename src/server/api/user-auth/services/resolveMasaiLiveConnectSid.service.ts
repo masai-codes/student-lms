@@ -14,6 +14,11 @@ const ADMISSIONS_SSO_TOKEN_EXPIRY = '5m'
 
 export type MasaiLiveUser = {
   id: number
+  /**
+   * `users.username` — stale/null for most users. NOT a student code: the code sent to
+   * admissions is read off the learner's `batch_user` row inside
+   * {@link resolveMasaiLiveConnectSid}.
+   */
   username?: string | null
   email?: string | null
   meta?: unknown
@@ -56,8 +61,13 @@ export async function resolveMasaiLiveConnectSid(
   user: MasaiLiveUser,
   redirect: string = MASAI_LIVE_DEFAULT_REDIRECT,
 ): Promise<MasaiLiveConnectSidResult> {
+  // The student code is read off the same batch_user row as the enrolment id — it is
+  // the source of truth per enrolment, whereas users.username is stale/null.
   const rows = await db
-    .select({ enrolmentId: batchUser.enrolmentId })
+    .select({
+      enrolmentId: batchUser.enrolmentId,
+      username: batchUser.username,
+    })
     .from(batchUser)
     .where(
       and(
@@ -70,6 +80,7 @@ export async function resolveMasaiLiveConnectSid(
     .limit(1)
 
   const enrolmentId = rows.at(0)?.enrolmentId
+  const studentCode = rows.at(0)?.username?.trim() || ''
   if (enrolmentId == null) {
     await flagMasaiLiveEnrolmentNotFound(user)
     return {
@@ -98,7 +109,7 @@ export async function resolveMasaiLiveConnectSid(
 
   const token = jwt.sign(
     {
-      student_code: user.username || '',
+      student_code: studentCode,
       email: user.email || '',
       enrolment_id: Number(enrolmentId),
     },

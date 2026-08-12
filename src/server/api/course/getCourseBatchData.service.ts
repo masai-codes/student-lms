@@ -1,6 +1,7 @@
 import { and, eq, inArray, isNull } from 'drizzle-orm'
 import { db } from '@/db'
 import { batches, users, profiles, sectionUser, sections } from '@/db/schema'
+import { resolveStudentCode } from '@/server/users/getStudentCode'
 
 export interface CoursePerson {
   name: string
@@ -199,11 +200,8 @@ export async function getCourseBatchData(
 
   if (!batchRow) return null
 
-  const [userRow] = await db
-    .select({ username: users.username })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1)
+  // Student code is per batch enrolment (batch_user), not users.username.
+  const studentCode = await resolveStudentCode(userId, batchId)
 
   const meta = asRecord(batchRow.meta)
   const settings = asRecord(batchRow.settings)
@@ -267,7 +265,7 @@ export async function getCourseBatchData(
     courseImage,
     courseDetails,
     courseProgress,
-    studentCode: userRow?.username ?? '',
+    studentCode,
     courseTimeline,
     courseStructure,
     resources,

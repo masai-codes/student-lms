@@ -7,6 +7,7 @@ import { getExperienceApiBaseUrl } from '@/server/api/http/experienceApiFetch'
 import { buildAssessSectionTiming } from '@/server/assignments/utils/buildAssessSectionTiming'
 import { acquireLock, releaseLock } from '@/server/redis/lock'
 import { getIstNowSqlDatetime } from '@/server/time/istClock'
+import { resolveStudentCode } from '@/server/users/getStudentCode'
 import { ORIGIN_URLS } from '@/utils/originUrls'
 
 /**
@@ -260,16 +261,20 @@ export async function createAssessPlatformUrl(input: {
   })
 
   const userRows = await db
-    .select({ email: users.email, username: users.username })
+    .select({ email: users.email })
     .from(users)
     .where(eq(users.id, userId))
     .limit(1)
   const user = userRows[0]
   if (!user) throw new ApiError(404, 'USER_NOT_FOUND')
 
+  // Assess identifies the learner by student code, which lives on batch_user for the
+  // assignment's batch — users.username is stale and null for most newer users.
+  const studentCode = await resolveStudentCode(userId, assignment.batchId)
+
   const payload: JsonObject = {
     uniqueID: submissionId,
-    username: user.username,
+    username: studentCode,
     groupId: assignment.id,
     assessmentTemplateId: templateId,
     redirectClientUrl: `${frontendUrl}/assignments/${assignmentId}`,
