@@ -67,7 +67,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const resolvedTheme = resolveTheme(preference, systemTheme)
 
-  /** Apply with a brief cross-fade (scoped to color properties in styles.css). */
+  /** Apply with a brief cross-fade (scoped to color properties in styles.css).
+      The timer trails the 0.15s CSS duration slightly so the fade finishes
+      before the transition rules are lifted. */
   const applyWithTransition = useCallback((theme: ResolvedTheme) => {
     const root = document.documentElement
     root.setAttribute('data-theme-transition', '')
@@ -75,7 +77,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (transitionTimer.current) clearTimeout(transitionTimer.current)
     transitionTimer.current = setTimeout(() => {
       root.removeAttribute('data-theme-transition')
-    }, 400)
+    }, 200)
   }, [])
 
   useEffect(() => {

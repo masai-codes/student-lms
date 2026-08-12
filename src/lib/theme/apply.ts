@@ -34,3 +34,4 @@ export function getSystemTheme(): ResolvedTheme {
     ? 'dark'
     : 'light'
 }
+

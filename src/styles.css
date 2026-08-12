@@ -398,18 +398,73 @@ code {
   --chat-sphere-gradient: linear-gradient(155deg, #b32d2d, #f05252);
 }
 
+/* ── Theme toggle delight ─────────────────────────────────────────────────
+   One-shot springy pop + expanding ring on the navbar sun/moon button. The
+   attribute is (re)set per click by ThemeToggle; `both` keeps the ring's final
+   (invisible) frame so it doesn't linger once done. */
+@keyframes theme-toggle-pop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(0.8) rotate(-8deg);
+  }
+  70% {
+    transform: scale(1.15) rotate(4deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes theme-toggle-ring {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+[data-theme-toggle-pop] {
+  animation: theme-toggle-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[data-theme-toggle-pop]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid var(--brand);
+  pointer-events: none;
+  animation: theme-toggle-ring 0.55s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme-toggle-pop] {
+    animation: none;
+  }
+  [data-theme-toggle-pop]::after {
+    display: none;
+  }
+}
+
 /* Smooth cross-theme fade. Scoped to color properties so layout never shifts,
-   and disabled under reduced-motion. */
+   and disabled under reduced-motion. Kept SHORT on purpose: it exists to take
+   the flash out of the theme flip, not to be a set piece — longer runs read
+   as lag. Keep in lockstep with the removal timer in ThemeProvider. */
 @media (prefers-reduced-motion: no-preference) {
   html[data-theme-transition] *,
   html[data-theme-transition] *::before,
   html[data-theme-transition] *::after {
     transition:
-      background-color 0.35s ease,
-      border-color 0.35s ease,
-      color 0.35s ease,
-      fill 0.35s ease,
-      stroke 0.35s ease;
+      background-color 0.15s ease-out,
+      border-color 0.15s ease-out,
+      color 0.15s ease-out,
+      fill 0.15s ease-out,
+      stroke 0.15s ease-out;
   }
 }
 
