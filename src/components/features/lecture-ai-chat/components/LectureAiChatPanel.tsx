@@ -174,10 +174,12 @@ export function LectureAiChatPanel({
         </div>
       ) : (
         <LectureAiChatMessageList
+          lectureId={lectureId}
           messages={chat.messages}
           isSending={chat.isSending}
           onRetry={chat.retryLast}
           onSuggestion={(text) => chat.sendMessage(text)}
+          onSubmitPracticeQuestionAnswers={chat.submitPracticeQuestionAnswers}
           containScroll={containScroll}
         />
       )}

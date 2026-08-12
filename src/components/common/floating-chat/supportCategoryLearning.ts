@@ -99,9 +99,9 @@ export function supportAssignmentPriorityChipClassName(
   priority: 'optional' | 'mandatory',
 ): string {
   if (priority === 'mandatory') {
-    return 'text-[#b42318] bg-[#fee4e2] ring-1 ring-[#fecdca]'
+    return 'text-[#b42318] bg-[#fee4e2] ring-1 ring-[#fecdca] dark:text-danger-subtle-foreground dark:bg-danger-subtle dark:ring-danger/40'
   }
-  return 'text-[#b54708] bg-[#fffaeb]'
+  return 'text-[#b54708] bg-[#fffaeb] dark:text-warning-subtle-foreground dark:bg-warning-subtle'
 }
 
 /** Compact schedule line for support floater list + detail cards (client-side). */

@@ -10,6 +10,8 @@ const hoisted = vi.hoisted(() => ({
   createAssignment: vi.fn(),
   createProfile: vi.fn(),
   createUserDeviceToken: vi.fn(),
+  createDiscussion: vi.fn(),
+  createThread: vi.fn(),
 }))
 
 vi.mock('../../factories/index.ts', () => ({
@@ -22,6 +24,8 @@ vi.mock('../../factories/index.ts', () => ({
   createAssignment: hoisted.createAssignment,
   createProfile: hoisted.createProfile,
   createUserDeviceToken: hoisted.createUserDeviceToken,
+  createDiscussion: hoisted.createDiscussion,
+  createThread: hoisted.createThread,
 }))
 
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
@@ -43,11 +47,18 @@ describe('buildLiveLecturePhasesWorld', () => {
     vi.clearAllMocks()
 
     hoisted.createUser.mockImplementation(
-      async (input: { email?: string; name?: string }) => ({
-        id: input.email?.includes('admin') ? 1 : 2,
-        email: input.email,
-        name: input.name ?? 'Test',
-      }),
+      async (input: { email?: string; name?: string }) => {
+        const email = input.email ?? ''
+        let id = 2
+        if (email.includes('admin')) id = 1
+        else if (email.includes('student2')) id = 3
+        else if (email.includes('student3')) id = 4
+        return {
+          id,
+          email: input.email,
+          name: input.name ?? 'Test',
+        }
+      },
     )
     hoisted.createBatch.mockResolvedValue({ id: 10 })
     hoisted.createSection.mockImplementation(
@@ -68,6 +79,16 @@ describe('buildLiveLecturePhasesWorld', () => {
     })
     hoisted.createProfile.mockResolvedValue({ id: 70, userId: 2 })
     hoisted.createUserDeviceToken.mockResolvedValue({ id: 80, userId: 2 })
+    let discussionId = 200
+    hoisted.createDiscussion.mockImplementation(async (input: any) => ({
+      id: discussionId++,
+      ...input,
+    }))
+    let threadId = 300
+    hoisted.createThread.mockImplementation(async (input: any) => ({
+      id: threadId++,
+      ...input,
+    }))
 
     let lectureId = 100
     hoisted.createLecture.mockImplementation(
@@ -102,11 +123,11 @@ describe('buildLiveLecturePhasesWorld', () => {
     const world = await buildLiveLecturePhasesWorld('live-lecture-phases')
 
     expect(hoisted.createSection).toHaveBeenCalledTimes(3)
-    expect(hoisted.createEnrollment).toHaveBeenCalledTimes(3)
-    // 11 primary variants + OFF associated + ON associated live + ON associated notes
-    expect(hoisted.createLecture).toHaveBeenCalledTimes(14)
-    // attendance-ON summary/transcript + the two transcript-QA lectures
-    expect(hoisted.createLecturesAi).toHaveBeenCalledTimes(3)
+    expect(hoisted.createEnrollment).toHaveBeenCalledTimes(5)
+    // 11 primary variants + operators lecture + OFF associated + ON associated live + ON associated notes
+    expect(hoisted.createLecture).toHaveBeenCalledTimes(15)
+    // attendance-ON summary/transcript + the two transcript-QA lectures + operators lecture
+    expect(hoisted.createLecturesAi).toHaveBeenCalledTimes(4)
     expect(world.lectures.transcriptSegmented.title).toContain(
       'timestamped segments',
     )
@@ -327,6 +348,44 @@ describe('buildLiveLecturePhasesWorld', () => {
     expect(aiCall?.transcript).toContain('closure')
   })
 
+  it('seeds an "Operators in JavaScript" lecture with a small transcript and summary', async () => {
+    const world = await buildLiveLecturePhasesWorld('live-lecture-phases')
+
+    expect(hoisted.createLecture).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Operators in JavaScript',
+        type: 'video',
+        optional: 0,
+        vimeoDownloadLinks: {
+          gumlet: { hls_url: LIVE_LECTURE_RECORDING_HLS_URL },
+        },
+      }),
+    )
+
+    const aiCall = hoisted.createLecturesAi.mock.calls
+      .map(
+        (call) =>
+          call[0] as {
+            lectureId: number
+            transcript: string
+            transcriptSegments: unknown
+            summary: string
+            isSummaryPublished: number
+          },
+      )
+      .find(
+        (input) => input.lectureId === world.lectures.operatorsInJavascript.id,
+      )
+
+    expect(aiCall?.transcript).toContain('operators')
+    expect(aiCall?.summary).toContain('AI summary')
+    expect(aiCall?.isSummaryPublished).toBe(1)
+    expect(
+      (aiCall?.transcriptSegments as Array<unknown>).length,
+    ).toBeGreaterThan(0)
+    expect(world.operatorsExtras.lecturesAi).toBeDefined()
+  })
+
   it('seeds a plain-text-only transcript lecture for the fallback path', async () => {
     const world = await buildLiveLecturePhasesWorld('live-lecture-phases')
 
@@ -477,6 +536,16 @@ describe('seedLiveLecturePhases', () => {
         email: 'student@example.com',
         name: 'Student',
       })
+      .mockResolvedValueOnce({
+        id: 3,
+        email: 'student2@example.com',
+        name: 'Student Two',
+      })
+      .mockResolvedValueOnce({
+        id: 4,
+        email: 'student3@example.com',
+        name: 'Student Three',
+      })
     hoisted.createBatch.mockResolvedValue({ id: 10 })
     hoisted.createSection.mockResolvedValue({ id: 20 })
     hoisted.createEnrollment.mockResolvedValue({ id: 30 })
@@ -484,6 +553,17 @@ describe('seedLiveLecturePhases', () => {
     hoisted.createAssignment.mockResolvedValue({ id: 50 })
     hoisted.createProfile.mockResolvedValue({ id: 70 })
     hoisted.createUserDeviceToken.mockResolvedValue({ id: 80 })
+
+    let discussionId = 200
+    hoisted.createDiscussion.mockImplementation(async (input: any) => ({
+      id: discussionId++,
+      ...input,
+    }))
+    let threadId = 300
+    hoisted.createThread.mockImplementation(async (input: any) => ({
+      id: threadId++,
+      ...input,
+    }))
 
     let lectureId = 100
     hoisted.createLecture.mockImplementation(
@@ -498,7 +578,7 @@ describe('seedLiveLecturePhases', () => {
     const result = await seedLiveLecturePhases()
 
     expect(result.flowId).toBe('live-lecture-phases')
-    expect(result.testUsers).toHaveLength(2)
+    expect(result.testUsers).toHaveLength(4)
     expect(result.timing).toMatchObject({
       beforeUnlockSchedule: expect.stringMatching(
         /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,

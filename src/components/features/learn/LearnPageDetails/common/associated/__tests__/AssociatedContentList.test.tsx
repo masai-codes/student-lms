@@ -78,7 +78,7 @@ describe('AssociatedContentList', () => {
     )
     expect(within(lectureSection).getByText('Lecture Two')).toBeTruthy()
     const link = within(lectureSection).getByText('Lecture Two').closest('a')
-    expect(link?.getAttribute('to')).toBe('/lectures/$lectureId')
+    expect(link?.getAttribute('to')).toBe('/learn/lectures/$lectureId')
   })
 
   it('omits a section with no items for that kind', () => {

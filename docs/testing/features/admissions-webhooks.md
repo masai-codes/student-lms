@@ -23,8 +23,8 @@
 - **IIT Jodhpur (new-LMS-only portal):** `create-enrolment` with `isiitj: true` resolves to
   `client: 'iitj'`, and `steps/applyPortalNewLmsDefaults.ts` then defaults that student's
   `users.meta` to `new_lms_pages_enabled: true` (migrated pages served by this app) plus
-  `hide_switch_option: true` (no old↔new switch CTA in *either* LMS — experience-ui reads the
-  same key off the `me` payload's `meta`). It runs on create *and* revive so a pre-existing iitj
+  `hide_switch_option: true` (no old↔new switch CTA in _either_ LMS — experience-ui reads the
+  same key off the `me` payload's `meta`). It runs on create _and_ revive so a pre-existing iitj
   user is backfilled on their next enrolment, and only ever fills in absent keys so a deliberate
   override survives. No-op for masai / iHub. `updateNewLmsPagesPreference` also refuses to move a
   `hide_switch_option` user, so a hand-crafted API call can't strand them on the old LMS.
@@ -48,9 +48,9 @@
 | ADM-010 | Transfer events (considered / rejected / completed)                      | Correct `status` + `payloadType` recorded; missing `to_batch_id` → 400 `INVALID_ENROLMENT_PAYLOAD`                                      |
 | ADM-011 | `lms.invoice.generated` / `lms.fee.deadline.updated` without their value | 400 `INVALID_ENROLMENT_PAYLOAD`, no write                                                                                               |
 | ADM-012 | `invalidatePortalEnrollmentCache(7)`                                     | One `cacheDel` with `enrolledBatchIds` + `enrolledSectionIds` + legacy `allowedBatchIds` for every portal in `ENROLLMENT_CACHE_PORTALS` |
-| ADM-013 | `create-enrolment` with `isiitj: true`                                   | `applyPortalNewLmsDefaults` called with `client: 'iitj'` inside the transaction; sets `new_lms_pages_enabled` + `hide_switch_option`     |
-| ADM-014 | `create-enrolment` for masai / iHub                                      | `applyPortalNewLmsDefaults` receives the resolved client and no-ops — it never even reads the user row                                   |
-| ADM-015 | iitj user whose meta already has one of the two flags                    | Only the absent key is filled; an explicit existing value (e.g. a support override) is preserved                                         |
+| ADM-013 | `create-enrolment` with `isiitj: true`                                   | `applyPortalNewLmsDefaults` called with `client: 'iitj'` inside the transaction; sets `new_lms_pages_enabled` + `hide_switch_option`    |
+| ADM-014 | `create-enrolment` for masai / iHub                                      | `applyPortalNewLmsDefaults` receives the resolved client and no-ops — it never even reads the user row                                  |
+| ADM-015 | iitj user whose meta already has one of the two flags                    | Only the absent key is filled; an explicit existing value (e.g. a support override) is preserved                                        |
 | ADM-016 | iitj user whose meta already has both flags                              | No `UPDATE` issued at all                                                                                                               |
 
 ## Commands

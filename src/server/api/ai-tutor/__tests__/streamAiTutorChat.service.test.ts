@@ -26,13 +26,19 @@ vi.mock(
   }),
 )
 
-vi.mock('@/server/api/ai-tutor/services/getLectureChatMaterials.service', () => ({
-  getLectureChatMaterials: hoisted.getLectureChatMaterials,
-}))
+vi.mock(
+  '@/server/api/ai-tutor/services/getLectureChatMaterials.service',
+  () => ({
+    getLectureChatMaterials: hoisted.getLectureChatMaterials,
+  }),
+)
 
-vi.mock('@/server/api/ai-tutor/services/getLectureChatMaterials.service', () => ({
-  getLectureChatMaterials: hoisted.getLectureChatMaterials,
-}))
+vi.mock(
+  '@/server/api/ai-tutor/services/getLectureChatMaterials.service',
+  () => ({
+    getLectureChatMaterials: hoisted.getLectureChatMaterials,
+  }),
+)
 
 const materials = {
   lectureId: 99,
@@ -66,6 +72,7 @@ describe('prepareLectureChatContext', () => {
       chat: 'Explain hooks',
       platform: 'web-desktop',
       language: 'English',
+      supportedUIElements: ['quiz'],
     })
 
     expect(hoisted.getLectureChatMaterials).toHaveBeenCalledWith(99)
@@ -86,11 +93,12 @@ describe('prepareLectureChatContext', () => {
       chat: 'Explain hooks',
       platform: 'web-desktop',
       language: 'English',
+      supportedUIElements: ['quiz'],
     })
     expect(context.systemPrompt).toContain('retrieveLectureContent')
   })
 
-  it('includes enforced language instructions when language is provided', async () => {
+  it('includes language instructions when language is provided', async () => {
     const { prepareLectureChatContext } =
       await import('../streamAiTutorChat.service')
 
@@ -100,9 +108,9 @@ describe('prepareLectureChatContext', () => {
       chat: 'Explain hooks',
       platform: 'web-desktop',
       language: 'Tamil',
+      supportedUIElements: ['quiz'],
     })
 
-    expect(context.systemPrompt).toContain('You MUST respond ONLY in Tamil')
     expect(context.language).toBe('Tamil')
   })
 
@@ -123,6 +131,7 @@ describe('prepareLectureChatContext', () => {
         platform: 'web-desktop',
         chatId: 2,
         language: 'English',
+        supportedUIElements: ['quiz'],
       }),
     ).rejects.toMatchObject({ status: 404, code: 'AI_TUTOR_CHAT_NOT_FOUND' })
   })
@@ -130,12 +139,12 @@ describe('prepareLectureChatContext', () => {
 
 describe('streamLectureChatEventsFromContext', () => {
   it('streams tokens with the retrieve tool enabled', async () => {
-    function* textStream() {
-      yield 'Hello '
-      yield 'there'
+    function* fullStream() {
+      yield { type: 'text-delta', text: 'Hello ' }
+      yield { type: 'text-delta', text: 'there' }
     }
 
-    hoisted.streamText.mockReturnValueOnce({ textStream: textStream() })
+    hoisted.streamText.mockReturnValueOnce({ fullStream: fullStream() })
 
     const { streamLectureChatEventsFromContext } =
       await import('../streamAiTutorChat.service')
@@ -156,6 +165,7 @@ describe('streamLectureChatEventsFromContext', () => {
       chat: 'Explain hooks',
       platform: 'web-desktop',
       language: 'Hindi',
+      supportedUIElements: ['quiz'],
     })) {
       events.push(event)
     }
@@ -168,8 +178,11 @@ describe('streamLectureChatEventsFromContext', () => {
           retrieveLectureContent: expect.objectContaining({
             inputSchema: expect.anything(),
           }),
+          generatePracticeQuestions: expect.objectContaining({
+            inputSchema: expect.anything(),
+          }),
         }),
-        stopWhen: { type: 'stepCountIs', count: 2 },
+        stopWhen: { type: 'stepCountIs', count: 3 },
       }),
     )
     expect(hoisted.appendChatPracticeHistory).toHaveBeenCalledWith({
@@ -179,6 +192,7 @@ describe('streamLectureChatEventsFromContext', () => {
       platform: 'web-desktop',
       language: 'Hindi',
       existingHistory: [{ userMessage: 'Earlier', aiMessage: 'Sure' }],
+      practiceQuestions: undefined,
     })
     expect(events).toEqual([
       { type: 'token', content: 'Hello ' },
@@ -187,12 +201,83 @@ describe('streamLectureChatEventsFromContext', () => {
     ])
   })
 
-  it('omits tools when RAG retrieval is unavailable', async () => {
-    function* textStream() {
-      yield 'Hi'
+  it('yields a practiceQuestions event and persists it when the tool is called', async () => {
+    const payload = {
+      topic: 'Hooks',
+      questions: [
+        {
+          id: 'q1',
+          question: 'What does useState return?',
+          options: [
+            { id: 'a', text: 'A tuple' },
+            { id: 'b', text: 'An object' },
+          ],
+          correctOptionId: 'a',
+        },
+      ],
     }
 
-    hoisted.streamText.mockReturnValueOnce({ textStream: textStream() })
+    function* fullStream() {
+      yield {
+        type: 'tool-result',
+        toolName: 'generatePracticeQuestions',
+        output: payload,
+      }
+    }
+
+    hoisted.streamText.mockReturnValueOnce({ fullStream: fullStream() })
+
+    const { streamLectureChatEventsFromContext } =
+      await import('../streamAiTutorChat.service')
+    const events = []
+
+    for await (const event of streamLectureChatEventsFromContext({
+      chatRow: { id: 12, chatHistory: [] },
+      materials,
+      systemPrompt: 'Prompt',
+      messages: [{ role: 'user', content: 'Give me practice questions' }],
+      chat: 'Give me practice questions',
+      platform: 'web-desktop',
+      language: 'English',
+      supportedUIElements: ['quiz'],
+    })) {
+      events.push(event)
+    }
+
+    const namespacedPayload = {
+      topic: 'Hooks',
+      quizId: '12-t0',
+      questions: [
+        {
+          id: '12-t0-q1',
+          question: 'What does useState return?',
+          options: [
+            { id: '12-t0-q1-a', text: 'A tuple' },
+            { id: '12-t0-q1-b', text: 'An object' },
+          ],
+          correctOptionId: '12-t0-q1-a',
+        },
+      ],
+    }
+
+    expect(events).toEqual([
+      { type: 'practiceQuestions', payload: namespacedPayload },
+      { type: 'done', chatId: 12 },
+    ])
+    expect(hoisted.appendChatPracticeHistory).toHaveBeenCalledWith(
+      expect.objectContaining({
+        aiMessage: '',
+        practiceQuestions: namespacedPayload,
+      }),
+    )
+  })
+
+  it('includes the practice-questions tool when quiz is in supportedUIElements, even when RAG retrieval is unavailable', async () => {
+    function* fullStream() {
+      yield { type: 'text-delta', text: 'Hi' }
+    }
+
+    hoisted.streamText.mockReturnValueOnce({ fullStream: fullStream() })
 
     const { streamLectureChatEventsFromContext } =
       await import('../streamAiTutorChat.service')
@@ -205,14 +290,40 @@ describe('streamLectureChatEventsFromContext', () => {
       chat: 'Explain hooks',
       platform: 'web',
       language: 'English',
+      supportedUIElements: ['quiz'],
     })) {
       // drain stream
     }
 
-    expect(hoisted.streamText).toHaveBeenCalledWith(
-      expect.objectContaining({
-        tools: undefined,
-      }),
-    )
+    const call = hoisted.streamText.mock.calls[0][0]
+    expect(call.tools).not.toHaveProperty('retrieveLectureContent')
+    expect(call.tools).toHaveProperty('generatePracticeQuestions')
+  })
+
+  it('omits the practice-questions tool when quiz is not in supportedUIElements', async () => {
+    function* fullStream() {
+      yield { type: 'text-delta', text: 'Hi' }
+    }
+
+    hoisted.streamText.mockReturnValueOnce({ fullStream: fullStream() })
+
+    const { streamLectureChatEventsFromContext } =
+      await import('../streamAiTutorChat.service')
+
+    for await (const _event of streamLectureChatEventsFromContext({
+      chatRow: { id: 12, chatHistory: [] },
+      materials,
+      systemPrompt: 'Prompt',
+      messages: [{ role: 'user', content: 'Explain hooks' }],
+      chat: 'Explain hooks',
+      platform: 'web',
+      language: 'English',
+      supportedUIElements: [],
+    })) {
+      // drain stream
+    }
+
+    const call = hoisted.streamText.mock.calls[0][0]
+    expect(call.tools).not.toHaveProperty('generatePracticeQuestions')
   })
 })

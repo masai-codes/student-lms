@@ -3,11 +3,17 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter, useRouterState } from '@tanstack/react-router'
-import { Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 import { Modal, ModalContent } from '@/components/ui/modal'
+import { Switch } from '@/components/ui/switch'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { setNewLmsPagesPreference } from '@/lib/api/profile/profileApi'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
+import { mapToLegacyPath } from '@/utils/legacyPathMap'
 import { isMigratedRoute } from '@/utils/migratedRoutes'
 
 /**
@@ -36,10 +42,11 @@ export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
       setEnabled(value)
       setFeedbackOpen(false)
       setFeedback('')
-      // Turned OFF on a migrated page → the old LMS now owns it: hand off to the
-      // same path (no search — the old LMS regenerates its own query params).
+      // Turned OFF on a migrated page → the old LMS now owns it: hand off to
+      // its equivalent path (no search — the old LMS regenerates its own query
+      // params). `mapToLegacyPath` covers the routes whose shape differs there.
       if (!value && isMigratedRoute(pathname)) {
-        const oldUiUrl = getOldStudentUiUrlForPath(pathname)
+        const oldUiUrl = getOldStudentUiUrlForPath(mapToLegacyPath(pathname))
         if (oldUiUrl) {
           window.location.assign(oldUiUrl)
           return
@@ -58,9 +65,9 @@ export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
     },
   })
 
-  function handleClick() {
+  function handleToggle(next: boolean) {
     if (isPending) return
-    if (enabled) {
+    if (!next) {
       // Switching back to old → collect optional feedback first.
       setFeedback('')
       setFeedbackOpen(true)
@@ -75,22 +82,25 @@ export function TryNewToggle({ initialEnabled }: { initialEnabled: boolean }) {
     mutate({ enabled: false, feedback: feedback.trim() || undefined })
   }
 
-  const label = enabled ? 'Switch to old' : 'Try New'
-
   return (
     <>
-      <button
-        type="button"
-        data-tour-target="try-new"
-        aria-label={enabled ? 'Switch to the old experience' : 'Try the new experience'}
-        title={label}
-        disabled={isPending}
-        onClick={handleClick}
-        className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-brand/30 bg-brand-subtle px-3 py-1.5 text-sm font-semibold text-brand-subtle-foreground transition-colors hover:bg-brand/10 disabled:opacity-60"
-      >
-        <Sparkles className="size-4" aria-hidden />
-        <span>{label}</span>
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
+            data-tour-target="try-new"
+            data-testid="navbar-try-new"
+            className="inline-flex shrink-0 items-center"
+          >
+            <Switch
+              checked={enabled}
+              onCheckedChange={handleToggle}
+              disabled={isPending}
+              aria-label="Switch to Old UI"
+            />
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>Switch to Old UI</TooltipContent>
+      </Tooltip>
 
       <Modal
         open={feedbackOpen}

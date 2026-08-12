@@ -196,7 +196,8 @@ export function MasaiDateRangePicker({
                   // Square, fluid cell so the 7-column grid fits any container
                   // width (narrow filter drawers included) without overflowing.
                   'relative grid aspect-square min-w-0 place-items-center',
-                  inBand && 'bg-[color:var(--range)]',
+                  // Dark swaps the light-only ACCENT_SOFT band for the themed wash.
+                  inBand && 'bg-[color:var(--range)] dark:bg-brand-subtle',
                   inBand && roundLeft && 'rounded-l-full',
                   inBand && roundRight && 'rounded-r-full',
                 )}
@@ -213,7 +214,12 @@ export function MasaiDateRangePicker({
                   aria-pressed={isEndpoint}
                   className={cn(
                     'grid aspect-square size-full max-h-9 max-w-9 place-items-center rounded-full text-sm transition-colors',
-                    inMonth ? 'text-slate-700' : 'text-slate-300',
+                    // Gated on !isEndpoint: an unguarded `dark:text-*` would win
+                    // over the endpoint's unprefixed `text-brand-foreground` in dark.
+                    !isEndpoint &&
+                      (inMonth
+                        ? 'text-slate-700 dark:text-foreground'
+                        : 'text-slate-300 dark:text-foreground-subtle'),
                     !isEndpoint && 'hover:bg-surface-muted',
                     !isEndpoint &&
                       isToday &&

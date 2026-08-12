@@ -29,12 +29,12 @@ export function Toggle({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-[26px] w-[46px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 ${
-        checked ? 'bg-brand' : 'bg-gray-300'
+      className={`relative inline-flex h-[26px] w-[46px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background ${
+        checked ? 'bg-brand' : 'bg-gray-300 dark:bg-border-strong'
       }`}
     >
       <span
-        className={`pointer-events-none inline-block size-[22px] rounded-full bg-surface shadow-sm ring-0 transition-transform duration-200 ${
+        className={`pointer-events-none inline-block size-[22px] rounded-full bg-surface dark:bg-foreground shadow-sm ring-0 transition-transform duration-200 ${
           checked ? 'translate-x-5' : 'translate-x-0'
         }`}
       />

@@ -36,6 +36,8 @@ export type MasaiSelectDropdownProps = {
   contentAlign?: 'start' | 'center' | 'end'
   sideOffset?: number
   ['aria-label']?: string
+  /** `plain` drops the rounded blue chevron badge in favour of a bare icon. */
+  chevronVariant?: 'badge' | 'plain'
 }
 
 /**
@@ -55,6 +57,7 @@ export function MasaiSelectDropdown({
   contentAlign = 'start',
   sideOffset = 8,
   ['aria-label']: ariaLabel,
+  chevronVariant = 'badge',
 }: MasaiSelectDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const selected = options.find((option) => option.value === value)
@@ -70,7 +73,7 @@ export function MasaiSelectDropdown({
             className={cn(
               'group flex min-h-[44px] min-w-[150px] max-w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-2 text-left transition-all duration-200',
               'hover:-translate-y-px hover:border-brand/35 hover:bg-surface-muted',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               'active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 data-[state=open]:border-brand/40',
               triggerClassName,
             )}
@@ -86,7 +89,12 @@ export function MasaiSelectDropdown({
               </span>
             </span>
             <span
-              className="flex shrink-0 items-center justify-center rounded-full bg-blue-50 p-1.5 text-blue-500 transition-colors group-hover:bg-blue-100 dark:bg-info-subtle dark:text-info-subtle-foreground dark:group-hover:bg-info-subtle"
+              className={cn(
+                'flex shrink-0 items-center justify-center transition-colors',
+                chevronVariant === 'badge'
+                  ? 'rounded-full bg-blue-50 p-1.5 text-blue-500 group-hover:bg-blue-100 dark:bg-info-subtle dark:text-info-subtle-foreground dark:group-hover:bg-info-subtle'
+                  : 'text-foreground-muted',
+              )}
               aria-hidden
             >
               <ChevronDown

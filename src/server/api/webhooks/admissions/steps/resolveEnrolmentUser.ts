@@ -3,6 +3,10 @@ import { and, eq } from 'drizzle-orm'
 
 import { users } from '@/db/schema'
 import { logger } from '@/lib/logger'
+import {
+  HIDE_SWITCH_OPTION_META_KEY,
+  NEW_LMS_PAGES_META_KEY,
+} from '@/server/api/profile/newLmsPreference.service'
 import type {
   CreateEnrolmentInput,
   DbTransaction,
@@ -13,9 +17,20 @@ const BCRYPT_COST = 10
 const FN = 'resolveEnrolmentUser'
 
 /**
+ * Every student created here starts on the new LMS with no way back: the new
+ * pages come from this app and neither LMS offers a switch. Applies to all
+ * clients — `applyPortalNewLmsDefaults` still backfills *existing* iitj users.
+ */
+const NEW_STUDENT_META = {
+  [NEW_LMS_PAGES_META_KEY]: true,
+  [HIDE_SWITCH_OPTION_META_KEY]: true,
+} as const
+
+/**
  * Find the student for this enrolment by the `(email, client)` pair. If one
  * already exists we reuse it untouched; otherwise we create a fresh `student`
- * user with a bcrypt-hashed password. Returns the resolved user id.
+ * user with a bcrypt-hashed password and the new-LMS-only meta flags. Returns
+ * the resolved user id.
  */
 export async function resolveEnrolmentUser(
   tx: DbTransaction,
@@ -50,6 +65,7 @@ export async function resolveEnrolmentUser(
     mobile: input.mobile,
     role: 'student',
     client,
+    meta: { ...NEW_STUDENT_META },
     createdAt: now,
     updatedAt: now,
   })

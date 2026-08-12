@@ -23,7 +23,9 @@ export function QuickQuerySelector({
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center py-8">
-        <p className="text-[13px] text-[#62647d]">Loading common questions…</p>
+        <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
+          Loading common questions…
+        </p>
       </div>
     )
   }
@@ -31,14 +33,14 @@ export function QuickQuerySelector({
   if (isError) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
-        <p className="text-[13px] text-[#62647d]">
+        <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
           Couldn&apos;t load common questions.
         </p>
         {onRetry && (
           <button
             type="button"
             onClick={onRetry}
-            className="rounded-[10px] border border-[#e9e9f3] bg-white px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
+            className="rounded-[10px] border border-[#e9e9f3] dark:border-border bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] dark:text-foreground hover:bg-[#f0f0fd] dark:hover:bg-accent"
           >
             Try again
           </button>
@@ -55,15 +57,15 @@ export function QuickQuerySelector({
             key={query.value}
             type="button"
             onClick={() => onSelect(query)}
-            className="group flex shrink-0 items-center gap-[13px] p-[13px_12px] bg-white border border-[#e9e9f3] rounded-[14px] text-left hover:bg-[rgba(75,67,150,0.03)] hover:border-[#4b4396]/30 hover:translate-x-0.5 transition-all duration-150 ease-out"
+            className="group flex shrink-0 items-center gap-[13px] p-[13px_12px] bg-surface border border-[#e9e9f3] dark:border-border rounded-[14px] text-left hover:bg-[rgba(75,67,150,0.03)] dark:hover:bg-brand/10 hover:border-[#4b4396]/30 dark:hover:border-brand/40 hover:translate-x-0.5 transition-all duration-150 ease-out"
           >
-            <div className="flex items-center justify-center shrink-0 size-[38px] rounded-[11px] bg-[rgba(75,67,150,0.06)] text-[#4b4396]">
+            <div className="flex items-center justify-center shrink-0 size-[38px] rounded-[11px] bg-[rgba(75,67,150,0.06)] dark:bg-brand/15 text-[#4b4396] dark:text-brand">
               <Question weight="fill" className="size-[19px]" />
             </div>
-            <span className="flex-1 block text-[12.5px] font-semibold text-[#15162c] leading-snug">
+            <span className="flex-1 block text-[12.5px] font-semibold text-[#15162c] dark:text-foreground leading-snug">
               {query.label}
             </span>
-            <div className="shrink-0 text-[#9496ab] group-hover:text-[#4b4396] transition-colors">
+            <div className="shrink-0 text-[#9496ab] dark:text-foreground-subtle group-hover:text-[#4b4396] dark:group-hover:text-brand transition-colors">
               <CaretRight weight="bold" className="size-4" />
             </div>
           </button>

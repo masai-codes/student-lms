@@ -184,8 +184,9 @@ function FeePaymentSlide({
       }`}
     >
       <span className="relative flex size-1.5" aria-hidden>
-        <span className="absolute inline-flex size-full animate-ping rounded-full bg-surface opacity-75" />
-        <span className="relative inline-flex size-1.5 rounded-full bg-surface" />
+        {/* Constant white: this dot sits on a solid colored pill, not a themed surface. */}
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-white opacity-75" />
+        <span className="relative inline-flex size-1.5 rounded-full bg-white" />
       </span>
       {banner.type === 'timer'
         ? timerLabel(banner)
@@ -207,7 +208,7 @@ function FeePaymentSlide({
         })
       }
       aria-disabled={banner.paymentUrl === null}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-brand-foreground shadow-sm transition-colors hover:bg-[#4d3b77] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+      className={`inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-brand-foreground shadow-sm transition-colors hover:bg-[#4d3b77] dark:hover:bg-brand/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
         compact ? 'w-full' : 'shrink-0'
       } ${banner.paymentUrl === null ? 'pointer-events-none opacity-50' : ''}`}
     >

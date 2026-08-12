@@ -24,6 +24,8 @@ export const AI_TUTOR_RAG_RETRIEVE_TOP_K_MAX = 6
 
 export const AI_TUTOR_LECTURE_RAG_TOOL_NAME = 'retrieveLectureContent'
 
+export const AI_TUTOR_PRACTICE_QUESTIONS_TOOL_NAME = 'generatePracticeQuestions'
+
 export const AI_TUTOR_NOTES_TOC_SYSTEM_PROMPT = `You create a concise table of contents for instructor lecture notes written in Markdown.
 
 Return ONLY the outline as plain text. Use indentation or bullets to show sections and subsections.
@@ -40,20 +42,27 @@ Choose \`top_k\` based on how many excerpts you need (typically 3–8).
 Do NOT call the tool for greetings, acknowledgments, or questions already answerable from the summary or inline notes.
 If the tool is unavailable or returns nothing, do not invent lecture-specific details.`
 
+export const AI_TUTOR_PRACTICE_QUESTIONS_GUIDANCE = `## Practice questions
+When the student asks for practice questions, quiz questions, or to test their understanding of this lecture, call the \`${AI_TUTOR_PRACTICE_QUESTIONS_TOOL_NAME}\` tool instead of writing the questions as chat text.
+Generate 3-5 multiple-choice questions grounded strictly in this lecture's content, each with exactly one correct option and a short explanation.
+Do not repeat the questions again as plain text after calling the tool — a short one-sentence intro (e.g. "Here are a few to try:") is fine.`
+
+/** Used when the caller's `supportedUIElements` does not include `quiz` — no tool is offered, so the model must write the quiz as chat text. */
+export const AI_TUTOR_PRACTICE_QUESTIONS_PLAIN_TEXT_GUIDANCE = `## Practice questions
+When the student asks for practice questions, quiz questions, or to test their understanding of this lecture, ask questions one by one.
+Ground every question strictly in this lecture's content.`
+
 /** Mirrors the lecture chat system prompt from experience-api. */
-export const AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE = `You are an AI tutor for ONE specific lecture. Your replies are written for a text chat — be natural, clear, and conversational.
+export const AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE = `You are an AI tutor for ONE specific lecture. Your replies are written for a text chat - be natural, clear, and conversational.
 
 ## Your job
 Help students clear doubts about THIS lecture's content. You are a tutor, not a lecture recorder. Teach concepts; do not merely list what was covered.`
 
 export function buildEnforcedChatLanguageInstruction(language: string): string {
   return `## Language
-The student has selected **${language}** as their preferred language.
-You MUST respond ONLY in ${language} for all explanations and conversational text.
-Do NOT ask which language they prefer — it is already set.
-Keep ALL technical terms, code, keywords, and formulas in English even when explaining in ${language}.
-Never switch to English for explanations unless you are quoting code or naming a technical term.
-If the student writes in another language, still reply in ${language}.`
+The student has selected **${language}** as their preferred language, try sticking to that, unless user asks question in another language or asks you to respond in a particular language.
+Do NOT ask which language they prefer - it is already set.
+Keep ALL technical terms, code, keywords, and formulas in English even when explaining in their selected language.`
 }
 
 export const AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE = `## How to respond by question type

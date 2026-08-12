@@ -65,8 +65,7 @@ export function FloatingChatSphere({
           className,
         )}
         style={{
-          background:
-            'linear-gradient(155deg, rgb(75, 67, 150), rgb(105, 98, 172))',
+          background: 'var(--chat-sphere-gradient)',
         }}
         aria-label={isOpen ? 'Close support' : 'Open support'}
       >

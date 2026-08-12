@@ -1,6 +1,7 @@
 'use client'
 
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { ChevronDown } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
@@ -47,30 +48,40 @@ export function NavbarProfileMenu({
         <DropdownMenu.Trigger asChild>
           <button
             type="button"
-            className="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-border bg-surface text-sm font-medium text-foreground shadow-none outline-none ring-offset-background transition-colors hover:bg-accent hover:shadow-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 data-[state=open]:ring-2 data-[state=open]:ring-ring data-[state=open]:ring-offset-0"
+            data-testid="navbar-profile-trigger"
+            className="group inline-flex cursor-pointer items-center gap-1 rounded-full p-0.5 pr-1 text-foreground shadow-none outline-none ring-offset-background transition-colors hover:bg-surface-muted hover:shadow-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 data-[state=open]:ring-2 data-[state=open]:ring-ring data-[state=open]:ring-offset-0"
             aria-label={label}
             suppressHydrationWarning
           >
-            {profile.avatarSrc ? (
-              <img
-                src={profile.avatarSrc}
-                alt={profile.avatarAlt ?? 'Profile photo'}
-                className="size-full rounded-full object-cover"
-                loading="lazy"
-                decoding="async"
-                suppressHydrationWarning
-              />
-            ) : (
-              <span aria-hidden="true">
-                {initials(profile.fallbackText ?? profile.avatarAlt ?? 'User')}
-              </span>
-            )}
+            <span className="inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-surface text-[12px] font-semibold">
+              {profile.avatarSrc ? (
+                <img
+                  src={profile.avatarSrc}
+                  alt={profile.avatarAlt ?? 'Profile photo'}
+                  className="size-full rounded-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  suppressHydrationWarning
+                />
+              ) : (
+                <span aria-hidden="true">
+                  {initials(
+                    profile.fallbackText ?? profile.avatarAlt ?? 'User',
+                  )}
+                </span>
+              )}
+            </span>
+            <ChevronDown
+              className="size-4 shrink-0 text-foreground-muted transition-transform group-data-[state=open]:rotate-180"
+              aria-hidden="true"
+            />
           </button>
         </DropdownMenu.Trigger>
 
         <DropdownMenu.Portal>
           <DropdownMenu.Content
             className={menuContentClassName}
+            data-testid="navbar-profile-menu"
             sideOffset={8}
             align="end"
             collisionPadding={12}
@@ -90,6 +101,7 @@ export function NavbarProfileMenu({
                     openInNewTab={item.openInNewTab}
                     onClick={item.onClick}
                     aria-current={item.isActive ? 'page' : undefined}
+                    data-testid={`navbar-profile-menu-item-${item.id ?? index}`}
                     className={cn(
                       menuItemClassName,
                       item.isActive &&

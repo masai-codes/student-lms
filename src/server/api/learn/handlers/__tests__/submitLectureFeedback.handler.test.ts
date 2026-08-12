@@ -33,20 +33,38 @@ describe('submitLectureFeedback.handler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(requireSessionUserId).mockResolvedValue(7)
-    hoisted.submit.mockResolvedValue({ rating: 5, text: 'Nice' })
+    hoisted.submit.mockResolvedValue({
+      mode: 'zef',
+      rating: 5,
+      text: 'Nice',
+      tags: [],
+    })
   })
 
   it('submits feedback and returns the saved record', async () => {
     const handle = await loadHandler()
-    const res = await handle(request({ rating: 5, feedback: 'Nice' }), '572')
+    const res = await handle(
+      request({
+        rating: 5,
+        feedback: 'Nice',
+        tags: ['Great examples', 'Very engaging'],
+      }),
+      '572',
+    )
 
     expect(res.status).toBe(200)
-    await expect(res.json()).resolves.toEqual({ rating: 5, text: 'Nice' })
+    await expect(res.json()).resolves.toEqual({
+      mode: 'zef',
+      rating: 5,
+      text: 'Nice',
+      tags: [],
+    })
     expect(hoisted.submit).toHaveBeenCalledWith({
       userId: 7,
       lectureId: 572,
       rating: 5,
       text: 'Nice',
+      tags: ['Great examples', 'Very engaging'],
     })
   })
 
@@ -55,8 +73,31 @@ describe('submitLectureFeedback.handler', () => {
     await handle(request({ rating: 4, feedback: '   ' }), '572')
 
     expect(hoisted.submit).toHaveBeenCalledWith(
-      expect.objectContaining({ rating: 4, text: null }),
+      expect.objectContaining({ rating: 4, text: null, tags: [] }),
     )
+  })
+
+  it('dedupes repeated tags', async () => {
+    const handle = await loadHandler()
+    await handle(
+      request({ rating: 1, tags: ['Too fast', 'Too fast', 'Too slow'] }),
+      '572',
+    )
+
+    expect(hoisted.submit).toHaveBeenCalledWith(
+      expect.objectContaining({ tags: ['Too fast', 'Too slow'] }),
+    )
+  })
+
+  it('returns 400 for a tag not in the known set', async () => {
+    const handle = await loadHandler()
+    const res = await handle(
+      request({ rating: 1, tags: ['Not a real tag'] }),
+      '572',
+    )
+
+    expect(res.status).toBe(400)
+    expect(hoisted.submit).not.toHaveBeenCalled()
   })
 
   it('returns 401 when unauthenticated', async () => {

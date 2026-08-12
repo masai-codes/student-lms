@@ -50,9 +50,7 @@ export const SECTION_LABELS: Record<BookmarkFilterSection, string> = {
 const TAB_SECTIONS: Record<BookmarkTab, Array<BookmarkFilterSection>> = {
   lectures: ['category', 'module', 'type', 'date'],
   assignments: ['category', 'module', 'date'],
-  tickets: ['status', 'priority', 'category', 'date'],
   announcements: ['category', 'type', 'date'],
-  masaiverse: ['date'],
 }
 
 export function getBookmarkFilterSections(

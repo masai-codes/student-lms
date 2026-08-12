@@ -4,8 +4,9 @@ import { db } from '@/db'
 import { assignments, batches, submissions, users } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { getExperienceApiBaseUrl } from '@/server/api/http/experienceApiFetch'
+import { buildAssessSectionTiming } from '@/server/assignments/utils/buildAssessSectionTiming'
 import { acquireLock, releaseLock } from '@/server/redis/lock'
-import { getIstNowSqlDatetime, parseIstToMs } from '@/server/time/istClock'
+import { getIstNowSqlDatetime } from '@/server/time/istClock'
 import { ORIGIN_URLS } from '@/utils/originUrls'
 
 /**
@@ -245,38 +246,18 @@ export async function createAssessPlatformUrl(input: {
     }
   }
 
-  // Section-time override for case2 / case3 assignments.
-  let overrideSectionTime: number | undefined
-  if (
-    (assignmentCase === CASE2 || assignmentCase === CASE3) &&
-    sectionDetailTime != null
-  ) {
-    // `concludes` is an IST wall-clock DATETIME string with no zone
-    // (`YYYY-MM-DD HH:MM:SS`). Compare it against "now" in absolute epoch-ms so
-    // the result is correct regardless of the process timezone. The old
-    // `Date.now() + 5.5h` vs `new Date(concludes)` pair was only correct on a
-    // UTC process: on an IST process it double-counts the +5:30 offset, pushing
-    // "now" 5h30m into the future and shrinking remainingSeconds by 19800s.
-    const nowMs = Date.now()
-    const concludesMs = parseIstToMs(assignment.concludes) ?? Number.NaN
-    const remainingSeconds = (concludesMs - nowMs) / 1000
-    const configured = Number(sectionDetailTime)
-
-    if (remainingSeconds > 0 && assignmentCase === CASE2) {
-      overrideSectionTime = Math.min(configured, Math.floor(remainingSeconds))
-      const extended = Number(settings.extended_deadline)
-      if (
-        configured < Math.floor(remainingSeconds) &&
-        Number.isFinite(extended) &&
-        extended > 0
-      ) {
-        overrideSectionTime += extended
-      }
-    }
-    if (remainingSeconds > 0 && assignmentCase === CASE3) {
-      overrideSectionTime = remainingSeconds
-    }
-  }
+  // Section timing for case2 / case3 assignments — including the fixed-duration
+  // `attemptInWindow` override, which takes precedence over the case-based
+  // remaining-time calculation. See buildAssessSectionTiming for the full
+  // rationale.
+  const sectionTiming = buildAssessSectionTiming({
+    assignmentCase,
+    sectionDetailTime,
+    extendedDeadline: settings.extended_deadline,
+    attemptInWindow: settings.attemptInWindow,
+    durationMinutes: settings.duration,
+    concludes: assignment.concludes,
+  })
 
   const userRows = await db
     .select({ email: users.email, username: users.username })
@@ -301,10 +282,7 @@ export async function createAssessPlatformUrl(input: {
     sauTokensToExcludeQuestions,
     ...(assignmentCase === CASE2 || assignmentCase === CASE3
       ? {
-          overrideSectionTime:
-            overrideSectionTime && overrideSectionTime > 0
-              ? overrideSectionTime
-              : 1,
+          ...sectionTiming,
           isAllowAfterDeadline: settings.allow_practice ?? false,
         }
       : {}),

@@ -17,7 +17,8 @@ export function ResourceBodyContent({ detail }: ResourceBodyContentProps) {
       <h2 className="type-h6 inline-flex items-center gap-2 text-foreground">
         <span
           aria-hidden
-          className="h-4 w-1 shrink-0 rounded-full bg-gradient-to-b from-[#4F6BED] to-[#7C3AED]"
+          // Dark lands on the red brand — indigo/purple accents are light-only.
+          className="h-4 w-1 shrink-0 rounded-full bg-gradient-to-b from-[#4F6BED] to-[#7C3AED] dark:bg-none dark:bg-brand"
         />
         Notes
       </h2>

@@ -93,17 +93,17 @@ export function ItemSelector({
 
   return (
     <div className="flex flex-col h-full gap-2">
-      <div className="flex items-center gap-2 bg-[#f1f1f7] rounded-[10px] p-[10px_12px] shrink-0 mb-1">
+      <div className="flex items-center gap-2 bg-[#f1f1f7] dark:bg-muted rounded-[10px] p-[10px_12px] shrink-0 mb-1">
         <MagnifyingGlass
           weight="bold"
-          className="size-4 text-[#9496ab] shrink-0"
+          className="size-4 text-[#9496ab] dark:text-foreground-subtle shrink-0"
         />
         <input
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={`Search ${categoryObj.label.toLowerCase()}s...`}
-          className="flex-1 bg-transparent outline-none border-none text-[13.6px] text-[#15162c] placeholder:text-[#9496ab] font-[inherit]"
+          className="flex-1 bg-transparent outline-none border-none text-[13.6px] text-[#15162c] dark:text-foreground placeholder:text-[#9496ab] dark:placeholder:text-foreground-subtle font-[inherit]"
         />
       </div>
 
@@ -115,7 +115,7 @@ export function ItemSelector({
               value={lectureTypeFilter}
               onValueChange={onLectureTypeChange}
             >
-              <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px]">
+              <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] dark:bg-muted border-transparent hover:bg-[#e3e3fb] dark:hover:bg-brand/15 transition-colors rounded-[10px]">
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent className="z-[300]">
@@ -130,7 +130,7 @@ export function ItemSelector({
               value={attendanceStatusFilter}
               onValueChange={onAttendanceStatusChange}
             >
-              <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px]">
+              <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] dark:bg-muted border-transparent hover:bg-[#e3e3fb] dark:hover:bg-brand/15 transition-colors rounded-[10px]">
                 <SelectValue placeholder="Attendance" />
               </SelectTrigger>
               <SelectContent className="z-[300]">
@@ -152,7 +152,7 @@ export function ItemSelector({
                 value={assignmentPriorityFilter}
                 onValueChange={onAssignmentPriorityChange}
               >
-                <SelectTrigger className="h-[34px] min-w-0 flex-1 text-[12px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px] px-2">
+                <SelectTrigger className="h-[34px] min-w-0 flex-1 text-[12px] bg-[#f1f1f7] dark:bg-muted border-transparent hover:bg-[#e3e3fb] dark:hover:bg-brand/15 transition-colors rounded-[10px] px-2">
                   <SelectValue placeholder="Priority" />
                 </SelectTrigger>
                 <SelectContent className="z-[300]">
@@ -166,7 +166,7 @@ export function ItemSelector({
                 value={assignmentCategoryFilter}
                 onValueChange={onAssignmentCategoryChange}
               >
-                <SelectTrigger className="h-[34px] min-w-0 flex-1 text-[12px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px] px-2">
+                <SelectTrigger className="h-[34px] min-w-0 flex-1 text-[12px] bg-[#f1f1f7] dark:bg-muted border-transparent hover:bg-[#e3e3fb] dark:hover:bg-brand/15 transition-colors rounded-[10px] px-2">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent className="z-[300]">
@@ -185,7 +185,7 @@ export function ItemSelector({
                 value={assignmentModuleFilter}
                 onValueChange={onAssignmentModuleChange}
               >
-                <SelectTrigger className="h-[34px] w-full min-w-0 lg:flex-1 text-[12px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px] px-2">
+                <SelectTrigger className="h-[34px] w-full min-w-0 lg:flex-1 text-[12px] bg-[#f1f1f7] dark:bg-muted border-transparent hover:bg-[#e3e3fb] dark:hover:bg-brand/15 transition-colors rounded-[10px] px-2">
                   <SelectValue placeholder="Module" />
                 </SelectTrigger>
                 <SelectContent className="z-[300]">
@@ -209,7 +209,7 @@ export function ItemSelector({
               value={evaluationProgressFilter}
               onValueChange={onEvaluationProgressChange}
             >
-              <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px]">
+              <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] dark:bg-muted border-transparent hover:bg-[#e3e3fb] dark:hover:bg-brand/15 transition-colors rounded-[10px]">
                 <SelectValue placeholder="Progress" />
               </SelectTrigger>
               <SelectContent className="z-[300]">
@@ -225,7 +225,7 @@ export function ItemSelector({
               value={evaluationModuleFilter}
               onValueChange={onEvaluationModuleChange}
             >
-              <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] border-transparent hover:bg-[#e3e3fb] transition-colors rounded-[10px]">
+              <SelectTrigger className="h-[34px] flex-1 text-[13px] bg-[#f1f1f7] dark:bg-muted border-transparent hover:bg-[#e3e3fb] dark:hover:bg-brand/15 transition-colors rounded-[10px]">
                 <SelectValue placeholder="Module" />
               </SelectTrigger>
               <SelectContent className="z-[300]">
@@ -242,7 +242,7 @@ export function ItemSelector({
 
       {isLoading && (
         <div className="flex flex-1 items-center justify-center py-8">
-          <p className="text-[13px] text-[#62647d]">
+          <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
             Loading {categoryObj.label.toLowerCase()}s…
           </p>
         </div>
@@ -250,14 +250,14 @@ export function ItemSelector({
 
       {isError && !isLoading && (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
-          <p className="text-[13px] text-[#62647d]">
+          <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
             Couldn&apos;t load {categoryObj.label.toLowerCase()}s.
           </p>
           {onRetry && (
             <button
               type="button"
               onClick={onRetry}
-              className="rounded-[10px] border border-[#e9e9f3] bg-white px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
+              className="rounded-[10px] border border-[#e9e9f3] dark:border-border bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] dark:text-foreground hover:bg-[#f0f0fd] dark:hover:bg-brand/10"
             >
               Try again
             </button>
@@ -267,10 +267,10 @@ export function ItemSelector({
 
       {!isLoading && !isError && items.length === 0 && (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 py-8 text-center">
-          <p className="text-[14px] font-bold text-[#15162c]">
+          <p className="text-[14px] font-bold text-[#15162c] dark:text-foreground">
             No {categoryObj.label.toLowerCase()}s found
           </p>
-          <p className="text-[12.5px] text-[#62647d]">
+          <p className="text-[12.5px] text-[#62647d] dark:text-foreground-muted">
             {search.trim()
               ? 'Try a different search term.'
               : 'Nothing is available for this batch yet.'}
@@ -313,13 +313,13 @@ export function ItemSelector({
                   key={item.id ?? item.title}
                   type="button"
                   onClick={() => onSelect(item)}
-                  className="flex w-full items-center gap-3 p-[11px_10px] rounded-[10px] cursor-pointer transition-colors hover:bg-[#f0f0fd] mb-[3px] group text-left"
+                  className="flex w-full items-center gap-3 p-[11px_10px] rounded-[10px] cursor-pointer transition-colors hover:bg-[#f0f0fd] dark:hover:bg-brand/10 mb-[3px] group text-left"
                 >
-                  <div className="flex items-center justify-center shrink-0 size-[34px] rounded-[9px] bg-[#f1f1f7] text-[#62647d] group-hover:bg-[#e3e3fb] group-hover:text-[#4b4396] transition-colors">
+                  <div className="flex items-center justify-center shrink-0 size-[34px] rounded-[9px] bg-[#f1f1f7] dark:bg-muted text-[#62647d] dark:text-foreground-muted group-hover:bg-[#e3e3fb] dark:group-hover:bg-brand/15 group-hover:text-[#4b4396] dark:group-hover:text-brand transition-colors">
                     <categoryObj.icon className="size-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <strong className="block text-[13.6px] font-semibold text-[#15162c] truncate">
+                    <strong className="block text-[13.6px] font-semibold text-[#15162c] dark:text-foreground truncate">
                       {item.title}
                     </strong>
                     <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
@@ -353,20 +353,20 @@ export function ItemSelector({
                           Optional
                         </span>
                       ) : null}
-                      <span className="text-[11px] font-bold text-[#62647d] bg-[#f1f1f7] px-2 py-[2.5px] rounded-full group-hover:bg-white transition-colors truncate max-w-[140px]">
+                      <span className="text-[11px] font-bold text-[#62647d] dark:text-foreground-muted bg-[#f1f1f7] dark:bg-muted px-2 py-[2.5px] rounded-full group-hover:bg-surface transition-colors truncate max-w-[140px]">
                         {item.meta}
                       </span>
                       {showModulePill ? (
-                        <span className="text-[11px] font-bold text-[#62647d] bg-[#f1f1f7] px-2 py-[2.5px] rounded-full group-hover:bg-white transition-colors truncate max-w-[140px]">
+                        <span className="text-[11px] font-bold text-[#62647d] dark:text-foreground-muted bg-[#f1f1f7] dark:bg-muted px-2 py-[2.5px] rounded-full group-hover:bg-surface transition-colors truncate max-w-[140px]">
                           {item.moduleName}
                         </span>
                       ) : null}
-                      <span className="text-[11.5px] text-[#9496ab] truncate">
+                      <span className="text-[11.5px] text-[#9496ab] dark:text-foreground-subtle truncate">
                         {item.date}
                       </span>
                     </div>
                   </div>
-                  <div className="shrink-0 text-[#9496ab] group-hover:text-[#4b4396] transition-colors">
+                  <div className="shrink-0 text-[#9496ab] dark:text-foreground-subtle group-hover:text-[#4b4396] dark:group-hover:text-brand transition-colors">
                     <CaretRight weight="bold" className="size-4" />
                   </div>
                 </button>
@@ -375,8 +375,8 @@ export function ItemSelector({
           </div>
 
           {showPagination && pagination && (
-            <div className="flex shrink-0 items-center justify-center pt-3 pb-1 mt-1 border-t border-[#e9e9f3]/50">
-              <div className="flex items-center bg-[#f4f4f7] rounded-full p-1 shadow-sm border border-[#e9e9f3]">
+            <div className="flex shrink-0 items-center justify-center pt-3 pb-1 mt-1 border-t border-[#e9e9f3]/50 dark:border-border/50">
+              <div className="flex items-center bg-[#f4f4f7] dark:bg-muted rounded-full p-1 shadow-sm border border-[#e9e9f3] dark:border-border">
                 <button
                   type="button"
                   disabled={!pagination.hasPreviousPage || isPageLoading}
@@ -384,8 +384,8 @@ export function ItemSelector({
                   className={cn(
                     'flex items-center justify-center size-[26px] rounded-full transition-all duration-200',
                     pagination.hasPreviousPage
-                      ? 'text-[#15162c] hover:bg-white hover:shadow-sm hover:scale-105 active:scale-95'
-                      : 'text-[#c4c5d4] cursor-not-allowed',
+                      ? 'text-[#15162c] dark:text-foreground hover:bg-surface hover:shadow-sm hover:scale-105 active:scale-95'
+                      : 'text-[#c4c5d4] dark:text-foreground-subtle/60 cursor-not-allowed',
                   )}
                 >
                   <CaretLeft
@@ -393,9 +393,13 @@ export function ItemSelector({
                     className="size-3.5 -translate-x-[0.5px]"
                   />
                 </button>
-                <div className="px-3.5 flex items-center justify-center min-w-[50px] text-[11.5px] font-bold text-[#62647d]">
-                  <span className="text-[#15162c]">{pagination.page}</span>
-                  <span className="text-[#c4c5d4] mx-1.5">/</span>
+                <div className="px-3.5 flex items-center justify-center min-w-[50px] text-[11.5px] font-bold text-[#62647d] dark:text-foreground-muted">
+                  <span className="text-[#15162c] dark:text-foreground">
+                    {pagination.page}
+                  </span>
+                  <span className="text-[#c4c5d4] dark:text-foreground-subtle/60 mx-1.5">
+                    /
+                  </span>
                   <span>{pagination.totalPages}</span>
                 </div>
                 <button
@@ -405,8 +409,8 @@ export function ItemSelector({
                   className={cn(
                     'flex items-center justify-center size-[26px] rounded-full transition-all duration-200',
                     pagination.hasNextPage
-                      ? 'text-[#15162c] hover:bg-white hover:shadow-sm hover:scale-105 active:scale-95'
-                      : 'text-[#c4c5d4] cursor-not-allowed',
+                      ? 'text-[#15162c] dark:text-foreground hover:bg-surface hover:shadow-sm hover:scale-105 active:scale-95'
+                      : 'text-[#c4c5d4] dark:text-foreground-subtle/60 cursor-not-allowed',
                   )}
                 >
                   <CaretRight

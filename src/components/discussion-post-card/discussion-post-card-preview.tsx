@@ -43,7 +43,7 @@ function CountActionButton({
     <button
       type="button"
       onClick={onClick}
-      className={`cursor-pointer inline-flex items-center gap-[4px] rounded-[16px] px-[8px] py-[4px] text-[#3B3435] transition-colors hover:text-foreground ${
+      className={`cursor-pointer inline-flex items-center gap-[4px] rounded-[16px] px-[8px] py-[4px] text-[#3B3435] dark:text-foreground-muted transition-colors hover:text-foreground ${
         isActive
           ? 'bg-muted text-foreground'
           : 'bg-surface-muted hover:bg-muted'
@@ -105,9 +105,8 @@ export function DiscussionPostCardPreview({
             className="cursor-pointer"
           >
             <Bookmark
-              color="#544D4F"
               size={24}
-              className={isBookmarked ? 'fill-current' : ''}
+              className={`text-[#544D4F] dark:text-foreground-muted ${isBookmarked ? 'fill-current' : ''}`}
             />
             <span className="sr-only">Bookmark discussion</span>
           </button>
@@ -128,8 +127,7 @@ export function DiscussionPostCardPreview({
             icon={
               <ArrowBigUp
                 size={16}
-                color="#374151"
-                className={voteDirection === 'up' ? 'fill-current' : ''}
+                className={`text-[#374151] dark:text-foreground-muted ${voteDirection === 'up' ? 'fill-current' : ''}`}
               />
             }
             value={currentUpvoteCount}
@@ -141,8 +139,7 @@ export function DiscussionPostCardPreview({
             icon={
               <ArrowBigDown
                 size={16}
-                color="#374151"
-                className={voteDirection === 'down' ? 'fill-current' : ''}
+                className={`text-[#374151] dark:text-foreground-muted ${voteDirection === 'down' ? 'fill-current' : ''}`}
               />
             }
             value={currentDownvoteCount}
@@ -153,7 +150,12 @@ export function DiscussionPostCardPreview({
           />
           {showReplyAction ? (
             <CountActionButton
-              icon={<MessageCircle size={16} color="#374151" />}
+              icon={
+                <MessageCircle
+                  size={16}
+                  className="text-[#374151] dark:text-foreground-muted"
+                />
+              }
               value={replyCount}
               onClick={onReplyClick ?? (() => {})}
               srLabel="Open replies"

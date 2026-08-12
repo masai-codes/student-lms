@@ -5,9 +5,12 @@ const hoisted = vi.hoisted(() => ({
   getUserId: vi.fn(),
 }))
 
-vi.mock('@/server/api/dashboard/pending/getDashboardPendingTasks.service', () => ({
-  getDashboardPendingTasks: hoisted.getDashboardPendingTasks,
-}))
+vi.mock(
+  '@/server/api/dashboard/pending/getDashboardPendingTasks.service',
+  () => ({
+    getDashboardPendingTasks: hoisted.getDashboardPendingTasks,
+  }),
+)
 vi.mock('@/server/auth/getCurrentSessionUserId', () => ({
   getCurrentUserId: hoisted.getUserId,
 }))
@@ -29,9 +32,8 @@ describe('handleGetDashboardPendingTasks', () => {
       },
     ]
     hoisted.getDashboardPendingTasks.mockResolvedValueOnce(pendingTasks)
-    const { handleGetDashboardPendingTasks } = await import(
-      '../getDashboardPendingTasks.handler'
-    )
+    const { handleGetDashboardPendingTasks } =
+      await import('../getDashboardPendingTasks.handler')
 
     const response = await handleGetDashboardPendingTasks()
 
@@ -45,9 +47,8 @@ describe('handleGetDashboardPendingTasks', () => {
 
   it('returns 401 when unauthenticated', async () => {
     hoisted.getUserId.mockResolvedValueOnce(null)
-    const { handleGetDashboardPendingTasks } = await import(
-      '../getDashboardPendingTasks.handler'
-    )
+    const { handleGetDashboardPendingTasks } =
+      await import('../getDashboardPendingTasks.handler')
 
     const response = await handleGetDashboardPendingTasks()
 
@@ -56,9 +57,8 @@ describe('handleGetDashboardPendingTasks', () => {
 
   it('maps an unexpected service failure to a 500', async () => {
     hoisted.getDashboardPendingTasks.mockRejectedValueOnce(new Error('boom'))
-    const { handleGetDashboardPendingTasks } = await import(
-      '../getDashboardPendingTasks.handler'
-    )
+    const { handleGetDashboardPendingTasks } =
+      await import('../getDashboardPendingTasks.handler')
 
     const response = await handleGetDashboardPendingTasks()
 

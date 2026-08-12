@@ -1,34 +1,15 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
-import {
-  LearnPageDetailError,
-  LearningDetailMasaiBreadcrumb,
-  ResourceDetailPage,
-} from '@/components/features/learn/LearnPageDetails'
-import { detailRouteInnerClasses } from '@/lib/layout'
-import { fetchResourceLearningDetailFromApi } from '@/lib/api/learn/learnApi'
-
+/** Canonical resource detail now lives under `/learn` — redirect old bookmarks/links. */
 export const Route = createFileRoute(
   '/(protected)/_layout/resources_/$resourceId',
 )({
-  component: RouteComponent,
-  errorComponent: LearnPageDetailError,
-  loader: async ({ params }) => {
-    const resourceId = Number(params.resourceId)
-    if (!Number.isFinite(resourceId) || resourceId <= 0) {
-      throw new Error('LEARN_DETAIL_NOT_FOUND')
-    }
-    return fetchResourceLearningDetailFromApi(resourceId)
+  loader: ({ params, location }) => {
+    throw redirect({
+      to: '/learn/resources/$resourceId',
+      params: { resourceId: params.resourceId },
+      search: location.search,
+      replace: true,
+    })
   },
 })
-
-function RouteComponent() {
-  const detail = Route.useLoaderData()
-
-  return (
-    <div className={detailRouteInnerClasses}>
-      <LearningDetailMasaiBreadcrumb currentLabel={detail.title} />
-      <ResourceDetailPage detail={detail} />
-    </div>
-  )
-}

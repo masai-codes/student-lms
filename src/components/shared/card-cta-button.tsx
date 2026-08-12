@@ -10,7 +10,7 @@ type CardCtaButtonProps = {
 
 const THEME_CLASSES = {
   yellow: 'bg-[#EF8833] text-[#fff] hover:bg-[#DC7A2D]',
-  red: 'bg-danger text-danger-foreground hover:bg-[#DC2626]',
+  red: 'bg-danger text-danger-foreground hover:bg-[#DC2626] dark:hover:bg-danger/90',
 } as const
 
 export function CardCtaButton({

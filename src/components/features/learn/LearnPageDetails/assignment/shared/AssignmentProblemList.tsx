@@ -60,7 +60,7 @@ export function AssignmentProblemList({
             }
           >
             <Link
-              to="/assignments/$assignmentId/problems/$problemId"
+              to="/learn/assignments/$assignmentId/problems/$problemId"
               params={{
                 assignmentId: String(assignmentId),
                 problemId: String(problem.problemId),

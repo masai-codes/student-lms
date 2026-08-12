@@ -33,7 +33,9 @@ describe('WelcomeBannerCarousel', () => {
   it('always renders the pinned Masai Live promo, even with no banners', () => {
     render(<WelcomeBannerCarousel banners={[]} />)
     expect(screen.getByTestId('dashboard-masai-live-promo')).toBeTruthy()
-    expect(screen.getByText('Build Your Second AI Brain')).toBeTruthy()
+    expect(
+      screen.getByText('Loop Engineering: AI Career Intelligence Agent'),
+    ).toBeTruthy()
     // Promo alone is a single slide → no controls.
     expect(screen.queryByTestId('dashboard-welcome-banner-prev')).toBeNull()
     expect(screen.queryByTestId('dashboard-welcome-banner-dot')).toBeNull()

@@ -10,7 +10,7 @@ export function navigateSupportReviewHref(
   const lectureMatch = href.match(/^\/lectures\/(\d+)$/)
   if (lectureMatch) {
     void navigate({
-      to: '/lectures/$lectureId',
+      to: '/learn/lectures/$lectureId',
       params: { lectureId: lectureMatch[1] },
     })
     return
@@ -19,7 +19,7 @@ export function navigateSupportReviewHref(
   const assignmentMatch = href.match(/^\/assignments\/(\d+)$/)
   if (assignmentMatch) {
     void navigate({
-      to: '/assignments/$assignmentId',
+      to: '/learn/assignments/$assignmentId',
       params: { assignmentId: assignmentMatch[1] },
     })
     return
@@ -28,7 +28,7 @@ export function navigateSupportReviewHref(
   const resourceMatch = href.match(/^\/resources\/(\d+)$/)
   if (resourceMatch) {
     void navigate({
-      to: '/resources/$resourceId',
+      to: '/learn/resources/$resourceId',
       params: { resourceId: resourceMatch[1] },
     })
   }

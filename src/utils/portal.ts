@@ -22,6 +22,11 @@ export function isIHubPortal(): boolean {
   return getAppOrigin() === 'ihub'
 }
 
+/** Whether the app is currently running on the IIT Jodhpur portal (domain contains "iitj"). */
+export function isIitjPortal(): boolean {
+  return getAppOrigin() === 'iitj'
+}
+
 /** Whether the app is currently running on the Masai portal (everything else). */
 export function isMasaiPortal(): boolean {
   return getAppOrigin() === 'masai'

@@ -3,7 +3,6 @@
 import { ExpandableTabContent } from './ExpandableTabContent'
 import { LectureTabEmptyState } from './LectureTabEmptyState'
 import { LectureTabMarkdown } from './LectureTabMarkdown'
-import { LectureTranscriptDownloadButton } from './LectureTranscriptDownloadButton'
 import { LectureTranscriptList } from './LectureTranscriptList'
 import { LectureTranscriptSkeleton } from './LectureTranscriptSkeleton'
 import { useLectureTranscript } from '../hooks/useLectureTranscript'
@@ -25,7 +24,7 @@ export function LectureTranscriptTabContent({
   emptyTitle,
   emptyDescription,
 }: LectureTranscriptTabContentProps) {
-  const { segments, text, lectureId, isLoading, isError, hasContent } =
+  const { segments, text, isLoading, isError, hasContent } =
     useLectureTranscript(transcript, true)
 
   if (!transcript.available) {
@@ -55,16 +54,6 @@ export function LectureTranscriptTabContent({
 
   return (
     <div data-testid="lecture-transcript-tab" className="flex flex-col gap-3">
-      <div
-        data-testid="lecture-transcript-toolbar"
-        className="flex items-center justify-end"
-      >
-        <LectureTranscriptDownloadButton
-          segments={segments}
-          text={text}
-          lectureId={lectureId}
-        />
-      </div>
       <ExpandableTabContent>
         {segments.length > 0 ? (
           <LectureTranscriptList segments={segments} />

@@ -1,12 +1,10 @@
 import { Link } from '@tanstack/react-router'
 import type { AnnouncementItem } from '@/server/api/announcement/getAnnouncements.service'
+import { AnnouncementIcon } from '@/components/common/Icon'
 import {
   formatTimestampLocal,
   formatTimestampIST,
 } from '@/utils/timeZoneHandler'
-
-const CRITICAL_ICON_FILTER =
-  'invert(17%) sepia(99%) saturate(7473%) hue-rotate(1deg) brightness(103%) contrast(114%)'
 
 export function AnnouncementCard({ item }: { item: AnnouncementItem }) {
   const isMessage = item.source === 'm'
@@ -15,19 +13,14 @@ export function AnnouncementCard({ item }: { item: AnnouncementItem }) {
       to={isMessage ? '/messages/$id' : '/announcements/$id'}
       params={{ id: item.id }}
       data-testid={`announcements-item-${item.source}-${item.id}`}
-      className={`dash-lift p-[10px] md:p-[12px] rounded-[8px] flex items-center gap-[10px] border bg-surface transition-shadow shadow-sm hover:shadow-md hover:border-[#4F6BED]/35 cursor-pointer no-underline ${item.isForYou ? 'border-[#fad1e8]' : 'border-border'}`}
+      className={`dash-lift p-[10px] md:p-[12px] rounded-[8px] flex items-center gap-[10px] border bg-surface transition-shadow shadow-sm hover:shadow-md hover:border-[#4F6BED]/35 cursor-pointer no-underline ${item.isForYou ? 'border-[#fad1e8] dark:border-pink-500/30' : 'border-border'}`}
     >
-      {/* Icon — hidden on mobile; red tint for critical announcements */}
+      {/* Icon — hidden on mobile. `text-brand` is the theme accent (purple in
+          light, red in dark); critical items stay on the danger red, which in
+          light reads distinctly against the purple default. */}
       <div className="hidden md:block shrink-0 self-start mt-0.5">
-        <img
-          src="/AnnouncementIcon.svg"
-          alt=""
-          className="size-8"
-          style={
-            item.type === 'critical'
-              ? { filter: CRITICAL_ICON_FILTER }
-              : undefined
-          }
+        <AnnouncementIcon
+          className={`size-8 ${item.type === 'critical' ? 'text-danger' : 'text-brand'}`}
         />
       </div>
 
@@ -46,7 +39,7 @@ export function AnnouncementCard({ item }: { item: AnnouncementItem }) {
           <span className="truncate text-foreground-muted text-[14px] font-[400] font-poppins leading-[16px] md:max-w-[50ch] max-w-[15ch]">
             {item.authorName}
           </span>
-          <span className="size-1 rounded-full bg-gray-400 shrink-0" />
+          <span className="size-1 rounded-full bg-foreground-subtle shrink-0" />
           {/* Date — local TZ displayed, IST in tooltip (same pattern as ScheduleCard) */}
           <span className="relative group/date cursor-default text-foreground-muted text-[14px] font-[400] font-inter leading-[16px]">
             {formatTimestampLocal(item.createdAt)}

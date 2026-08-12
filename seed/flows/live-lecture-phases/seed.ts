@@ -26,6 +26,20 @@ function buildTestUsers(
       userId: world.student.id,
       name: world.student.name,
     },
+    {
+      role: 'student',
+      email: world.student2.email,
+      password: DEV_PASSWORD_PLAINTEXT,
+      userId: world.student2.id,
+      name: world.student2.name,
+    },
+    {
+      role: 'student',
+      email: world.student3.email,
+      password: DEV_PASSWORD_PLAINTEXT,
+      userId: world.student3.id,
+      name: world.student3.name,
+    },
   ]
 }
 
@@ -52,15 +66,21 @@ export async function seedLiveLecturePhases(): Promise<SeedFlowResult> {
     entities: {
       admin: world.admin,
       student: world.student,
+      student2: world.student2,
+      student3: world.student3,
       batch: world.batch,
       section: world.section,
       enrollment: world.enrollment,
+      enrollmentStudent2: world.enrollmentStudent2,
+      enrollmentStudent3: world.enrollmentStudent3,
       sections: world.sections,
       enrollments: world.enrollments,
       lectures: world.lectures,
       transcriptExtras: world.transcriptExtras,
+      operatorsExtras: world.operatorsExtras,
       attendanceOffExtras: world.attendanceOffExtras,
       attendanceOnExtras: world.attendanceOnExtras,
+      discussions: world.discussions,
     },
     testUsers: buildTestUsers(world),
     timing: {

@@ -4,6 +4,7 @@ import { memo } from 'react'
 import { RotateCcw } from 'lucide-react'
 
 import { LectureAiChatMarkdown } from './LectureAiChatMarkdown'
+import { LectureAiChatQuizCard } from './LectureAiChatQuizCard'
 import type { LectureAiChatMessage as LectureAiChatMessageModel } from '../types'
 import { Button } from '@/components/ui/button'
 
@@ -25,12 +26,18 @@ type LectureAiChatMessageProps = {
   message: LectureAiChatMessageModel
   onRetry: () => void
   canRetry: boolean
+  onSubmitPracticeQuestionAnswers: (
+    messageId: string,
+    quizId: string,
+    answers: Record<string, string>,
+  ) => void
 }
 
 function LectureAiChatMessageImpl({
   message,
   onRetry,
   canRetry,
+  onSubmitPracticeQuestionAnswers,
 }: LectureAiChatMessageProps) {
   if (message.role === 'user') {
     return (
@@ -44,7 +51,9 @@ function LectureAiChatMessageImpl({
 
   const showDots =
     message.status === 'thinking' ||
-    (message.status === 'streaming' && message.content.length === 0)
+    (message.status === 'streaming' &&
+      message.content.length === 0 &&
+      !message.practiceQuestions)
 
   return (
     <div className="flex w-full flex-col items-start gap-2">
@@ -64,9 +73,20 @@ function LectureAiChatMessageImpl({
         </div>
       ) : (
         <div className="w-full text-sm leading-relaxed text-foreground">
-          <LectureAiChatMarkdown content={message.content} />
+          {message.content ? (
+            <LectureAiChatMarkdown content={message.content} />
+          ) : null}
           {message.status === 'streaming' ? (
             <span className="lecture-ai-chat-cursor" aria-hidden="true" />
+          ) : null}
+          {message.practiceQuestions ? (
+            <LectureAiChatQuizCard
+              data={message.practiceQuestions}
+              autoOpen={Boolean(message.practiceQuestionsJustGenerated)}
+              onSubmitAnswers={(quizId, answers) =>
+                onSubmitPracticeQuestionAnswers(message.id, quizId, answers)
+              }
+            />
           ) : null}
         </div>
       )}

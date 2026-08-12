@@ -1,20 +1,20 @@
 'use client'
 
 import { useCallback } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { getRouteApi, useNavigate } from '@tanstack/react-router'
-import { CircleHelp, Megaphone } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+import { Megaphone } from 'lucide-react'
+import { HandWaving } from '@phosphor-icons/react'
 
-import { fetchAnnouncementUnreadCount } from '@/lib/api/announcement/announcementApi'
 import { formatGreetingName } from '@/components/features/dashboard/shared/greeting'
 import {
   NextActionBanner,
   useNextActionBannerView,
 } from '@/components/features/layout/NextActionBanner'
 import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
-
-const layoutRouteApi = getRouteApi('/(protected)/_layout')
+import { useAppNavItems } from '@/lib/navigation/useAppNavItems'
+import { hidesMasaiOnlyFeatures } from '@/utils/portal'
 
 /**
  * Mobile-only sticky top header for the dashboard home. On mobile the desktop
@@ -24,16 +24,14 @@ const layoutRouteApi = getRouteApi('/(protected)/_layout')
  * actions and keeps the onboarding entry reachable on mobile.
  */
 export default function AppMobileHeader() {
-  const { user } = layoutRouteApi.useRouteContext()
+  const { user, rightItems, navigate: navItemsNavigate } = useAppNavItems()
   const navigate = useNavigate()
   const showTryNew = useTryNewCtaVisible()
+  const hideMasaiExtras = hidesMasaiOnlyFeatures()
 
-  const { data: unreadCount = 0 } = useQuery({
-    queryKey: ['announcement-unread-count'],
-    queryFn: fetchAnnouncementUnreadCount,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  })
+  // Same announcements signal the desktop navbar renders — no separate query.
+  const announcements = rightItems.find((item) => item.id === 'announcements')
+  const unreadCount = announcements?.notificationCount ?? 0
 
   // The next-action pill ("Lecture has started" etc.) used to live above the
   // bottom tab bar; on mobile it now takes the greeting's place at the top
@@ -46,8 +44,12 @@ export default function AppMobileHeader() {
   }, [navigate])
 
   const handleAnnouncementsClick = useCallback(() => {
+    if (announcements?.type === 'internal-link') {
+      void navItemsNavigate({ to: announcements.to, search: {} })
+      return
+    }
     void navigate({ to: '/announcements', search: { page: 1 } })
-  }, [navigate])
+  }, [announcements, navItemsNavigate, navigate])
 
   return (
     <header
@@ -74,6 +76,7 @@ export default function AppMobileHeader() {
         {showTryNew && !user.hideSwitchOption ? (
           <TryNewToggle initialEnabled={user.newLmsPagesEnabled} />
         ) : null}
+        <ThemeToggle size="mobile" />
         <button
           type="button"
           onClick={handleAnnouncementsClick}
@@ -91,15 +94,17 @@ export default function AppMobileHeader() {
             </span>
           ) : null}
         </button>
-        <button
-          type="button"
-          onClick={handleGuidedTourClick}
-          aria-label="Onboarding steps"
-          className="flex size-10 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
-          data-testid="app-mobile-header-guided-tour"
-        >
-          <CircleHelp className="size-7" />
-        </button>
+        {hideMasaiExtras ? null : (
+          <button
+            type="button"
+            onClick={handleGuidedTourClick}
+            aria-label="Onboarding steps"
+            className="flex size-10 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
+            data-testid="app-mobile-header-guided-tour"
+          >
+            <HandWaving className="size-7" />
+          </button>
+        )}
       </div>
     </header>
   )

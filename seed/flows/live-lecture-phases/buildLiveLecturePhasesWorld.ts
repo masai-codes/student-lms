@@ -1,14 +1,20 @@
 import {
   createAssignment,
   createBatch,
+  createDiscussion,
   createEnrollment,
   createLecture,
   createLecturesAi,
   createProfile,
   createSection,
+  createThread,
   createUser,
   createUserDeviceToken,
 } from '../../factories'
+import {
+  DISCUSSION_ENTITY_ASSIGNMENT,
+  DISCUSSION_ENTITY_LECTURE,
+} from '@/server/new-discussions/discussionEntityTypes'
 import { DEFAULT_ZOOM_LINK } from '../../utils/constants'
 import {
   addMinutes,
@@ -24,22 +30,26 @@ import {
   LIVE_LECTURE_PHASES_FLOW_ID,
   LIVE_LECTURE_PHASES_TIMING,
   LIVE_LECTURE_RECORDING_HLS_URL,
-  type LiveLecturePhasesFlowId,
 } from './config'
+import { seedOperatorsLecture } from './seedOperatorsLecture'
 import { seedTranscriptLectures } from './seedTranscriptLectures'
 import type { TranscriptLectureSeeds } from './seedTranscriptLectures'
 
 import type {
   assignments,
+  discussions,
   lectures,
   lecturesAi,
   sectionUser,
   sections,
+  threads,
 } from '@/db/schema'
 
 type LectureRow = typeof lectures.$inferSelect
 type AssignmentRow = typeof assignments.$inferSelect
 type LecturesAiRow = typeof lecturesAi.$inferSelect
+type DiscussionRow = typeof discussions.$inferSelect
+type ThreadRow = typeof threads.$inferSelect
 
 export type LiveLecturePhaseKey =
   | 'beforeUnlock'
@@ -53,15 +63,23 @@ export type LiveLecturePhaseKey =
   | 'optionalLiveDuringJoin'
   | 'transcriptSegmented'
   | 'transcriptPlainText'
+  | 'operatorsInJavascript'
 
 export type LiveLecturePhasesWorld = {
-  flowId: LiveLecturePhasesFlowId
+  flowId: string
   admin: Awaited<ReturnType<typeof createUser>>
   student: Awaited<ReturnType<typeof createUser>>
+  /** Second student, enrolled into the same primary `section` as `student`. */
+  student2: Awaited<ReturnType<typeof createUser>>
+  /** Third student, enrolled into the same primary `section` as `student`. */
+  student3: Awaited<ReturnType<typeof createUser>>
   batch: Awaited<ReturnType<typeof createBatch>>
   /** Primary section for the first three phase lectures. */
   section: typeof sections.$inferSelect
   enrollment: typeof sectionUser.$inferSelect
+  /** `student2` / `student3` enrollments into the primary `section`. */
+  enrollmentStudent2: typeof sectionUser.$inferSelect
+  enrollmentStudent3: typeof sectionUser.$inferSelect
   sections: {
     recordingAttendanceOff: typeof sections.$inferSelect
     recordingAttendanceOn: typeof sections.$inferSelect
@@ -80,12 +98,33 @@ export type LiveLecturePhasesWorld = {
     segmentedAi: TranscriptLectureSeeds['segmentedAi']
     plainTextAi: TranscriptLectureSeeds['plainTextAi']
   }
+  /** `lectures_ai` row behind the "Operators in JavaScript" lecture. */
+  operatorsExtras: {
+    lecturesAi: LecturesAiRow
+  }
   /** Tab content for the video-attendance-ON recording lecture. */
   attendanceOnExtras: {
     lecturesAi: LecturesAiRow
     associatedLecture: LectureRow
     associatedNotesLecture: LectureRow
     associatedAssignment: AssignmentRow
+  }
+  /** Discussions on the lecture / resource / assignment entities above. */
+  discussions: {
+    /** Public discussion on `videoMandatory` (entity_type = Lecture), authored by `student`. */
+    onLecture: DiscussionRow
+    /** Threads on `onLecture`: admin reply, then a reply from `student2` (cross-student). */
+    onLectureThreads: ThreadRow[]
+    /** Private discussion on `associatedAssignment` (entity_type = Assignment), authored by `student`. */
+    onAssignment: DiscussionRow
+    /** Public discussion on `associatedNotesLecture` (type=reading → resource), authored by `student`. */
+    onResource: DiscussionRow
+    /** Threads (replies) on `onResource`, authored by admin then student. */
+    onResourceThreads: ThreadRow[]
+    /** Public discussion on `videoOptional` (entity_type = Lecture), authored by `student2`. */
+    onLectureByStudent2: DiscussionRow
+    /** Private discussion on `associatedAssignment`, authored by `student3`. */
+    onAssignmentByStudent3: DiscussionRow
   }
 }
 
@@ -155,6 +194,34 @@ const ATTENDANCE_ON_AI_SUMMARY = [
   '3. Watch enough of the recording (past the section threshold) to earn attendance credit.',
 ].join('\n')
 
+const ATTENDANCE_ON_AI_FAQS = [
+  {
+    question: 'What exactly is a closure?',
+    answer:
+      'A closure is a function that keeps access to the variables from its outer (enclosing) scope even after that outer function has finished running. This lets you create private state — the inner function "remembers" the values it was created with.',
+  },
+  {
+    question: 'When should I use map/filter/reduce instead of a for loop?',
+    answer:
+      'Reach for map, filter, and reduce when you are transforming, selecting, or summarizing a whole array — they describe the intent (transform, keep, combine) directly and avoid manual index tracking. A plain loop is still fine when you need to break early or touch multiple arrays at once.',
+  },
+  {
+    question: 'What is the difference between map and filter?',
+    answer:
+      'map returns a new array of the same length where every element has been transformed by the callback, while filter returns a new array containing only the elements for which the callback returned true — its length can be smaller than the original.',
+  },
+  {
+    question: 'How do I get attendance credit from this recording?',
+    answer:
+      'This section has video attendance turned on, so you need to watch past the required threshold of the recording (not just open the page) for the lecture to be marked attended — skipping ahead without playing through it will not count.',
+  },
+  {
+    question: 'Why does the counter example in the summary use a closure?',
+    answer:
+      'A closure lets an inner function keep its own private copy of a variable (like a counter) from the outer function, so each call to the returned function can read and update that same variable without exposing it to the rest of the program.',
+  },
+] as const
+
 const ATTENDANCE_ON_TRANSCRIPT_SEGMENTS = [
   {
     id: 0,
@@ -185,7 +252,7 @@ function baseDescription(flowId: string, phaseLabel: string): string {
 }
 
 export async function buildLiveLecturePhasesWorld(
-  flowId: LiveLecturePhasesFlowId = LIVE_LECTURE_PHASES_FLOW_ID,
+  flowId: string = LIVE_LECTURE_PHASES_FLOW_ID,
 ): Promise<LiveLecturePhasesWorld> {
   const admin = await createUser({
     name: `Instructor Aditya [${flowId}]`,
@@ -196,6 +263,21 @@ export async function buildLiveLecturePhasesWorld(
   const student = await createUser({
     name: `Student [${flowId}]`,
     email: flowScopedEmail(flowId, 'student'),
+    role: 'student',
+  })
+
+  // Additional students in the same section, so discussions/threads can be
+  // authored by different people and cross-student visibility can be
+  // exercised on `/learn/discussions`.
+  const student2 = await createUser({
+    name: `Student Two [${flowId}]`,
+    email: flowScopedEmail(flowId, 'student2'),
+    role: 'student',
+  })
+
+  const student3 = await createUser({
+    name: `Student Three [${flowId}]`,
+    email: flowScopedEmail(flowId, 'student3'),
     role: 'student',
   })
 
@@ -215,6 +297,7 @@ export async function buildLiveLecturePhasesWorld(
     program: 'SDE',
     duration: '30 weeks',
     starting: formatMysqlDate(offsetFromNow({ daysAgo: 7 })),
+    meta: { show_masaiverse: true },
   })
 
   const section = await createSection({
@@ -225,6 +308,18 @@ export async function buildLiveLecturePhasesWorld(
   const enrollment = await createEnrollment({
     sectionId: section.id,
     userId: student.id,
+    managerId: admin.id,
+  })
+
+  const enrollmentStudent2 = await createEnrollment({
+    sectionId: section.id,
+    userId: student2.id,
+    managerId: admin.id,
+  })
+
+  const enrollmentStudent3 = await createEnrollment({
+    sectionId: section.id,
+    userId: student3.id,
     managerId: admin.id,
   })
 
@@ -391,6 +486,19 @@ export async function buildLiveLecturePhasesWorld(
     endDate: formatMysqlDate(afterConcludes),
   })
 
+  // Standalone recording lecture with a small transcript + AI summary.
+  const operatorsLecture = await seedOperatorsLecture(flowId, {
+    ...SHARED_VIDEO_LECTURE_META,
+    ...RECORDING_VIDEO_FIELDS,
+    batchId: batch.id,
+    sectionId: section.id,
+    userId: admin.id,
+    schedule: formatMysqlDatetime(afterSchedule),
+    concludes: formatMysqlDatetime(afterConcludes),
+    startDate: formatMysqlDate(afterSchedule),
+    endDate: formatMysqlDate(afterConcludes),
+  })
+
   const afterNoRecording = await createLecture({
     ...SHARED_LECTURE_META,
     batchId: batch.id,
@@ -477,6 +585,7 @@ export async function buildLiveLecturePhasesWorld(
     ).join('\n\n'),
     transcriptSegments: [...ATTENDANCE_ON_TRANSCRIPT_SEGMENTS],
     isSummaryPublished: 1,
+    faqs: [...ATTENDANCE_ON_AI_FAQS],
   })
 
   const associatedLecture = await createLecture({
@@ -546,13 +655,104 @@ export async function buildLiveLecturePhasesWorld(
     },
   })
 
+  // Discussions: one public discussion on a lecture, one private on an
+  // assignment, and one public on a resource (type=reading lecture) with
+  // threaded replies from both the instructor and the student.
+  const discussionOnLecture = await createDiscussion({
+    entityType: DISCUSSION_ENTITY_LECTURE,
+    entityId: videoMandatory.id,
+    userId: student.id,
+    title: `[${flowId}] Question about the recording playback`,
+    message:
+      'The video keeps buffering around the closures section — is there a lower-res version available?',
+    public: 1,
+  })
+
+  const discussionOnAssignment = await createDiscussion({
+    entityType: DISCUSSION_ENTITY_ASSIGNMENT,
+    entityId: associatedAssignment.id,
+    userId: student.id,
+    title: `[${flowId}] Private doubt on the array methods drill`,
+    message:
+      'Can you review my approach for the reduce-based grouping step before I submit? Sharing privately since it touches my in-progress solution.',
+    public: 0,
+    assigneeId: admin.id,
+  })
+
+  const discussionOnResource = await createDiscussion({
+    entityType: DISCUSSION_ENTITY_LECTURE,
+    entityId: associatedNotesLecture.id,
+    userId: student.id,
+    title: `[${flowId}] Closures cheat sheet — request for more examples`,
+    message:
+      'These notes are great. Could we get one or two runnable examples showing private state with closures?',
+    public: 1,
+  })
+
+  const onResourceThreads = [
+    await createThread({
+      discussionId: discussionOnResource.id,
+      userId: admin.id,
+      message:
+        "Good idea — I'll add a counter example and a memoization example to the notes shortly.",
+      public: 1,
+    }),
+    await createThread({
+      discussionId: discussionOnResource.id,
+      userId: student.id,
+      message: 'Thank you! Looking forward to it.',
+      public: 1,
+    }),
+  ]
+
+  const onLectureThreads = [
+    await createThread({
+      discussionId: discussionOnLecture.id,
+      userId: admin.id,
+      message:
+        'Thanks for flagging — we are re-encoding at a lower bitrate now.',
+      public: 1,
+    }),
+    await createThread({
+      discussionId: discussionOnLecture.id,
+      userId: student2.id,
+      message: 'Same here, buffering right at the closures part for me too.',
+      public: 1,
+    }),
+  ]
+
+  const discussionOnLectureByStudent2 = await createDiscussion({
+    entityType: DISCUSSION_ENTITY_LECTURE,
+    entityId: videoOptional.id,
+    userId: student2.id,
+    title: `[${flowId}] Loved the array methods recap`,
+    message:
+      'The map/filter/reduce recap in this optional video was really clear — any chance we get a follow-up on generators?',
+    public: 1,
+  })
+
+  const discussionOnAssignmentByStudent3 = await createDiscussion({
+    entityType: DISCUSSION_ENTITY_ASSIGNMENT,
+    entityId: associatedAssignment.id,
+    userId: student3.id,
+    title: `[${flowId}] Stuck on the grouping edge case`,
+    message:
+      'My reduce-based grouping breaks on an empty array — sharing privately since it touches my in-progress solution.',
+    public: 0,
+    assigneeId: admin.id,
+  })
+
   return {
     flowId,
     admin,
     student,
+    student2,
+    student3,
     batch,
     section,
     enrollment,
+    enrollmentStudent2,
+    enrollmentStudent3,
     sections: {
       recordingAttendanceOff: sectionRecordingAttendanceOff,
       recordingAttendanceOn: sectionRecordingAttendanceOn,
@@ -573,10 +773,14 @@ export async function buildLiveLecturePhasesWorld(
       optionalLiveDuringJoin,
       transcriptSegmented: transcriptLectures.segmented,
       transcriptPlainText: transcriptLectures.plainText,
+      operatorsInJavascript: operatorsLecture.lecture,
     },
     transcriptExtras: {
       segmentedAi: transcriptLectures.segmentedAi,
       plainTextAi: transcriptLectures.plainTextAi,
+    },
+    operatorsExtras: {
+      lecturesAi: operatorsLecture.lecturesAi,
     },
     attendanceOffExtras: {
       associatedLecture: associatedLectureAttendanceOff,
@@ -586,6 +790,15 @@ export async function buildLiveLecturePhasesWorld(
       associatedLecture,
       associatedNotesLecture,
       associatedAssignment,
+    },
+    discussions: {
+      onLecture: discussionOnLecture,
+      onLectureThreads,
+      onAssignment: discussionOnAssignment,
+      onResource: discussionOnResource,
+      onResourceThreads,
+      onLectureByStudent2: discussionOnLectureByStudent2,
+      onAssignmentByStudent3: discussionOnAssignmentByStudent3,
     },
   }
 }

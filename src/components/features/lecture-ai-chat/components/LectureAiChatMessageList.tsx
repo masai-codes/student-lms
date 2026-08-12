@@ -10,10 +10,16 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 type LectureAiChatMessageListProps = {
+  lectureId: number
   messages: Array<LectureAiChatMessageModel>
   isSending: boolean
   onRetry: () => void
   onSuggestion: (text: string) => void
+  onSubmitPracticeQuestionAnswers: (
+    messageId: string,
+    quizId: string,
+    answers: Record<string, string>,
+  ) => void
   /**
    * Trap wheel/touch scroll inside the list even at its top/bottom edge. Wanted
    * for the mobile drawer (so the page behind it stays put), but not for the
@@ -24,10 +30,12 @@ type LectureAiChatMessageListProps = {
 }
 
 export function LectureAiChatMessageList({
+  lectureId,
   messages,
   isSending,
   onRetry,
   onSuggestion,
+  onSubmitPracticeQuestionAnswers,
   containScroll = false,
 }: LectureAiChatMessageListProps) {
   const isEmpty = messages.length === 0
@@ -49,7 +57,10 @@ export function LectureAiChatMessageList({
         )}
       >
         {isEmpty ? (
-          <LectureAiChatEmptyState onSuggestion={onSuggestion} />
+          <LectureAiChatEmptyState
+            lectureId={lectureId}
+            onSuggestion={onSuggestion}
+          />
         ) : (
           <div className="mx-auto flex max-w-3xl flex-col gap-5">
             {messages.map((message, index) => (
@@ -58,6 +69,9 @@ export function LectureAiChatMessageList({
                 message={message}
                 onRetry={onRetry}
                 canRetry={index === messages.length - 1 && !isSending}
+                onSubmitPracticeQuestionAnswers={
+                  onSubmitPracticeQuestionAnswers
+                }
               />
             ))}
           </div>

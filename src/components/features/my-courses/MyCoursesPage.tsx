@@ -63,12 +63,10 @@ function CourseCard({ course }: { course: MyCoursesItem }) {
         style={{ left: 16, right: 16, top: 182 }}
       >
         <div className="relative h-2.5 rounded-full bg-success-subtle">
+          {/* Vivid green progress fill — reads fine on both themes' success-subtle track. */}
           <div
-            className="absolute left-0 top-0 h-full rounded-full"
-            style={{
-              width: `${course.courseProgress}%`,
-              background: '#31C48D',
-            }}
+            className="absolute left-0 top-0 h-full rounded-full bg-[#31C48D]"
+            style={{ width: `${course.courseProgress}%` }}
           />
         </div>
         <div className="flex justify-between">

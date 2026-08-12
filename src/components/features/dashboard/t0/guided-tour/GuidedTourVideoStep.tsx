@@ -85,10 +85,11 @@ export function GuidedTourVideoStep({
             return (
               <div
                 key={i}
-                className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface/30"
+                // Constant white — the segments overlay the black video well in both themes.
+                className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/30"
               >
                 <div
-                  className="h-full bg-surface transition-all duration-100 ease-linear"
+                  className="h-full bg-white transition-all duration-100 ease-linear"
                   style={{ width: `${fill}%` }}
                 />
               </div>

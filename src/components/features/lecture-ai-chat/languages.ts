@@ -5,6 +5,7 @@
  */
 export type AiLectureChatLanguage =
   | 'English'
+  | 'Hinglish'
   | 'Hindi'
   | 'Tamil'
   | 'Telugu'
@@ -20,6 +21,7 @@ export type AiLectureChatLanguage =
 /** Ordered list of selectable reply languages. English leads as the default. */
 export const AI_LECTURE_CHAT_LANGUAGES: ReadonlyArray<AiLectureChatLanguage> = [
   'English',
+  'Hinglish',
   'Hindi',
   'Tamil',
   'Telugu',
@@ -41,6 +43,7 @@ export const AI_LECTURE_CHAT_LANGUAGE_NATIVE_LABELS: Record<
   string
 > = {
   English: 'English',
+  Hinglish: 'Hinglish',
   Hindi: 'हिन्दी',
   Tamil: 'தமிழ்',
   Telugu: 'తెలుగు',

@@ -182,6 +182,12 @@ export async function storeVideoProgress(
           videoAttendanceStatus: 0,
           includeVideoAttendance: 0,
           status: 0,
+          // Legacy-parity sentinel: marks the row as a video-originated
+          // placeholder rather than a real attendance record. UI note — the
+          // badge resolver must not read this as "hide the status" for a
+          // lecture that still has a catch-up window, or watching the recording
+          // would erase the Absent / window-over badge. See
+          // `resolveLectureAttendanceUiState`.
           meta: { notApplicable: true },
           createdAt: nowIst,
           updatedAt: nowIst,
