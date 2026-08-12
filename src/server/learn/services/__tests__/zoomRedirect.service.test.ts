@@ -50,12 +50,12 @@ describe('getZoomRedirectUrl', () => {
     hoisted.selectQueue = [USER]
     hoisted.genUrl.mockResolvedValueOnce({
       ok: true,
-      url: 'https://zef-ivs.iasam.dev/?token=tok',
+      url: 'https://classroom.masaischool.com/?token=tok',
     })
     const { getZoomRedirectUrl } = await import('../zoomRedirect.service')
 
     await expect(getZoomRedirectUrl(7, 572)).resolves.toBe(
-      'https://zef-ivs.iasam.dev/?token=tok',
+      'https://classroom.masaischool.com/?token=tok',
     )
   })
 

@@ -134,9 +134,9 @@ describe('generateZoomRedirectionUrl', () => {
 
     expect(result.ok).toBe(true)
     if (!result.ok) return
-    expect(result.url.startsWith('https://zef-ivs.iasam.dev/?token=')).toBe(
-      true,
-    )
+    expect(
+      result.url.startsWith('https://classroom.masaischool.com/?token='),
+    ).toBe(true)
   })
 
   it('signs the ivs payload shape: lectureTitle, no email/role_zoom, no iat/exp', async () => {

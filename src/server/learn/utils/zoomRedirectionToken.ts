@@ -9,7 +9,7 @@ const JWT_ALGORITHM = 'HS256'
 // Destination platforms for the ZEF join redirect.
 const ZOOM_MASAI_BASE_URL = 'https://zoom.masaischool.com'
 const ZOOM_IHUB_BASE_URL = 'https://zoom.ihubiitrcourses.org'
-const ZEF_IVS_BASE_URL = 'https://zef-ivs.iasam.dev'
+const ZEF_IVS_BASE_URL = 'https://classroom.masaischool.com'
 
 export type ZoomRedirectionUser = {
   id?: number | string | null
