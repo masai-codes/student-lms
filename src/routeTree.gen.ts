@@ -20,7 +20,6 @@ import { Route as ApiAssessNpsCallbackRouteRouteImport } from './routes/api/asse
 import { Route as protectedLayoutRouteRouteImport } from './routes/(protected)/_layout/route'
 import { Route as ApiWhatsNewIndexRouteImport } from './routes/api/whats-new/index'
 import { Route as ApiProfileIndexRouteImport } from './routes/api/profile/index'
-import { Route as ApiMyCoursesIndexRouteImport } from './routes/api/my-courses/index'
 import { Route as ApiDocsIndexRouteImport } from './routes/api/docs/index'
 import { Route as ApiBookmarksIndexRouteImport } from './routes/api/bookmarks/index'
 import { Route as ApiAnnouncementIndexRouteImport } from './routes/api/announcement/index'
@@ -284,11 +283,6 @@ const ApiWhatsNewIndexRoute = ApiWhatsNewIndexRouteImport.update({
 const ApiProfileIndexRoute = ApiProfileIndexRouteImport.update({
   id: '/api/profile/',
   path: '/api/profile/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiMyCoursesIndexRoute = ApiMyCoursesIndexRouteImport.update({
-  id: '/api/my-courses/',
-  path: '/api/my-courses/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDocsIndexRoute = ApiDocsIndexRouteImport.update({
@@ -1550,7 +1544,6 @@ export interface FileRoutesByFullPath {
   '/api/announcement/': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
   '/api/docs/': typeof ApiDocsIndexRoute
-  '/api/my-courses/': typeof ApiMyCoursesIndexRoute
   '/api/profile/': typeof ApiProfileIndexRoute
   '/api/whats-new/': typeof ApiWhatsNewIndexRoute
   '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
@@ -1770,7 +1763,6 @@ export interface FileRoutesByTo {
   '/api/announcement': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks': typeof ApiBookmarksIndexRoute
   '/api/docs': typeof ApiDocsIndexRoute
-  '/api/my-courses': typeof ApiMyCoursesIndexRoute
   '/api/profile': typeof ApiProfileIndexRoute
   '/api/whats-new': typeof ApiWhatsNewIndexRoute
   '/announcements/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
@@ -1993,7 +1985,6 @@ export interface FileRoutesById {
   '/api/announcement/': typeof ApiAnnouncementIndexRoute
   '/api/bookmarks/': typeof ApiBookmarksIndexRoute
   '/api/docs/': typeof ApiDocsIndexRoute
-  '/api/my-courses/': typeof ApiMyCoursesIndexRoute
   '/api/profile/': typeof ApiProfileIndexRoute
   '/api/whats-new/': typeof ApiWhatsNewIndexRoute
   '/(protected)/_layout/announcements_/$id': typeof protectedLayoutAnnouncementsIdRouteRoute
@@ -2216,7 +2207,6 @@ export interface FileRouteTypes {
     | '/api/announcement/'
     | '/api/bookmarks/'
     | '/api/docs/'
-    | '/api/my-courses/'
     | '/api/profile/'
     | '/api/whats-new/'
     | '/announcements/$id'
@@ -2436,7 +2426,6 @@ export interface FileRouteTypes {
     | '/api/announcement'
     | '/api/bookmarks'
     | '/api/docs'
-    | '/api/my-courses'
     | '/api/profile'
     | '/api/whats-new'
     | '/announcements/$id'
@@ -2658,7 +2647,6 @@ export interface FileRouteTypes {
     | '/api/announcement/'
     | '/api/bookmarks/'
     | '/api/docs/'
-    | '/api/my-courses/'
     | '/api/profile/'
     | '/api/whats-new/'
     | '/(protected)/_layout/announcements_/$id'
@@ -2876,7 +2864,6 @@ export interface RootRouteChildren {
   ApiAnnouncementIndexRoute: typeof ApiAnnouncementIndexRoute
   ApiBookmarksIndexRoute: typeof ApiBookmarksIndexRoute
   ApiDocsIndexRoute: typeof ApiDocsIndexRoute
-  ApiMyCoursesIndexRoute: typeof ApiMyCoursesIndexRoute
   ApiProfileIndexRoute: typeof ApiProfileIndexRoute
   ApiWhatsNewIndexRoute: typeof ApiWhatsNewIndexRoute
   authV2AuthLinkedAccountsRoute: typeof authV2AuthLinkedAccountsRoute
@@ -3046,13 +3033,6 @@ declare module '@tanstack/react-router' {
       path: '/api/profile'
       fullPath: '/api/profile/'
       preLoaderRoute: typeof ApiProfileIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/my-courses/': {
-      id: '/api/my-courses/'
-      path: '/api/my-courses'
-      fullPath: '/api/my-courses/'
-      preLoaderRoute: typeof ApiMyCoursesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/docs/': {
@@ -4942,7 +4922,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAnnouncementIndexRoute: ApiAnnouncementIndexRoute,
   ApiBookmarksIndexRoute: ApiBookmarksIndexRoute,
   ApiDocsIndexRoute: ApiDocsIndexRoute,
-  ApiMyCoursesIndexRoute: ApiMyCoursesIndexRoute,
   ApiProfileIndexRoute: ApiProfileIndexRoute,
   ApiWhatsNewIndexRoute: ApiWhatsNewIndexRoute,
   authV2AuthLinkedAccountsRoute: authV2AuthLinkedAccountsRoute,
