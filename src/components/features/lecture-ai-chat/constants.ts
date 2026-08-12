@@ -9,5 +9,4 @@ export const LECTURE_AI_CHAT_SUGGESTIONS = [
   'Summarize the key points of this lecture',
   'Explain the main concept in simple terms',
   'Give me a short quiz to practice',
-  'Give me flashcards',
 ] as const
