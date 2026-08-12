@@ -224,7 +224,7 @@ function TicketRow({
           </span>
           {ticket.createdAt && (
             <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
+              <span className="w-1.5 h-1.5 bg-foreground-subtle rounded-full" />
               <span className="text-[12px] text-foreground">
                 {formatSocialPostTime(ticket.createdAt)}
               </span>
@@ -258,7 +258,7 @@ function CallbackRow({ ticket }: { ticket: CallbackTicketItem }) {
           </span>
           {timestamp && (
             <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
+              <span className="w-1.5 h-1.5 bg-foreground-subtle rounded-full" />
               <span className="text-[12px] text-foreground">
                 {formatSocialPostTime(timestamp)}
               </span>
@@ -266,7 +266,7 @@ function CallbackRow({ ticket }: { ticket: CallbackTicketItem }) {
           )}
           {ticket.preferredTimeSlot && (
             <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
+              <span className="w-1.5 h-1.5 bg-foreground-subtle rounded-full" />
               <span className="text-[12px] text-foreground-muted font-poppins">
                 Preferred slot: {ticket.preferredTimeSlot}
               </span>

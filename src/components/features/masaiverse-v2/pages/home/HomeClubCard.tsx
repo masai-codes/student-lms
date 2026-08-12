@@ -50,13 +50,13 @@ export default function HomeClubCard({ club }: HomeClubCardProps) {
               {club.sampleMemberNames.map((name, index) => (
                 <span
                   key={`${name}-${index}`}
-                  className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-accent-warm/15 text-[10px] font-bold text-accent-warm"
+                  className="flex size-7 items-center justify-center rounded-full border-2 border-surface bg-accent-warm/15 text-[10px] font-bold text-accent-warm"
                 >
                   {getInitials(name)}
                 </span>
               ))}
               {hasMoreMembers ? (
-                <span className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-accent-warm/15 text-[10px] font-bold text-accent-warm">
+                <span className="flex size-7 items-center justify-center rounded-full border-2 border-surface bg-accent-warm/15 text-[10px] font-bold text-accent-warm">
                   +
                 </span>
               ) : null}

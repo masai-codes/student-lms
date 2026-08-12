@@ -16,18 +16,14 @@ import { TryNewTour } from '@/components/features/layout/TryNewTour'
 import { AnnouncementModalController, ModalProvider } from '@/components/modals'
 import MasaiverseMobileTabBar from '@/components/features/masaiverse-v2/MasaiverseMobileTabBar'
 import { isMasaiverseApp } from '@/constants/masaiverseDrawerUi'
-import {
-  layoutMainClasses,
-  layoutMainClassesFullWidth,
-  lectureDetailMainClasses,
-  LAYOUT_APP_SHELL_CLASSES,
-} from '@/lib/layout'
+import { ME_QUERY_KEY } from '@/query/me/meCache'
+import { meQuery } from '@/query/me/meQuery'
 import { bootstrapLoginWithToken } from '@/server/auth/bootstrapLogin'
-import { fetchCurrentUser } from '@/server/auth/fetchCurrentUser'
 import {
   getOldStudentUiUrlForPath,
   isLegacyStudentRedirectEnabled,
 } from '@/utils/authRedirect'
+import { mapToLegacyPath } from '@/utils/legacyPathMap'
 import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { initClarity, setCurrentUserForTracking } from '@/utils/tracking'
 
@@ -37,48 +33,53 @@ const ENABLE_SUPPORT_FLOATER = true
 /** Paths served by this app when legacy redirect is enabled (everything else → old LMS). */
 /**
  * Paths served by this app when legacy redirect is enabled (everything else →
- * old LMS). Deliberately minimal: only the 5 migrated pages (flag-gated,
- * handled separately) plus `masaiverse` and `support` stay on the new LMS.
- * Everything else — announcements, messages, bookmarks, whats-new, profile,
- * my-courses, course, etc. — redirects to the old LMS.
+ * old LMS). Deliberately minimal: only the migrated pages (flag-gated, handled
+ * separately) plus `masaiverse`, `support` and `interviews` stay on the new LMS.
+ * Everything else — profile, my-courses, course, etc. — redirects to the old LMS.
+ *
+ * `support` is also a migrated route: the flag decides which app the *old* LMS
+ * sends the student to, but on this side it is always served — `/support` (and
+ * `/support/context`) is embedded in an old-LMS iframe, so an opted-out student
+ * must never be redirected back out of it. `chat` is purely flag-gated, like
+ * Dashboard and Learn.
  */
 function isNewStudentExperienceRoute(pathname: string): boolean {
   if (pathname.startsWith('/masaiverse')) return true
   if (pathname === '/support' || pathname.startsWith('/support/')) {
     return true
   }
+  if (pathname === '/interviews' || pathname.startsWith('/interviews/')) {
+    return true
+  }
   return false
 }
 
-/**
- * New→old path translation for pages whose old-LMS route differs. Anything not
- * listed keeps the same path on the old LMS.
- *   /my-courses  → /my-lectures      (course listing)
- *   /course/:id  → /new-courses/:id  (course detail)
- */
-function mapToLegacyPath(pathname: string): string {
-  if (pathname === '/my-courses' || pathname.startsWith('/my-courses/')) {
-    return pathname.replace(/^\/my-courses/, '/my-lectures')
-  }
-  if (pathname === '/course' || pathname.startsWith('/course/')) {
-    return pathname.replace(/^\/course/, '/new-courses')
-  }
-  return pathname
+/** Lecture, assignment, and resource detail pages use in-header Raise Ticket instead. */
+function shouldHideSupportIcon(pathname: string): boolean {
+  return (
+    /^\/learn\/(lectures|assignments|resources)\/[^/]+/.test(pathname) ||
+    /^\/(interviews\/|chat)/.test(pathname)
+  )
 }
 
-/** Lecture, assignment, and resource detail pages use in-header Raise Ticket instead. */
-function isLearnDetailRoute(pathname: string): boolean {
-  return /^\/(lectures|assignments|resources)\/[^/]+/.test(pathname)
+/** Live interview session screen is a full-screen, single-task surface — no
+ * navbar/tab bar chrome, same treatment as chat/masaiverse/lecture detail. */
+function isInterviewSessionRoute(pathname: string): boolean {
+  return /^\/interviews\/[^/]+$/.test(pathname)
 }
 
 export const Route = createFileRoute('/(protected)/_layout')({
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async ({ context, location }) => {
     const shouldRedirectToLegacy = isLegacyStudentRedirectEnabled()
     const isMasaiverseRoute = location.pathname.startsWith('/masaiverse')
     const requestUrl = new URL(location.href, 'http://localhost')
     const token = requestUrl.searchParams.get('token')
 
-    let user = await fetchCurrentUser()
+    // `beforeLoad` re-runs on every navigation under this layout, so this must
+    // come from the cache: called directly, the server function was an RPC per
+    // page change that blocked navigation for up to ~1.3s (issue #354). Primed
+    // during SSR, streamed into the client, then reused for `ME_STALE_TIME`.
+    let user = await context.queryClient.ensureQueryData(meQuery())
 
     // Auto-login fallback: on any route, when there's no session yet but the
     // request carries a `?token=` (legacy/app hands the session off via the
@@ -86,6 +87,9 @@ export const Route = createFileRoute('/(protected)/_layout')({
     // authed. The `?token=` is stripped from the URL below once consumed.
     if (!user && token) {
       user = await bootstrapLoginWithToken({ data: token })
+      // Overwrite the `null` just cached, or the redirect below would re-read it
+      // and bounce this now-authenticated request to /signin.
+      context.queryClient.setQueryData(ME_QUERY_KEY, user)
     }
 
     if (!user) {
@@ -121,21 +125,30 @@ export const Route = createFileRoute('/(protected)/_layout')({
     if (shouldRedirectToLegacy) {
       const url = new URL(location.href, 'http://localhost')
 
-      // The 5 migrated routes ignore the static allowlist: the per-user flag
+      // The migrated routes ignore the static allowlist: the per-user flag
       // decides. Opted in → stay here; opted out → old LMS. Every other route
       // keeps the existing allowlist behaviour.
+      //
+      // Exception: a route that is both migrated *and* allowlisted (support,
+      // chat) is always served here — the old LMS embeds this app's `/support`
+      // in an iframe, so an opted-out student must not be bounced back (the old
+      // page would just re-embed us). For those the migrated listing only drives
+      // the old LMS hand-off and the "Try New" toggle.
+      const isAlwaysServedHere = isNewStudentExperienceRoute(location.pathname)
       const shouldRedirectMigratedRoute =
-        isMigratedRoute(location.pathname) && !user.newLmsPagesEnabled
+        isMigratedRoute(location.pathname) &&
+        !user.newLmsPagesEnabled &&
+        !isAlwaysServedHere
       const shouldRedirectOtherRoute =
-        !isMigratedRoute(location.pathname) &&
-        !isNewStudentExperienceRoute(location.pathname)
+        !isMigratedRoute(location.pathname) && !isAlwaysServedHere
 
       if (shouldRedirectMigratedRoute || shouldRedirectOtherRoute) {
         // Migrated pages hand off path-only — the old LMS regenerates its own
-        // query params (batch/tab/page). Other legacy routes keep their search,
-        // with a path translation where the old-LMS route differs.
+        // query params (batch/tab/page). Other legacy routes keep their search.
+        // Both translate the path where the old-LMS route differs (e.g. this
+        // app's `/learn/discussions` is `/discussions` over there).
         const pathForLegacy = shouldRedirectMigratedRoute
-          ? url.pathname
+          ? mapToLegacyPath(url.pathname)
           : `${mapToLegacyPath(url.pathname)}${url.search}`
         const oldUiUrl = getOldStudentUiUrlForPath(pathForLegacy)
         if (oldUiUrl) {
@@ -182,12 +195,17 @@ function RouteComponent() {
   const isSupportRoute = pathname.startsWith('/support')
   // Lecture detail spans the full viewport width (no centered container), so
   // every hero state is edge-to-edge like the recording video.
-  const isLectureDetail = /^\/lectures\/[^/]+/.test(renderedPathname)
-  const mainClasses = renderedPathname.startsWith('/masaiverse')
-    ? layoutMainClassesFullWidth
-    : isLectureDetail
-      ? lectureDetailMainClasses
-      : layoutMainClasses
+  const isLectureDetail = /^\/learn\/lectures\/[^/]+/.test(renderedPathname)
+  // Chat is a single full-bleed iframe (connect.masaischool.com) — it wants
+  // the full viewport width/height, same as Masaiverse and lecture detail.
+  const isChatRoute = renderedPathname.startsWith('/chat')
+  const isDashboard = renderedPathname === '/'
+  const mainClasses =
+    renderedPathname.startsWith('/masaiverse') || isChatRoute || isDashboard
+      ? 'layout-full-width-main'
+      : isLectureDetail
+        ? 'layout-lecture-main'
+        : 'layout-page'
 
   useEffect(() => {
     initClarity()
@@ -205,14 +223,24 @@ function RouteComponent() {
     )
   }
 
-  const showFloatingChat =
-    ENABLE_SUPPORT_FLOATER && !isMasaiverseRoute && !isSupportRoute
+  if (isInterviewSessionRoute(renderedPathname)) {
+    return (
+      <ModalProvider>
+        <Outlet />
+      </ModalProvider>
+    )
+  }
+
+  // Masaiverse gets the same support surface as every other page: the provider
+  // is mounted there too, so the navbar's Support tab opens the floating chat
+  // drawer instead of falling back to a full-page navigation to /support.
+  const showFloatingChat = ENABLE_SUPPORT_FLOATER && !isSupportRoute
   const showFloatingChatSphere =
-    showFloatingChat && !isLearnDetailRoute(renderedPathname)
+    showFloatingChat && !shouldHideSupportIcon(renderedPathname)
 
   // `data-app-shell`: hook target for the lecture page viewport lock (styles.css).
   const layout = (
-    <div data-app-shell className={LAYOUT_APP_SHELL_CLASSES}>
+    <div data-app-shell className="layout-app-shell">
       <TryNewTour hasSeen={user.hasSeenTryNewTour || user.hideSwitchOption} />
       <AppNavbar />
       {pathname === '/' && !isApp ? <AppMobileHeader /> : null}

@@ -103,7 +103,7 @@ export function LectureDetailFooter({
           activeTabId={activeTabId}
           onTabChange={handleTabChange}
           hideNotes={hideNotes}
-          className="border-b border-border pb-3 pt-3"
+          className="pb-3 pt-3"
         />
       </div>
       <LectureTabContentSection
@@ -117,7 +117,7 @@ export function LectureDetailFooter({
         discussions={discussions}
         emptyStateContext="lecture"
         layout="footer"
-        className="border-t border-border px-0"
+        className="px-0 pb-10 pt-8"
       />
     </>
   )

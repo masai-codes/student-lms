@@ -39,9 +39,7 @@ export type LearnListingJoinLiveState = 'hidden' | 'disabled' | 'active'
 
 /** Assignment status chip on learn listing cards (legacy AssignmentListCard rules). */
 export type AssignmentListingStatusChip =
-  | AssignmentProgressStatus
-  | 'practice-mode'
-  | null
+  AssignmentProgressStatus | 'practice-mode' | null
 
 /** Server-resolved CTA visibility for learn listing cards — see `buildLearnListingCardCtas`. */
 export interface LearnListingCardCtas {
@@ -209,6 +207,13 @@ export interface DiscussionListItem {
   author: DiscussionAuthorPreview | null
   /** Reply threads loaded with the detail page (empty on non-detail listings). */
   threads: Array<LearnDiscussionThreadItem>
+}
+
+/** A discussion in the batch-wide `/learn/discussions` feed, with its source content attached. */
+export interface LearnDiscussionListItem extends DiscussionListItem {
+  contentType: 'lecture' | 'assignment' | 'resource'
+  contentId: number
+  contentTitle: string
 }
 
 /**

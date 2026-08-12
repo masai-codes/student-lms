@@ -139,6 +139,33 @@ export function LectureDetailOverviewHeader({
         {attendanceBanner ? (
           <LectureAttendanceBanner banner={attendanceBanner} />
         ) : null}
+        <div>
+          <div className="inline-flex max-w-full flex-1 items-start gap-3 md:min-w-0 md:flex-none md:justify-end bg-surface-muted px-4 py-3 rounded-lg border">
+            <Avatar
+              size="lg"
+              className="size-10 shrink-0 ring-2 ring-brand/15 ring-offset-2 ring-offset-background transition-transform duration-300 hover:scale-105"
+            >
+              {avatarUrl ? (
+                <AvatarImage src={avatarUrl} alt={hostName} />
+              ) : null}
+              <AvatarFallback className="type-b2-md bg-muted text-foreground">
+                {hostInitials(hostName)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 pt-0.5 text-left">
+              <p className="type-b1-md wrap-break-words text-foreground">
+                {hostName}
+              </p>
+              {dateRange ? (
+                <LocalTimeWithIstTooltip
+                  local={dateRange}
+                  ist={dateRangeIst}
+                  className="type-b2-regular mt-0.5 block text-foreground-muted text-xs"
+                />
+              ) : null}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Mobile: host (left) and CTAs (right) share one row to save vertical
@@ -149,27 +176,6 @@ export function LectureDetailOverviewHeader({
           justify-between + the stretched section height pushes the CTAs to the
           bottom so they line up with the blue banner in the left column. */}
       <div className="flex min-w-0 shrink-0 flex-row flex-wrap items-center justify-between gap-x-3 gap-y-4 md:max-w-[min(100%,280px)] md:flex-col md:flex-nowrap md:items-end md:justify-between md:gap-3">
-        <div className="flex min-w-[180px] flex-1 items-start gap-3 md:min-w-0 md:flex-none md:justify-end">
-          <Avatar
-            size="lg"
-            className="size-10 shrink-0 ring-2 ring-brand/15 ring-offset-2 ring-offset-background transition-transform duration-300 hover:scale-105"
-          >
-            {avatarUrl ? <AvatarImage src={avatarUrl} alt={hostName} /> : null}
-            <AvatarFallback className="type-b2-md bg-muted text-foreground">
-              {hostInitials(hostName)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 pt-0.5 text-left">
-            <p className="type-b1-md break-words text-foreground">{hostName}</p>
-            {dateRange ? (
-              <LocalTimeWithIstTooltip
-                local={dateRange}
-                ist={dateRangeIst}
-                className="type-b2-regular mt-0.5 block text-foreground-muted"
-              />
-            ) : null}
-          </div>
-        </div>
         {actions ? (
           // Press physics for the header CTAs (Raise Ticket + bookmark).
           <div className="flex shrink-0 items-center gap-2 [&_a]:transition-transform [&_a]:duration-150 [&_a]:active:scale-95 [&_button]:transition-transform [&_button]:duration-150 [&_button]:active:scale-95">

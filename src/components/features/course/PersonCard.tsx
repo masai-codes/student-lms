@@ -27,18 +27,18 @@ export function PersonCard({ name, role, avatarUrl }: PersonCardProps) {
               xmlns="http://www.w3.org/2000/svg"
               className="w-full h-full"
             >
-              <rect width="56" height="56" fill="#f3f4f6" />
-              <circle cx="28" cy="21" r="10" fill="#4B5563" />
+              <rect width="56" height="56" fill="var(--muted)" />
+              <circle cx="28" cy="21" r="10" fill="var(--foreground-muted)" />
               <path
                 d="M6 54c0-12.15 9.85-22 22-22s22 9.85 22 22"
-                fill="#4B5563"
+                fill="var(--foreground-muted)"
               />
               <circle
                 cx="28"
                 cy="28"
                 r="27"
                 fill="none"
-                stroke="#4B5563"
+                stroke="var(--foreground-muted)"
                 strokeWidth="3.5"
               />
             </svg>

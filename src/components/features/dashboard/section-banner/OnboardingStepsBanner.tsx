@@ -20,8 +20,8 @@ interface OnboardingStepsBannerProps {
  * Purple onboarding banner shown at the top of the dashboard for T0 learners who
  * still have mandatory guided-tour steps pending. One slide per course (the
  * course title is shown so multi-course learners can tell them apart); embla
- * powers drag-to-swipe, with dots centered below (multi-course only). Its bottom
- * corners are square so it sits flush against the white content card below.
+ * powers drag-to-swipe, with dots centered below (multi-course only). It is a
+ * fully rounded card with a gap below it, matching the other dashboard banners.
  */
 export function OnboardingStepsBanner({
   banners,
@@ -75,7 +75,7 @@ export function OnboardingStepsBanner({
     <div
       {...autoplay}
       data-testid="dashboard-onboarding-banner"
-      className="rounded-t-2xl bg-gradient-to-r from-[#5B52A3] to-[#6E66B8] px-5 py-3.5 text-white"
+      className="banner-hero rounded-2xl px-5 py-3.5"
     >
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
@@ -123,7 +123,8 @@ export function OnboardingStepsBanner({
                 data-active={i === selected}
                 onClick={() => emblaApi?.scrollTo(i)}
                 className={`size-1.5 rounded-full transition-colors ${
-                  i === selected ? 'bg-surface' : 'bg-surface/40'
+                  // Constant white — the dots sit on the fixed purple gradient.
+                  i === selected ? 'bg-white' : 'bg-white/40'
                 }`}
               />
             ))}
@@ -177,7 +178,7 @@ function OnboardingSlide({
         type="button"
         onClick={onResume}
         data-testid="dashboard-onboarding-banner-resume"
-        className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-surface px-4 py-2 text-sm font-semibold text-brand transition-colors hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"
+        className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"
       >
         Finish Now
         <ArrowRight size={16} weight="bold" />
@@ -198,6 +199,8 @@ function StepsLeftCounter({ remaining }: { remaining: number }) {
       className="flex shrink-0 items-center gap-2 rounded-xl bg-[#FFC24B] px-3 py-1.5 text-[#4A3F7A] shadow-sm"
     >
       <span className="relative flex size-2" aria-hidden>
+        {/* `bg-brand` follows the theme accent: purple in light, red in dark —
+            both pop against the fixed amber chip. */}
         <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand opacity-70" />
         <span className="relative inline-flex size-2 rounded-full bg-brand" />
       </span>

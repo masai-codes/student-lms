@@ -1,3 +1,5 @@
+import { ThemedLogo } from '@/components/common/ThemedLogo'
+
 const GOOGLE_PLAY_QR_URL =
   'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/google_play_qr.png'
 const APP_STORE_QR_URL =
@@ -36,8 +38,9 @@ export function DownloadAppContent({
   return (
     <div className={className} data-testid="download-app-content">
       <div className="flex justify-center pb-6 pt-1 md:pb-8 md:pt-0">
-        <img
-          src="https://masai-website-images.s3.ap-south-1.amazonaws.com/Group_1707486823_bb03f18e00.svg"
+        <ThemedLogo
+          lightSrc="https://masai-website-images.s3.ap-south-1.amazonaws.com/Group_1707486823_bb03f18e00.svg"
+          darkSrc="/masai-learn-dark.svg"
           alt="Masai Learn"
           className="h-[37px] object-contain"
         />

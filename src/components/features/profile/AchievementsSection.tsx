@@ -48,14 +48,8 @@ function BadgeModal({
           <X size={20} />
         </button>
 
-        {/* Top gradient background */}
-        <div
-          className="flex justify-center pt-10 pb-6 px-6"
-          style={{
-            background:
-              'linear-gradient(160deg, #e0f2fe 0%, #f0fdf4 50%, #faf5ff 100%)',
-          }}
-        >
+        {/* Top gradient background — same pastel hues as deep washes in dark. */}
+        <div className="flex justify-center pt-10 pb-6 px-6 bg-[linear-gradient(160deg,#e0f2fe_0%,#f0fdf4_50%,#faf5ff_100%)] dark:bg-[linear-gradient(160deg,rgb(14_165_233_/_0.12)_0%,rgb(34_197_94_/_0.10)_50%,rgb(168_85_247_/_0.12)_100%)]">
           <div
             className={`size-40 overflow-hidden flex items-center justify-center ${isLocked ? 'opacity-50' : ''}`}
           >
@@ -94,7 +88,7 @@ function BadgeModal({
           {sectionModuleName || courseTitle ? (
             <div className="w-full bg-surface-muted rounded-2xl px-6 py-4 flex flex-col items-center gap-2 mt-1">
               {sectionModuleName ? (
-                <span className="inline-flex items-center px-4 py-1 rounded-full border border-teal-500 text-teal-600 text-sm font-medium">
+                <span className="inline-flex items-center px-4 py-1 rounded-full border border-teal-500 text-teal-600 dark:text-teal-400 text-sm font-medium">
                   {sectionModuleName}
                 </span>
               ) : null}
@@ -111,7 +105,7 @@ function BadgeModal({
             <button
               type="button"
               onClick={handleLinkedIn}
-              className="mt-2 inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-brand text-brand-foreground text-sm font-semibold hover:bg-[#4B4396] transition-colors focus-visible:outline-none"
+              className="mt-2 inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-brand text-brand-foreground text-sm font-semibold hover:bg-[#4B4396] dark:hover:bg-brand/90 transition-colors focus-visible:outline-none"
             >
               {/* LinkedIn icon */}
               <svg

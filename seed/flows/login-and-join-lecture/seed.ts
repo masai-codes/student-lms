@@ -77,6 +77,7 @@ export async function seedLoginAndJoinLecture(): Promise<SeedFlowResult> {
   const batch = await createBatch({
     name: `FT-MOCK-1 [${FLOW_ID}]`,
     starting: formatMysqlDate(batchStart),
+    meta: { show_masaiverse: true },
   })
 
   const section = await createSection({ batchId: batch.id })

@@ -3,8 +3,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 function CourseCardSkeleton() {
   return (
     <div
-      className="relative bg-surface rounded-2xl overflow-hidden"
-      style={{ border: '1px solid #E5E7EB', minHeight: 294 }}
+      className="relative bg-surface rounded-2xl overflow-hidden border border-border"
+      style={{ minHeight: 294 }}
     >
       {/* Logo */}
       <div
@@ -50,8 +50,8 @@ function CourseCardSkeleton() {
 export function MyCoursesPageSkeleton() {
   return (
     <div
-      className="flex flex-col gap-4 px-2 py-2"
-      style={{ background: '#FAF9F9', minHeight: '100vh' }}
+      className="flex flex-col gap-4 px-2 py-2 bg-surface-muted"
+      style={{ minHeight: '100vh' }}
     >
       <Skeleton className="h-7 w-32 rounded" />
       <div className="grid grid-cols-2 gap-4">

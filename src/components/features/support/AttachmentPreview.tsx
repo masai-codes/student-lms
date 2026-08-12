@@ -66,22 +66,24 @@ export function ImageThumbnail({
       className={cn(
         'group relative mt-2 flex items-center gap-2.5 rounded-[12px] px-3 py-2.5 transition-all hover:scale-[1.01] active:scale-[0.99] text-left',
         isUser
-          ? 'bg-white/10 hover:bg-white/20 border border-white/20'
-          : 'bg-white hover:bg-gray-50 border border-[#e9e9f3] shadow-sm',
+          ? // Sits on the fixed dark-purple user bubble in BOTH modes, so the
+            // tint must stay literal white (not the themed surface token).
+            'bg-white/10 hover:bg-white/20 border border-white/20'
+          : 'bg-surface hover:bg-surface-muted border border-[#e9e9f3] dark:border-border shadow-sm',
       )}
     >
       {/* Thumbnail icon area */}
       <div
         className={cn(
           'flex items-center justify-center shrink-0 size-[38px] rounded-[9px]',
-          isUser ? 'bg-white/15' : 'bg-[#f0f0fd]',
+          isUser ? 'bg-white/15' : 'bg-[#f0f0fd] dark:bg-brand-subtle',
         )}
       >
         <Image
           weight="duotone"
           className={cn(
             'size-[20px]',
-            isUser ? 'text-white' : 'text-[#4b4396]',
+            isUser ? 'text-white' : 'text-[#4b4396] dark:text-brand',
           )}
         />
       </div>
@@ -91,7 +93,7 @@ export function ImageThumbnail({
         <p
           className={cn(
             'text-[12.5px] font-semibold truncate leading-tight',
-            isUser ? 'text-white' : 'text-[#15162c]',
+            isUser ? 'text-white' : 'text-[#15162c] dark:text-foreground',
           )}
         >
           {trimFilename(alt || 'Image')}
@@ -99,7 +101,9 @@ export function ImageThumbnail({
         <p
           className={cn(
             'text-[11px] leading-tight mt-[2px]',
-            isUser ? 'text-white/70' : 'text-[#62647d]',
+            isUser
+              ? 'text-white/70'
+              : 'text-[#62647d] dark:text-foreground-muted',
           )}
         >
           Click to open in new tab
@@ -110,7 +114,9 @@ export function ImageThumbnail({
       <div
         className={cn(
           'shrink-0 opacity-0 group-hover:opacity-100 transition-opacity',
-          isUser ? 'text-white/70' : 'text-[#9496ab]',
+          isUser
+            ? 'text-white/70'
+            : 'text-[#9496ab] dark:text-foreground-subtle',
         )}
       >
         <ArrowSquareOut weight="bold" className="size-[14px]" />
@@ -141,29 +147,33 @@ export function VideoChip({
       className={cn(
         'group mt-2 flex items-center gap-2.5 rounded-[12px] px-3 py-2.5 transition-all hover:scale-[1.01] active:scale-[0.99]',
         isUser
-          ? 'bg-white/10 hover:bg-white/20 border border-white/20'
-          : 'bg-white hover:bg-gray-50 border border-[#e9e9f3] shadow-sm',
+          ? // Sits on the fixed dark-purple user bubble in BOTH modes, so the
+            // tint must stay literal white (not the themed surface token).
+            'bg-white/10 hover:bg-white/20 border border-white/20'
+          : 'bg-surface hover:bg-surface-muted border border-[#e9e9f3] dark:border-border shadow-sm',
       )}
     >
       {/* Play icon container */}
       <div
         className={cn(
           'flex items-center justify-center shrink-0 size-[38px] rounded-[9px] relative',
-          isUser ? 'bg-white/15' : 'bg-[#f0f0fd]',
+          isUser ? 'bg-white/15' : 'bg-[#f0f0fd] dark:bg-brand-subtle',
         )}
       >
         <VideoCamera
           weight="duotone"
           className={cn(
             'size-[18px]',
-            isUser ? 'text-white' : 'text-[#4b4396]',
+            isUser ? 'text-white' : 'text-[#4b4396] dark:text-brand',
           )}
         />
         {/* play badge */}
         <span
           className={cn(
             'absolute -bottom-0.5 -right-0.5 flex items-center justify-center size-[14px] rounded-full',
-            isUser ? 'bg-white text-[#4b4396]' : 'bg-[#4b4396] text-white',
+            isUser
+              ? 'bg-white text-[#4b4396]'
+              : 'bg-[#4b4396] text-white dark:bg-brand dark:text-brand-foreground',
           )}
         >
           <Play weight="fill" className="size-[7px]" />
@@ -174,7 +184,7 @@ export function VideoChip({
         <p
           className={cn(
             'text-[12.5px] font-semibold truncate leading-tight',
-            isUser ? 'text-white' : 'text-[#15162c]',
+            isUser ? 'text-white' : 'text-[#15162c] dark:text-foreground',
           )}
         >
           {trimFilename(name)}
@@ -182,7 +192,9 @@ export function VideoChip({
         <p
           className={cn(
             'text-[11px] leading-tight mt-[2px]',
-            isUser ? 'text-white/70' : 'text-[#62647d]',
+            isUser
+              ? 'text-white/70'
+              : 'text-[#62647d] dark:text-foreground-muted',
           )}
         >
           Video · Click to play
@@ -193,7 +205,9 @@ export function VideoChip({
         weight="bold"
         className={cn(
           'size-[14px] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity',
-          isUser ? 'text-white/70' : 'text-[#9496ab]',
+          isUser
+            ? 'text-white/70'
+            : 'text-[#9496ab] dark:text-foreground-subtle',
         )}
       />
     </a>
@@ -209,7 +223,10 @@ function FileIcon({
   kind: 'pdf' | 'zip' | 'file'
   isUser: boolean
 }) {
-  const cls = cn('size-[20px]', isUser ? 'text-white' : 'text-[#4b4396]')
+  const cls = cn(
+    'size-[20px]',
+    isUser ? 'text-white' : 'text-[#4b4396] dark:text-brand',
+  )
   if (kind === 'pdf') return <FilePdf weight="duotone" className={cls} />
   if (kind === 'zip') return <FileZip weight="duotone" className={cls} />
   return <FileText weight="duotone" className={cls} />
@@ -242,14 +259,16 @@ export function FileChip({
       className={cn(
         'group mt-2 flex items-center gap-2.5 rounded-[12px] px-3 py-2.5 transition-all hover:scale-[1.01] active:scale-[0.99]',
         isUser
-          ? 'bg-white/10 hover:bg-white/20 border border-white/20'
-          : 'bg-white hover:bg-gray-50 border border-[#e9e9f3] shadow-sm',
+          ? // Sits on the fixed dark-purple user bubble in BOTH modes, so the
+            // tint must stay literal white (not the themed surface token).
+            'bg-white/10 hover:bg-white/20 border border-white/20'
+          : 'bg-surface hover:bg-surface-muted border border-[#e9e9f3] dark:border-border shadow-sm',
       )}
     >
       <div
         className={cn(
           'flex items-center justify-center shrink-0 size-[38px] rounded-[9px]',
-          isUser ? 'bg-white/15' : 'bg-[#f0f0fd]',
+          isUser ? 'bg-white/15' : 'bg-[#f0f0fd] dark:bg-brand-subtle',
         )}
       >
         <FileIcon kind={kind} isUser={isUser} />
@@ -259,7 +278,7 @@ export function FileChip({
         <p
           className={cn(
             'text-[12.5px] font-semibold truncate leading-tight',
-            isUser ? 'text-white' : 'text-[#15162c]',
+            isUser ? 'text-white' : 'text-[#15162c] dark:text-foreground',
           )}
         >
           {trimFilename(name)}
@@ -267,7 +286,9 @@ export function FileChip({
         <p
           className={cn(
             'text-[11px] leading-tight mt-[2px]',
-            isUser ? 'text-white/70' : 'text-[#62647d]',
+            isUser
+              ? 'text-white/70'
+              : 'text-[#62647d] dark:text-foreground-muted',
           )}
         >
           {kindLabel(kind)}
@@ -278,7 +299,9 @@ export function FileChip({
         weight="bold"
         className={cn(
           'size-[14px] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity',
-          isUser ? 'text-white/70' : 'text-[#9496ab]',
+          isUser
+            ? 'text-white/70'
+            : 'text-[#9496ab] dark:text-foreground-subtle',
         )}
       />
     </a>
@@ -314,7 +337,7 @@ export function SmartLink({
       rel="noopener noreferrer"
       className={cn(
         'font-medium underline underline-offset-2 hover:opacity-80 transition-opacity break-all text-[13.6px]',
-        isUser ? 'text-white' : 'text-[#1264a3]',
+        isUser ? 'text-white' : 'text-[#1264a3] dark:text-info',
       )}
     >
       {name}

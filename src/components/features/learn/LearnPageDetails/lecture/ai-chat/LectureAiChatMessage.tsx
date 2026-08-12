@@ -23,13 +23,13 @@ export function LectureAiChatMessage({ message }: LectureAiChatMessageProps) {
       <div
         className={cn(
           'max-w-[88%] rounded-2xl px-3.5 py-2.5',
-          isUser ? 'bg-brand text-white' : 'bg-[#3a3a3a]',
+          isUser ? 'bg-brand text-brand-foreground' : 'bg-[#3a3a3a]',
         )}
       >
         <div
           className={cn(
             'type-b2-regular ai-chat-markdown whitespace-pre-wrap break-words',
-            isUser ? '!text-white' : '!text-gray-100',
+            isUser ? '!text-brand-foreground' : '!text-gray-100',
           )}
         >
           <Markdown remarkPlugins={[remarkGfm]}>{message.content}</Markdown>
@@ -38,7 +38,7 @@ export function LectureAiChatMessage({ message }: LectureAiChatMessageProps) {
           <p
             className={cn(
               'type-caption-regular mt-1',
-              isUser ? '!text-white/70' : '!text-gray-400',
+              isUser ? '!text-brand-foreground/70' : '!text-gray-400',
             )}
           >
             {timestampLabel}

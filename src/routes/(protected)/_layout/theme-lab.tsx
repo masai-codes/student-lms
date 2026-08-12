@@ -19,12 +19,12 @@ export const Route = createFileRoute('/(protected)/_layout/theme-lab')({
 
 /**
  * Theme Lab — a kitchen-sink of every semantic token and core component,
- * rendered purely against theme tokens. Switch themes from the navbar (or the
- * inline picker) and everything here should re-theme with guaranteed contrast.
- * This is the visual QA surface for the theming system.
+ * rendered purely against theme tokens. Switch themes from the navbar toggle
+ * (or the inline picker) and everything here should re-theme with guaranteed
+ * contrast. This is the visual QA surface for the theming system.
  */
 function ThemeLabRoute() {
-  const { themes, theme, setTheme, themeDefinition } = useTheme()
+  const { preference, resolvedTheme, setPreference, hydrated } = useTheme()
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
@@ -33,33 +33,30 @@ function ThemeLabRoute() {
         <p className="mt-1 text-sm text-foreground-muted">
           Active theme:{' '}
           <span className="font-semibold text-brand">
-            {themeDefinition.label}
-          </span>
-          . Every surface below is driven only by semantic tokens.
+            {hydrated ? resolvedTheme : 'light'}
+          </span>{' '}
+          (preference: {hydrated ? preference : 'system'}). Every surface below
+          is driven only by semantic tokens.
         </p>
       </header>
 
-      {/* Inline theme picker */}
+      {/* Inline preference picker */}
       <section className="mb-10">
-        <SectionTitle>Themes</SectionTitle>
+        <SectionTitle>Theme preference</SectionTitle>
         <div className="flex flex-wrap gap-2">
-          {themes.map((t) => (
+          {(['light', 'dark', 'system'] as const).map((p) => (
             <button
-              key={t.id}
+              key={p}
               type="button"
-              onClick={() => setTheme(t.id)}
+              onClick={() => setPreference(p)}
               className={cn(
-                'flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors',
-                t.id === theme
+                'flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm capitalize transition-colors',
+                hydrated && p === preference
                   ? 'border-brand bg-brand-subtle text-brand-subtle-foreground'
                   : 'border-border bg-surface text-foreground-muted hover:border-border-strong',
               )}
             >
-              <span
-                className="size-3.5 rounded-full ring-1 ring-black/10"
-                style={{ backgroundColor: t.swatch[2] }}
-              />
-              {t.label}
+              {p}
             </button>
           ))}
         </div>

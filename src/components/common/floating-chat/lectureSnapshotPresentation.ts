@@ -88,7 +88,7 @@ export function getSupportAttendancePresentation(
   if (!snapshot.showAttendance) {
     return {
       label: 'N/A',
-      colorClass: 'text-[#62647d]',
+      colorClass: 'text-[#62647d] dark:text-foreground-muted',
       showAbsentReason: false,
       absentReason: null,
     }
@@ -98,7 +98,7 @@ export function getSupportAttendancePresentation(
   if (render.uiState === 'present') {
     return {
       label: 'Present',
-      colorClass: 'text-[#0E9F6E]',
+      colorClass: 'text-[#0E9F6E] dark:text-success',
       showAbsentReason: false,
       absentReason: null,
     }
@@ -112,7 +112,9 @@ export function getSupportAttendancePresentation(
     const isPending = render.uiState === 'continue_watching'
     return {
       label: isPending ? 'Pending' : 'Absent',
-      colorClass: isPending ? 'text-[#62647d]' : 'text-[#ef4444]',
+      colorClass: isPending
+        ? 'text-[#62647d] dark:text-foreground-muted'
+        : 'text-[#ef4444] dark:text-danger',
       showAbsentReason: true,
       absentReason: buildAttendanceReason(snapshot, render.uiState),
     }
@@ -120,7 +122,7 @@ export function getSupportAttendancePresentation(
 
   return {
     label: 'Pending',
-    colorClass: 'text-[#62647d]',
+    colorClass: 'text-[#62647d] dark:text-foreground-muted',
     showAbsentReason: false,
     absentReason: null,
   }

@@ -56,13 +56,19 @@ export function LectureAttendanceStatusBadge({
       <span
         className={cn(
           badgeBase,
-          'gap-2 bg-primary-50 pr-2.5 text-primary-600',
+          // `primary-50` is the raw Masai palette (constant across themes);
+          // `brand-subtle` matches it in light and re-themes in dark.
+          'gap-2 bg-brand-subtle pr-2.5 text-primary-600 dark:text-brand-subtle-foreground',
           className,
         )}
         aria-label="Continue watching"
       >
-        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-600">
-          <PlayCircle weight="fill" className="size-4 text-white" aria-hidden />
+        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand">
+          <PlayCircle
+            weight="fill"
+            className="size-4 text-brand-foreground"
+            aria-hidden
+          />
         </span>
         {/* Wraps below `sm` so the badge can't force 320px viewports to scroll. */}
         <span className="sm:whitespace-nowrap">Continue Watching</span>

@@ -53,6 +53,9 @@ export function MasaiCheckbox({
         disabled={disabled}
         className={cn(
           'flex items-center justify-center border border-gray-500 bg-surface text-white outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-400 data-[state=checked]:bg-primary-500 data-[state=checked]:border-gray-500 disabled:data-[state=checked]:bg-primary-300',
+          // The masai `primary-*` scale is constant purple; dark re-points the
+          // checked fill + focus ring at the themed brand (red in dark).
+          'dark:focus-visible:ring-ring dark:data-[state=checked]:bg-brand dark:disabled:data-[state=checked]:bg-brand/50',
           root,
         )}
       >

@@ -47,8 +47,13 @@ describe('MasaiverseV2LeftSection', () => {
     useQuery.mockReturnValue({ data: [], isPending: false })
     render(<MasaiverseV2LeftSection />)
 
-    const logo = screen.getByAltText<HTMLImageElement>('Masaiverse')
-    expect(logo.getAttribute('src')).toBe('/Masaiverse.svg')
+    // Light + dark artwork are both in the DOM; CSS (`dark:hidden`) picks one,
+    // so jsdom sees the pair. Assert both are wired to the right assets.
+    const logos = screen.getAllByAltText<HTMLImageElement>('Masaiverse')
+    expect(logos.map((img) => img.getAttribute('src'))).toEqual([
+      '/Masaiverse.svg',
+      '/masaiverse-dark.svg',
+    ])
   })
 
   it('no longer renders the heading or tagline, but keeps the navigation', () => {

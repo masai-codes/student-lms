@@ -1,12 +1,11 @@
-import { useState } from 'react'
 import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
   useRouterState,
 } from '@tanstack/react-router'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
+import { useTheme } from '@/lib/theme'
 import appCss from '../styles.css?url'
 import type { RouterContext } from '@/types'
 import { captureAppMobileContextFromUrl } from '@/utils/appMobile'
@@ -74,19 +73,34 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   shellComponent: RootDocument,
 })
 
+/**
+ * Sonner renders outside the token system, so it needs the resolved theme
+ * passed explicitly (its own `system` detection wouldn't honor an explicit
+ * light/dark pin). Must live under <ThemeProvider>.
+ */
+function ThemedToaster() {
+  const { resolvedTheme, hydrated } = useTheme()
+  return (
+    <Toaster
+      position="top-center"
+      theme={hydrated ? resolvedTheme : 'light'}
+      richColors
+      closeButton
+      toastOptions={{ duration: 4000 }}
+    />
+  )
+}
+
 function RootDocument({ children }: { children: React.ReactNode }) {
-  // Must be a stable instance: creating the client inline on every render would
-  // hand `QueryClientProvider` a brand-new, empty cache whenever this shell
-  // re-renders, silently discarding every cached query and optimistic write
-  // (e.g. a club's `isJoined` / `memberCount` after Join). `useState` keeps one
-  // client for the life of the browser tab while still giving each SSR request
-  // its own.
-  const [queryClient] = useState(() => new QueryClient())
+  // The `QueryClient` and its provider now live in `getRouter()` (src/router.tsx):
+  // routes need it in context to prime queries in `beforeLoad`, and the SSR-query
+  // integration wraps the tree with the provider. It is still one stable client
+  // per browser tab / per SSR request, so cached queries and optimistic writes
+  // (e.g. a club's `isJoined` / `memberCount` after Join) survive re-renders.
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   })
   const analyticsEnabled = !ANALYTICS_EXCLUDED_PATHS.has(pathname)
-
   return (
     <html lang="en">
       <head>
@@ -113,17 +127,10 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
         ) : null}
       </head>
       <body>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            {children}
-            <Toaster
-              position="top-center"
-              richColors
-              closeButton
-              toastOptions={{ duration: 4000 }}
-            />
-          </ThemeProvider>
-        </QueryClientProvider>
+        <ThemeProvider>
+          {children}
+          <ThemedToaster />
+        </ThemeProvider>
         <Scripts />
       </body>
     </html>

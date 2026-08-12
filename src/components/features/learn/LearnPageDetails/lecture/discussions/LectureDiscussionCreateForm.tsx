@@ -123,13 +123,13 @@ export function LectureDiscussionCreateForm({
           maxLength={255}
           disabled={disabled}
           aria-invalid={error?.field === 'title'}
-          className="h-auto rounded-none border-0 bg-transparent px-3 py-2.5 type-b2-regular text-foreground shadow-none placeholder:text-foreground-subtle focus-visible:ring-0"
+          className="h-auto rounded-none border-0 bg-transparent px-5 py-3.5 type-b2-regular text-foreground shadow-none placeholder:text-foreground-subtle focus-visible:ring-0"
         />
         {error?.field === 'title' ? (
           <p
             role="alert"
             data-testid="lecture-discussion-create-error"
-            className="type-caption-regular px-3 pb-2 text-danger"
+            className="type-caption-regular px-5 pb-2.5 text-danger"
           >
             {error.message}
           </p>
@@ -145,14 +145,14 @@ export function LectureDiscussionCreateForm({
           <p
             role="alert"
             data-testid="lecture-discussion-create-error"
-            className="type-caption-regular px-3 pb-2 text-danger"
+            className="type-caption-regular px-5 pb-2.5 text-danger"
           >
             {error.message}
           </p>
         ) : null}
         {/* Footer lives inside the box: char counter + the Post CTA. */}
         <div className="h-px bg-border" />
-        <div className="flex items-center justify-between gap-2 px-3 py-2">
+        <div className="flex items-center justify-between gap-2 px-5 py-3">
           <span
             data-testid="lecture-discussion-char-count"
             className={cn(

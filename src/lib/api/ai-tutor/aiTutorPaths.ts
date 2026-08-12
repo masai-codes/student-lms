@@ -4,4 +4,5 @@ export const AI_TUTOR_API = {
   conversations: '/api/ai-tutor/chat/conversations',
   conversation: (chatId: number) =>
     `/api/ai-tutor/chat/conversations/${chatId}`,
+  practiceQuestionAnswers: '/api/ai-tutor/chat/practice-questions/answers',
 } as const

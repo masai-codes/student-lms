@@ -21,7 +21,7 @@ describe('fetchBookmarks — filter params', () => {
     hoisted.fetchJson.mockResolvedValueOnce({ bookmarks: [], total: 0 })
     const { fetchBookmarks } = await import('../bookmarksApi')
     await fetchBookmarks({
-      tab: 'tickets',
+      tab: 'lectures',
       page: 2,
       limit: 15,
       q: 'bug',

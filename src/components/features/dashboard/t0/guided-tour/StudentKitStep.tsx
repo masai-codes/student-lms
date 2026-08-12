@@ -128,7 +128,7 @@ export function StudentKitStep({ kit }: StudentKitStepProps) {
               }
               className="flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-3 transition-colors hover:border-border-strong"
             >
-              <span className="mr-2 truncate text-sm text-[#2563EB]">
+              <span className="mr-2 truncate text-sm text-[#2563EB] dark:text-info">
                 {trackingUrl}
               </span>
               <ArrowSquareOut

@@ -26,7 +26,11 @@ export async function createLecturesAi(
   const [result] = await db.insert(lecturesAi).values(values)
   const id = Number(result.insertId)
 
-  const [row] = await db.select().from(lecturesAi).where(eq(lecturesAi.id, id)).limit(1)
+  const [row] = await db
+    .select()
+    .from(lecturesAi)
+    .where(eq(lecturesAi.id, id))
+    .limit(1)
   if (!row) {
     throw new Error(`Failed to load lectures_ai after insert (id=${id})`)
   }

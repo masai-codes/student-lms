@@ -274,106 +274,6 @@ async function getAssignments(
   return { items, total }
 }
 
-// ── Tab: Tickets ───────────────────────────────────────────────────────────────
-
-async function getTickets(
-  userId: number,
-  {
-    page,
-    limit,
-    q,
-    categories,
-    statuses,
-    priorities,
-    startDate,
-    endDate,
-  }: BookmarksQueryParams,
-): Promise<GetBookmarksResult> {
-  const offset = (page - 1) * limit
-  const searchTerm = `%${q ?? ''}%`
-  const filterClause = sql`${buildInClauses([
-    { column: sql`t.status`, values: statuses },
-    { column: sql`t.priority`, values: priorities },
-    { column: sql`t.category`, values: categories },
-  ])}${buildSavedDateClause(sql`b.created_at`, startDate, endDate)}`
-
-  const [countResult, dataResult] = await Promise.all([
-    db.execute(
-      q
-        ? sql`
-            SELECT COUNT(*) AS total
-            FROM bookmarks b
-            INNER JOIN tickets t ON t.id = b.entity_id
-            WHERE b.user_id = ${userId}
-              AND b.entity_type = ${ENTITY.ticket}
-              AND b.is_bookmarked = 1${filterClause}
-              AND t.deleted_at IS NULL
-              AND t.title LIKE ${searchTerm}
-          `
-        : sql`
-            SELECT COUNT(*) AS total
-            FROM bookmarks b
-            INNER JOIN tickets t ON t.id = b.entity_id
-            WHERE b.user_id = ${userId}
-              AND b.entity_type = ${ENTITY.ticket}
-              AND b.is_bookmarked = 1${filterClause}
-              AND t.deleted_at IS NULL
-          `,
-    ),
-    db.execute(
-      q
-        ? sql`
-            SELECT b.id, b.entity_id AS entityId, t.title, t.category,
-              t.status, t.priority, b.created_at AS savedAt,
-              u.name AS authorName
-            FROM bookmarks b
-            INNER JOIN tickets t ON t.id = b.entity_id
-            LEFT JOIN users u ON u.id = t.assignee_id
-            WHERE b.user_id = ${userId}
-              AND b.entity_type = ${ENTITY.ticket}
-              AND b.is_bookmarked = 1${filterClause}
-              AND t.deleted_at IS NULL
-              AND t.title LIKE ${searchTerm}
-            ORDER BY b.created_at DESC
-            LIMIT ${limit} OFFSET ${offset}
-          `
-        : sql`
-            SELECT b.id, b.entity_id AS entityId, t.title, t.category,
-              t.status, t.priority, b.created_at AS savedAt,
-              u.name AS authorName
-            FROM bookmarks b
-            INNER JOIN tickets t ON t.id = b.entity_id
-            LEFT JOIN users u ON u.id = t.assignee_id
-            WHERE b.user_id = ${userId}
-              AND b.entity_type = ${ENTITY.ticket}
-              AND b.is_bookmarked = 1${filterClause}
-              AND t.deleted_at IS NULL
-            ORDER BY b.created_at DESC
-            LIMIT ${limit} OFFSET ${offset}
-          `,
-    ),
-  ])
-
-  const total = normalizeCount(countResult)
-  const items = normalizeRows(dataResult).map((row): BookmarkItem => {
-    const entityId = str(row['entityId'])
-    const metaParts = [row['status'], row['priority']].map(str).filter(Boolean)
-    return {
-      id: str(row['id']),
-      ctaUrl: `/support/${entityId}`,
-      title: str(row['title']),
-      subtitle: str(row['category']),
-      meta: metaParts.join(' · '),
-      author: str(row['authorName']),
-      savedAt: savedAt(row['savedAt']),
-      entityType: 'ticket',
-      isForYou: false,
-    }
-  })
-
-  return { items, total }
-}
-
 // ── Tab: Announcements ─────────────────────────────────────────────────────────
 // Only queries the announcements table (App\Models\Announcement).
 // Messages are excluded per spec — they are not surfaced in this tab.
@@ -455,98 +355,17 @@ async function getAnnouncements(
   ])
 
   const total = normalizeCount(countResult)
-  const items = normalizeRows(dataResult).map(
-    (row): BookmarkItem => ({
-      id: str(row['id']),
-      ctaUrl: `/announcements/${str(row['entityId'])}`,
-      title: str(row['title']),
-      subtitle: str(row['subtitle']),
-      meta: '',
-      author: str(row['authorName']),
-      savedAt: savedAt(row['savedAt']),
-      entityType: 'announcement',
-      isForYou: false,
-    }),
-  )
-
-  return { items, total }
-}
-
-// ── Tab: Masaiverse ────────────────────────────────────────────────────────────
-// Uses club_post_bookmarks + posts (not the bookmarks table).
-
-async function getMasaiverse(
-  userId: number,
-  { page, limit, q, startDate, endDate }: BookmarksQueryParams,
-): Promise<GetBookmarksResult> {
-  const offset = (page - 1) * limit
-  const searchTerm = `%${q ?? ''}%`
-  const filterClause = buildSavedDateClause(
-    sql`cpb.created_at`,
-    startDate,
-    endDate,
-  )
-
-  const [countResult, dataResult] = await Promise.all([
-    db.execute(
-      q
-        ? sql`
-            SELECT COUNT(*) AS total
-            FROM club_post_bookmarks cpb
-            INNER JOIN posts cp ON cp.id = cpb.post_id
-            WHERE cpb.user_id = ${userId}${filterClause}
-              AND cp.content LIKE ${searchTerm}
-          `
-        : sql`
-            SELECT COUNT(*) AS total
-            FROM club_post_bookmarks cpb
-            WHERE cpb.user_id = ${userId}${filterClause}
-          `,
-    ),
-    db.execute(
-      q
-        ? sql`
-            SELECT cpb.id, cpb.post_id AS entityId, cp.content,
-              cpb.created_at AS savedAt, u.name AS authorName
-            FROM club_post_bookmarks cpb
-            INNER JOIN posts cp ON cp.id = cpb.post_id
-            LEFT JOIN users u ON u.id = cp.user_id
-            WHERE cpb.user_id = ${userId}${filterClause}
-              AND cp.content LIKE ${searchTerm}
-            ORDER BY cpb.created_at DESC
-            LIMIT ${limit} OFFSET ${offset}
-          `
-        : sql`
-            SELECT cpb.id, cpb.post_id AS entityId, cp.content,
-              cpb.created_at AS savedAt, u.name AS authorName
-            FROM club_post_bookmarks cpb
-            INNER JOIN posts cp ON cp.id = cpb.post_id
-            LEFT JOIN users u ON u.id = cp.user_id
-            WHERE cpb.user_id = ${userId}${filterClause}
-            ORDER BY cpb.created_at DESC
-            LIMIT ${limit} OFFSET ${offset}
-          `,
-    ),
-  ])
-
-  const total = normalizeCount(countResult)
-  const items = normalizeRows(dataResult).map((row): BookmarkItem => {
-    const entityId = str(row['entityId'])
-    // Truncate long post content for the title display
-    const content = str(row['content'])
-    const title = content.length > 120 ? `${content.slice(0, 120)}…` : content
-    return {
-      id: str(row['id']),
-      ctaUrl: `/masaiverse?tab=home&postId=${entityId}`,
-      title,
-      subtitle: '',
-      meta: '',
-      author: str(row['authorName']),
-      savedAt: savedAt(row['savedAt']),
-      entityType: 'masaiverse',
-      isForYou: false,
-    }
-  })
+  const items = normalizeRows(dataResult).map((row): BookmarkItem => ({
+    id: str(row['id']),
+    ctaUrl: `/announcements/${str(row['entityId'])}`,
+    title: str(row['title']),
+    subtitle: str(row['subtitle']),
+    meta: '',
+    author: str(row['authorName']),
+    savedAt: savedAt(row['savedAt']),
+    entityType: 'announcement',
+    isForYou: false,
+  }))
 
   return { items, total }
 }
@@ -562,11 +381,8 @@ export async function getBookmarks(
       return getLectures(userId, params)
     case 'assignments':
       return getAssignments(userId, params)
-    case 'tickets':
-      return getTickets(userId, params)
+
     case 'announcements':
       return getAnnouncements(userId, params)
-    case 'masaiverse':
-      return getMasaiverse(userId, params)
   }
 }

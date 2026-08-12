@@ -9,7 +9,6 @@ import { WelcomeSection } from '../section-welcome/WelcomeSection'
 import type { DashboardOverviewState } from '../shared/types'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 import { useServerTime } from '@/hooks/useServerTime'
-import { cn } from '@/lib/utils'
 
 interface DashboardLayoutProps {
   /** Signed-in user's name for the greeting (null while loading / unknown). */
@@ -22,8 +21,8 @@ interface DashboardLayoutProps {
 }
 
 // Top-level dashboard composition: an optional purple onboarding banner (T0
-// learners with pending guided-tour steps) sitting flush above the welcome
-// header + the two-column schedule / sidebar grid.
+// learners with pending guided-tour steps) above the welcome header + the
+// two-column schedule / sidebar grid.
 export function DashboardLayout({
   userName,
   overview,
@@ -40,7 +39,7 @@ export function DashboardLayout({
   const { now } = useServerTime()
 
   return (
-    <div data-testid="dashboard-root" className="mb-8 mt-4">
+    <div data-testid="dashboard-root" className="mb-8 mt-4 container mx-auto">
       {overview.feePaymentBanners.length > 0 ? (
         <div className="mb-4">
           <FeePaymentBanners banners={overview.feePaymentBanners} />
@@ -59,25 +58,17 @@ export function DashboardLayout({
         </div>
       ) : null}
       {showOnboardingBanner ? (
-        <OnboardingStepsBanner
-          banners={onboardingBanners}
-          onResume={onResumeOnboarding}
-        />
+        <div className="mb-4">
+          <OnboardingStepsBanner
+            banners={onboardingBanners}
+            onResume={onResumeOnboarding}
+          />
+        </div>
       ) : null}
       <div
         data-testid="dashboard-content"
-        className={cn(
-          'relative flex flex-col gap-6 overflow-hidden rounded-2xl bg-surface px-4 py-6 md:px-6',
-          // Square top so it meets the banner seamlessly when one is shown.
-          showOnboardingBanner && 'rounded-t-none',
-        )}
+        className="relative flex flex-col gap-4 overflow-hidden"
       >
-        {/* Ambient aurora wash behind the content — pure decoration. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(52rem_16rem_at_12%_-4rem,rgb(79_70_229_/_0.07),transparent_70%),radial-gradient(44rem_14rem_at_88%_-6rem,rgb(63_131_248_/_0.08),transparent_70%)]"
-        />
-
         <div className="animate-dash-rise relative">
           <WelcomeSection
             name={userName}
@@ -86,7 +77,7 @@ export function DashboardLayout({
           />
         </div>
 
-        <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="relative grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="animate-dash-rise min-w-0 [--dash-delay:0.08s]">
             <ScheduleSection
               schedule={overview.schedule}

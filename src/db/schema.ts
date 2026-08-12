@@ -444,9 +444,7 @@ export const batchUser = mysqlTable(
     createdAt: timestamp('created_at', { mode: 'string' }).default(
       sql`CURRENT_TIMESTAMP`,
     ),
-    updatedAt: datetime('updated_at', { mode: 'string' }).default(
-      sql`(CURRENT_TIMESTAMP)`,
-    ),
+    updatedAt: datetime('updated_at', { mode: 'string' }).default(sql`(now())`),
     deletedAt: datetime('deleted_at', { mode: 'string' }),
     username: varchar({ length: 300 }),
     admission: varchar({ length: 300 }),
@@ -463,15 +461,11 @@ export const batchUser = mysqlTable(
       .references(() => batches.id),
     history: json().$type<Record<string, any>>(),
     status: varchar({ length: 300 }),
-    // Enrolment id from the external admissions platform (large number).
     enrolmentId: bigint('enrolment_id', { mode: 'number', unsigned: true }),
-    // Batch-transfer id from the external admissions platform (large number).
     batchTransferId: bigint('batch_transfer_id', {
       mode: 'number',
       unsigned: true,
     }),
-    // Batch-transfer status; values are a code-level enum (BATCH_TRANSFER_STATUS),
-    // deliberately not a DB enum.
     batchTransferStatus: varchar('batch_transfer_status', { length: 50 }),
   },
   (table) => [primaryKey({ columns: [table.id], name: 'batch_user_id' })],
@@ -802,6 +796,34 @@ export const helpFaqs = mysqlTable(
   ],
 )
 
+export const interviewSessions = mysqlTable(
+  'interview_sessions',
+  {
+    id: int({ unsigned: true }).autoincrement().notNull(),
+    userId: bigint('user_id', { mode: 'number', unsigned: true })
+      .notNull()
+      .references(() => users.id, {
+        onDelete: 'restrict',
+        onUpdate: 'cascade',
+      }),
+    topicId: varchar('topic_id', { length: 191 }).notNull(),
+    topicLabel: varchar('topic_label', { length: 255 }).notNull(),
+    domain: varchar({ length: 50 }).notNull(),
+    status: varchar({ length: 20 }).default('in_progress').notNull(),
+    numQuestions: int('num_questions').default(5).notNull(),
+    language: varchar({ length: 20 }).default('English').notNull(),
+    turns: json().$type<Record<string, any>>().notNull(),
+    report: json().$type<Record<string, any>>(),
+    createdAt: timestamp('created_at', { mode: 'string' }),
+    updatedAt: timestamp('updated_at', { mode: 'string' }),
+    completedAt: timestamp('completed_at', { mode: 'string' }),
+  },
+  (table) => [
+    index('idx_interview_sessions_user_id').on(table.userId),
+    primaryKey({ columns: [table.id], name: 'interview_sessions_id' }),
+  ],
+)
+
 export const lectureFeedback = mysqlTable(
   'lecture_feedback',
   {
@@ -938,8 +960,8 @@ export const lecturesAi = mysqlTable(
     transcriptSegments: json().$type<Record<string, any>>(),
     createdAt: timestamp('created_at', { mode: 'string' }),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
-    lastRefetchTime: datetime({ mode: 'string', fsp: 3 }),
-    transcriptId: varchar('transcriptID', { length: 191 }),
+    lastRefetchTime: datetime({ mode: 'string' }),
+    transcriptId: varchar({ length: 191 }),
   },
   (table) => [
     primaryKey({ columns: [table.id], name: 'lectures_ai_id' }),
@@ -953,9 +975,9 @@ export const loginAttempts = mysqlTable(
     id: bigint({ mode: 'number', unsigned: true }).autoincrement().notNull(),
     identifier: varchar({ length: 255 }).notNull(),
     ipAddress: varchar('ip_address', { length: 45 }),
-    attemptedAt: datetime('attempted_at', { mode: 'string', fsp: 3 }).notNull(),
-    createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
-      .default(sql`(CURRENT_TIMESTAMP(3))`)
+    attemptedAt: datetime('attempted_at', { mode: 'string' }).notNull(),
+    createdAt: datetime('created_at', { mode: 'string' })
+      .default(sql`(now(3))`)
       .notNull(),
   },
   (table) => [
@@ -1156,11 +1178,11 @@ export const otpCodes = mysqlTable(
     identifier: varchar({ length: 255 }).notNull(),
     channel: varchar({ length: 20 }).notNull(),
     otpHash: varchar('otp_hash', { length: 255 }).notNull(),
-    expiresAt: datetime('expires_at', { mode: 'string', fsp: 3 }).notNull(),
+    expiresAt: datetime('expires_at', { mode: 'string' }).notNull(),
     attempts: int().default(0).notNull(),
-    usedAt: datetime('used_at', { mode: 'string', fsp: 3 }),
-    createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
-      .default(sql`(CURRENT_TIMESTAMP(3))`)
+    usedAt: datetime('used_at', { mode: 'string' }),
+    createdAt: datetime('created_at', { mode: 'string' })
+      .default(sql`(now(3))`)
       .notNull(),
   },
   (table) => [
@@ -1882,4 +1904,219 @@ export const whatsnew = mysqlTable(
     updatedAt: timestamp('updated_at', { mode: 'string' }),
   },
   (table) => [primaryKey({ columns: [table.id], name: 'whatsnew_id' })],
+)
+
+export const zefLmsMetaData = mysqlTable(
+  'zef_lms_meta_data',
+  {
+    id: int({ unsigned: true }).autoincrement().notNull(),
+    lectureId: int('lecture_id', { unsigned: true })
+      .notNull()
+      .references(() => lectures.id),
+    scheduledAt: datetime('scheduled_at', { mode: 'string' }),
+    meta: json().$type<Record<string, any>>(),
+    source: mysqlEnum(['zef', 'lms']).default('zef').notNull(),
+    createdAt: timestamp('created_at', { mode: 'string' }).default(
+      sql`(now())`,
+    ),
+    updatedAt: timestamp('updated_at', { mode: 'string' }),
+  },
+  (table) => [
+    index('zef_lms_meta_data_lecture_id_index').on(table.lectureId),
+    primaryKey({ columns: [table.id], name: 'zef_lms_meta_data_id' }),
+    unique('zef_lms_meta_data_lecture_id_unique').on(table.lectureId),
+  ],
+)
+
+export const zefLmsLo = mysqlTable(
+  'zef_lms_lo',
+  {
+    id: int({ unsigned: true }).autoincrement().notNull(),
+    zefLmsMetaDataId: int('zef_lms_meta_data_id', { unsigned: true })
+      .notNull()
+      .references(() => zefLmsMetaData.id, { onDelete: 'cascade' }),
+    lmsLoId: int('lms_lo_id', { unsigned: true }),
+    text: text().notNull(),
+    displayOrder: int('display_order', { unsigned: true }).default(0).notNull(),
+    isCompleted: tinyint('is_completed').default(0).notNull(),
+    markedCompletedAt: datetime('marked_completed_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).default(
+      sql`(now())`,
+    ),
+    updatedAt: timestamp('updated_at', { mode: 'string' }),
+  },
+  (table) => [
+    index('zef_lms_lo_zef_lms_meta_data_id_index').on(table.zefLmsMetaDataId),
+    primaryKey({ columns: [table.id], name: 'zef_lms_lo_id' }),
+  ],
+)
+
+export const zefLmsFeedbackSubmissions = mysqlTable(
+  'zef_lms_feedback_submissions',
+  {
+    id: int({ unsigned: true }).autoincrement().notNull(),
+    zefLmsMetaDataId: int('zef_lms_meta_data_id', { unsigned: true })
+      .notNull()
+      .references(() => zefLmsMetaData.id, { onDelete: 'cascade' }),
+    userId: bigint('user_id', { mode: 'number', unsigned: true })
+      .notNull()
+      .references(() => users.id),
+    rating: tinyint({ unsigned: true }).notNull(),
+    message: text(),
+    followupTags: json('followup_tags').$type<Record<string, any>>(),
+    source: mysqlEnum(['zef', 'lms']).default('zef').notNull(),
+    submittedAt: timestamp('submitted_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).default(
+      sql`(now())`,
+    ),
+    updatedAt: timestamp('updated_at', { mode: 'string' }),
+  },
+  (table) => [
+    index('zef_lms_feedback_submissions_meta_index').on(table.zefLmsMetaDataId),
+    index('zef_lms_feedback_submissions_user_id_index').on(table.userId),
+    primaryKey({
+      columns: [table.id],
+      name: 'zef_lms_feedback_submissions_id',
+    }),
+    unique('zef_lms_feedback_submissions_meta_user_unique').on(
+      table.zefLmsMetaDataId,
+      table.userId,
+    ),
+  ],
+)
+
+export const zefLmsPollsQuestions = mysqlTable(
+  'zef_lms_polls_questions',
+  {
+    id: int({ unsigned: true }).autoincrement().notNull(),
+    zefLmsMetaDataId: int('zef_lms_meta_data_id', { unsigned: true })
+      .notNull()
+      .references(() => zefLmsMetaData.id, { onDelete: 'cascade' }),
+    question: text().notNull(),
+    options: json().$type<Record<string, any>>().notNull(),
+    status: mysqlEnum(['active', 'inactive']).default('active').notNull(),
+    durationSeconds: int('duration_seconds', { unsigned: true }),
+    startTimestamp: datetime('start_timestamp', { mode: 'string' }),
+    endTimestamp: datetime('end_timestamp', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).default(
+      sql`(now())`,
+    ),
+    updatedAt: timestamp('updated_at', { mode: 'string' }),
+  },
+  (table) => [
+    index('zef_lms_polls_questions_meta_index').on(table.zefLmsMetaDataId),
+    primaryKey({ columns: [table.id], name: 'zef_lms_polls_questions_id' }),
+  ],
+)
+
+export const zefLmsPollsSubmissions = mysqlTable(
+  'zef_lms_polls_submissions',
+  {
+    id: int({ unsigned: true }).autoincrement().notNull(),
+    zefLmsPollsQuestionsId: int('zef_lms_polls_questions_id', {
+      unsigned: true,
+    })
+      .notNull()
+      .references(() => zefLmsPollsQuestions.id, { onDelete: 'cascade' }),
+    userId: bigint('user_id', { mode: 'number', unsigned: true })
+      .notNull()
+      .references(() => users.id),
+    selectedOptionIndex: int('selected_option_index', {
+      unsigned: true,
+    }).notNull(),
+    submittedAt: timestamp('submitted_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).default(
+      sql`(now())`,
+    ),
+    updatedAt: timestamp('updated_at', { mode: 'string' }),
+  },
+  (table) => [
+    index('zef_lms_polls_submissions_question_index').on(
+      table.zefLmsPollsQuestionsId,
+    ),
+    index('zef_lms_polls_submissions_user_id_index').on(table.userId),
+    primaryKey({ columns: [table.id], name: 'zef_lms_polls_submissions_id' }),
+    unique('zef_lms_polls_submissions_question_user_unique').on(
+      table.zefLmsPollsQuestionsId,
+      table.userId,
+    ),
+  ],
+)
+
+export const zefLmsQuiz = mysqlTable(
+  'zef_lms_quiz',
+  {
+    id: int({ unsigned: true }).autoincrement().notNull(),
+    zefLmsMetaDataId: int('zef_lms_meta_data_id', { unsigned: true })
+      .notNull()
+      .references(() => zefLmsMetaData.id, { onDelete: 'cascade' }),
+    assessmentId: varchar('assessment_id', { length: 255 }).notNull(),
+    status: mysqlEnum(['active', 'inactive']).default('active').notNull(),
+    durationSeconds: int('duration_seconds', { unsigned: true }),
+    startTimestamp: datetime('start_timestamp', { mode: 'string' }),
+    endTimestamp: datetime('end_timestamp', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).default(
+      sql`(now())`,
+    ),
+    updatedAt: timestamp('updated_at', { mode: 'string' }),
+  },
+  (table) => [
+    index('zef_lms_quiz_assessment_id_index').on(table.assessmentId),
+    index('zef_lms_quiz_meta_index').on(table.zefLmsMetaDataId),
+    primaryKey({ columns: [table.id], name: 'zef_lms_quiz_id' }),
+  ],
+)
+
+export const zefLmsQuizSubmission = mysqlTable(
+  'zef_lms_quiz_submission',
+  {
+    id: int({ unsigned: true }).autoincrement().notNull(),
+    zefLmsQuizId: int('zef_lms_quiz_id', { unsigned: true })
+      .notNull()
+      .references(() => zefLmsQuiz.id, { onDelete: 'cascade' }),
+    userId: bigint('user_id', { mode: 'number', unsigned: true })
+      .notNull()
+      .references(() => users.id),
+    isCorrect: tinyint('is_correct'),
+    score: decimal({ precision: 10, scale: 2 }),
+    htmlReport: longtext('html_report'),
+    evaluatedAt: timestamp('evaluated_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).default(
+      sql`(now())`,
+    ),
+    updatedAt: timestamp('updated_at', { mode: 'string' }),
+  },
+  (table) => [
+    index('zef_lms_quiz_submission_quiz_index').on(table.zefLmsQuizId),
+    index('zef_lms_quiz_submission_user_id_index').on(table.userId),
+    primaryKey({ columns: [table.id], name: 'zef_lms_quiz_submission_id' }),
+    unique('zef_lms_quiz_submission_quiz_user_unique').on(
+      table.zefLmsQuizId,
+      table.userId,
+    ),
+  ],
+)
+
+export const zefLmsSqlSandbox = mysqlTable(
+  'zef_lms_sql_sandbox',
+  {
+    id: int({ unsigned: true }).autoincrement().notNull(),
+    zefLmsMetaDataId: int('zef_lms_meta_data_id', { unsigned: true })
+      .notNull()
+      .references(() => zefLmsMetaData.id, { onDelete: 'cascade' }),
+    query: longtext().notNull(),
+    status: mysqlEnum(['pending', 'success', 'error'])
+      .default('pending')
+      .notNull(),
+    error: text(),
+    executedAt: timestamp('executed_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).default(
+      sql`(now())`,
+    ),
+    updatedAt: timestamp('updated_at', { mode: 'string' }),
+  },
+  (table) => [
+    index('zef_lms_sql_sandbox_meta_index').on(table.zefLmsMetaDataId),
+    primaryKey({ columns: [table.id], name: 'zef_lms_sql_sandbox_id' }),
+  ],
 )

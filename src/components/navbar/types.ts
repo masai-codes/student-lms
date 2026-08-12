@@ -32,6 +32,8 @@ export type NavbarActivation =
 export type NavbarLinkItem = {
   id?: string
   label: string
+  /** Optional leading icon (Tier 1 left-side items — Home, Learn, Chat, MasaiVerse, Interviews). */
+  icon?: ReactNode
   /**
    * Mark the current route (or logical section). Renders accent color and an underline;
    * set from the consuming app (e.g. compare `pathname` to `href`).
@@ -69,6 +71,15 @@ export type NavbarTextAction = {
   id?: string
   type: 'text'
   label: string
+  /**
+   * `plain` (default) renders a bare text link. `pill` renders a bordered,
+   * rounded button with the optional leading `icon`.
+   */
+  variant?: 'plain' | 'pill'
+  /** Leading icon shown next to the label. */
+  icon?: ReactNode
+  /** Mark the current route — renders the same active accent as primary nav items. */
+  isActive?: boolean
 } & NavbarActivation
 
 export type NavbarIconAction = {
@@ -83,6 +94,8 @@ export type NavbarIconAction = {
    * (values above 9 display as `9+`).
    */
   notificationCount?: number
+  /** Mark the current route — renders the same active accent as primary nav items. */
+  isActive?: boolean
 } & NavbarActivation
 
 export type NavbarImageAction = {
@@ -96,25 +109,63 @@ export type NavbarImageAction = {
   tooltip?: string
 } & NavbarActivation
 
+/** Icon + visible label side by side (e.g. "Calendar", "Get started"). */
+export type NavbarIconTextAction = {
+  id?: string
+  type: 'iconText'
+  icon: ReactNode
+  label: string
+  tooltip?: string
+  /** Mark the current route — renders the same active accent as primary nav items. */
+  isActive?: boolean
+} & NavbarActivation
+
+/** Non-interactive vertical divider between two action groups. */
+export type NavbarDividerAction = {
+  id?: string
+  type: 'divider'
+}
+
 export type NavbarActionItem =
   | NavbarTextAction
   | NavbarIconAction
   | NavbarImageAction
+  | NavbarIconTextAction
+  | NavbarDividerAction
 
 export type NavbarProps = {
   logo: NavbarLogo
   navItems: NavbarLinkItem[]
   profile: NavbarProfile
-  /** Shown to the left of the profile control (text links and/or icon buttons). */
+  /**
+   * Icon/text cluster rendered on the right of row 2 (the nav row), after the
+   * primary nav links: announcements, calendar, chat, guided tour.
+   */
   trailingActions?: NavbarActionItem[]
-  /** Optional content rendered between nav items and trailing actions. */
-  centerSlot?: ReactNode
-  /** Optional content rendered in the trailing action row, before the theme switcher. */
+  /**
+   * Actions rendered on the right of row 1 (the identity row), next to the CTA
+   * and the profile control — e.g. the "Get the app" pill.
+   */
+  primaryRowActions?: NavbarActionItem[]
+  /**
+   * Text links pinned to the far right of row 1, after the icon cluster
+   * (Refer & Earn).
+   */
+  secondaryRowLinks?: NavbarActionItem[]
+  upNext?: ReactNode
+  /**
+   * Tier 2: contextual per-module sub-nav rendered as a second row below row 1
+   * (e.g. Learn's Discussions/Bookmarks, Community's MasaiVerse/Chat). Omit
+   * entirely to hide the row — modules with no sub-nav (Home, Interviews)
+   * render nothing here rather than an empty bar.
+   */
+  tier2?: ReactNode
+  /** Primary CTA in row 1, before the profile control (the "Try New" pill). */
   actionsSlot?: ReactNode
   className?: string
   /**
    * Force the navbar to render in dark mode regardless of the active theme.
-   * Stamps the `midnight` dark-theme token block + `.dark` onto the navbar's
+   * Stamps the `dark` theme token block + `.dark` onto the navbar's
    * own `<header>`, so only this subtree flips dark (the rest of the page keeps
    * the user's theme). Used on immersive pages like lecture detail.
    */

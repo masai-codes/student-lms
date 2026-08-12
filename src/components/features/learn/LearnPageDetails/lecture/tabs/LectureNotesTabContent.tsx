@@ -14,7 +14,7 @@ export function LectureNotesTabContent({ notes }: LectureNotesTabContentProps) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
         <FileText
-          className="size-[72px] text-gray-200"
+          className="size-[72px] text-gray-200 dark:text-border-strong"
           strokeWidth={1}
           aria-hidden
         />

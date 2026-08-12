@@ -151,10 +151,7 @@ describe('notesPreviewQueries lecture helpers', () => {
     })
 
     it('returns null when there is no AI row', async () => {
-      hoisted.selectQueue = [
-        [{ notes: null, type: 'live', sectionId: 2 }],
-        [],
-      ]
+      hoisted.selectQueue = [[{ notes: null, type: 'live', sectionId: 2 }], []]
       const { fetchLectureSummaryForUser } = await importQueries()
 
       await expect(fetchLectureSummaryForUser(7, 42)).resolves.toBeNull()

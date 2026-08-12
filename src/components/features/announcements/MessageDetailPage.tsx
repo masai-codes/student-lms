@@ -25,12 +25,12 @@ import { toast } from '@/lib/toast'
 import { formatTimestampIST } from '@/utils/timeZoneHandler'
 import { capitalize } from '@/utils/capitalize'
 import { MarkdownContent } from '@/components/shared/markdown-content/MarkdownContent'
+import { useInterviewRecorder } from '@/hooks/useInterviewRecorder'
+import { useTheme } from '@/lib/theme'
 
 interface MessageDetailPageProps {
   detail: AnnouncementDetail
 }
-
-type RecordingState = 'idle' | 'recording' | 'recorded'
 
 interface UploadedFile {
   id: string
@@ -71,20 +71,22 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [isUploading, setIsUploading] = useState(false)
 
-  // Recording state
-  const [recordingState, setRecordingState] = useState<RecordingState>('idle')
-  const [, setRecordingSecs] = useState(0)
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
-  const [isWavePlaying, setIsWavePlaying] = useState(false)
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const chunksRef = useRef<BlobPart[]>([])
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const waveSurferRef = useRef<HTMLDivElement>(null)
-  const waveSurferInstanceRef = useRef<InstanceType<
-    (typeof import('wavesurfer.js'))['default']
-  > | null>(null)
-  const audioBlobUrlRef = useRef<string | null>(null)
+  const {
+    state: recordingState,
+    audioBlob,
+    isPlaying: isWavePlaying,
+    permissionDenied,
+    waveformRef: waveSurferRef,
+    startRecording,
+    stopRecording,
+    discardRecording,
+    togglePlayback: toggleWavePlay,
+  } = useInterviewRecorder()
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // MDEditor themes itself off `data-color-mode`, outside our token system —
+  // follow the app theme (same pattern as ui/markdown-composer.tsx).
+  const { resolvedTheme, hydrated } = useTheme()
 
   // Message ids are BigInt — keep as a string to avoid Number precision loss.
   const messageId = detail.id
@@ -114,43 +116,9 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
       .catch(() => {})
   }, [messageId, queryClient, detail.isRead])
 
-  // WaveSurfer init when audioBlob is ready
   useEffect(() => {
-    if (!audioBlob || !waveSurferRef.current) return
-
-    const blobUrl = URL.createObjectURL(audioBlob)
-    audioBlobUrlRef.current = blobUrl
-
-    let ws: typeof waveSurferInstanceRef.current
-
-    void import('wavesurfer.js').then(({ default: WaveSurfer }) => {
-      if (!waveSurferRef.current) return
-      ws = WaveSurfer.create({
-        container: waveSurferRef.current,
-        waveColor: '#1E3A8A',
-        progressColor: '#7164E9',
-        barHeight: 1.4,
-        height: 48,
-      })
-      ws.load(blobUrl)
-      ws.on('finish', () => setIsWavePlaying(false))
-      waveSurferInstanceRef.current = ws
-    })
-
-    return () => {
-      ws?.destroy()
-      waveSurferInstanceRef.current = null
-      URL.revokeObjectURL(blobUrl)
-      audioBlobUrlRef.current = null
-    }
-  }, [audioBlob])
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current)
-    }
-  }, [])
+    if (permissionDenied) toast.error('Microphone access denied.')
+  }, [permissionDenied])
 
   async function handleToggleUnread() {
     if (!isValidId) return
@@ -203,48 +171,8 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
   }
 
   // ── Voice recording ──────────────────────────────────────────────────────────
-
-  async function startRecording() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const recorder = new MediaRecorder(stream)
-      chunksRef.current = []
-
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data)
-      }
-      recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/wav' })
-        setAudioBlob(blob)
-        setRecordingState('recorded')
-        stream.getTracks().forEach((t) => t.stop())
-        if (timerRef.current) clearInterval(timerRef.current)
-      }
-
-      mediaRecorderRef.current = recorder
-      recorder.start()
-      setRecordingState('recording')
-      setRecordingSecs(0)
-      timerRef.current = setInterval(() => setRecordingSecs((s) => s + 1), 1000)
-    } catch {
-      toast.error('Microphone access denied.')
-    }
-  }
-
-  function stopRecording() {
-    mediaRecorderRef.current?.stop()
-    if (timerRef.current) clearInterval(timerRef.current)
-  }
-
-  function discardRecording() {
-    mediaRecorderRef.current?.stop()
-    setAudioBlob(null)
-    setRecordingState('idle')
-    setRecordingSecs(0)
-    setIsWavePlaying(false)
-    waveSurferInstanceRef.current?.destroy()
-    waveSurferInstanceRef.current = null
-  }
+  // Recording itself (record/stop/discard/playback) lives in useInterviewRecorder;
+  // this component only owns what happens to the blob once recorded: upload it.
 
   async function saveRecording() {
     if (!audioBlob) return
@@ -255,21 +183,12 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
       })
       const uploaded = await uploadFile(file)
       setUploadedFiles((prev) => [...prev, uploaded])
-      setAudioBlob(null)
-      setRecordingState('idle')
-      setIsWavePlaying(false)
-      waveSurferInstanceRef.current?.destroy()
-      waveSurferInstanceRef.current = null
+      discardRecording()
     } catch {
       toast.error('Failed to upload voice note.')
     } finally {
       setIsUploading(false)
     }
-  }
-
-  function toggleWavePlay() {
-    waveSurferInstanceRef.current?.playPause()
-    setIsWavePlaying((p) => !p)
   }
 
   // ── Send ─────────────────────────────────────────────────────────────────────
@@ -389,7 +308,7 @@ export function MessageDetailPage({ detail }: MessageDetailPageProps) {
       {/* ── Reply area ──────────────────────────────────────────────────────── */}
       <div
         className="shrink-0 border-t border-border px-4 md:px-6 py-4 bg-surface flex flex-col gap-3"
-        data-color-mode="light"
+        data-color-mode={hydrated ? resolvedTheme : 'light'}
       >
         {/* Recording UI */}
         {/* Markdown editor — always visible */}

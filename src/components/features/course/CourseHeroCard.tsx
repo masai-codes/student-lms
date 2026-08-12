@@ -36,7 +36,7 @@ export function CourseHeroCard({ data }: Props) {
           )}
 
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium" style={{ color: '#544D4F' }}>
+            <span className="text-sm font-medium text-foreground-muted">
               Student Code:
             </span>
             <div className="flex items-center px-3 h-8 rounded-full bg-info-subtle">
@@ -50,12 +50,10 @@ export function CourseHeroCard({ data }: Props) {
         <div className="flex items-center gap-8">
           <div className="flex flex-col gap-1.5 flex-1">
             <div className="relative h-2.5 rounded-full bg-success-subtle">
+              {/* Vivid green progress fill — reads fine on both themes' success-subtle track. */}
               <div
-                className="absolute left-0 top-0 h-full rounded-full"
-                style={{
-                  width: `${data.courseProgress}%`,
-                  background: '#31C48D',
-                }}
+                className="absolute left-0 top-0 h-full rounded-full bg-[#31C48D]"
+                style={{ width: `${data.courseProgress}%` }}
               />
             </div>
             <div className="flex justify-between">
@@ -78,10 +76,7 @@ export function CourseHeroCard({ data }: Props) {
       </div>
 
       {/* Right image */}
-      <div
-        className="flex-1 relative overflow-hidden"
-        style={{ backgroundColor: '#d1d5db' }}
-      >
+      <div className="flex-1 relative overflow-hidden bg-[#D1D5DB] dark:bg-muted">
         {data.courseImage && (
           <img
             src={data.courseImage}

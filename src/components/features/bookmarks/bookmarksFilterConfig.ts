@@ -30,12 +30,7 @@ export function createEmptyBookmarkFilters(): BookmarkFilters {
 }
 
 export type BookmarkFilterSection =
-  | 'category'
-  | 'module'
-  | 'type'
-  | 'status'
-  | 'priority'
-  | 'date'
+  'category' | 'module' | 'type' | 'status' | 'priority' | 'date'
 
 export const SECTION_LABELS: Record<BookmarkFilterSection, string> = {
   category: 'Category',
@@ -50,9 +45,7 @@ export const SECTION_LABELS: Record<BookmarkFilterSection, string> = {
 const TAB_SECTIONS: Record<BookmarkTab, Array<BookmarkFilterSection>> = {
   lectures: ['category', 'module', 'type', 'date'],
   assignments: ['category', 'module', 'date'],
-  tickets: ['status', 'priority', 'category', 'date'],
   announcements: ['category', 'type', 'date'],
-  masaiverse: ['date'],
 }
 
 export function getBookmarkFilterSections(

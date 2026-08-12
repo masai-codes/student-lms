@@ -48,7 +48,7 @@ function ModalOverlay({
     <DialogPrimitive.Overlay
       data-slot="modal-overlay"
       className={cn(
-        'fixed inset-0 z-[300] bg-gray-500/75 transition-opacity duration-300 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100',
+        'fixed inset-0 z-[300] bg-gray-500/75 dark:bg-black/70 transition-opacity duration-300 ease-out data-[state=closed]:opacity-0 data-[state=open]:opacity-100',
         className,
       )}
       {...props}

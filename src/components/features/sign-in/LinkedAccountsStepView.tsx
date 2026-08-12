@@ -21,7 +21,7 @@ export function LinkedAccountsStepView({
 }: Props) {
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-amber-50/70 p-4 shadow-sm md:p-5">
+      <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-amber-50/70 dark:to-amber-400/10 p-4 shadow-sm md:p-5">
         <h2 className="font-poppins text-xl font-semibold text-foreground">
           {title}
         </h2>

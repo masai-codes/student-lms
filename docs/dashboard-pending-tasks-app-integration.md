@@ -62,7 +62,8 @@ export type DashboardPendingTaskItem = {
   moduleName: string
   attendance: LectureAttendanceSummary | null
   optionalAttendance: LectureAttendanceSummary | null
-  assignmentProgressStatus: 'new' | 'in-progress' | 'overdue' | 'completed' | null
+  assignmentProgressStatus:
+    'new' | 'in-progress' | 'overdue' | 'completed' | null
   resourcePhase: 'before' | 'during' | 'after' | null
   listingCtas: LearnListingCardCtas
   courseName: string | null
@@ -92,12 +93,7 @@ export type LearnListingCardCtas = {
   enableZoomWebView: boolean
   showAttendance: boolean
   assignmentStatusChip:
-    | 'new'
-    | 'in-progress'
-    | 'overdue'
-    | 'completed'
-    | 'practice-mode'
-    | null
+    'new' | 'in-progress' | 'overdue' | 'completed' | 'practice-mode' | null
   assignmentDeadlineLabel: string | null
   assignmentScore: number | null
 }

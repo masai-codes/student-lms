@@ -21,7 +21,7 @@ export function LearnPhaseContentSection({
       <h2 className="type-h6 flex items-center gap-2 text-foreground">
         {showLockIcon ? (
           <span
-            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-500 p-1.5"
+            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-500 p-1.5 dark:bg-brand"
             aria-hidden
           >
             <Lock

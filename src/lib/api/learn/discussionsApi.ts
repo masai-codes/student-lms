@@ -1,4 +1,5 @@
 import type { CreateLearnDiscussionKind } from '@/server/new-discussions/services/createDiscussionForLearnEntity'
+import type { LearnDiscussionListItem } from '@/server/learn/types'
 import { ApiClientError } from '@/lib/api/apiClientError'
 import { fetchJson } from '@/lib/api/fetchJson'
 import { LEARN_API } from '@/lib/api/learnPaths'
@@ -12,6 +13,15 @@ async function call<T>(path: string, init: RequestInit): Promise<T> {
     }
     throw error
   }
+}
+
+export async function listLearnDiscussionsViaApi(
+  batchId: number,
+): Promise<Array<LearnDiscussionListItem>> {
+  const { discussions } = await call<{
+    discussions: Array<LearnDiscussionListItem>
+  }>(`${LEARN_API.discussions}?batchId=${batchId}`, { method: 'GET' })
+  return discussions
 }
 
 export async function createLearnDiscussionViaApi(input: {
