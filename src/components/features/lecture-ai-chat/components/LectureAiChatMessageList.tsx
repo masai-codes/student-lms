@@ -52,7 +52,7 @@ export function LectureAiChatMessageList({
       <div
         ref={listRef}
         className={cn(
-          'h-full overflow-y-auto px-4 py-4',
+          'h-full overflow-y-auto px-2 py-4',
           containScroll ? 'overscroll-contain' : 'overscroll-auto',
         )}
       >
