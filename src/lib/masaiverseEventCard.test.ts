@@ -6,12 +6,6 @@ import {
   getEventStatus,
 } from './masaiverseEventCard'
 
-// Pin the timezone so the viewer-local formatters produce deterministic output
-// regardless of the machine/CI timezone. Asia/Kolkata → getTzLabel() === 'IST'.
-// The formatters read the zone at call time, so setting it here (before any
-// test runs) is sufficient.
-process.env.TZ = 'Asia/Kolkata'
-
 // 2026-06-03 17:30 IST (Wed).
 const NOW = new Date('2026-06-03T12:00:00Z')
 

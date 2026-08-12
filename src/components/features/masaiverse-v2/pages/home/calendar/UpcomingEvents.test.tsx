@@ -5,9 +5,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import UpcomingEvents from './UpcomingEvents'
 import type { ReactNode } from 'react'
 
-// Pin the timezone so the viewer-local date box renders deterministically.
-process.env.TZ = 'Asia/Kolkata'
-
 const { fetchHome } = vi.hoisted(() => ({ fetchHome: vi.fn() }))
 
 vi.mock('@/lib/api/masaiverse-v2/masaiverseV2Api', () => ({
