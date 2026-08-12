@@ -25,7 +25,7 @@ export async function submitLectureAiChatFeedback(
     lectureId: input.lectureId,
     chatId: input.chatId,
     rating: input.rating,
-    platform: 'web',
+    platform: 'web-new',
   }
   if (input.feedback?.trim()) {
     body.feedback = input.feedback.trim()

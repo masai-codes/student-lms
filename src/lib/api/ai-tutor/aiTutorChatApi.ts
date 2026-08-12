@@ -6,7 +6,9 @@ import type {
 } from '@/server/api/ai-tutor/types/conversation'
 import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlatform'
 import type { SubmitAiTutorFeedbackResponse } from '@/server/api/ai-tutor/types/feedback'
+import type { LectureAiFaq } from '@/server/api/ai-tutor/types/lectureFaqs'
 
+export type { LectureAiFaq } from '@/server/api/ai-tutor/types/lectureFaqs'
 export type {
   AiTutorChatTurn,
   AiTutorConversationSummary,
@@ -44,6 +46,14 @@ export async function submitPracticeQuestionAnswers(input: {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
     },
+  )
+}
+
+export async function getLectureFaqs(
+  lectureId: number,
+): Promise<{ faqs: Array<LectureAiFaq> }> {
+  return fetchJson<{ faqs: Array<LectureAiFaq> }>(
+    AI_TUTOR_API.lectureFaqs(lectureId),
   )
 }
 

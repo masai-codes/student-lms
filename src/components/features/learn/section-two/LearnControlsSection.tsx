@@ -174,7 +174,7 @@ export function LearnControlsSection({
 
   // Tabs stack above the controls on small screens; one row from `md` up.
   return (
-    <section className="flex flex-col gap-2 py-0 items-start lg:flex-row lg:items-center lg:justify-between mt-1">
+    <section className="flex flex-col gap-2 py-0 items-start lg:flex-row lg:items-center lg:justify-between mt-1 lg:layout-gutter-x">
       {/* Lectures/Assignments/Resources: inline on mobile (no Tier 2 nav there
           yet); portaled into the desktop navbar's Tier 2 row on `lg`+, where
           the inline copy is hidden via the ancestor's `max-lg:hidden`. Border
@@ -187,7 +187,7 @@ export function LearnControlsSection({
       {/* Search takes the full first line below `sm` so module + filter never
           squeeze off-screen at 320px. Triggers are sized to match the Tier 2
           navbar's compact program-picker pill (h-8, rounded-full, text-sm). */}
-      <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto md:justify-end layout-gutter-x">
+      <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto md:justify-end md:px-0 px-2">
         <MasaiInput
           type="search"
           value={searchInput}

@@ -206,6 +206,7 @@ export function useLectureAiChat(
           chat: value,
           platform,
           language,
+          supportedUIElements: ['quiz'],
           ...(chatIdRef.current != null ? { chatId: chatIdRef.current } : {}),
         },
         assistantMessage.id,
