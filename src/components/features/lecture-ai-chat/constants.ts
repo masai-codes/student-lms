@@ -5,8 +5,15 @@
  */
 export const LECTURE_AI_CHAT_MAX_MESSAGE_LENGTH = 4_000
 
-export const LECTURE_AI_CHAT_SUGGESTIONS = [
-  'Summarize the key points of this lecture',
-  'Explain the main concept in simple terms',
-  'Give me a short quiz to practice',
-] as const
+export type LectureAiChatSuggestionKind = 'summary' | 'explain' | 'quiz'
+
+export type LectureAiChatSuggestion = {
+  kind: LectureAiChatSuggestionKind
+  label: string
+}
+
+export const LECTURE_AI_CHAT_SUGGESTIONS: Array<LectureAiChatSuggestion> = [
+  { kind: 'summary', label: 'Summarize the key points of this lecture' },
+  { kind: 'explain', label: 'Explain the main concept in simple terms' },
+  { kind: 'quiz', label: 'Give me a short quiz to practice' },
+]

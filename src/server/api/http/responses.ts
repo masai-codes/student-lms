@@ -172,6 +172,7 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_MIGRATING_AI_TUTOR_FEEDBACK_RATINGS':
       case 'SERVER_ERROR_INGESTING_LECTURE_RAG':
       case 'SERVER_ERROR_GENERATING_LECTURE_NOTES_TOC':
+      case 'SERVER_ERROR_FETCHING_AI_TUTOR_LECTURE_FAQS':
         return jsonError(500, error.message)
       case 'AI_TUTOR_ANTHROPIC_NOT_CONFIGURED':
       case 'AI_TUTOR_RAG_PLATFORM_NOT_CONFIGURED':
