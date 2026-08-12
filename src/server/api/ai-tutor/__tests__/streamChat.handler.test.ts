@@ -163,6 +163,48 @@ describe('handleStreamChat', () => {
     expect(hoisted.prepareLectureChatContext).not.toHaveBeenCalled()
   })
 
+  it('returns 400 when supportedUIElements is not an array', async () => {
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
+
+    const res = await handleStreamChat(
+      postRequest({
+        lectureId: 1,
+        chat: 'hello',
+        platform: 'web-desktop',
+        supportedUIElements: 'quiz',
+      }),
+    )
+
+    expect(res.status).toBe(400)
+    await expect(res.json()).resolves.toEqual({
+      code: 'AI_TUTOR_SUPPORTED_UI_ELEMENTS_INVALID',
+      message: 'AI_TUTOR_SUPPORTED_UI_ELEMENTS_INVALID',
+    })
+    expect(hoisted.prepareLectureChatContext).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 when supportedUIElements contains an unrecognized element', async () => {
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
+
+    const res = await handleStreamChat(
+      postRequest({
+        lectureId: 1,
+        chat: 'hello',
+        platform: 'web-desktop',
+        supportedUIElements: ['flashcards'],
+      }),
+    )
+
+    expect(res.status).toBe(400)
+    await expect(res.json()).resolves.toEqual({
+      code: 'AI_TUTOR_SUPPORTED_UI_ELEMENTS_INVALID',
+      message: 'AI_TUTOR_SUPPORTED_UI_ELEMENTS_INVALID',
+    })
+    expect(hoisted.prepareLectureChatContext).not.toHaveBeenCalled()
+  })
+
   it('returns 503 when Anthropic is not configured', async () => {
     const { ApiError } = await import('@/server/api/http/apiError')
     const { handleStreamChat } = await import('../handlers/streamChat.handler')
@@ -236,6 +278,7 @@ describe('handleStreamChat', () => {
       chatId: undefined,
       platform: 'app',
       language: 'English',
+      supportedUIElements: [],
     })
   })
 
@@ -267,6 +310,7 @@ describe('handleStreamChat', () => {
         chatID: 12,
         platform: 'web-mobile',
         language: 'hi',
+        supportedUIElements: ['quiz'],
       }),
     )
 
@@ -277,6 +321,7 @@ describe('handleStreamChat', () => {
       chatId: 12,
       platform: 'web-mobile',
       language: 'Hindi',
+      supportedUIElements: ['quiz'],
     })
     expect(hoisted.streamLectureChatEventsFromContext).toHaveBeenCalledWith({
       chatRow: { id: 12, chatHistory: [] },

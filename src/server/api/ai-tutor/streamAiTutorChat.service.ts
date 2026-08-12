@@ -4,6 +4,7 @@ import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlat
 import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 import type { LectureChatMaterials } from '@/server/api/ai-tutor/types/lectureChatMaterials'
 import type { PracticeQuestionsPayload } from '@/server/api/ai-tutor/types/practiceQuestions'
+import type { AiTutorSupportedUiElement } from '@/server/api/ai-tutor/supportedUiElements'
 import { getAiTutorChatModel } from '@/server/api/ai-tutor/clients/anthropicModel'
 import {
   appendChatPracticeHistory,
@@ -34,6 +35,7 @@ export type StreamLectureChatInput = {
   chatId?: number
   platform: AiTutorFeedbackPlatform
   language: AiTutorChatLanguage
+  supportedUIElements: Array<AiTutorSupportedUiElement>
 }
 
 export type LectureChatStreamContext = {
@@ -44,6 +46,7 @@ export type LectureChatStreamContext = {
   chat: string
   platform: AiTutorFeedbackPlatform
   language: AiTutorChatLanguage
+  supportedUIElements: Array<AiTutorSupportedUiElement>
 }
 
 export async function prepareLectureChatContext(
@@ -56,7 +59,11 @@ export async function prepareLectureChatContext(
   })
 
   const materials = await getLectureChatMaterials(input.lectureId)
-  const systemPrompt = buildLectureChatSystemPrompt(materials, input.language)
+  const systemPrompt = buildLectureChatSystemPrompt(
+    materials,
+    input.language,
+    input.supportedUIElements,
+  )
   const messages = buildLectureChatMessages({
     chatHistory: chatRow.chatHistory,
     question: input.chat,
@@ -70,6 +77,7 @@ export async function prepareLectureChatContext(
     chat: input.chat,
     platform: input.platform,
     language: input.language,
+    supportedUIElements: input.supportedUIElements,
   }
 }
 
@@ -80,7 +88,9 @@ export async function* streamLectureChatEventsFromContext(
     ...(context.materials.ragRetrievalAvailable
       ? createRetrieveLectureContentTool(context.materials.lectureId)
       : {}),
-    ...createGeneratePracticeQuestionsTool(),
+    ...(context.supportedUIElements.includes('quiz')
+      ? createGeneratePracticeQuestionsTool()
+      : {}),
   }
 
   const result = streamText({

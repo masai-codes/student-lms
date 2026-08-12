@@ -72,6 +72,7 @@ describe('prepareLectureChatContext', () => {
       chat: 'Explain hooks',
       platform: 'web-desktop',
       language: 'English',
+      supportedUIElements: ['quiz'],
     })
 
     expect(hoisted.getLectureChatMaterials).toHaveBeenCalledWith(99)
@@ -92,6 +93,7 @@ describe('prepareLectureChatContext', () => {
       chat: 'Explain hooks',
       platform: 'web-desktop',
       language: 'English',
+      supportedUIElements: ['quiz'],
     })
     expect(context.systemPrompt).toContain('retrieveLectureContent')
   })
@@ -106,6 +108,7 @@ describe('prepareLectureChatContext', () => {
       chat: 'Explain hooks',
       platform: 'web-desktop',
       language: 'Tamil',
+      supportedUIElements: ['quiz'],
     })
 
     expect(context.systemPrompt).toContain('You MUST respond ONLY in Tamil')
@@ -129,6 +132,7 @@ describe('prepareLectureChatContext', () => {
         platform: 'web-desktop',
         chatId: 2,
         language: 'English',
+        supportedUIElements: ['quiz'],
       }),
     ).rejects.toMatchObject({ status: 404, code: 'AI_TUTOR_CHAT_NOT_FOUND' })
   })
@@ -162,6 +166,7 @@ describe('streamLectureChatEventsFromContext', () => {
       chat: 'Explain hooks',
       platform: 'web-desktop',
       language: 'Hindi',
+      supportedUIElements: ['quiz'],
     })) {
       events.push(event)
     }
@@ -235,6 +240,7 @@ describe('streamLectureChatEventsFromContext', () => {
       chat: 'Give me practice questions',
       platform: 'web-desktop',
       language: 'English',
+      supportedUIElements: ['quiz'],
     })) {
       events.push(event)
     }
@@ -267,7 +273,7 @@ describe('streamLectureChatEventsFromContext', () => {
     )
   })
 
-  it('always includes the practice-questions tool even when RAG retrieval is unavailable', async () => {
+  it('includes the practice-questions tool when quiz is in supportedUIElements, even when RAG retrieval is unavailable', async () => {
     function* fullStream() {
       yield { type: 'text-delta', text: 'Hi' }
     }
@@ -285,6 +291,7 @@ describe('streamLectureChatEventsFromContext', () => {
       chat: 'Explain hooks',
       platform: 'web',
       language: 'English',
+      supportedUIElements: ['quiz'],
     })) {
       // drain stream
     }
@@ -292,5 +299,32 @@ describe('streamLectureChatEventsFromContext', () => {
     const call = hoisted.streamText.mock.calls[0][0]
     expect(call.tools).not.toHaveProperty('retrieveLectureContent')
     expect(call.tools).toHaveProperty('generatePracticeQuestions')
+  })
+
+  it('omits the practice-questions tool when quiz is not in supportedUIElements', async () => {
+    function* fullStream() {
+      yield { type: 'text-delta', text: 'Hi' }
+    }
+
+    hoisted.streamText.mockReturnValueOnce({ fullStream: fullStream() })
+
+    const { streamLectureChatEventsFromContext } =
+      await import('../streamAiTutorChat.service')
+
+    for await (const _event of streamLectureChatEventsFromContext({
+      chatRow: { id: 12, chatHistory: [] },
+      materials,
+      systemPrompt: 'Prompt',
+      messages: [{ role: 'user', content: 'Explain hooks' }],
+      chat: 'Explain hooks',
+      platform: 'web',
+      language: 'English',
+      supportedUIElements: [],
+    })) {
+      // drain stream
+    }
+
+    const call = hoisted.streamText.mock.calls[0][0]
+    expect(call.tools).not.toHaveProperty('generatePracticeQuestions')
   })
 })

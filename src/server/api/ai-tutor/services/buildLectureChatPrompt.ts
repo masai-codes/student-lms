@@ -1,12 +1,14 @@
 import type { AiChatHistoryEntry } from '@/server/api/ai-tutor/types/chatHistory'
 import type { AiTutorChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 import type { LectureChatMaterials } from '@/server/api/ai-tutor/types/lectureChatMaterials'
+import type { AiTutorSupportedUiElement } from '@/server/api/ai-tutor/supportedUiElements'
 import {
   AI_TUTOR_LECTURE_CHAT_RAG_GUIDANCE,
   AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE,
   AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE,
   AI_TUTOR_LECTURE_RAG_TOOL_NAME,
   AI_TUTOR_PRACTICE_QUESTIONS_GUIDANCE,
+  AI_TUTOR_PRACTICE_QUESTIONS_PLAIN_TEXT_GUIDANCE,
   buildEnforcedChatLanguageInstruction,
 } from '@/server/api/ai-tutor/constants'
 import { formatLectureSharedResourcesForPrompt } from '@/server/api/ai-tutor/services/formatLectureSharedResources'
@@ -50,14 +52,19 @@ The \`${AI_TUTOR_LECTURE_RAG_TOOL_NAME}\` tool is available for this lecture.`
 export function buildLectureChatSystemPrompt(
   materials: LectureChatMaterials,
   language: AiTutorChatLanguage,
+  supportedUIElements: Array<AiTutorSupportedUiElement>,
 ): string {
+  const practiceQuestionsGuidance = supportedUIElements.includes('quiz')
+    ? AI_TUTOR_PRACTICE_QUESTIONS_GUIDANCE
+    : AI_TUTOR_PRACTICE_QUESTIONS_PLAIN_TEXT_GUIDANCE
+
   return `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
 
 ${buildEnforcedChatLanguageInstruction(language)}
 
 ${AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE}${formatRagGuidance(materials)}
 
-${AI_TUTOR_PRACTICE_QUESTIONS_GUIDANCE}
+${practiceQuestionsGuidance}
 
 ## Lecture
 Title: ${materials.title}
