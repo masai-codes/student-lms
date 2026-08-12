@@ -13,6 +13,7 @@ import { batches, profiles, sectionUser, users } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { resolveSectionLabelFromColumns } from '@/server/batches/resolveSectionLabel'
 import { clearAgreementBan } from '@/server/restrictions/clearAgreementBan'
+import { resolveStudentCode } from '@/server/users/getStudentCode'
 import { uploadImageToS3 } from '@/server/storage/s3Upload'
 
 export interface SubmitAgreementResult {
@@ -83,7 +84,7 @@ export async function submitAgreement(
     : []
   if (!steps.length) throw new ApiError(400, 'NO_AGREEMENT_FOR_SECTION')
 
-  const [[batch], [user], [profile]] = await Promise.all([
+  const [[batch], [user], [profile], studentCode] = await Promise.all([
     db
       .select({ name: batches.name, program: batches.program })
       .from(batches)
@@ -93,7 +94,6 @@ export async function submitAgreement(
       .select({
         name: users.name,
         email: users.email,
-        username: users.username,
       })
       .from(users)
       .where(eq(users.id, userId))
@@ -103,6 +103,8 @@ export async function submitAgreement(
       .from(profiles)
       .where(and(eq(profiles.userId, userId), isNull(profiles.deletedAt)))
       .limit(1),
+    // Student code comes from this batch's batch_user row, never users.username.
+    resolveStudentCode(userId, sectionRow.batch_id),
   ])
   if (!profile) throw new ApiError(400, 'PROFILE_NOT_FOUND')
 
@@ -130,7 +132,7 @@ export async function submitAgreement(
       referenceNumber,
       name: (existing['name'] as string | undefined) ?? user?.name ?? '',
       email: user?.email ?? '',
-      studentCode: user?.username ?? '',
+      studentCode,
       panNumber: existing['panNumber'] as string | undefined,
       passportNumber: existing['passportNumber'] as string | undefined,
       address: (existing['address'] as string | undefined) ?? '',
