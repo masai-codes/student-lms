@@ -88,7 +88,7 @@ export function LectureDiscussionsSection({
       className={cn(
         isAside
           ? 'flex min-h-0 flex-1 flex-col'
-          : 'border-t border-border bg-background pb-10 pt-8',
+          : 'pb-10 pt-8',
         className,
       )}
     >
