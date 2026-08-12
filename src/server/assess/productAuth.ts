@@ -45,12 +45,18 @@ export function assessProductAuthHeaders(
  * Logs Assess's migration warning header so compliance is visible from our own
  * logs. MISSING_SECRET = header not sent, INVALID_SECRET = sent but wrong
  * (stale value or a trailing newline in the env var). No header = migrated.
+ *
+ * Purely observational: it must never be able to fail the call it is watching,
+ * so a response without a usable `headers` is treated as "nothing to report"
+ * rather than throwing. `Response` is widened to a structural type for the same
+ * reason — a real fetch Response always carries headers, but stubbed or proxied
+ * responses may not.
  */
 export function logAssessAuthWarning(
-  response: Response,
+  response: { headers?: { get?: (name: string) => string | null } } | null,
   context: Record<string, unknown> = {},
 ): void {
-  const warning = response.headers.get('x-assess-auth-warning')
+  const warning = response?.headers?.get?.('x-assess-auth-warning')
   if (warning) {
     console.warn('[assess] auth warning:', warning, context)
   }
