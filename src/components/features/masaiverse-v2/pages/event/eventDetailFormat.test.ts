@@ -6,10 +6,6 @@ import {
   formatLocalTimeRange,
 } from './eventDetailFormat'
 
-// Pin the timezone so the viewer-local formatters produce deterministic output
-// regardless of the machine/CI timezone. Asia/Kolkata → getTzLabel() === 'IST'.
-process.env.TZ = 'Asia/Kolkata'
-
 // 2026-06-10T09:00:00Z → 2:30 PM IST on Wed 10 June.
 const START = '2026-06-10T09:00:00Z'
 const END = '2026-06-10T11:30:00Z'
