@@ -9,6 +9,10 @@ import {
   zefLmsQuizSubmission,
 } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
+import {
+  assessProductAuthHeaders,
+  logAssessAuthWarning,
+} from '@/server/assess/productAuth'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { buildInLectureQuizUniqueId } from '@/server/learn/utils/inLectureQuizUniqueId'
 import { requireAssessEnv } from '@/server/learn/utils/assessEnv'
@@ -186,6 +190,7 @@ export async function generateInLectureQuizUrl(input: {
       adminauthtoken: adminAuthToken,
       clientid: clientId,
       'Content-Type': 'application/json',
+      ...assessProductAuthHeaders(clientId),
     },
     body: JSON.stringify({
       // Stable per user + lecture + template so repeat opens don't spawn a new
@@ -207,6 +212,12 @@ export async function generateInLectureQuizUrl(input: {
       skipSubjectiveGrading: true,
       showInstantAnswer: true,
     }),
+  })
+
+  logAssessAuthWarning(response, {
+    route: 'generate-test',
+    flow: 'in-lecture-quiz',
+    zefLmsQuizId,
   })
 
   if (!response.ok) {
