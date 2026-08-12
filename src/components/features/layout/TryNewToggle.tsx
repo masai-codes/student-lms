@@ -11,7 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { setNewLmsPagesPreference } from '@/lib/api/profile/profileApi'
+import { setNewLmsPagesPreference } from '@/lib/api/newLmsPreferenceApi'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 import { mapToLegacyPath } from '@/utils/legacyPathMap'
 import { isMigratedRoute } from '@/utils/migratedRoutes'
