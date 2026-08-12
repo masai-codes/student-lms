@@ -21,7 +21,10 @@ const BRANDING: Record<AppOrigin, AuthBranding> = {
   masai: {
     logoSrc: '/masai-logo.svg',
     logoAlt: 'Masai School',
-    logoClassName: 'mx-auto h-10 w-auto cursor-pointer md:h-11',
+    // The SVG's fills are near-black; flatten to white in dark so the
+    // wordmark stays visible on the near-black auth backdrop.
+    logoClassName:
+      'mx-auto h-10 w-auto cursor-pointer md:h-11 dark:brightness-0 dark:invert',
     pageTitle: 'Masai LMS',
     metaDescription:
       'Masai School learning platform — programs, live sessions and placements.',
@@ -51,8 +54,7 @@ const BRANDING: Record<AppOrigin, AuthBranding> = {
     logoSrc:
       'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iitj-logo-new.png',
     logoAlt: 'IIT Jodhpur',
-    logoClassName:
-      'mx-auto h-14 w-auto cursor-pointer object-contain md:h-16',
+    logoClassName: 'mx-auto h-14 w-auto cursor-pointer object-contain md:h-16',
     pageTitle: 'IIT Jodhpur',
     metaDescription:
       'IIT Jodhpur learning platform — programs and live sessions.',

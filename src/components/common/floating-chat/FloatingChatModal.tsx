@@ -840,7 +840,7 @@ export function FloatingChatModal({
         <div
           onPointerDown={handleBackdropPointerDown}
           className={cn(
-            'fixed inset-0 bg-[#15162c]/30 backdrop-blur-[2px] z-[205] transition-opacity duration-300',
+            'fixed inset-0 bg-[#15162c]/30 dark:bg-black/60 backdrop-blur-[2px] z-[205] transition-opacity duration-300',
             isOpen
               ? 'opacity-100 pointer-events-auto'
               : 'opacity-0 pointer-events-none',
@@ -851,7 +851,7 @@ export function FloatingChatModal({
       <div
         data-testid="floating-chat-panel"
         className={cn(
-          'fixed flex flex-col overflow-hidden bg-surface border border-[#e9e9f3] z-[210]',
+          'fixed flex flex-col overflow-hidden bg-surface border border-[#e9e9f3] dark:border-border z-[210]',
           isFullPage
             ? 'inset-0 h-dvh w-full rounded-none border-0 shadow-none'
             : cn(
@@ -880,7 +880,7 @@ export function FloatingChatModal({
         <div className="flex-1 overflow-hidden flex flex-col p-[16px_18px_8px] gap-2.5">
           <div
             ref={threadScrollRef}
-            className="flex-1 overflow-y-auto flex flex-col gap-[9px] animate-in slide-in-from-right-2 duration-200 fade-in h-full [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-[#e9e9f3] [&::-webkit-scrollbar-thumb]:rounded-full pr-1 -mr-1"
+            className="flex-1 overflow-y-auto flex flex-col gap-[9px] animate-in slide-in-from-right-2 duration-200 fade-in h-full [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-[#e9e9f3] dark:[&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full pr-1 -mr-1"
             key={`${view}-${step}-${selectedTicketId}`}
           >
             {isApplyingEntityLaunch && (
@@ -888,7 +888,9 @@ export function FloatingChatModal({
                 className="flex flex-1 items-center justify-center py-8"
                 data-testid="floating-chat-entity-launch-loading"
               >
-                <p className="text-[13px] text-[#62647d]">Loading your item…</p>
+                <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
+                  Loading your item…
+                </p>
               </div>
             )}
 
@@ -902,25 +904,29 @@ export function FloatingChatModal({
 
             {isResolvingSingleBatch && !isApplyingEntityLaunch && (
               <div className="flex flex-1 items-center justify-center py-8">
-                <p className="text-[13px] text-[#62647d]">Loading…</p>
+                <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
+                  Loading…
+                </p>
               </div>
             )}
 
             {showHomeBatchStep && showInboxLoading && (
               <div className="flex flex-1 items-center justify-center py-8">
-                <p className="text-[13px] text-[#62647d]">Loading batches…</p>
+                <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
+                  Loading batches…
+                </p>
               </div>
             )}
 
             {showHomeBatchStep && isInboxError && (
               <div className="flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
-                <p className="text-[13px] text-[#62647d]">
+                <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
                   Couldn&apos;t load your batches.
                 </p>
                 <button
                   type="button"
                   onClick={onInboxRetry}
-                  className="rounded-[10px] border border-[#e9e9f3] bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
+                  className="rounded-[10px] border border-[#e9e9f3] dark:border-border bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] dark:text-foreground hover:bg-[#f0f0fd] dark:hover:bg-brand/10"
                 >
                   Try again
                 </button>
@@ -932,10 +938,10 @@ export function FloatingChatModal({
               !isInboxError &&
               batches.length === 0 && (
                 <div className="flex flex-1 flex-col items-center justify-center gap-2 py-8 text-center">
-                  <p className="text-[14px] font-bold text-[#15162c]">
+                  <p className="text-[14px] font-bold text-[#15162c] dark:text-foreground">
                     No batches found
                   </p>
-                  <p className="text-[12.5px] text-[#62647d]">
+                  <p className="text-[12.5px] text-[#62647d] dark:text-foreground-muted">
                     We couldn&apos;t find any batch linked to your account.
                   </p>
                 </div>
@@ -958,7 +964,9 @@ export function FloatingChatModal({
               !showEntityLaunchError &&
               showInboxLoading && (
                 <div className="flex flex-1 items-center justify-center py-8">
-                  <p className="text-[13px] text-[#62647d]">Loading…</p>
+                  <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
+                    Loading…
+                  </p>
                 </div>
               )}
 
@@ -1088,7 +1096,7 @@ export function FloatingChatModal({
             {view === 'home' && step === 4 && (
               <>
                 {uploadError && (
-                  <p className="mb-2 rounded-[10px] bg-[#fef2f2] px-3 py-2 text-[12.5px] font-medium text-[#b42318]">
+                  <p className="mb-2 rounded-[10px] bg-[#fef2f2] dark:bg-danger-subtle px-3 py-2 text-[12.5px] font-medium text-[#b42318] dark:text-danger-subtle-foreground">
                     {uploadError}
                   </p>
                 )}
@@ -1103,7 +1111,7 @@ export function FloatingChatModal({
             {view === 'home' && step === 5 && (
               <>
                 {uploadError && (
-                  <p className="mb-2 rounded-[10px] bg-[#fef2f2] px-3 py-2 text-[12.5px] font-medium text-[#b42318]">
+                  <p className="mb-2 rounded-[10px] bg-[#fef2f2] dark:bg-danger-subtle px-3 py-2 text-[12.5px] font-medium text-[#b42318] dark:text-danger-subtle-foreground">
                     {uploadError}
                   </p>
                 )}
@@ -1127,19 +1135,19 @@ export function FloatingChatModal({
               <>
                 {showInboxLoading ? (
                   <div className="flex flex-1 items-center justify-center py-8">
-                    <p className="text-[13px] text-[#62647d]">
+                    <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
                       Loading 1:1 sessions…
                     </p>
                   </div>
                 ) : isInboxError ? (
                   <div className="flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
-                    <p className="text-[13px] text-[#62647d]">
+                    <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
                       Couldn&apos;t load 1:1 sessions.
                     </p>
                     <button
                       type="button"
                       onClick={onInboxRetry}
-                      className="rounded-[10px] border border-[#e9e9f3] bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
+                      className="rounded-[10px] border border-[#e9e9f3] dark:border-border bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] dark:text-foreground hover:bg-[#f0f0fd] dark:hover:bg-brand/10"
                     >
                       Try again
                     </button>
@@ -1154,19 +1162,19 @@ export function FloatingChatModal({
               <>
                 {showInboxLoading ? (
                   <div className="flex flex-1 items-center justify-center py-8">
-                    <p className="text-[13px] text-[#62647d]">
+                    <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
                       Loading tickets…
                     </p>
                   </div>
                 ) : isInboxError ? (
                   <div className="flex flex-1 flex-col items-center justify-center gap-3 py-8 text-center">
-                    <p className="text-[13px] text-[#62647d]">
+                    <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
                       Couldn&apos;t load your tickets.
                     </p>
                     <button
                       type="button"
                       onClick={onInboxRetry}
-                      className="rounded-[10px] border border-[#e9e9f3] bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] hover:bg-[#f0f0fd]"
+                      className="rounded-[10px] border border-[#e9e9f3] dark:border-border bg-surface px-4 py-2 text-[13px] font-bold text-[#15162c] dark:text-foreground hover:bg-[#f0f0fd] dark:hover:bg-brand/10"
                     >
                       Try again
                     </button>
@@ -1187,7 +1195,7 @@ export function FloatingChatModal({
               <>
                 {isThreadLoading && (
                   <div className="flex flex-1 items-center justify-center py-8">
-                    <p className="text-[13px] text-[#62647d]">
+                    <p className="text-[13px] text-[#62647d] dark:text-foreground-muted">
                       Loading conversation…
                     </p>
                   </div>
@@ -1235,7 +1243,7 @@ export function FloatingChatModal({
         )}
 
         {view === 'home' && step === 2.8 && (
-          <div className="shrink-0 p-[12px_18px_14px] border-t border-[#e9e9f3] bg-surface transition-all duration-200 ease-out">
+          <div className="shrink-0 p-[12px_18px_14px] border-t border-[#e9e9f3] dark:border-border bg-surface transition-all duration-200 ease-out">
             <button
               type="button"
               onClick={() => {
@@ -1244,7 +1252,7 @@ export function FloatingChatModal({
                 setMessage('')
                 goToComposer(2.8)
               }}
-              className="flex w-full items-center justify-center gap-2 p-[13px] rounded-[10px] bg-[#f8f8fc] border-[1.5px] border-[#e9e9f3] text-[#4b4396] font-bold text-[14px] hover:bg-[#f0f0fd] hover:border-[#d6d6f5] transition-all group"
+              className="flex w-full items-center justify-center gap-2 p-[13px] rounded-[10px] bg-[#f8f8fc] dark:bg-muted/40 border-[1.5px] border-[#e9e9f3] dark:border-border text-[#4b4396] dark:text-brand font-bold text-[14px] hover:bg-[#f0f0fd] dark:hover:bg-brand/10 hover:border-[#d6d6f5] dark:hover:border-brand/40 transition-all group"
             >
               My issue is not listed
             </button>
@@ -1268,15 +1276,15 @@ export function FloatingChatModal({
           />
         )}
 
-        <div className="flex shrink-0 border-t border-[#e9e9f3] bg-surface z-10 relative">
+        <div className="flex shrink-0 border-t border-[#e9e9f3] dark:border-border bg-surface z-10 relative">
           <button
             type="button"
             onClick={() => handleSwitchTab('home')}
             className={cn(
               'flex-1 flex flex-col items-center gap-[3px] p-[9px_0_10px] text-[10.8px] font-bold transition-colors group',
               view === 'home'
-                ? 'text-[#4b4396]'
-                : 'text-[#9496ab] hover:text-[#4b4396]',
+                ? 'text-[#4b4396] dark:text-brand'
+                : 'text-[#9496ab] dark:text-foreground-subtle hover:text-[#4b4396] dark:hover:text-brand',
             )}
           >
             <Lifebuoy weight="bold" className="size-[19px]" />
@@ -1288,8 +1296,8 @@ export function FloatingChatModal({
             className={cn(
               'relative flex-1 flex flex-col items-center gap-[3px] p-[9px_0_10px] text-[10.8px] font-bold transition-colors group',
               view === 'tickets'
-                ? 'text-[#4b4396]'
-                : 'text-[#9496ab] hover:text-[#4b4396]',
+                ? 'text-[#4b4396] dark:text-brand'
+                : 'text-[#9496ab] dark:text-foreground-subtle hover:text-[#4b4396] dark:hover:text-brand',
             )}
           >
             <Ticket weight="bold" className="size-[19px]" />
@@ -1307,8 +1315,8 @@ export function FloatingChatModal({
               className={cn(
                 'flex-1 flex flex-col items-center gap-[3px] p-[9px_0_10px] text-[10.8px] font-bold transition-colors group',
                 view === 'oneOnOne'
-                  ? 'text-[#4b4396]'
-                  : 'text-[#9496ab] hover:text-[#4b4396]',
+                  ? 'text-[#4b4396] dark:text-brand'
+                  : 'text-[#9496ab] dark:text-foreground-subtle hover:text-[#4b4396] dark:hover:text-brand',
               )}
             >
               <CalendarCheck weight="bold" className="size-[19px]" />

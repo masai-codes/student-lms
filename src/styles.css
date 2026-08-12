@@ -60,6 +60,14 @@
   @apply flex w-full flex-1 min-h-0 flex-col;
 }
 
+/* Full-width dashboard promo banner chrome — the single source of truth so
+   every promo banner matches (they used to drift: one purple, one teal).
+   Brand purple gradient in light; deep red in dark (red & black theme). The
+   white text and white/NN tints banners layer on top hold ≥10:1 on both. */
+@utility banner-hero {
+  @apply bg-gradient-to-r from-[#5B52A3] to-[#6E66B8] text-white dark:from-[#5c1116] dark:via-[#7f1d1d] dark:to-[#9f1c31];
+}
+
 body {
   @apply m-0;
   font-family:
@@ -274,71 +282,97 @@ code {
   /* Non-contrast-checked helpers (skeleton shimmer). */
   --skeleton-base: #f3f4f6;
   --skeleton-sheen: #e9ebf5;
+
+  /* Support-chat branded gradients (CTA buttons + floating sphere). Themed
+     here because they're applied via inline styles, which `dark:` classes
+     can't override. */
+  --chat-cta-gradient: linear-gradient(
+    90.38deg,
+    rgb(75, 67, 150) 2.62%,
+    rgb(105, 98, 172) 100%
+  );
+  --chat-sphere-gradient: linear-gradient(
+    155deg,
+    rgb(75, 67, 150),
+    rgb(105, 98, 172)
+  );
 }
 
-/* ── DARK — premium near-black with a cool cast; brand purple lifted for
-   dark backgrounds. Elevation is expressed by LIGHTER surfaces (background →
+/* ── DARK — premium RED & BLACK. Neutral near-black surfaces; everything that
+   is brand purple in light re-tokens to red here (brand/primary/ring/chart-1),
+   so `bg-brand`, `text-brand`, `dark:text-brand` etc. all land on red with no
+   component changes. Elevation is expressed by LIGHTER surfaces (background →
    surface-muted → surface/card → popover), not by shadows, which read poorly
    on dark. Status colors are brightened + their `-subtle` pairs become deep
    tinted washes with pastel foregrounds. ─────────────────────────────────── */
 .dark,
 [data-theme='dark'] {
   color-scheme: dark;
-  --background: #0f1117;
-  --foreground: #e8ebf4;
+  --background: #0b0b0d;
+  --foreground: #f0f0f2;
   /* Retarget the legacy Masai typography color (type-* classes) to the theme
      foreground so all body/heading text stays readable. Light keeps the
      original #111928 (set in masai-typography.css). */
   --masai-text-color: var(--foreground);
-  --card: #1a1f2b;
-  --card-foreground: #e8ebf4;
-  --popover: #202636;
-  --popover-foreground: #e8ebf4;
-  --primary: #a9a3ec;
-  --primary-foreground: #15131f;
-  --secondary: #232939;
-  --secondary-foreground: #e8ebf4;
-  --muted: #232939;
-  --muted-foreground: #9ba3ba;
-  --accent: #2a3047;
-  --accent-foreground: #e8ebf4;
+  --card: #18181b;
+  --card-foreground: #f0f0f2;
+  --popover: #1e1e22;
+  --popover-foreground: #f0f0f2;
+  --primary: #f05252;
+  --primary-foreground: #ffffff;
+  --secondary: #212125;
+  --secondary-foreground: #f0f0f2;
+  --muted: #212125;
+  --muted-foreground: #a3a3ac;
+  --accent: #28282d;
+  --accent-foreground: #f0f0f2;
   --destructive: #f87d7d;
   --destructive-foreground: #2b0b0b;
-  --border: #2b3244;
-  --input: #333b50;
-  --ring: #a9a3ec;
-  --chart-1: #a9a3ec;
+  --border: #29292e;
+  --input: #333338;
+  --ring: #f05252;
+  --chart-1: #f05252;
   --chart-2: #34d399;
   --chart-3: #fbbf24;
-  --chart-4: #f472b6;
+  --chart-4: #a78bfa;
   --chart-5: #38bdf8;
-  --sidebar: #141826;
-  --sidebar-foreground: #e8ebf4;
-  --sidebar-primary: #a9a3ec;
-  --sidebar-primary-foreground: #15131f;
-  --sidebar-accent: #232939;
-  --sidebar-accent-foreground: #e8ebf4;
-  --sidebar-border: #2b3244;
-  --sidebar-ring: #a9a3ec;
+  --sidebar: #101012;
+  --sidebar-foreground: #f0f0f2;
+  --sidebar-primary: #f05252;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #212125;
+  --sidebar-accent-foreground: #f0f0f2;
+  --sidebar-border: #29292e;
+  --sidebar-ring: #f05252;
 
   /* Extended semantic tokens — dark. Note the elevation inversion vs light:
      the page shell (`surface-muted`) sits BELOW cards (`surface`), so cards
      read as raised, matching light mode's white-card-on-gray layout. */
-  --surface: #1a1f2b;
-  --surface-foreground: #e8ebf4;
-  --surface-muted: #151823;
-  --surface-muted-foreground: #aab1c5;
-  --border-strong: #3e4760;
-  --foreground-muted: #aab1c5;
-  --foreground-subtle: #767f97;
+  --surface: #18181b;
+  --surface-foreground: #f0f0f2;
+  --surface-muted: #121214;
+  --surface-muted-foreground: #b0b0b8;
+  --border-strong: #3f3f46;
+  --foreground-muted: #b0b0b8;
+  --foreground-subtle: #7b7b84;
 
-  --brand: #a9a3ec;
-  --brand-foreground: #15131f;
-  --brand-subtle: #272449;
-  --brand-subtle-foreground: #c9c5f4;
-  --accent-warm: #ff8a4a;
-  --accent-warm-foreground: #201206;
-  --accent-warm-hover: #f0783a;
+  --brand: #f05252;
+  --brand-foreground: #ffffff;
+  --brand-subtle: #2e1416;
+  --brand-subtle-foreground: #f8a9a9;
+  /* `accent-warm` is the Masaiverse accent (48 of its 49 consumers live under
+     `features/masaiverse-v2`). Light keeps the Masai brand orange; dark drops
+     the orange entirely for a deeper red, so Masaiverse reads red-and-black
+     like the rest of the dark theme. Kept a shade off `--brand` so the two
+     accents stay distinguishable where they sit side by side. */
+  --accent-warm: #f4453f;
+  --accent-warm-foreground: #ffffff;
+  --accent-warm-hover: #d93831;
+  /* The raw brand-orange variable (`@theme` block above) reaches a few
+     data-driven inline styles — Masaiverse avatar/highlight accents — that no
+     `dark:` class can touch, so retarget it here too. `-orange-dark` is a
+     `color-mix()` over this var, so it follows automatically. */
+  --color-masaiverse-orange: #f4453f;
 
   --success: #34d399;
   --success-foreground: #052e1e;
@@ -350,15 +384,18 @@ code {
   --warning-subtle-foreground: #fcd96a;
   --danger: #f87d7d;
   --danger-foreground: #2b0b0b;
-  --danger-subtle: #3a1620;
+  --danger-subtle: #3a1417;
   --danger-subtle-foreground: #f8b8b8;
   --info: #7aa8f8;
   --info-foreground: #071330;
-  --info-subtle: #182642;
+  --info-subtle: #16213a;
   --info-subtle-foreground: #a8c8fc;
 
-  --skeleton-base: #232939;
-  --skeleton-sheen: #2c3348;
+  --skeleton-base: #212125;
+  --skeleton-sheen: #2b2b31;
+
+  --chat-cta-gradient: linear-gradient(90.38deg, #c93a3a 2.62%, #f05252 100%);
+  --chat-sphere-gradient: linear-gradient(155deg, #b32d2d, #f05252);
 }
 
 /* Smooth cross-theme fade. Scoped to color properties so layout never shifts,
@@ -670,6 +707,17 @@ code {
   color: transparent;
   animation: dash-gradient-pan 7s ease-in-out infinite;
 }
+/* Dark is red & black: the indigo/violet mid-stops re-map to the red family. */
+.dark .dash-gradient-text {
+  background-image: linear-gradient(
+    90deg,
+    var(--foreground) 0%,
+    #f05252 30%,
+    #f97316 50%,
+    #f05252 70%,
+    var(--foreground) 100%
+  );
+}
 
 /* Shimmer for skeleton placeholders. */
 @keyframes dash-shimmer {
@@ -776,6 +824,19 @@ code {
 }
 .animate-dash-glow {
   animation: dash-glow 2.2s ease-in-out infinite;
+}
+/* Dark: the indigo pulse reads alien on red & black — pulse red instead. */
+@keyframes dash-glow-dark {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(240 82 82 / 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgb(240 82 82 / 0);
+  }
+}
+.dark .animate-dash-glow {
+  animation-name: dash-glow-dark;
 }
 
 /* Expanding ping ring behind a live dot. */

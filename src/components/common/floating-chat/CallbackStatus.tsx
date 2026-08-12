@@ -11,8 +11,8 @@ export function CallbackStatus({
   preferredTimeslot,
   onClose,
 }: CallbackStatusProps) {
-  const gradientBg =
-    'linear-gradient(90.38deg, rgb(75, 67, 150) 2.62%, rgb(105, 98, 172) 100%)'
+  // Themed per mode (purple light / red dark) — see --chat-cta-gradient in styles.css.
+  const gradientBg = 'var(--chat-cta-gradient)'
 
   if (status === 'already_requested') {
     return (
@@ -35,7 +35,7 @@ export function CallbackStatus({
         <div className="shrink-0 mt-auto">
           <button
             onClick={onClose}
-            className="flex w-full items-center justify-center p-[14px] rounded-[12px] font-bold text-[15px] text-white hover:-translate-y-[1px] shadow-[0_4px_12px_rgba(75,67,150,0.25)] active:scale-[0.98] transition-all"
+            className="flex w-full items-center justify-center p-[14px] rounded-[12px] font-bold text-[15px] text-white hover:-translate-y-[1px] shadow-[0_4px_12px_rgba(75,67,150,0.25)] dark:shadow-[0_4px_12px_rgba(240,82,82,0.3)] active:scale-[0.98] transition-all"
             style={{ background: gradientBg }}
           >
             Got it
@@ -67,7 +67,7 @@ export function CallbackStatus({
       <div className="shrink-0 mt-auto">
         <button
           onClick={onClose}
-          className="flex w-full items-center justify-center p-[14px] rounded-[12px] font-bold text-[15px] text-white hover:-translate-y-[1px] shadow-[0_4px_12px_rgba(75,67,150,0.25)] active:scale-[0.98] transition-all"
+          className="flex w-full items-center justify-center p-[14px] rounded-[12px] font-bold text-[15px] text-white hover:-translate-y-[1px] shadow-[0_4px_12px_rgba(75,67,150,0.25)] dark:shadow-[0_4px_12px_rgba(240,82,82,0.3)] active:scale-[0.98] transition-all"
           style={{ background: gradientBg }}
         >
           Got it

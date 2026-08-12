@@ -14,8 +14,8 @@ export function CallbackTimeSelector({
   isSubmitting,
 }: CallbackTimeSelectorProps) {
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
-  const gradientBg =
-    'linear-gradient(90.38deg, rgb(75, 67, 150) 2.62%, rgb(105, 98, 172) 100%)'
+  // Themed per mode (purple light / red dark) — see --chat-cta-gradient in styles.css.
+  const gradientBg = 'var(--chat-cta-gradient)'
 
   if (timeslots.length === 0) {
     return (
@@ -68,7 +68,7 @@ export function CallbackTimeSelector({
             'flex w-full items-center justify-center p-[13px] rounded-[10px] font-bold text-[14px] transition-all',
             !selectedTime || isSubmitting
               ? 'bg-[#f1f1f7] dark:bg-muted text-[#9496ab] dark:text-foreground-subtle cursor-not-allowed'
-              : 'text-white hover:-translate-y-[1px] shadow-[0_4px_12px_rgba(75,67,150,0.25)] active:scale-[0.98]',
+              : 'text-white hover:-translate-y-[1px] shadow-[0_4px_12px_rgba(75,67,150,0.25)] dark:shadow-[0_4px_12px_rgba(240,82,82,0.3)] active:scale-[0.98]',
           )}
           style={
             selectedTime && !isSubmitting ? { background: gradientBg } : {}

@@ -66,7 +66,7 @@ export function RichTextEditor({
     content: value || '<p></p>',
     editorProps: {
       attributes: {
-        class: `min-h-24 ${contentBorderClass} px-3 py-2 text-[16px] leading-[22px] text-foreground outline-none break-words sm:text-[14px] [&_h1]:my-2 [&_h1]:text-[28px] [&_h1]:font-[700] [&_h1]:leading-[36px] [&_h2]:my-2 [&_h2]:text-[22px] [&_h2]:font-[600] [&_h2]:leading-[30px] [&_h3]:my-2 [&_h3]:text-[18px] [&_h3]:font-[600] [&_h3]:leading-[26px] [&_p]:my-0 [&_p+p]:mt-2 [&_a]:text-accent-warm [&_a]:underline [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 ${contentClassName}`,
+        class: `min-h-24 ${contentBorderClass} ${embedded ? 'px-5 py-3.5' : 'px-3 py-2'} text-[16px] leading-[22px] text-foreground outline-none break-words sm:text-[14px] [&_h1]:my-2 [&_h1]:text-[28px] [&_h1]:font-[700] [&_h1]:leading-[36px] [&_h2]:my-2 [&_h2]:text-[22px] [&_h2]:font-[600] [&_h2]:leading-[30px] [&_h3]:my-2 [&_h3]:text-[18px] [&_h3]:font-[600] [&_h3]:leading-[26px] [&_p]:my-0 [&_p+p]:mt-2 [&_a]:text-accent-warm [&_a]:underline [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 ${contentClassName}`,
       },
     },
     onUpdate: ({ editor: tiptapEditor }) => {
@@ -158,12 +158,13 @@ export function RichTextEditor({
     }`
 
   const toolbarTopClass = embedded
-    ? 'flex flex-wrap items-center gap-1 border-b border-border px-2 py-1.5'
+    ? 'flex flex-wrap items-center gap-1 border-b border-border px-4 py-2.5'
     : 'flex flex-wrap items-center gap-2 rounded-t-lg border border-border p-2'
 
+  // Embedded: toolbar (py-2.5 ×2 + h-7 buttons + 1px border) + content py-3.5.
   const placeholderTopClass = showToolbar
     ? embedded
-      ? 'top-[48px]'
+      ? 'top-[63px]'
       : 'top-[56px]'
     : 'top-[8px]'
 
@@ -228,7 +229,7 @@ export function RichTextEditor({
       <EditorContent editor={editor} />
       {editorState?.isEmpty ? (
         <p
-          className={`pointer-events-none absolute left-3 right-3 text-[16px] leading-[22px] text-foreground-subtle sm:text-[14px] ${placeholderTopClass}`}
+          className={`pointer-events-none absolute text-[16px] leading-[22px] text-foreground-subtle sm:text-[14px] ${embedded ? 'left-5 right-5' : 'left-3 right-3'} ${placeholderTopClass}`}
         >
           {placeholder}
         </p>

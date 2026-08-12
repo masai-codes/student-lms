@@ -24,7 +24,7 @@ export function CourseSelector({
             className={cn(
               'group relative flex items-center shrink-0 gap-[13px] p-[14px_14px_14px_16px] border-[1.5px] rounded-[14px] bg-surface cursor-pointer transition-all duration-150 ease-out',
               isSelected
-                ? 'border-[#4b4396] dark:border-brand shadow-[0_0_0_3px_rgba(75,67,150,0.15)] dark:shadow-[0_0_0_3px_rgba(169,163,236,0.2)] bg-[rgba(75,67,150,0.06)] dark:bg-brand/15'
+                ? 'border-[#4b4396] dark:border-brand shadow-[0_0_0_3px_rgba(75,67,150,0.15)] dark:shadow-[0_0_0_3px_rgba(240,82,82,0.25)] bg-[rgba(75,67,150,0.06)] dark:bg-brand/15'
                 : 'border-[#e9e9f3] dark:border-border hover:border-[#4b4396]/30 dark:hover:border-brand/40 hover:bg-[rgba(75,67,150,0.03)] dark:hover:bg-brand/10 hover:translate-x-0.5 hover:shadow-[0_1px_2px_rgba(20,20,43,0.05)]',
             )}
           >

@@ -113,34 +113,34 @@ export function FloatingChatHeader({
     (view === 'tickets' && selectedTicketId != null)
 
   return (
-    <div className="shrink-0 p-[18px_20px_16px] border-b border-[#e9e9f3] bg-surface transition-all">
+    <div className="shrink-0 p-[18px_20px_16px] border-b border-[#e9e9f3] dark:border-border bg-surface transition-all">
       <div className="flex items-start gap-3">
         {showBackButton && (
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center justify-center shrink-0 size-8 rounded-full bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396] transition-colors mt-0.5"
+            className="flex items-center justify-center shrink-0 size-8 rounded-full bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396] dark:bg-muted dark:text-foreground-muted dark:hover:bg-accent dark:hover:text-brand transition-colors mt-0.5"
           >
             <CaretLeft weight="bold" className="size-4" />
           </button>
         )}
         <div className="flex-1 flex flex-col min-w-0">
-          <div className="text-[16.5px] font-bold tracking-[-0.01em] text-[#15162c] truncate pt-[3px]">
+          <div className="text-[16.5px] font-bold tracking-[-0.01em] text-[#15162c] dark:text-foreground truncate pt-[3px]">
             {getHeaderTitle()}
           </div>
-          <p className="text-[13px] text-[#62647d] m-0 mt-0.5">
+          <p className="text-[13px] text-[#62647d] dark:text-foreground-muted m-0 mt-0.5">
             {getHeaderSubtitle()}
           </p>
 
           {view === 'home' && step === 1 && selectedBatch && (
-            <div className="self-start inline-flex items-center gap-1.5 px-[11px] py-[7px] rounded-full bg-[#f0f0fd] text-[#4b4396] text-[12.5px] font-bold border border-[#e3e3fb] mt-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4b4396]"></span>
+            <div className="self-start inline-flex items-center gap-1.5 px-[11px] py-[7px] rounded-full bg-[#f0f0fd] text-[#4b4396] border border-[#e3e3fb] dark:bg-brand-subtle dark:text-brand-subtle-foreground dark:border-brand/30 text-[12.5px] font-bold mt-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#4b4396] dark:bg-brand"></span>
               {selectedBatch.name || `Batch ${selectedBatch.id}`}
             </div>
           )}
           {view === 'home' && step === 3 && selectedCategoryObj && (
-            <div className="self-start inline-flex items-center max-w-full gap-1.5 px-[11px] py-[7px] rounded-full bg-[#f0f0fd] text-[#4b4396] text-[12.5px] font-bold border border-[#e3e3fb] mt-2">
-              <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-[#4b4396]"></span>
+            <div className="self-start inline-flex items-center max-w-full gap-1.5 px-[11px] py-[7px] rounded-full bg-[#f0f0fd] text-[#4b4396] border border-[#e3e3fb] dark:bg-brand-subtle dark:text-brand-subtle-foreground dark:border-brand/30 text-[12.5px] font-bold mt-2">
+              <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-[#4b4396] dark:bg-brand"></span>
               <span className="truncate">
                 {selectedCategoryObj.id === 'general'
                   ? 'General Query'
@@ -149,8 +149,8 @@ export function FloatingChatHeader({
             </div>
           )}
           {view === 'tickets' && selectedTicket && (
-            <div className="self-start inline-flex items-center max-w-full gap-1.5 px-[11px] py-[7px] rounded-full bg-[#f0f0fd] text-[#4b4396] text-[12.5px] font-bold border border-[#e3e3fb] mt-2 animate-in fade-in slide-in-from-bottom-1 duration-200">
-              <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-[#4b4396]"></span>
+            <div className="self-start inline-flex items-center max-w-full gap-1.5 px-[11px] py-[7px] rounded-full bg-[#f0f0fd] text-[#4b4396] border border-[#e3e3fb] dark:bg-brand-subtle dark:text-brand-subtle-foreground dark:border-brand/30 text-[12.5px] font-bold mt-2 animate-in fade-in slide-in-from-bottom-1 duration-200">
+              <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-[#4b4396] dark:bg-brand"></span>
               <span className="truncate capitalize">
                 {selectedTicket.category.replace(/[-_]/g, ' ')}
               </span>
@@ -164,7 +164,7 @@ export function FloatingChatHeader({
             aria-label="Close support"
             data-testid="floating-chat-close"
             className={cn(
-              'flex items-center justify-center shrink-0 size-8 rounded-full bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396] transition-colors mt-0.5',
+              'flex items-center justify-center shrink-0 size-8 rounded-full bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396] dark:bg-muted dark:text-foreground-muted dark:hover:bg-accent dark:hover:text-brand transition-colors mt-0.5',
               !showCloseButton && 'lg:hidden',
             )}
           >

@@ -118,7 +118,7 @@ function ImageCard({
         >
           <button
             type="button"
-            className="absolute top-4 right-4 text-white/70 hover:text-white p-2 rounded-full bg-surface/10 hover:bg-surface/20 transition-colors"
+            className="absolute top-4 right-4 text-white/70 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
             onClick={() => setExpanded(false)}
             aria-label="Close preview"
           >
@@ -140,7 +140,7 @@ function ImageCard({
           className={`block w-full text-left rounded-[10px] overflow-hidden transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] ${
             variant === 'user'
               ? 'ring-1 ring-white/20'
-              : 'ring-1 ring-[#e9e9f3]'
+              : 'ring-1 ring-[#e9e9f3] dark:ring-border'
           }`}
           aria-label={`View image: ${label}`}
         >
@@ -160,7 +160,7 @@ function ImageCard({
         </button>
         {label && label !== url && (
           <p
-            className={`mt-1 text-[11px] truncate ${variant === 'user' ? 'text-white/60' : 'text-[#9496ab]'}`}
+            className={`mt-1 text-[11px] truncate ${variant === 'user' ? 'text-white/60' : 'text-[#9496ab] dark:text-foreground-subtle'}`}
           >
             {label}
           </p>
@@ -202,8 +202,8 @@ function VideoCard({
     <div
       className={`mt-1.5 flex items-center gap-3 p-3 rounded-[10px] transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer group ${
         variant === 'user'
-          ? 'bg-surface/10 ring-1 ring-white/20 hover:bg-surface/15'
-          : 'bg-[#f1f1f7] ring-1 ring-[#e9e9f3] hover:bg-[#e9e9f3]'
+          ? 'bg-white/10 ring-1 ring-white/20 hover:bg-white/15'
+          : 'bg-[#f1f1f7] dark:bg-muted ring-1 ring-[#e9e9f3] dark:ring-border hover:bg-[#e9e9f3] dark:hover:bg-accent'
       }`}
       onClick={() => setPlaying(true)}
       role="button"
@@ -213,23 +213,25 @@ function VideoCard({
     >
       <div
         className={`flex items-center justify-center shrink-0 size-[44px] rounded-[10px] ${
-          variant === 'user' ? 'bg-surface/15' : 'bg-[#4b4396]/10'
+          variant === 'user'
+            ? 'bg-white/15'
+            : 'bg-[#4b4396]/10 dark:bg-brand/15'
         }`}
       >
         <PlayCircle
           weight="fill"
-          className={`size-[26px] group-hover:scale-110 transition-transform ${variant === 'user' ? 'text-white' : 'text-[#4b4396]'}`}
+          className={`size-[26px] group-hover:scale-110 transition-transform ${variant === 'user' ? 'text-white' : 'text-[#4b4396] dark:text-brand'}`}
         />
       </div>
 
       <div className="min-w-0 flex-1">
         <p
-          className={`text-[13px] font-semibold truncate leading-snug ${variant === 'user' ? 'text-white' : 'text-[#15162c]'}`}
+          className={`text-[13px] font-semibold truncate leading-snug ${variant === 'user' ? 'text-white' : 'text-[#15162c] dark:text-foreground'}`}
         >
           {label}
         </p>
         <p
-          className={`text-[11px] mt-0.5 flex items-center gap-1 ${variant === 'user' ? 'text-white/60' : 'text-[#9496ab]'}`}
+          className={`text-[11px] mt-0.5 flex items-center gap-1 ${variant === 'user' ? 'text-white/60' : 'text-[#9496ab] dark:text-foreground-subtle'}`}
         >
           <span className="inline-block size-1.5 rounded-full bg-current" />
           Video · Tap to play
@@ -243,8 +245,8 @@ function VideoCard({
         onClick={(e) => e.stopPropagation()}
         className={`shrink-0 p-1.5 rounded-full transition-colors ${
           variant === 'user'
-            ? 'text-white/60 hover:text-white hover:bg-surface/10'
-            : 'text-[#9496ab] hover:text-[#15162c] hover:bg-[#e0e0ef]'
+            ? 'text-white/60 hover:text-white hover:bg-white/10'
+            : 'text-[#9496ab] dark:text-foreground-subtle hover:text-[#15162c] dark:hover:text-foreground hover:bg-[#e0e0ef] dark:hover:bg-white/10'
         }`}
         aria-label="Open in new tab"
       >
@@ -278,8 +280,8 @@ function FileCard({
       rel="noopener noreferrer"
       className={`mt-1.5 flex items-center gap-3 p-3 rounded-[10px] transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] no-underline group ${
         variant === 'user'
-          ? 'bg-surface/10 ring-1 ring-white/20 hover:bg-surface/15'
-          : 'bg-[#f1f1f7] ring-1 ring-[#e9e9f3] hover:bg-[#e9e9f3]'
+          ? 'bg-white/10 ring-1 ring-white/20 hover:bg-white/15'
+          : 'bg-[#f1f1f7] dark:bg-muted ring-1 ring-[#e9e9f3] dark:ring-border hover:bg-[#e9e9f3] dark:hover:bg-accent'
       }`}
       aria-label={`Open ${label}`}
     >
@@ -292,12 +294,12 @@ function FileCard({
 
       <div className="min-w-0 flex-1">
         <p
-          className={`text-[13px] font-semibold truncate leading-snug ${variant === 'user' ? 'text-white' : 'text-[#15162c]'}`}
+          className={`text-[13px] font-semibold truncate leading-snug ${variant === 'user' ? 'text-white' : 'text-[#15162c] dark:text-foreground'}`}
         >
           {label}
         </p>
         <p
-          className={`text-[11px] mt-0.5 ${variant === 'user' ? 'text-white/60' : 'text-[#9496ab]'}`}
+          className={`text-[11px] mt-0.5 ${variant === 'user' ? 'text-white/60' : 'text-[#9496ab] dark:text-foreground-subtle'}`}
         >
           {typeLabel}
         </p>
@@ -307,7 +309,7 @@ function FileCard({
         className={`shrink-0 p-1.5 rounded-full transition-colors ${
           variant === 'user'
             ? 'text-white/60 group-hover:text-white'
-            : 'text-[#9496ab] group-hover:text-[#15162c]'
+            : 'text-[#9496ab] dark:text-foreground-subtle group-hover:text-[#15162c] dark:group-hover:text-foreground'
         }`}
       >
         <DownloadSimple weight="bold" className="size-4" />

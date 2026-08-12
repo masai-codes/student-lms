@@ -129,7 +129,7 @@ export function CertificateViewModal({
                 href={certificate.verificationUrl ?? certificate.pdfUrl ?? ''}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-5 py-2.5 rounded-[10px] bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition-colors"
+                className="px-5 py-2.5 rounded-[10px] bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 transition-colors"
               >
                 Open in new tab
               </a>
@@ -170,7 +170,7 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
           <button
             type="button"
             onClick={() => setViewOpen(true)}
-            className="px-4 py-2 rounded-[8px] bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition-colors"
+            className="px-4 py-2 rounded-[8px] bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 transition-colors"
           >
             View
           </button>

@@ -9,7 +9,7 @@ type ButtonSize = 'sm' | 'md' | 'lg'
 type IconDirection = 'left' | 'right'
 
 const buttonVariants = cva(
-  'inline-flex cursor-pointer items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-30',
+  'inline-flex cursor-pointer items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:focus-visible:ring-ring disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-30',
   {
     variants: {
       kind: {

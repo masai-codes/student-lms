@@ -49,7 +49,7 @@ export function BatchStartBanners({ banners }: BatchStartBannersProps) {
     <div
       {...autoplay}
       data-testid="dashboard-batch-start-banner"
-      className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0F766E] via-[#0D9488] to-[#10B981] px-5 pt-4 pb-5 text-white shadow-sm"
+      className="banner-hero relative overflow-hidden rounded-2xl px-5 pt-4 pb-5 shadow-sm"
     >
       {/* Decorative sparkle wash */}
       <Sparkle
@@ -64,7 +64,7 @@ export function BatchStartBanners({ banners }: BatchStartBannersProps) {
           {banners.map((banner) => (
             <div key={banner.batchId} className="min-w-0 flex-[0_0_100%]">
               <div className="flex items-center gap-3.5">
-                {/* Constant white tints — this banner keeps its fixed teal gradient in both themes. */}
+                {/* Constant white tints — they sit on the `banner-hero` gradient in both themes. */}
                 <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm">
                   <CalendarBlank size={24} weight="bold" aria-hidden />
                 </span>

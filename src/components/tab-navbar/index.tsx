@@ -50,7 +50,11 @@ export function TabNavbar({
                 className={cn(
                   '-mt-1 flex size-7 shrink-0 items-center justify-center rounded-full',
                   'bg-gradient-to-br from-[#7B73B8] to-[#564E97] text-white',
+                  // Dark is red & black: the purple badge gradient + purple glow
+                  // re-point at the brand red (#f05252; end stop ≈ 85% mix w/ black).
+                  'dark:from-brand dark:to-[#cc4646]',
                   'shadow-[0_4px_12px_-2px_rgba(96,89,157,0.55)] ring-[3px] ring-surface',
+                  'dark:shadow-[0_4px_12px_-2px_rgba(240,82,82,0.45)]',
                   'transition-transform duration-200 group-hover:scale-105 group-active:scale-95',
                   '[&_svg]:size-4 [&_svg]:shrink-0',
                 )}

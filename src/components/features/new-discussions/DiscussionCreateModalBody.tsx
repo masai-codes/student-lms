@@ -68,7 +68,7 @@ export function DiscussionCreateModalBody({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-50 pt-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-50 pt-2 dark:border-border">
         <p className="text-xs text-muted-foreground">Max 3 files, 50MB each</p>
         <div className="flex items-center gap-2">
           <input

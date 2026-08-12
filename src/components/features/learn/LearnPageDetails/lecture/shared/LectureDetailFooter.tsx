@@ -117,7 +117,7 @@ export function LectureDetailFooter({
         discussions={discussions}
         emptyStateContext="lecture"
         layout="footer"
-        className="border-t border-border px-0"
+        className="border-t border-border px-0 pb-10 pt-8"
       />
     </>
   )

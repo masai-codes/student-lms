@@ -184,7 +184,10 @@ function LectureSnapshotCards({
           </div>
           <div className="flex flex-col p-[11px_12px] bg-surface border border-[#e9e9f3] dark:border-border rounded-[12px] shadow-sm">
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d] dark:text-foreground-muted">
-              <Timer weight="fill" className="size-[13px] text-[#4b4396] dark:text-brand" />
+              <Timer
+                weight="fill"
+                className="size-[13px] text-[#4b4396] dark:text-brand"
+              />
               <span className="text-[10.5px] font-bold uppercase tracking-wide">
                 Days left
               </span>
@@ -195,7 +198,10 @@ function LectureSnapshotCards({
           </div>
           <div className="flex flex-col p-[11px_12px] bg-surface border border-[#e9e9f3] dark:border-border rounded-[12px] shadow-sm">
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d] dark:text-foreground-muted">
-              <Notepad weight="fill" className="size-[13px] text-[#4b4396] dark:text-brand" />
+              <Notepad
+                weight="fill"
+                className="size-[13px] text-[#4b4396] dark:text-brand"
+              />
               <span className="text-[10.5px] font-bold uppercase tracking-wide">
                 AI Summary
               </span>
@@ -317,7 +323,10 @@ function AssignmentSnapshotCards({
             data-testid="floating-chat-assignment-weightage-card"
           >
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d] dark:text-foreground-muted">
-              <Percent weight="bold" className="size-[13px] text-[#4b4396] dark:text-brand" />
+              <Percent
+                weight="bold"
+                className="size-[13px] text-[#4b4396] dark:text-brand"
+              />
               <span className="text-[10.5px] font-bold uppercase tracking-wide">
                 Weightage
               </span>
@@ -330,7 +339,10 @@ function AssignmentSnapshotCards({
         {showScoreCard && (
           <div className="flex flex-col p-[11px_12px] bg-surface border border-[#e9e9f3] dark:border-border rounded-[12px] shadow-sm">
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d] dark:text-foreground-muted">
-              <Star weight="fill" className="size-[13px] text-[#4b4396] dark:text-brand" />
+              <Star
+                weight="fill"
+                className="size-[13px] text-[#4b4396] dark:text-brand"
+              />
               <span className="text-[10.5px] font-bold uppercase tracking-wide">
                 Score
               </span>
@@ -363,9 +375,6 @@ export function ItemConfirmation({
   onDirectQuery,
   onReviewItem,
 }: ItemConfirmationProps) {
-  const gradientBg =
-    'linear-gradient(90.38deg, rgb(75, 67, 150) 2.62%, rgb(105, 98, 172) 100%)'
-
   const isLecture = categoryObj.id === 'lecture' && itemObj.id != null
   const isAssignmentLike =
     (categoryObj.id === 'assignment' || categoryObj.id === 'evaluation') &&
@@ -426,15 +435,15 @@ export function ItemConfirmation({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="border-[1.5px] border-[#e3e3fb] rounded-[14px] bg-[#f0f0fd] p-[16px_16px_14px] mb-2.5 flex items-start gap-[13px]">
-        <div className="flex items-center justify-center shrink-0 size-[42px] rounded-[11px] bg-[#e3e3fb] text-[#4b4396] dark:text-brand">
+      <div className="border-[1.5px] border-[#e3e3fb] dark:border-brand/25 rounded-[14px] bg-[#f0f0fd] dark:bg-brand/10 p-[16px_16px_14px] mb-2.5 flex items-start gap-[13px]">
+        <div className="flex items-center justify-center shrink-0 size-[42px] rounded-[11px] bg-[#e3e3fb] dark:bg-brand/15 text-[#4b4396] dark:text-brand">
           <categoryObj.icon weight="fill" className="size-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-[10.8px] font-bold text-[#4338ca] uppercase tracking-[0.04em] mb-[3px]">
+          <div className="text-[10.8px] font-bold text-[#4338ca] dark:text-brand uppercase tracking-[0.04em] mb-[3px]">
             {categoryObj.label}
           </div>
-          <div className="text-[14px] font-bold text-[#15162c] leading-[1.35] mb-1 truncate">
+          <div className="text-[14px] font-bold text-[#15162c] dark:text-foreground leading-[1.35] mb-1 truncate">
             {displayTitle}
           </div>
           <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
@@ -459,10 +468,12 @@ export function ItemConfirmation({
                 Optional
               </span>
             ) : null}
-            <span className="text-[11px] font-bold text-[#62647d] bg-[rgba(255,255,255,0.7)] px-2 py-0.5 rounded-full">
+            <span className="text-[11px] font-bold text-[#62647d] dark:text-foreground-muted bg-[rgba(255,255,255,0.7)] dark:bg-white/10 px-2 py-0.5 rounded-full">
               {displayMeta}
             </span>
-            <span className="text-[11px] text-[#9496ab]">{displayDate}</span>
+            <span className="text-[11px] text-[#9496ab] dark:text-foreground-subtle">
+              {displayDate}
+            </span>
           </div>
         </div>
       </div>
@@ -507,7 +518,7 @@ export function ItemConfirmation({
                   itemTitle: itemObj.title,
                 })
               }
-              className="flex w-full items-center justify-center gap-1.5 mb-1.5 p-[9px_14px] rounded-[10px] text-[13px] font-bold text-[#4338ca] bg-surface border-[1.5px] border-[#e3e3fb] hover:bg-[#e3e3fb] hover:border-[#4b4396] hover:text-[#4b4396] transition-colors"
+              className="flex w-full items-center justify-center gap-1.5 mb-1.5 p-[9px_14px] rounded-[10px] text-[13px] font-bold text-[#4338ca] dark:text-brand bg-surface border-[1.5px] border-[#e3e3fb] dark:border-brand/25 hover:bg-[#e3e3fb] dark:hover:bg-brand/15 hover:border-[#4b4396] dark:hover:border-brand hover:text-[#4b4396] transition-colors"
             >
               <categoryObj.icon
                 weight="fill"
@@ -522,15 +533,19 @@ export function ItemConfirmation({
           ) : null}
 
           <div className="mt-auto shrink-0 pt-4">
-            <div className="text-[12.5px] text-[#62647d] leading-[1.5] p-[11px_13px] bg-[#f6f6fb] rounded-[10px] border border-dashed border-[#e9e9f3] mb-3">
+            <div className="text-[12.5px] text-[#62647d] dark:text-foreground-muted leading-[1.5] p-[11px_13px] bg-[#f6f6fb] dark:bg-muted/40 rounded-[10px] border border-dashed border-[#e9e9f3] dark:border-border mb-3">
               Still need help?{' '}
-              <strong className="text-[#15162c]">Raise a ticket below</strong>
+              <strong className="text-[#15162c] dark:text-foreground">
+                Raise a ticket below
+              </strong>
             </div>
 
+            {/* Purple gradient is light-only (dark theme is red & black) — the
+                gradient lives in the class list so `dark:` can replace it with
+                the solid brand (red) fill. */}
             <button
               onClick={onConfirm}
-              className="flex w-full items-center justify-center gap-2 p-[13px] rounded-[10px] font-bold text-[14px] text-white transition-all hover:-translate-y-[1px] hover:opacity-90 active:scale-[0.98]"
-              style={{ background: gradientBg }}
+              className="flex w-full items-center justify-center gap-2 p-[13px] rounded-[10px] font-bold text-[14px] text-white transition-all hover:-translate-y-[1px] hover:opacity-90 active:scale-[0.98] [background:var(--chat-cta-gradient)]"
             >
               <ChatCircle className="size-[15px]" weight="fill" />
               Yes, I still need help

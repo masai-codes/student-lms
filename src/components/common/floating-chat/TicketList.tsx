@@ -109,7 +109,7 @@ export function TicketList({
                 className={cn(
                   'px-[13px] py-[6px] rounded-full text-[12px] font-bold whitespace-nowrap transition-all',
                   isActive
-                    ? 'bg-[#4b4396] text-white shadow-sm'
+                    ? 'bg-[#4b4396] dark:bg-brand text-white shadow-sm'
                     : 'bg-[#f1f1f7] text-[#62647d] hover:bg-[#e3e3fb] hover:text-[#4b4396] dark:bg-muted dark:text-foreground-muted dark:hover:bg-accent dark:hover:text-brand',
                 )}
               >
@@ -207,7 +207,9 @@ export function TicketList({
 
       {isEmpty && (
         <div className="flex flex-1 flex-col items-center justify-center gap-2 py-10 text-center">
-          <p className="text-[14px] font-bold text-[#15162c] dark:text-foreground">No tickets yet</p>
+          <p className="text-[14px] font-bold text-[#15162c] dark:text-foreground">
+            No tickets yet
+          </p>
           <p className="text-[12.5px] text-[#62647d] dark:text-foreground-muted">
             Raise a ticket from Help and it&apos;ll show up here.
           </p>

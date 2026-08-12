@@ -294,7 +294,7 @@ export function LectureFeedbackForm({
           ctaText={savedRating != null ? 'Update feedback' : 'Submit feedback'}
           disabled={rating < 1 || submitting}
           onClick={handleSubmit}
-          className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#4F6BED]/20 active:translate-y-0 active:scale-[0.98]"
+          className="transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#4F6BED]/20 dark:hover:shadow-brand/20 active:translate-y-0 active:scale-[0.98]"
         />
       </div>
     </section>

@@ -59,7 +59,7 @@ export function EntityDiscussionsPanel({
             'self-start rounded-[32px] border px-4 py-2 text-xs font-semibold leading-6 transition-colors',
             myDiscussionsOnly
               ? 'border-brand text-brand'
-              : 'border-gray-900 text-foreground-muted',
+              : 'border-gray-900 text-foreground-muted dark:border-border-strong',
           )}
         >
           My Discussions

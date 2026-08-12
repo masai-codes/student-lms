@@ -75,7 +75,7 @@ export function OnboardingStepsBanner({
     <div
       {...autoplay}
       data-testid="dashboard-onboarding-banner"
-      className="rounded-2xl bg-gradient-to-r from-[#5B52A3] to-[#6E66B8] px-5 py-3.5 text-white"
+      className="banner-hero rounded-2xl px-5 py-3.5"
     >
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
@@ -178,7 +178,7 @@ function OnboardingSlide({
         type="button"
         onClick={onResume}
         data-testid="dashboard-onboarding-banner-resume"
-        className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand dark:text-[#6962ac] transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"
+        className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand transition-colors hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:w-auto"
       >
         Finish Now
         <ArrowRight size={16} weight="bold" />
@@ -199,9 +199,10 @@ function StepsLeftCounter({ remaining }: { remaining: number }) {
       className="flex shrink-0 items-center gap-2 rounded-xl bg-[#FFC24B] px-3 py-1.5 text-[#4A3F7A] shadow-sm"
     >
       <span className="relative flex size-2" aria-hidden>
-        {/* Pin light-brand purple: the amber chip is a fixed color in both themes. */}
-        <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand dark:bg-[#6962ac] opacity-70" />
-        <span className="relative inline-flex size-2 rounded-full bg-brand dark:bg-[#6962ac]" />
+        {/* `bg-brand` follows the theme accent: purple in light, red in dark —
+            both pop against the fixed amber chip. */}
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand opacity-70" />
+        <span className="relative inline-flex size-2 rounded-full bg-brand" />
       </span>
       <span className="whitespace-nowrap font-bold leading-none">
         <span className="text-xl">{remaining}</span>

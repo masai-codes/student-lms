@@ -7,7 +7,8 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 type PageItem =
-  { kind: 'page'; page: number } | { kind: 'ellipsis'; key: string }
+  | { kind: 'page'; page: number }
+  | { kind: 'ellipsis'; key: string }
 
 /** Build a compact list of page tokens around `currentPage`.
  *  Always shows boundaries and a configurable window of siblings. */
@@ -71,7 +72,7 @@ function buildPageItems(
 }
 
 const cellVariants = cva(
-  'inline-flex shrink-0 items-center justify-center bg-surface outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-0',
+  'inline-flex shrink-0 items-center justify-center bg-surface outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary-400 dark:focus-visible:ring-ring focus-visible:ring-offset-0',
   {
     variants: {
       size: {

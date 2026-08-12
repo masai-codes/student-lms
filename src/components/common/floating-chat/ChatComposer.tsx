@@ -58,8 +58,8 @@ export function ChatComposer({
 }: ChatComposerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const gradientBg =
-    'linear-gradient(90.38deg, rgb(75, 67, 150) 2.62%, rgb(105, 98, 172) 100%)'
+  // Themed per mode (purple light / red dark) — see --chat-cta-gradient in styles.css.
+  const gradientBg = 'var(--chat-cta-gradient)'
 
   const [isPreview, setIsPreview] = useState(false)
   const hasFormatting = /[*_`[\]]|<u>/.test(message)

@@ -305,8 +305,18 @@ function ArrowButton({
   onClick: () => void
 }) {
   const isPrev = direction === 'prev'
-  // `top-1/2` + `-translate-y-1/2` centres the arrow on the card; the horizontal
-  // translate straddles the arrow on the card's side border.
+  // `top-1/2` + `-translate-y-1/2` centres the arrow on the card. The arrows sit
+  // fully INSIDE the carousel box (in the banner's own side padding) rather than
+  // straddling its border on a half-translate: `[data-testid=dashboard-content]`
+  // is `overflow-hidden`, so anything painted outside this box gets sliced off —
+  // the next arrow was rendering as a half circle. A z-index can't escape an
+  // ancestor's overflow clip, so staying inside is the only robust fix. (The
+  // clip itself has to stay: at exactly `md` the container is viewport-wide, so
+  // an outward-straddling arrow would force a horizontal scrollbar.)
+  //
+  // Inset 2px: both banner cards pad their content `md:px-8`, so a 32px arrow
+  // sits in that gutter clear of the CTA, and the 10% hover growth still lands
+  // inside the clip.
   return (
     <button
       type="button"
@@ -314,8 +324,8 @@ function ArrowButton({
       data-testid={`dashboard-welcome-banner-${direction}`}
       disabled={disabled}
       onClick={onClick}
-      className={`absolute top-1/2 z-10 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-foreground-muted shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-surface hover:text-[#3F83F8] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:text-foreground-muted md:flex ${
-        isPrev ? 'left-0 -translate-x-1/2' : 'right-0 translate-x-1/2'
+      className={`absolute top-1/2 z-20 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-foreground-muted shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-surface hover:text-[#3F83F8] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:text-foreground-muted md:flex ${
+        isPrev ? 'left-0.5' : 'right-0.5'
       }`}
     >
       {isPrev ? (
