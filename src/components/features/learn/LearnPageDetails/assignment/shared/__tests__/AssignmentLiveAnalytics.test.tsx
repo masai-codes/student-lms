@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, within } from '@testing-library/react'
+import { act, fireEvent, render, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { AssignmentLiveAnalytics } from '../AssignmentLiveAnalytics'
@@ -62,14 +62,22 @@ describe('AssignmentLiveAnalytics', () => {
     ).toBe('--')
   })
 
-  it('invalidates the route when refetch is clicked', () => {
+  // `act` is required, not cosmetic: the click handler is async — it sets
+  // `refreshing`, awaits router.invalidate(), then clears the flag in a
+  // `finally`. A bare fireEvent.click leaves that trailing setState pending, so
+  // React flushes the re-render after the test (and the jsdom environment) has
+  // been torn down, crashing the whole vitest run with "window is not defined".
+  // Awaiting act() drains the update inside the test, where the DOM still exists.
+  it('invalidates the route when refetch is clicked', async () => {
     const { container } = render(
       <AssignmentLiveAnalytics liveAnalytics={analytics} />,
     )
 
-    fireEvent.click(
-      within(container).getByTestId('assignment-live-analytics-refetch'),
-    )
+    await act(async () => {
+      fireEvent.click(
+        within(container).getByTestId('assignment-live-analytics-refetch'),
+      )
+    })
 
     expect(hoisted.invalidate).toHaveBeenCalledTimes(1)
   })
