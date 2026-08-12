@@ -41,8 +41,9 @@ export function GuidedTourStepPanel({
   }
 
   if (step.action === 'download-app') {
-    // Informational only — this step completes when the mobile app creates a
-    // `user_device_tokens` row (drives `downloadAppCompleted`), never by a click.
+    // Informational only — this step completes from the mobile app side (a
+    // device-token row or a tracked app login → `downloadAppCompleted`; see
+    // `hasCompletedAppDownload`), never by a click.
     return (
       <div
         className="flex h-full items-center justify-center rounded-xl border border-border bg-surface p-6"

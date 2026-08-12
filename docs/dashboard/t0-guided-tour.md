@@ -124,8 +124,16 @@ The **Profile Photo** step (`ProfilePhotoStep`) is a real capture flow:
   `status.profilePhotoUrl`) → download-app. The download-app panel is
   **informational** — it renders the shared `DownloadAppContent` (app QR codes +
   store badges, reused from the navbar's `DownloadAppModal`, no modal here).
-  Clicking it never completes the step; it completes only when the **mobile
-  app** creates a `user_device_tokens` row (`status.downloadAppCompleted`).
+  Clicking it never completes the step; it completes only from the **mobile
+  app** (`status.downloadAppCompleted`), via either of two signals resolved by
+  `hasCompletedAppDownload` (`src/server/devices/hasCompletedAppDownload.ts`):
+  a `user_device_tokens` row (any row — active or not), **or**
+  `users.meta.firstAppLoginTrackedAt`, which the legacy API stamps on every
+  app-authenticated `/users/me` call. The meta key is required because a token
+  row only appears once the device also grants notification permission — on prod
+  ~8% of tracked app users (~13% on iOS) never get one, and it is never created
+  later, so a token-only check keeps nagging learners who already installed the
+  app.
 - **Program:** onboarding videos → agreement(s) (`legalAgreementSections`) →
   document upload → student kit → the ID-card reveal (capstone). The
   **agreement step** is a full inline flow — see [Legal agreement](#legal-agreement);

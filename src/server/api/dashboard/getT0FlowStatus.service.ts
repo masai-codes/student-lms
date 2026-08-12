@@ -8,8 +8,9 @@ import {
 import type { GuidedTourPlatform } from './t0/guidedTourProgress'
 import { resolveCourseTitle } from './courseTitle'
 import { db } from '@/db'
-import { batches, userDeviceTokens } from '@/db/schema'
+import { batches } from '@/db/schema'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
+import { hasCompletedAppDownload } from '@/server/devices/hasCompletedAppDownload'
 import type { T0FlowLecturesResult } from './getT0FlowLectures.service'
 
 export interface GuidedTourTabProgress {
@@ -130,7 +131,7 @@ export async function getT0FlowStatus(
 
   const batchIdList = batchIds.join(', ')
 
-  const [admissionRows, batchRows, profileRows, deviceTokenRows] =
+  const [admissionRows, batchRows, profileRows, appDownloadCompleted] =
     await Promise.all([
       normalizeRows<{
         batch_id: number
@@ -154,16 +155,11 @@ export async function getT0FlowStatus(
         WHERE user_id = ${userId} AND deleted_at IS NULL LIMIT 1
       `),
       ),
-      db
-        .select({ id: userDeviceTokens.id })
-        .from(userDeviceTokens)
-        .where(inArray(userDeviceTokens.userId, [userId]))
-        .limit(1),
+      hasCompletedAppDownload(userId),
     ])
 
   const profileMeta = profileRows[0]?.meta
   const legalData = profileRows[0]?.legal_data
-  const hasDeviceToken = deviceTokenRows.length > 0
   const profilePhotoUrl = httpUrlOrNull(parseMeta(profileMeta)['profile_pic'])
   // Prefer batch.meta.courseTitle; fall back to batch.name, then the id.
   const batchNameMap = new Map(
@@ -189,7 +185,7 @@ export async function getT0FlowStatus(
             batchId,
             profileMeta,
             legalData,
-            hasDeviceToken,
+            appDownloadCompleted,
           )
           // Non-anchor batches only matter when they add a batch-specific step
           // (their agreement); otherwise they'd just repeat the user-level
@@ -223,7 +219,7 @@ export async function getT0FlowStatus(
       showT0Flow: true,
       batches: liteStatuses,
       profilePhotoUrl,
-      downloadAppCompleted: hasDeviceToken,
+      downloadAppCompleted: appDownloadCompleted,
       showGuidedTour,
       flowVariant: 'lite',
     }
@@ -240,7 +236,7 @@ export async function getT0FlowStatus(
         fullFeesPaid,
         profileMeta,
         legalData,
-        hasDeviceToken,
+        appDownloadCompleted,
         platform,
       )
 
@@ -278,7 +274,7 @@ export async function getT0FlowStatus(
           batchId,
           profileMeta,
           legalData,
-          hasDeviceToken,
+          appDownloadCompleted,
         )
         if (web.program.total <= 0) return null // no signable agreement → nothing batch-specific to onboard
         return {
@@ -312,7 +308,7 @@ export async function getT0FlowStatus(
     showT0Flow: true,
     batches: batchStatuses,
     profilePhotoUrl,
-    downloadAppCompleted: hasDeviceToken,
+    downloadAppCompleted: appDownloadCompleted,
     showGuidedTour,
     flowVariant: fullStatuses.length > 0 ? 'full' : 'lite',
   }
