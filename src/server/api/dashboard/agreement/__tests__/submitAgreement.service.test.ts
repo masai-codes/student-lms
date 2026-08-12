@@ -34,6 +34,10 @@ vi.mock('../buildAgreementPdf', () => ({ buildAgreementPdf: hoisted.buildPdf }))
 vi.mock('@/server/restrictions/clearAgreementBan', () => ({
   clearAgreementBan: vi.fn(() => Promise.resolve()),
 }))
+// Student code is resolved from batch_user for the section's batch, never users.username.
+vi.mock('@/server/users/getStudentCode', () => ({
+  resolveStudentCode: vi.fn(() => Promise.resolve('BATCH-CODE-1')),
+}))
 
 const SECTION = {
   name: 'Enrolment',
@@ -61,7 +65,7 @@ beforeEach(() => {
   hoisted.selectQueue = [
     [{ id: 1 }],
     [{ name: 'MERN', program: 'MERN Program' }],
-    [{ name: 'Riya', email: 'riya@x.com', username: 'riya1' }],
+    [{ name: 'Riya', email: 'riya@x.com' }],
     [{ id: 3, legalData: {} }],
   ]
 })
@@ -79,6 +83,9 @@ describe('submitAgreement', () => {
     const result = await submitAgreement(1, 7, '1.2.3.4')
 
     expect(hoisted.buildPdf).toHaveBeenCalledTimes(1)
+    expect(hoisted.buildPdf.mock.calls[0][1]).toMatchObject({
+      studentCode: 'BATCH-CODE-1',
+    })
     expect(hoisted.uploadS3).toHaveBeenCalledWith(
       expect.objectContaining({ contentType: 'application/pdf', ext: 'pdf' }),
     )

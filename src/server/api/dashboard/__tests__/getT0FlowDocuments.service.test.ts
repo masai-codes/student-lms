@@ -22,6 +22,10 @@ vi.mock('@/db', () => ({
 vi.mock('@/server/admissions/getAdmissionsStudentStatus', () => ({
   getAdmissionsStudentStatus: hoisted.status,
 }))
+// Student code comes from batch_user for the batch, not users.username.
+vi.mock('@/server/users/getStudentCode', () => ({
+  resolveStudentCode: vi.fn(() => Promise.resolve('riya1')),
+}))
 vi.mock('@/server/admissions/buildAdmissionsRedirectForUser', () => ({
   buildAdmissionsRedirectForUser: hoisted.buildRedirect,
 }))

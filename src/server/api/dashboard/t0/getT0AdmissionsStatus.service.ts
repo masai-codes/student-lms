@@ -1,9 +1,9 @@
-import { eq, sql } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import { db } from '@/db'
-import { users } from '@/db/schema'
 import { buildAdmissionsRedirectForUser } from '@/server/admissions/buildAdmissionsRedirectForUser'
 import { getAdmissionsStudentStatus } from '@/server/admissions/getAdmissionsStudentStatus'
 import type { AdmissionsStudentStatus } from '@/server/admissions/getAdmissionsStudentStatus'
+import { resolveStudentCode } from '@/server/users/getStudentCode'
 
 /**
  * The single source of truth for the T0 document / student-kit / ID-card steps.
@@ -116,12 +116,10 @@ export async function getT0AdmissionsStatus(
     userId,
     batchId,
   })
-  const [[user], admissionRows] = await Promise.all([
-    db
-      .select({ username: users.username })
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1),
+  const [username, admissionRows] = await Promise.all([
+    // The student code admissions keys off is per batch enrolment (batch_user.username);
+    // users.username is stale and null for most newer users.
+    resolveStudentCode(userId, batchId),
     normalizeRows<{ payment_url: string | null }>(
       await db.execute(sql`
         SELECT payment_url FROM user_batch_admission_data
@@ -130,7 +128,6 @@ export async function getT0AdmissionsStatus(
     ),
   ])
 
-  const username = user?.username ?? ''
   const redirect =
     admissionRows[0]?.payment_url?.trim() ||
     process.env.ADMISSIONS_SSO_BASE_URL ||

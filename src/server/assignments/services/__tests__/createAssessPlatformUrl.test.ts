@@ -22,6 +22,11 @@ vi.mock('@/server/redis/lock', () => ({
   releaseLock: hoisted.releaseLock,
 }))
 
+// Assess gets the batch-scoped student code (batch_user.username), not users.username.
+vi.mock('@/server/users/getStudentCode', () => ({
+  resolveStudentCode: vi.fn(() => Promise.resolve('MSN-270-1')),
+}))
+
 function queueSelect(rows: Array<unknown>) {
   hoisted.dbSelect.mockReturnValueOnce({
     from: () => ({ where: () => ({ limit: () => Promise.resolve(rows) }) }),
@@ -165,7 +170,7 @@ describe('createAssessPlatformUrl', () => {
       },
     ])
     queueSelect([{ duration: 'full-time' }]) // batches
-    queueSelect([{ email: 'a@b.test', username: 'u' }]) // users
+    queueSelect([{ email: 'a@b.test' }]) // users
     queueSelect([{ id: 2, data: null }]) // re-check under the lock
 
     await expect(
@@ -173,6 +178,7 @@ describe('createAssessPlatformUrl', () => {
     ).resolves.toEqual({ url: 'http://assess.test/?token=xyz' })
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body as string)
+    expect(body.username).toBe('MSN-270-1')
     expect(body.overrideSectionTime).toBe(5400)
     expect(body.mustEndOnOrBefore).toBe('2026-08-08T14:30:00.000Z')
 

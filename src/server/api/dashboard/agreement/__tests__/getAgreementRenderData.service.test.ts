@@ -23,6 +23,10 @@ vi.mock('@/db', () => {
   }
   return { db }
 })
+// Student code is resolved from batch_user for the batch, never users.username.
+vi.mock('@/server/users/getStudentCode', () => ({
+  resolveStudentCode: vi.fn(() => Promise.resolve('MSN-001')),
+}))
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -33,7 +37,7 @@ describe('getAgreementRenderData', () => {
     hoisted.queue = [
       [{ sectionId: 7 }], // enrolled sections
       [{ name: 'MERN', program: 'MERN Program' }], // batch
-      [{ name: 'Riya', email: 'riya@example.com', username: 'MSN-001' }], // user
+      [{ name: 'Riya', email: 'riya@example.com' }], // user
       [
         {
           birthDate: '2000-01-01',
@@ -90,7 +94,7 @@ describe('getAgreementRenderData', () => {
     expect(section.acceptedStepKeys).toEqual(['program_agreement'])
     expect(section.completed).toBe(false)
     expect(section.referenceNumber).toBe('TC-1-section_7')
-    // Certificate identity fields sourced from the user row.
+    // Email from the user row; student code from the batch enrolment (batch_user).
     expect(section.email).toBe('riya@example.com')
     expect(section.studentCode).toBe('MSN-001')
     // Signature fields surfaced from stored legal data.
