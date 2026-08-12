@@ -235,8 +235,10 @@ function RouteComponent() {
     )
   }
 
-  const showFloatingChat =
-    ENABLE_SUPPORT_FLOATER && !isMasaiverseRoute && !isSupportRoute
+  // Masaiverse gets the same support surface as every other page: the provider
+  // is mounted there too, so the navbar's Support tab opens the floating chat
+  // drawer instead of falling back to a full-page navigation to /support.
+  const showFloatingChat = ENABLE_SUPPORT_FLOATER && !isSupportRoute
   const showFloatingChatSphere =
     showFloatingChat && !shouldHideSupportIcon(renderedPathname)
 
