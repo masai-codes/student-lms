@@ -215,7 +215,8 @@ async function computeAgreementState(
         unknown
       >
       const sectionAgreement = legal[`section_${Number(row.id)}`] as
-        Record<string, unknown> | undefined
+        | Record<string, unknown>
+        | undefined
       return {
         hasAgreement: true,
         signed: sectionAgreement?.['haveAcceptedLegalAgreement'] === true,
@@ -229,9 +230,10 @@ async function computeAgreementState(
  * Computes the live guided-tour progress for one admission batch on a given
  * platform (`'web'` → `-web` sections, `'app'` → `-app` sections).
  * `profileMeta` / `legalData` are the profile's `meta` / `legal_data`, and
- * `hasDeviceToken` whether the user has registered a device — passed in so
- * callers that already loaded them don't re-query. The two fixed LMS steps
- * (profile photo, download app) are platform-independent.
+ * `appDownloadCompleted` whether the user has the app (a device-token row OR a
+ * tracked app login — see `hasCompletedAppDownload`) — passed in so callers that
+ * already loaded them don't re-query. The two fixed LMS steps (profile photo,
+ * download app) are platform-independent.
  */
 export async function computeGuidedTourProgress(
   userId: number,
@@ -239,14 +241,14 @@ export async function computeGuidedTourProgress(
   fullFeesPaid: boolean,
   profileMeta: unknown,
   legalData: unknown,
-  hasDeviceToken: boolean,
+  appDownloadCompleted: boolean,
   platform: GuidedTourPlatform = 'web',
 ): Promise<GuidedTourWebProgress> {
   const appAvailable = isMobileAppPortalRequest()
   const hasPhoto = hasHttpUrl(parseMeta(profileMeta)['profile_pic'])
   // Non-Masai portals omit the download-app step from numerator and denominator.
   const lmsExtraCompleted =
-    (hasPhoto ? 1 : 0) + (appAvailable && hasDeviceToken ? 1 : 0)
+    (hasPhoto ? 1 : 0) + (appAvailable && appDownloadCompleted ? 1 : 0)
 
   const lmsSectionId = await latestSectionId(
     batchId,
@@ -296,13 +298,14 @@ export async function computeLiteGuidedTourProgress(
   batchId: number,
   profileMeta: unknown,
   legalData: unknown,
-  hasDeviceToken: boolean,
+  appDownloadCompleted: boolean,
 ): Promise<{ lms: ProgressCount; program: ProgressCount }> {
   const appAvailable = isMobileAppPortalRequest()
   const hasPhoto = hasHttpUrl(parseMeta(profileMeta)['profile_pic'])
   const lms: ProgressCount = {
     total: lmsWalkthroughExtraSteps(appAvailable),
-    completed: (hasPhoto ? 1 : 0) + (appAvailable && hasDeviceToken ? 1 : 0),
+    completed:
+      (hasPhoto ? 1 : 0) + (appAvailable && appDownloadCompleted ? 1 : 0),
   }
 
   const { hasAgreement, signed } = await computeAgreementState(
