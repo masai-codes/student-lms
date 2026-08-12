@@ -2,11 +2,7 @@ import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { db } from '@/db'
-import {
-  zefLmsMetaData,
-  zefLmsQuiz,
-  zefLmsQuizSubmission,
-} from '@/db/schema'
+import { zefLmsMetaData, zefLmsQuiz, zefLmsQuizSubmission } from '@/db/schema'
 import { parseInLectureQuizUniqueId } from '@/server/learn/utils/inLectureQuizUniqueId'
 
 const gradeSchema = z.object({
@@ -70,7 +66,10 @@ export async function saveInLectureQuizSubmission(
 
   const ids = parseInLectureQuizUniqueId(data.uniqueID)
   if (!ids) {
-    console.error('[assessment-callback] could not parse uniqueID', data.uniqueID)
+    console.error(
+      '[assessment-callback] could not parse uniqueID',
+      data.uniqueID,
+    )
     return
   }
   const { userId, lectureId } = ids
@@ -95,10 +94,13 @@ export async function saveInLectureQuizSubmission(
 
   const zefLmsQuizId = quizRows[0]?.id
   if (!zefLmsQuizId) {
-    console.error('[assessment-callback] no zef_lms_quiz found for submission', {
-      lectureId,
-      assessmentTemplateId,
-    })
+    console.error(
+      '[assessment-callback] no zef_lms_quiz found for submission',
+      {
+        lectureId,
+        assessmentTemplateId,
+      },
+    )
     return
   }
 

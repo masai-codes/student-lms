@@ -36,8 +36,7 @@ export async function fetchInterviewSession(
 }
 
 export type SubmitInterviewAnswerInput =
-  | { kind: 'typed'; text: string }
-  | { kind: 'transcribed'; text: string }
+  { kind: 'typed'; text: string } | { kind: 'transcribed'; text: string }
 
 export async function submitInterviewTurn(
   sessionId: number | string,

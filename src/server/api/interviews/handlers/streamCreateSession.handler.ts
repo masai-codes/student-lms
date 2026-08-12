@@ -12,8 +12,7 @@ import {
 } from '@/server/api/interviews/services/interviewSession.service'
 
 export type CreateInterviewSessionSseEvent =
-  | CreateInterviewSessionStreamEvent
-  | { type: 'error'; code: string }
+  CreateInterviewSessionStreamEvent | { type: 'error'; code: string }
 
 /**
  * Turns any error the generator throws — including ones discovered deep

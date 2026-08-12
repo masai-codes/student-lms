@@ -39,9 +39,7 @@ export type LearnListingJoinLiveState = 'hidden' | 'disabled' | 'active'
 
 /** Assignment status chip on learn listing cards (legacy AssignmentListCard rules). */
 export type AssignmentListingStatusChip =
-  | AssignmentProgressStatus
-  | 'practice-mode'
-  | null
+  AssignmentProgressStatus | 'practice-mode' | null
 
 /** Server-resolved CTA visibility for learn listing cards — see `buildLearnListingCardCtas`. */
 export interface LearnListingCardCtas {

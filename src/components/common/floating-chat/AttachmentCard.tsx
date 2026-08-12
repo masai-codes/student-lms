@@ -36,13 +36,7 @@ function getFileName(url: string, label?: string): string {
 }
 
 type AttachmentType =
-  | 'image'
-  | 'video'
-  | 'pdf'
-  | 'archive'
-  | 'code'
-  | 'text'
-  | 'file'
+  'image' | 'video' | 'pdf' | 'archive' | 'code' | 'text' | 'file'
 
 function detectType(ext: string): AttachmentType {
   if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'avif'].includes(ext))

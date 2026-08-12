@@ -135,7 +135,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   )
 
   const toggleTheme = useCallback(() => {
-    const current = resolveTheme(readStoredPreference(STORAGE_KEY), getSystemTheme())
+    const current = resolveTheme(
+      readStoredPreference(STORAGE_KEY),
+      getSystemTheme(),
+    )
     setTheme(current === 'dark' ? 'light' : 'dark')
   }, [setTheme])
 

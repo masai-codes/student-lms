@@ -25,8 +25,20 @@ describe('normalizeInLecturePolls', () => {
       0,
     )
     expect(result).toEqual([
-      { id: '1', startSec: 215, endSec: 357, question: 'a?', options: ['Yes', 'No'] },
-      { id: '2', startSec: 463, endSec: 512, question: 'b?', options: ['Yes', 'No'] },
+      {
+        id: '1',
+        startSec: 215,
+        endSec: 357,
+        question: 'a?',
+        options: ['Yes', 'No'],
+      },
+      {
+        id: '2',
+        startSec: 463,
+        endSec: 512,
+        question: 'b?',
+        options: ['Yes', 'No'],
+      },
     ])
   })
 
@@ -45,7 +57,13 @@ describe('normalizeInLecturePolls', () => {
       400,
     )
     expect(result).toEqual([
-      { id: '1', startSec: 10, endSec: 400, question: 'clamp?', options: ['Yes', 'No'] },
+      {
+        id: '1',
+        startSec: 10,
+        endSec: 400,
+        question: 'clamp?',
+        options: ['Yes', 'No'],
+      },
     ])
   })
 

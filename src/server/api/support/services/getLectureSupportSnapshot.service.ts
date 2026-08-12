@@ -16,6 +16,7 @@ import { normalizeLectureKind } from '@/server/learn/utils/normalizeLectureKind'
 import { parseLectureSettings } from '@/server/learn/utils/parseLectureSettings'
 import { resolveAiSummaryStatus } from '@/server/learn/utils/resolveAiSummaryStatus'
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
+import { isIvsZoomRedirection } from '@/server/learn/utils/isIvsZoomRedirection'
 import { resolveLectureRecordingForSupport } from '@/server/learn/utils/resolveLectureRecordingForSupport'
 import { resolveLiveLecturePhase } from '@/server/learn/utils/resolveLiveLecturePhase'
 import { resolveVideoLecturePhase } from '@/server/learn/utils/resolveVideoLecturePhase'
@@ -38,6 +39,7 @@ export async function getLectureSupportSnapshot(
       module: lectures.module,
       sectionId: lectures.sectionId,
       zoomLink: lectures.zoomLink,
+      zoomDetails: lectures.zoomDetails,
       videos: lectures.videos,
       vimeoDownloadLinks: lectures.vimeoDownloadLinks,
       settings: lectures.settings,
@@ -100,6 +102,7 @@ export async function getLectureSupportSnapshot(
           concludes: row.concludes,
           nowMs,
           zoomLink: row.zoomLink,
+          isIvsRedirection: isIvsZoomRedirection(row.zoomDetails),
         })
       : null
 

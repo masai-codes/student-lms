@@ -15,6 +15,7 @@ import {
 } from '@/server/restrictions/enrollmentRestrictionScope'
 import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fetchLectureAttendanceSummaries'
 import { buildLearnListingCardCtas } from '@/server/learn/utils/buildLearnListingCardCtas'
+import { isIvsZoomRedirection } from '@/server/learn/utils/isIvsZoomRedirection'
 import { buildLearnScheduleWindow } from '@/server/learn/utils/buildLearnScheduleWindow'
 import {
   mapLearningEntityRow,
@@ -78,6 +79,7 @@ function mapRowToItem(
     isMandatory: toLearningPriority(row.optional) === 'mandatory',
     zoomLink: row.zoomLink ?? null,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    isIvsRedirection: isIvsZoomRedirection(row.zoomDetails),
     enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
     nowMs,
     attendance,

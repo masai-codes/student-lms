@@ -215,8 +215,7 @@ async function computeAgreementState(
         unknown
       >
       const sectionAgreement = legal[`section_${Number(row.id)}`] as
-        | Record<string, unknown>
-        | undefined
+        Record<string, unknown> | undefined
       return {
         hasAgreement: true,
         signed: sectionAgreement?.['haveAcceptedLegalAgreement'] === true,

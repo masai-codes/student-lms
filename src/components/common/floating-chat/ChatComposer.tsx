@@ -110,13 +110,7 @@ export function ChatComposer({
 
   const handleFormat = (
     format:
-      | 'bold'
-      | 'italic'
-      | 'underline'
-      | 'bullet'
-      | 'number'
-      | 'code'
-      | 'link',
+      'bold' | 'italic' | 'underline' | 'bullet' | 'number' | 'code' | 'link',
   ) => {
     if (formattingDisabled) return
     const selection = getSelection()

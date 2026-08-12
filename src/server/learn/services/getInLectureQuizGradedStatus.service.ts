@@ -1,11 +1,7 @@
 import { and, eq } from 'drizzle-orm'
 
 import { db } from '@/db'
-import {
-  zefLmsMetaData,
-  zefLmsQuiz,
-  zefLmsQuizSubmission,
-} from '@/db/schema'
+import { zefLmsMetaData, zefLmsQuiz, zefLmsQuizSubmission } from '@/db/schema'
 
 /**
  * Polled by an open in-lecture quiz modal to learn whether the user has a saved

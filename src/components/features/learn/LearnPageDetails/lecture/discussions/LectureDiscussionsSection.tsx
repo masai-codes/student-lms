@@ -86,9 +86,7 @@ export function LectureDiscussionsSection({
     <section
       data-testid="discussions-section"
       className={cn(
-        isAside
-          ? 'flex min-h-0 flex-1 flex-col'
-          : 'pb-10 pt-8',
+        isAside ? 'flex min-h-0 flex-1 flex-col' : 'pb-10 pt-8',
         className,
       )}
     >

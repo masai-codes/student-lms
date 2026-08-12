@@ -1,8 +1,5 @@
 export type SupportNavigateCategory =
-  | 'lecture'
-  | 'assignment'
-  | 'resource'
-  | 'evaluation'
+  'lecture' | 'assignment' | 'resource' | 'evaluation'
 
 const SUPPORT_NAVIGATE_CATEGORIES = new Set<SupportNavigateCategory>([
   'lecture',

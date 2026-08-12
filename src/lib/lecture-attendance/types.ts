@@ -1,9 +1,5 @@
 export type LectureAttendanceUiState =
-  | 'hidden'
-  | 'present'
-  | 'absent'
-  | 'continue_watching'
-  | 'att_window_over'
+  'hidden' | 'present' | 'absent' | 'continue_watching' | 'att_window_over'
 
 export type LectureAttendanceUiInput = {
   overallStatus: number | null | undefined

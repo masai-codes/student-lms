@@ -15,8 +15,7 @@ import {
 } from '@/server/api/interviews/services/submitInterviewTurn.service'
 
 export type SubmitInterviewTurnSseEvent =
-  | SubmitInterviewTurnStreamEvent
-  | { type: 'error'; code: string }
+  SubmitInterviewTurnStreamEvent | { type: 'error'; code: string }
 
 /**
  * Turns any error the generator throws — including ones discovered deep

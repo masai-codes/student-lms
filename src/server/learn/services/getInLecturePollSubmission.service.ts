@@ -1,7 +1,12 @@
 import { and, eq } from 'drizzle-orm'
 
 import { db } from '@/db'
-import { lectures, zefLmsMetaData, zefLmsPollsQuestions, zefLmsPollsSubmissions } from '@/db/schema'
+import {
+  lectures,
+  zefLmsMetaData,
+  zefLmsPollsQuestions,
+  zefLmsPollsSubmissions,
+} from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import {
@@ -44,7 +49,10 @@ export async function getInLecturePollSubmission(input: {
   if (!allowed) throw new ApiError(404, 'LECTURE_NOT_FOUND')
 
   const pollRows = await db
-    .select({ id: zefLmsPollsQuestions.id, options: zefLmsPollsQuestions.options })
+    .select({
+      id: zefLmsPollsQuestions.id,
+      options: zefLmsPollsQuestions.options,
+    })
     .from(zefLmsPollsQuestions)
     .innerJoin(
       zefLmsMetaData,
@@ -74,7 +82,8 @@ export async function getInLecturePollSubmission(input: {
     .limit(1)
 
   const submission = submissionRows[0]
-  if (!submission) return { submitted: false, selectedOptionIndex: null, results: null }
+  if (!submission)
+    return { submitted: false, selectedOptionIndex: null, results: null }
 
   const optionCount = Array.isArray(poll.options) ? poll.options.length : 0
   const results = await computeInLecturePollResults(pollId, optionCount)

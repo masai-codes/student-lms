@@ -101,7 +101,9 @@ export function ImageThumbnail({
         <p
           className={cn(
             'text-[11px] leading-tight mt-[2px]',
-            isUser ? 'text-white/70' : 'text-[#62647d] dark:text-foreground-muted',
+            isUser
+              ? 'text-white/70'
+              : 'text-[#62647d] dark:text-foreground-muted',
           )}
         >
           Click to open in new tab
@@ -112,7 +114,9 @@ export function ImageThumbnail({
       <div
         className={cn(
           'shrink-0 opacity-0 group-hover:opacity-100 transition-opacity',
-          isUser ? 'text-white/70' : 'text-[#9496ab] dark:text-foreground-subtle',
+          isUser
+            ? 'text-white/70'
+            : 'text-[#9496ab] dark:text-foreground-subtle',
         )}
       >
         <ArrowSquareOut weight="bold" className="size-[14px]" />
@@ -188,7 +192,9 @@ export function VideoChip({
         <p
           className={cn(
             'text-[11px] leading-tight mt-[2px]',
-            isUser ? 'text-white/70' : 'text-[#62647d] dark:text-foreground-muted',
+            isUser
+              ? 'text-white/70'
+              : 'text-[#62647d] dark:text-foreground-muted',
           )}
         >
           Video · Click to play
@@ -199,7 +205,9 @@ export function VideoChip({
         weight="bold"
         className={cn(
           'size-[14px] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity',
-          isUser ? 'text-white/70' : 'text-[#9496ab] dark:text-foreground-subtle',
+          isUser
+            ? 'text-white/70'
+            : 'text-[#9496ab] dark:text-foreground-subtle',
         )}
       />
     </a>
@@ -215,7 +223,10 @@ function FileIcon({
   kind: 'pdf' | 'zip' | 'file'
   isUser: boolean
 }) {
-  const cls = cn('size-[20px]', isUser ? 'text-white' : 'text-[#4b4396] dark:text-brand')
+  const cls = cn(
+    'size-[20px]',
+    isUser ? 'text-white' : 'text-[#4b4396] dark:text-brand',
+  )
   if (kind === 'pdf') return <FilePdf weight="duotone" className={cls} />
   if (kind === 'zip') return <FileZip weight="duotone" className={cls} />
   return <FileText weight="duotone" className={cls} />
@@ -275,7 +286,9 @@ export function FileChip({
         <p
           className={cn(
             'text-[11px] leading-tight mt-[2px]',
-            isUser ? 'text-white/70' : 'text-[#62647d] dark:text-foreground-muted',
+            isUser
+              ? 'text-white/70'
+              : 'text-[#62647d] dark:text-foreground-muted',
           )}
         >
           {kindLabel(kind)}
@@ -286,7 +299,9 @@ export function FileChip({
         weight="bold"
         className={cn(
           'size-[14px] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity',
-          isUser ? 'text-white/70' : 'text-[#9496ab] dark:text-foreground-subtle',
+          isUser
+            ? 'text-white/70'
+            : 'text-[#9496ab] dark:text-foreground-subtle',
         )}
       />
     </a>

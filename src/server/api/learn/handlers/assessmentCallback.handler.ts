@@ -24,14 +24,15 @@ export async function handleAssessmentCallback(
     } catch {
       console.warn('[assessment-callback] body is not valid JSON')
     }
-    console.log(
-      '[assessment-callback] payload:',
-      JSON.stringify(body, null, 2),
-    )
+    console.log('[assessment-callback] payload:', JSON.stringify(body, null, 2))
 
     if (body != null && typeof body === 'object') {
       const { eventType, uniqueID } = body as Record<string, unknown>
-      if (eventType === 'gradeAssessment' && typeof uniqueID === 'string' && uniqueID) {
+      if (
+        eventType === 'gradeAssessment' &&
+        typeof uniqueID === 'string' &&
+        uniqueID
+      ) {
         await markInLectureQuizGraded(uniqueID)
         console.log('[assessment-callback] marked graded:', uniqueID)
         // Persist the submission (best-effort — never fail the callback on a

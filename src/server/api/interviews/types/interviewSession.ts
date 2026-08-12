@@ -1,8 +1,5 @@
 export type InterviewDomain =
-  | 'software-development'
-  | 'data-ai-ml'
-  | 'product-management'
-  | 'general'
+  'software-development' | 'data-ai-ml' | 'product-management' | 'general'
 
 export type InterviewAnswerSource = 'voice' | 'typed'
 

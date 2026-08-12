@@ -57,7 +57,9 @@ describe('listLearnDiscussionsForBatch', () => {
     const { listLearnDiscussionsForBatch } =
       await import('../listLearnDiscussionsForBatch')
     hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([5])
-    hoisted.getAccessibleSectionIdsForUserInBatch.mockResolvedValueOnce([11, 12])
+    hoisted.getAccessibleSectionIdsForUserInBatch.mockResolvedValueOnce([
+      11, 12,
+    ])
     mockEmptyEntityLookups()
 
     await expect(listLearnDiscussionsForBatch(1, 5)).resolves.toEqual([])
@@ -139,13 +141,7 @@ describe('listLearnDiscussionsForBatch', () => {
         })
     }
 
-    function discussionRow({
-      id,
-      entityId,
-    }: {
-      id: number
-      entityId: number
-    }) {
+    function discussionRow({ id, entityId }: { id: number; entityId: number }) {
       return {
         id,
         title: `Doubt ${id}`,
@@ -163,9 +159,8 @@ describe('listLearnDiscussionsForBatch', () => {
     }
 
     it('hides discussions on content scheduled after the pause date', async () => {
-      const { listLearnDiscussionsForBatch } = await import(
-        '../listLearnDiscussionsForBatch'
-      )
+      const { listLearnDiscussionsForBatch } =
+        await import('../listLearnDiscussionsForBatch')
       hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([5])
       hoisted.getAccessibleSectionIdsForUserInBatch.mockResolvedValueOnce([11])
       hoisted.getUserBatchRestrictions.mockResolvedValueOnce(
@@ -179,9 +174,8 @@ describe('listLearnDiscussionsForBatch', () => {
     })
 
     it('keeps every discussion when the batch is not paused', async () => {
-      const { listLearnDiscussionsForBatch } = await import(
-        '../listLearnDiscussionsForBatch'
-      )
+      const { listLearnDiscussionsForBatch } =
+        await import('../listLearnDiscussionsForBatch')
       hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([5])
       hoisted.getAccessibleSectionIdsForUserInBatch.mockResolvedValueOnce([11])
       mockTwoLectureFeed()
@@ -192,9 +186,8 @@ describe('listLearnDiscussionsForBatch', () => {
     })
 
     it('ignores a pause on a different batch', async () => {
-      const { listLearnDiscussionsForBatch } = await import(
-        '../listLearnDiscussionsForBatch'
-      )
+      const { listLearnDiscussionsForBatch } =
+        await import('../listLearnDiscussionsForBatch')
       hoisted.getBatchIdsForEnrolledUser.mockResolvedValueOnce([5])
       hoisted.getAccessibleSectionIdsForUserInBatch.mockResolvedValueOnce([11])
       hoisted.getUserBatchRestrictions.mockResolvedValueOnce(
