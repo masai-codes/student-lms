@@ -20,7 +20,15 @@ export async function handleGetLectureFaqs(
     }
 
     const faqs = await getLectureFaqs(lectureId)
-    return jsonOk({ faqs })
+    const random3Questions = faqs
+      .map((q) => ({ ...q, index: Math.random() }))
+      .sort((a, b) => a.index - b.index)
+      .map((a) => {
+        const { index, ...others } = a
+        return others
+      })
+      .slice(0, 3)
+    return jsonOk({ faqs: random3Questions })
   } catch (error) {
     if (!isApiError(error)) {
       console.error('Failed to fetch ai-tutor lecture faqs', error)
