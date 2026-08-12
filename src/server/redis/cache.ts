@@ -79,7 +79,7 @@ export async function cacheScanKeys(pattern: string): Promise<Array<string>> {
 }
 
 /** SCAN + pipelined delete of every key matching a glob pattern. */
-export async function cacheDelByPattern(pattern: string): Promise<void> {
+async function cacheDelByPattern(pattern: string): Promise<void> {
   const keys = await cacheScanKeys(pattern)
   await cacheDel(...keys)
 }

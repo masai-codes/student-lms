@@ -79,7 +79,7 @@ export function normalizeListContinuations(markdown: string): string {
   return out.join('\n')
 }
 
-export function collapseExcessiveBlankLines(markdown: string): string {
+function collapseExcessiveBlankLines(markdown: string): string {
   return markdown.replace(/\n{3,}/g, '\n\n')
 }
 

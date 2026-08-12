@@ -93,7 +93,7 @@ export function encodePcmToWavBlob(mono16kHz: Float32Array): Blob {
   })
 }
 
-export async function encodeWavFromBlob(blob: Blob): Promise<Blob> {
+async function encodeWavFromBlob(blob: Blob): Promise<Blob> {
   const arrayBuffer = await blob.arrayBuffer()
   const AudioContextCtor =
     window.AudioContext ||

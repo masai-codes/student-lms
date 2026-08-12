@@ -1,4 +1,4 @@
-export const LECTURE_VIEWPORT_CHROME_SELECTOR = '[data-lecture-viewport-chrome]'
+const LECTURE_VIEWPORT_CHROME_SELECTOR = '[data-lecture-viewport-chrome]'
 
 export const MIN_LECTURE_HERO_HEIGHT_PX = 180
 
@@ -33,7 +33,7 @@ export function sumElementOffsetHeights(
   return total
 }
 
-export function queryLectureViewportChromeElements(
+function queryLectureViewportChromeElements(
   root: ParentNode = document,
 ): Array<HTMLElement> {
   return Array.from(
@@ -41,7 +41,7 @@ export function queryLectureViewportChromeElements(
   )
 }
 
-export function measureLectureViewportChromeHeightPx(
+function measureLectureViewportChromeHeightPx(
   root: ParentNode = document,
 ): number {
   return sumElementOffsetHeights(queryLectureViewportChromeElements(root))

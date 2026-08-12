@@ -1,9 +1,9 @@
 import type { MouseEventHandler, ReactNode } from 'react'
 
 /** Hover + active text/icon color for primary nav and profile menu (keep Tailwind `text-[#6962AC]` in sync). */
-export const NAVBAR_ACCENT_HEX = '#6962AC' as const
+const NAVBAR_ACCENT_HEX = '#6962AC' as const
 
-export type NavbarHref = string
+type NavbarHref = string
 
 /**
  * Every navbar entry renders an anchor, so it must be actionable one of two ways:
@@ -11,7 +11,7 @@ export type NavbarHref = string
  * modal or trigger a flow instead of linking). Requiring at least one of the two
  * keeps inert anchors out of the navbar.
  */
-export type NavbarActivation =
+type NavbarActivation =
   | {
       href: NavbarHref
       /** When omitted, `http(s)://` URLs open in a new tab; app paths stay in the same tab. */
@@ -67,7 +67,7 @@ export type NavbarProfile = {
   menuTriggerLabel?: string
 }
 
-export type NavbarTextAction = {
+type NavbarTextAction = {
   id?: string
   type: 'text'
   label: string
@@ -82,7 +82,7 @@ export type NavbarTextAction = {
   isActive?: boolean
 } & NavbarActivation
 
-export type NavbarIconAction = {
+type NavbarIconAction = {
   id?: string
   type: 'icon'
   icon: ReactNode
@@ -98,7 +98,7 @@ export type NavbarIconAction = {
   isActive?: boolean
 } & NavbarActivation
 
-export type NavbarImageAction = {
+type NavbarImageAction = {
   id?: string
   type: 'image'
   src: string
@@ -110,7 +110,7 @@ export type NavbarImageAction = {
 } & NavbarActivation
 
 /** Icon + visible label side by side (e.g. "Calendar", "Get started"). */
-export type NavbarIconTextAction = {
+type NavbarIconTextAction = {
   id?: string
   type: 'iconText'
   icon: ReactNode
@@ -121,7 +121,7 @@ export type NavbarIconTextAction = {
 } & NavbarActivation
 
 /** Non-interactive vertical divider between two action groups. */
-export type NavbarDividerAction = {
+type NavbarDividerAction = {
   id?: string
   type: 'divider'
 }

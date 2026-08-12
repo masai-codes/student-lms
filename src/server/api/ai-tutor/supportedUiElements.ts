@@ -2,7 +2,7 @@ import { ApiError } from '@/server/api/http/apiError'
 
 export type AiTutorSupportedUiElement = 'quiz'
 
-export const AI_TUTOR_SUPPORTED_UI_ELEMENTS: ReadonlyArray<AiTutorSupportedUiElement> =
+const AI_TUTOR_SUPPORTED_UI_ELEMENTS: ReadonlyArray<AiTutorSupportedUiElement> =
   ['quiz']
 
 function isAiTutorSupportedUiElement(

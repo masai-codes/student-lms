@@ -6,11 +6,11 @@
  * no separate `ANTHROPIC_API_KEY` needed for this feature.
  */
 
-export const OPENROUTER_CHAT_COMPLETIONS_URL =
+const OPENROUTER_CHAT_COMPLETIONS_URL =
   'https://openrouter.ai/api/v1/chat/completions'
 const DEFAULT_TIMEOUT_MS = 45_000
 
-export const OPENROUTER_KNOWN_ERROR_MESSAGES = new Set([
+const OPENROUTER_KNOWN_ERROR_MESSAGES = new Set([
   'INTERVIEW_OPENROUTER_NOT_CONFIGURED',
   'INTERVIEW_OPENROUTER_REQUEST_FAILED',
   'INTERVIEW_OPENROUTER_EMPTY_RESPONSE',
@@ -18,7 +18,7 @@ export const OPENROUTER_KNOWN_ERROR_MESSAGES = new Set([
   'INTERVIEW_OPENROUTER_TIMEOUT',
 ])
 
-export type OpenRouterContentPart =
+type OpenRouterContentPart =
   | { type: 'text'; text: string }
   | { type: 'input_audio'; input_audio: { data: string; format: 'wav' } }
 

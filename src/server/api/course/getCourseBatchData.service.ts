@@ -3,7 +3,7 @@ import { db } from '@/db'
 import { batches, users, profiles, sectionUser, sections } from '@/db/schema'
 import { resolveStudentCode } from '@/server/users/getStudentCode'
 
-export interface CoursePerson {
+interface CoursePerson {
   name: string
   designation: string
   avatarUrl: string | null

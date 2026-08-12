@@ -2,7 +2,7 @@ import { fetchJson } from '@/lib/api/fetchJson'
 import { UPLOAD_API } from '@/lib/api/uploads/uploadPaths'
 import type { S3UploadScope } from '@/lib/api/uploads/s3UploadScope'
 
-export type PresignedPostPolicy = {
+type PresignedPostPolicy = {
   /** S3 POST endpoint, e.g. `https://coding-platform.s3.amazonaws.com`. */
   url: string
   /** Object key within the bucket, e.g. `dev/lms/tickets/<uuid>/<file>`. */
@@ -25,15 +25,12 @@ function parsePresignedFields(
 }
 
 /** Build the public URL for an object uploaded via presigned POST. */
-export function buildPublicS3Url(
-  uploadUrl: string,
-  bucketPath: string,
-): string {
+function buildPublicS3Url(uploadUrl: string, bucketPath: string): string {
   return `${uploadUrl.replace(/\/$/, '')}/${bucketPath}`
 }
 
 /** Request a presigned POST policy from the LMS API. */
-export async function requestPresignedPostPolicy(input: {
+async function requestPresignedPostPolicy(input: {
   fileName: string
   contentType: string
   scope: S3UploadScope

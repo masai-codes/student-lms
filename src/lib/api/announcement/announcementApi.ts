@@ -20,7 +20,7 @@ export interface FetchAnnouncementsParams {
   endDate?: string
 }
 
-export interface AnnouncerOption {
+interface AnnouncerOption {
   id: string
   name: string
 }
@@ -117,7 +117,7 @@ export async function fetchAnnouncementPopups(): Promise<PopupItem[]> {
   return popups
 }
 
-export async function fetchAnnouncementById(
+async function fetchAnnouncementById(
   id: number | string,
 ): Promise<AnnouncementDetail> {
   const { announcement } = await fetchJson<{

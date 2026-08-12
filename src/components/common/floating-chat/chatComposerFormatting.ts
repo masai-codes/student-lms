@@ -37,7 +37,7 @@ export function wrapSelection(
 }
 
 /** Prefix every line touched by the selection (or the current line) with a list marker. */
-export function applyLinePrefix(
+function applyLinePrefix(
   { value, start, end }: Selection,
   makePrefix: (lineIndex: number) => string,
 ): TextEdit {

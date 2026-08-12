@@ -49,7 +49,7 @@ export const SUPPORT_KEYS = {
 const REFETCH_ON_NAV = { refetchOnMount: 'always' } as const
 
 /** The single aggregated landing payload. */
-export const supportOverviewQuery = (batchId?: number) => ({
+const supportOverviewQuery = (batchId?: number) => ({
   queryKey: SUPPORT_KEYS.overview(batchId),
   queryFn: () => fetchSupportOverview(batchId),
   staleTime: 60 * 1000,
@@ -94,7 +94,7 @@ export const assignmentSupportSnapshotQuery = (assignmentId: number) => ({
 })
 
 /** Live FAQ search for a batch (enabled by the caller while searching). */
-export const supportFaqsQuery = (input: {
+const supportFaqsQuery = (input: {
   batchId: number
   search: string
   category?: string
@@ -110,7 +110,7 @@ export const supportFaqsQuery = (input: {
 })
 
 /** A page of the student's tickets for a tab. */
-export const supportTicketsQuery = (tab: TicketTab, page = 1) => ({
+const supportTicketsQuery = (tab: TicketTab, page = 1) => ({
   queryKey: SUPPORT_KEYS.tickets(tab, page),
   queryFn: () => fetchSupportTickets({ tab, page }),
   staleTime: 30 * 1000,

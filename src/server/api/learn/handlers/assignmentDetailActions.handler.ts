@@ -138,8 +138,6 @@ export async function handleViewSubmissionOnAssessPlatform(
   }
 }
 
-export function assignmentUsesAssessmentPlatform(
-  platform: string | null,
-): boolean {
+function assignmentUsesAssessmentPlatform(platform: string | null): boolean {
   return isAssessmentPlatform(platform)
 }

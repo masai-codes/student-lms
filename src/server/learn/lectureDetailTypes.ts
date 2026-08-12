@@ -4,8 +4,6 @@ import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveBu
 import type { InLecturePopupQuiz } from '@/server/learn/utils/parseLectureSettings'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
 
-export type { InLecturePopupQuiz }
-
 /**
  * A single in-lecture popup quiz element, sourced from `zef_lms_quiz`.
  * `startSec` / `endSec` are the video-relative show window in whole seconds,
@@ -35,7 +33,7 @@ export type InLecturePopupPollElement = {
  * `scheduledAt` is the reference point for converting the elements' absolute
  * `startTimestamp` / `endTimestamp` into the video-relative show window.
  */
-export type InLecturePopupMetaData = {
+type InLecturePopupMetaData = {
   id: number
   lectureId: number
   scheduledAt: string | null

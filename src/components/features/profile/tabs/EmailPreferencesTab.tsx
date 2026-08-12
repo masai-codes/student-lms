@@ -16,7 +16,7 @@ import type { EmailPreferences } from '@/server/api/profile/emailPreferences.ser
 
 // ── Toggle ────────────────────────────────────────────────────────────────────
 
-export function Toggle({
+function Toggle({
   checked,
   onChange,
 }: {

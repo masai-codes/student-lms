@@ -6,7 +6,7 @@ import {
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-export type SignInNoticeVariant = 'email' | 'sms' | 'whatsapp'
+type SignInNoticeVariant = 'email' | 'sms' | 'whatsapp'
 
 const titles: Record<SignInNoticeVariant, string> = {
   email: 'Check your email',

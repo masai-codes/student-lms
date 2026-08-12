@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray, isNull, sql } from 'drizzle-orm'
 import { db } from '@/db'
 import { badgeConfigs, badges, sectionUser, userBadges } from '@/db/schema'
 
-export interface AchievementBadge {
+interface AchievementBadge {
   title: string
   description: string | null
   image: string | null

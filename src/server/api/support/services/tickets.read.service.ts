@@ -39,7 +39,7 @@ const RESOLVED_STATUSES = ['closed', 'resolved', 'automatic', 'chatbot']
 const UNRESOLVED_STATUSES = ['open', 're-opened']
 
 /** Rows per page in the Raised Tickets list. */
-export const TICKETS_PAGE_SIZE = PAGE_SIZE
+const TICKETS_PAGE_SIZE = PAGE_SIZE
 
 function reopenedAtFromLogstamps(
   logstamps: Record<string, unknown> | null | undefined,

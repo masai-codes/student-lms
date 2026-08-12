@@ -50,7 +50,7 @@ export async function checkInLectureQuizGraded(input: {
  * Submits (ends) the user's in-lecture quiz attempt on the Assess Platform.
  * `token` is the fresh test token returned by {@link generateInLectureQuizUrl}.
  */
-export async function endInLectureQuizAssessment(input: {
+async function endInLectureQuizAssessment(input: {
   lectureId: number
   assessmentTemplateId: string
   token: string

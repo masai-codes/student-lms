@@ -49,7 +49,7 @@ export interface LearnContentItem {
   sectionName?: string | null
 }
 
-export interface LearnFilterValues {
+interface LearnFilterValues {
   moduleFilterValues: Array<string>
   categoryFilterValues: Array<string>
   typeFilterValues: Array<string>
@@ -87,9 +87,9 @@ export function learnScheduleHorizonToDays(
   return undefined
 }
 
-export type LearnSchedulePhase = 'all' | 'upcoming' | 'past'
-export type LearnAttendanceFilter = 'present' | 'absent'
-export type LearnAssignmentProgressFilter = 'all' | AssignmentProgressStatus
+type LearnSchedulePhase = 'all' | 'upcoming' | 'past'
+type LearnAttendanceFilter = 'present' | 'absent'
+type LearnAssignmentProgressFilter = 'all' | AssignmentProgressStatus
 
 export interface LearnModalFiltersState {
   modules: Array<string>

@@ -7,7 +7,7 @@ const SRC_ROOT = () => path.join(process.cwd(), 'src')
 /**
  * Resolve `@/foo/bar` import string to an absolute `.ts` path when it exists.
  */
-export function resolveAliasImport(specifier: string): string | null {
+function resolveAliasImport(specifier: string): string | null {
   if (!specifier.startsWith(ALIAS_PREFIX)) return null
   const relative = specifier.slice(ALIAS_PREFIX.length)
   const base = path.join(SRC_ROOT(), relative)
@@ -18,7 +18,7 @@ export function resolveAliasImport(specifier: string): string | null {
 /**
  * Collect exported bindings imported from `@/` modules in a route/handler file.
  */
-export function parseAliasImports(
+function parseAliasImports(
   source: string,
 ): Map<string, string /* absolute path */> {
   const map = new Map<string, string>()

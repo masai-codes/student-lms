@@ -16,7 +16,7 @@ export function useListingAttendancePresentation(
   )
 }
 
-export function useDetailAttendanceUiState(
+function useDetailAttendanceUiState(
   attendance: LectureAttendanceSummary | null | undefined,
   watchPercentage?: number | null,
 ): LectureAttendanceUiState | null {

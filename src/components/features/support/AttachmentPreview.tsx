@@ -127,7 +127,7 @@ export function ImageThumbnail({
 
 // ─── VideoChip ───────────────────────────────────────────────────────────────
 
-export function VideoChip({
+function VideoChip({
   href,
   name,
   variant = 'agent',
@@ -238,7 +238,7 @@ function kindLabel(kind: 'pdf' | 'zip' | 'file'): string {
   return 'File · Click to open'
 }
 
-export function FileChip({
+function FileChip({
   href,
   name,
   variant = 'agent',

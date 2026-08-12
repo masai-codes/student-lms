@@ -1,4 +1,4 @@
-export type AppMobilePlatform = 'ios' | 'android'
+type AppMobilePlatform = 'ios' | 'android'
 
 const APP_MOBILE_HEADER = 'X-App-Mobile'
 const APP_MOBILE_PLATFORM_HEADER = 'X-App-Mobile-Platform'

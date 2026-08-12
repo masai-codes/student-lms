@@ -110,7 +110,7 @@ export function resolveCertificateS3Config(): {
   }
 }
 
-export async function ensureSecrets() {
+async function ensureSecrets() {
   if (!secretsPromise) {
     secretsPromise = loadSecrets()
   }

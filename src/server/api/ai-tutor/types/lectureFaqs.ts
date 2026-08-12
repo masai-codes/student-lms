@@ -5,7 +5,7 @@ export type LectureAiFaq = {
 }
 
 /** Cap on how many FAQs the chat empty state offers as suggestions. */
-export const LECTURE_AI_FAQ_LIMIT = 3
+const LECTURE_AI_FAQ_LIMIT = 3
 
 function readTrimmedString(value: unknown): string | null {
   if (typeof value !== 'string') return null

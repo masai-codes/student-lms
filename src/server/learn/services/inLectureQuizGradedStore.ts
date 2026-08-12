@@ -30,7 +30,7 @@ export async function markInLectureQuizGraded(uniqueId: string): Promise<void> {
   await cacheSetJson(gradedCacheKey(uniqueId), true, GRADED_TTL_SECONDS)
 }
 
-export async function isInLectureQuizGraded(uniqueId: string): Promise<boolean> {
+async function isInLectureQuizGraded(uniqueId: string): Promise<boolean> {
   pruneLocal()
   if (localGraded.has(uniqueId)) return true
   return (await cacheGetJson<boolean>(gradedCacheKey(uniqueId))) === true

@@ -14,7 +14,7 @@ import { isMobileAppPortal } from '@/utils/portal'
  * agreement, …) whose completion comes from the T0 status / lectures payload.
  */
 
-export type GuidedTourStepKind = 'video' | 'fixed'
+type GuidedTourStepKind = 'video' | 'fixed'
 
 export interface GuidedTourStep {
   /** Stable key for React + `data-testid`. */

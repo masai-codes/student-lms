@@ -7,7 +7,7 @@ import { useFloatingChatOptional } from '@/components/common/floating-chat/Float
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 import type { SupportEntityCategory } from '@/server/api/support/support.types'
 
-export interface LearnDetailBookmarkControls {
+interface LearnDetailBookmarkControls {
   isBookmarked: boolean
   pending: boolean
   toggle: () => void

@@ -7,9 +7,9 @@ import { clubs, eventEnrollments, events } from '@/db/schema'
 import { parseMasaiverseEventDbTimestamp } from '@/utils/timeZoneHandler'
 
 /** Free-form `events.category` string, surfaced to the client as a pill. */
-export type MasaiverseV2EventCategory = string
+type MasaiverseV2EventCategory = string
 /** Allowed `events.mode` values. */
-export type MasaiverseV2EventMode = 'online' | 'offline'
+type MasaiverseV2EventMode = 'online' | 'offline'
 
 /**
  * One row of the community-wide events listing. A superset of the home event

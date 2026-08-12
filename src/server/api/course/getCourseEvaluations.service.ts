@@ -4,8 +4,11 @@ import { batches } from '@/db/schema'
 import { eq, isNull, and } from 'drizzle-orm'
 import { parseIstToMs } from '@/server/time/istClock'
 
-export type EvaluationStatus =
-  'UPCOMING' | 'COMPLETED' | 'SCORE_PENDING' | 'NOT_ATTEMPTED'
+type EvaluationStatus =
+  | 'UPCOMING'
+  | 'COMPLETED'
+  | 'SCORE_PENDING'
+  | 'NOT_ATTEMPTED'
 
 export interface CourseEvaluationItem {
   label: string

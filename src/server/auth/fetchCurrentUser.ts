@@ -27,6 +27,6 @@ export const fetchCurrentUser = createServerFn({ method: 'GET' }).handler(
 )
 
 /** Same handler as {@link fetchCurrentUser}; use whichever name fits the caller. */
-export const fetchMe = fetchCurrentUser
+const fetchMe = fetchCurrentUser
 
-export type MeUser = NonNullable<Awaited<ReturnType<typeof fetchCurrentUser>>>
+type MeUser = NonNullable<Awaited<ReturnType<typeof fetchCurrentUser>>>

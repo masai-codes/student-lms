@@ -33,7 +33,7 @@ export function isMasaiPortal(): boolean {
 }
 
 /** Whether the app is currently running on the IIT Jodhpur portal. */
-export function isIITJPortal(): boolean {
+function isIITJPortal(): boolean {
   return getAppOrigin() === 'iitj'
 }
 
@@ -66,7 +66,7 @@ export function isChatPortal(): boolean {
  * `SUPPORT_PORTALS` (`@/utils/portalCapabilities`) — add or remove portals
  * there, not here.
  */
-export function isSupportPortal(): boolean {
+function isSupportPortal(): boolean {
   return portalHasSupport(getAppOrigin())
 }
 

@@ -99,7 +99,7 @@ export async function fetchAchievements(): Promise<Array<AchievementItem>> {
   return achievements
 }
 
-export async function fetchNewLmsPagesPreference(): Promise<boolean> {
+async function fetchNewLmsPagesPreference(): Promise<boolean> {
   const { enabled } = await fetchJson<{ enabled: boolean }>(
     PROFILE_API.newLmsPages,
   )

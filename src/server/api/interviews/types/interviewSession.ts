@@ -1,7 +1,10 @@
 export type InterviewDomain =
-  'software-development' | 'data-ai-ml' | 'product-management' | 'general'
+  | 'software-development'
+  | 'data-ai-ml'
+  | 'product-management'
+  | 'general'
 
-export type InterviewAnswerSource = 'voice' | 'typed'
+type InterviewAnswerSource = 'voice' | 'typed'
 
 /**
  * A follow-up probe on a question's main answer — NOT a planned question of
@@ -43,7 +46,7 @@ export type InterviewTurn = {
   answeredAt: string
 }
 
-export type InterviewReportRubricItem = {
+type InterviewReportRubricItem = {
   dimension: string
   score: number
   comment: string

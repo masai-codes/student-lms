@@ -1,6 +1,6 @@
 import { Warning } from '@phosphor-icons/react'
 
-export interface AgreementFieldIssue {
+interface AgreementFieldIssue {
   /** Field key, used to focus the matching control (`agreement-${key}`). */
   key: string
   /** Human-readable field label (e.g. "Parent's Email ID"). */

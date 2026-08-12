@@ -97,6 +97,6 @@ export function getEmailPortal(request: Request): EmailPortal {
  * for three-way logic; this stays for the iHub-only branches (e.g. grandfathered
  * mobile-app access) that don't care about IIT Jodhpur.
  */
-export function isRequestFromIHub(request: Request): boolean {
+function isRequestFromIHub(request: Request): boolean {
   return getEmailPortal(request) === 'ihub'
 }

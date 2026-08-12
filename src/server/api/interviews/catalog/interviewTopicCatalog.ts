@@ -3,7 +3,7 @@ import type {
   InterviewTopic,
 } from '@/server/api/interviews/types/interviewSession'
 
-export const INTERVIEW_TOPIC_CATALOG: Record<
+const INTERVIEW_TOPIC_CATALOG: Record<
   InterviewDomain,
   Array<InterviewTopic>
 > = {
