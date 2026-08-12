@@ -1,5 +1,10 @@
 import { LinkedinLogo, Lock } from '@phosphor-icons/react'
-import { Modal, ModalContent, ModalTitle } from '@/components/ui/modal'
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalTitle,
+} from '@/components/ui/modal'
 import { MasaiButton } from '@/components/ui/masai-button'
 import { ConfettiOverlay } from '@/components/ui/confetti-overlay'
 import { buildBadgeShareUrl } from '@/components/features/profile/achievements/groupAchievements'
@@ -87,14 +92,14 @@ export function AchievementDialog({
 
           <ModalTitle className="type-h6 pr-8">{item?.badge.title}</ModalTitle>
 
-          <p
+          <ModalDescription
             data-testid="profile-achievement-description"
             className="type-b2-regular text-foreground-muted"
           >
             {item?.isLocked
               ? (item.badge.lockedDescription ?? item.badge.description)
               : item?.badge.description}
-          </p>
+          </ModalDescription>
 
           {item?.isLocked ? (
             <p className="type-caption text-foreground-subtle">

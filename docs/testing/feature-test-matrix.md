@@ -1,6 +1,13 @@
 # Feature Test Matrix
 
-Last updated: 2026-08-01
+Last updated: 2026-08-12
+
+## Profile page (`/profile`)
+
+- Area: Full rebuild of the old LMS's `/profile` — header card (initials/photo + avatar upload, `batch_user`-sourced student codes linking to `/course/$batchId`), Achievements panel (program → module grouping over `badge_configs` so locked badges are visible; earned-first ordering, `xN` repeats, LinkedIn share via experience-api's OG landing page), and seven tabs behind `?tab=`: Profile Details (inline name/phone edit + change password), Student Kit, Acknowledgements, Account Activity, Certificates, My Invoices, Email Preferences. All REST (`src/routes/api/profile/**` → handler → service, Drizzle query builder); tab visibility derives from `hasFullFees`/`isNewUserJourney` on one `GET /api/profile`; each tab's query is lazily `enabled`. Extracted `s3ToCloudFront.ts` out of `resolveLectureVideoUrl.ts` for reuse by badge images.
+- Status: Covered (all 10 services incl. auth/validation/empty-and-garbage-JSON paths; all 12 handlers incl. 401 + unexpected-failure mapping; mobile/password rule modules; geolocation capture incl. every denial reason; tab gating + `?tab=` fallback; achievements grouping; every tab's loading/empty/error state; inline-edit and confirm-dialog transitions; avatar upload guards; client API + query-key layer).
+- Test files: `src/server/api/profile/**/__tests__/*.test.ts`, `src/lib/profile/*.test.ts`, `src/lib/api/profile/profileApi.test.ts`, `src/query/profile/profileQueries.test.ts`, `src/components/features/profile/**/*.test.{ts,tsx}`, `src/server/storage/__tests__/s3ToCloudFront.test.ts`
+- Notes: See `docs/testing/features/profile.md`, plus `docs/profile/old-lms-audit.md` (what was live vs dead in the old LMS) and `docs/profile/rebuild-plan.md`. Seed flow `profile-page` added but **not run** (local `DATABASE_URL` is a shared remote RDS).
 
 ## Mock interview practice (`/interviews`)
 

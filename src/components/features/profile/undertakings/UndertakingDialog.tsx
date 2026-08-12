@@ -1,5 +1,10 @@
 import { MapPin } from '@phosphor-icons/react'
-import { Modal, ModalContent, ModalTitle } from '@/components/ui/modal'
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalTitle,
+} from '@/components/ui/modal'
 import { MasaiButton } from '@/components/ui/masai-button'
 import type { PendingUndertaking } from '@/server/api/profile/profile.types'
 
@@ -35,9 +40,9 @@ export function UndertakingDialog({
         <ModalTitle className="type-h6 pr-8">
           {undertaking?.heading ?? 'Acknowledgement'}
         </ModalTitle>
-        <p className="mt-1 type-caption text-foreground-subtle">
+        <ModalDescription className="mt-1 type-caption text-foreground-subtle">
           {undertaking?.sectionName}
-        </p>
+        </ModalDescription>
 
         {undertaking ? (
           <iframe

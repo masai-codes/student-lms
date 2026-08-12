@@ -51,11 +51,16 @@ export function ConfirmDialog({
             <Warning size={26} weight="fill" />
           </span>
           <ModalTitle className="type-h6">{title}</ModalTitle>
-          {description ? (
-            <ModalDescription className="type-b2-regular text-foreground-muted">
-              {description}
-            </ModalDescription>
-          ) : null}
+          {/* Radix requires a description; fall back to the title for screen readers. */}
+          <ModalDescription
+            className={
+              description
+                ? 'type-b2-regular text-foreground-muted'
+                : 'sr-only'
+            }
+          >
+            {description ?? title}
+          </ModalDescription>
           {children}
         </div>
 
