@@ -6,10 +6,6 @@ import {
   toDateKey,
 } from './calendarUtils'
 
-// Pin the timezone so the viewer-local day keys are deterministic regardless of
-// the machine/CI timezone. Asia/Kolkata matches the values asserted below.
-process.env.TZ = 'Asia/Kolkata'
-
 describe('toDateKey', () => {
   it('formats a date as zero-padded YYYY-MM-DD', () => {
     expect(toDateKey(new Date(2026, 0, 5))).toBe('2026-01-05')

@@ -196,12 +196,16 @@ function RouteComponent() {
   // Lecture detail spans the full viewport width (no centered container), so
   // every hero state is edge-to-edge like the recording video.
   const isLectureDetail = /^\/learn\/lectures\/[^/]+/.test(renderedPathname)
+  const isLearnListingPage: boolean = /^\/learn\/?$/g.test(renderedPathname)
   // Chat is a single full-bleed iframe (connect.masaischool.com) — it wants
   // the full viewport width/height, same as Masaiverse and lecture detail.
   const isChatRoute = renderedPathname.startsWith('/chat')
   const isDashboard = renderedPathname === '/'
   const mainClasses =
-    renderedPathname.startsWith('/masaiverse') || isChatRoute || isDashboard
+    renderedPathname.startsWith('/masaiverse') ||
+    isChatRoute ||
+    isDashboard ||
+    isLearnListingPage
       ? 'layout-full-width-main'
       : isLectureDetail
         ? 'layout-lecture-main'
@@ -245,7 +249,7 @@ function RouteComponent() {
       <AppNavbar />
       {pathname === '/' && !isApp ? <AppMobileHeader /> : null}
       <main
-        className={`${mainClasses} ${isApp && !isMasaiverseRoute ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
+        className={`${mainClasses} ${(isApp && !isMasaiverseRoute) || isLearnListingPage ? 'pb-0' : 'pb-[calc(4.5rem+env(safe-area-inset-bottom))]'} md:pb-0`}
       >
         <Outlet />
       </main>

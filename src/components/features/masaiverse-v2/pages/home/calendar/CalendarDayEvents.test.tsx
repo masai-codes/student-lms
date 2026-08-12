@@ -4,10 +4,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import CalendarDayEvents from './CalendarDayEvents'
 import type { ReactNode } from 'react'
 
-// Pin the timezone so the viewer-local time renders deterministically.
-// Asia/Kolkata → getTzLabel() === 'IST'.
-process.env.TZ = 'Asia/Kolkata'
-
 vi.mock('@tanstack/react-router', () => ({
   Link: ({
     children,

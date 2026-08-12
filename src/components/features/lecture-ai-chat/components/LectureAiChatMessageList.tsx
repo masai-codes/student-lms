@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 type LectureAiChatMessageListProps = {
+  lectureId: number
   messages: Array<LectureAiChatMessageModel>
   isSending: boolean
   onRetry: () => void
@@ -29,6 +30,7 @@ type LectureAiChatMessageListProps = {
 }
 
 export function LectureAiChatMessageList({
+  lectureId,
   messages,
   isSending,
   onRetry,
@@ -55,7 +57,10 @@ export function LectureAiChatMessageList({
         )}
       >
         {isEmpty ? (
-          <LectureAiChatEmptyState onSuggestion={onSuggestion} />
+          <LectureAiChatEmptyState
+            lectureId={lectureId}
+            onSuggestion={onSuggestion}
+          />
         ) : (
           <div className="mx-auto flex max-w-3xl flex-col gap-5">
             {messages.map((message, index) => (

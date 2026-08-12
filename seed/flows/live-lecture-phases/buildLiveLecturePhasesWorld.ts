@@ -194,6 +194,34 @@ const ATTENDANCE_ON_AI_SUMMARY = [
   '3. Watch enough of the recording (past the section threshold) to earn attendance credit.',
 ].join('\n')
 
+const ATTENDANCE_ON_AI_FAQS = [
+  {
+    question: 'What exactly is a closure?',
+    answer:
+      'A closure is a function that keeps access to the variables from its outer (enclosing) scope even after that outer function has finished running. This lets you create private state — the inner function "remembers" the values it was created with.',
+  },
+  {
+    question: 'When should I use map/filter/reduce instead of a for loop?',
+    answer:
+      'Reach for map, filter, and reduce when you are transforming, selecting, or summarizing a whole array — they describe the intent (transform, keep, combine) directly and avoid manual index tracking. A plain loop is still fine when you need to break early or touch multiple arrays at once.',
+  },
+  {
+    question: 'What is the difference between map and filter?',
+    answer:
+      'map returns a new array of the same length where every element has been transformed by the callback, while filter returns a new array containing only the elements for which the callback returned true — its length can be smaller than the original.',
+  },
+  {
+    question: 'How do I get attendance credit from this recording?',
+    answer:
+      'This section has video attendance turned on, so you need to watch past the required threshold of the recording (not just open the page) for the lecture to be marked attended — skipping ahead without playing through it will not count.',
+  },
+  {
+    question: 'Why does the counter example in the summary use a closure?',
+    answer:
+      'A closure lets an inner function keep its own private copy of a variable (like a counter) from the outer function, so each call to the returned function can read and update that same variable without exposing it to the rest of the program.',
+  },
+] as const
+
 const ATTENDANCE_ON_TRANSCRIPT_SEGMENTS = [
   {
     id: 0,
@@ -557,6 +585,7 @@ export async function buildLiveLecturePhasesWorld(
     ).join('\n\n'),
     transcriptSegments: [...ATTENDANCE_ON_TRANSCRIPT_SEGMENTS],
     isSummaryPublished: 1,
+    faqs: [...ATTENDANCE_ON_AI_FAQS],
   })
 
   const associatedLecture = await createLecture({

@@ -172,7 +172,9 @@ export function LectureAiChatQuizModal({
       />
       {data.questions.map((question) => (
         <QuestionnaireItem key={question.id} name={question.id}>
-          <QuestionnaireTitle>{question.question}</QuestionnaireTitle>
+          <QuestionnaireTitle className="mb-2">
+            {question.question}
+          </QuestionnaireTitle>
           <QuestionnaireChoices>
             {question.options.map((option) => (
               <QuestionnaireChoice key={option.id} value={option.id}>

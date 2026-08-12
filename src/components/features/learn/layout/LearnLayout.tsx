@@ -187,7 +187,7 @@ export function LearnLayout({
 
   return (
     <div className="w-full">
-      <div className="relative z-10 ml-[calc(50%-50vw)] w-screen max-w-[100vw] overflow-x-clip -mt-6 bg-surface lg:bg-transparent shadow-2xs lg:shadow-none py-2 lg:pb-0">
+      <div className="relative z-10 overflow-x-clip bg-surface lg:bg-transparent shadow-2xs lg:shadow-none py-2 lg:pb-0">
         <div className="layout-max-w md:layout-gutter-x lg:px-0 relative mx-auto w-full">
           <LearnHeaderSection />
 
@@ -225,7 +225,7 @@ export function LearnLayout({
         <LearnContentListSkeleton />
       ) : (
         <>
-          <div className="animate-dash-rise [--dash-delay:0.16s]">
+          <div className="layout-gutter-x layout-max-w mx-auto animate-dash-rise [--dash-delay:0.16s]">
             <LearnContentListSection items={learningItems} />
           </div>
 

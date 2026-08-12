@@ -21,6 +21,8 @@ export type StreamLectureAiChatRequest = {
   chatId?: number
   /** Language the assistant should reply in (e.g. "English", "Hindi"). */
   language?: string
+  /** Structured UI elements the caller can render (e.g. `['quiz']`). Omitted means none — the assistant writes everything as plain text. */
+  supportedUIElements?: string[]
 }
 
 export type StreamLectureAiChatHandlers = {
@@ -117,6 +119,9 @@ async function runStream(
         platform: request.platform,
         ...(request.chatId != null ? { chatId: request.chatId } : {}),
         ...(request.language != null ? { language: request.language } : {}),
+        ...(request.supportedUIElements != null
+          ? { supportedUIElements: request.supportedUIElements }
+          : {}),
       }),
       signal,
     })
