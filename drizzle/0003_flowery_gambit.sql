@@ -1,1 +1,0 @@
-ALTER TABLE `profiles` ADD `final_status` varchar(255);
