@@ -949,7 +949,7 @@ export const lecturesAi = mysqlTable(
     transcript: longtext(),
     summary: longtext(),
     concepts: json().$type<Record<string, any>>(),
-    faqs: json().$type<Array<Record<string, any>>>(),
+    faqs: json().$type<Record<string, any>>(),
     lectureId: int({ unsigned: true })
       .notNull()
       .references(() => lectures.id, {
