@@ -1,28 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { ProfilePage } from '@/components/features/profile/ProfilePage'
+import { PROFILE_TABS } from '@/components/features/profile/profileTabsConfig'
+import type { ProfileTab } from '@/components/features/profile/profileTabsConfig'
 
-export type ProfileTab =
-  | 'profile-details'
-  | 'acknowledgement'
-  | 'account-activity'
-  | 'certificates'
-  | 'email-preferences'
-
-const VALID_TABS: Array<ProfileTab> = [
-  'profile-details',
-  'acknowledgement',
-  'account-activity',
-  'certificates',
-  'email-preferences',
-]
+const VALID_TABS = new Set<string>(PROFILE_TABS)
 
 export const Route = createFileRoute('/(protected)/_layout/profile/')({
-  validateSearch: (raw): { tab: ProfileTab } => {
-    const tab =
-      typeof raw.tab === 'string' && VALID_TABS.includes(raw.tab as ProfileTab)
+  validateSearch: (raw): { tab?: ProfileTab } => ({
+    // An unknown value resolves to the first available tab at render time; the
+    // gating flags needed to know which tabs exist aren't loaded here yet.
+    tab:
+      typeof raw.tab === 'string' && VALID_TABS.has(raw.tab)
         ? (raw.tab as ProfileTab)
-        : 'profile-details'
-    return { tab }
-  },
+        : undefined,
+  }),
   component: ProfilePage,
 })

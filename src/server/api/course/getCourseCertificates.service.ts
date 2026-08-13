@@ -1,9 +1,17 @@
 import { sql } from 'drizzle-orm'
 import { db } from '@/db'
 import { resolveCertificateS3Config } from '@/secrets'
-import type { CertificateItem } from '@/server/api/profile/certificates.service'
 
-export type { CertificateItem }
+export interface CertificateItem {
+  certificateObjectId: string
+  code: string | null
+  pdfUrl: string | null
+  verificationUrl: string | null
+  certificateTitle: string | null
+  certificateType: string | null
+  issuedDateIso: string | null
+  batchName: string
+}
 
 type RawRow = Record<string, unknown>
 

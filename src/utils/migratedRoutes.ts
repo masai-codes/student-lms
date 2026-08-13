@@ -1,7 +1,8 @@
 /**
  * The migrated pages released to the new LMS behind the per-user "Try New"
  * flag: Dashboard, Learn listing, Lecture / Assignment / Resource detail, plus
- * Announcements, Messages, Bookmarks, What's New, Support and Chat. When the user opts in
+ * Announcements, Messages, Bookmarks, What's New, Support, Chat, the Programs
+ * listing (`/my-programs`) and Profile. When the user opts in
  * these stay on the new LMS; otherwise (with legacy redirect enabled) they are
  * served by the old LMS.
  *
@@ -31,5 +32,20 @@ export function isMigratedRoute(pathname: string): boolean {
   // protected layout); it is listed here only so the "Try New" toggle and the
   // old LMS hand-off treat it as migrated.
   if (pathname === '/support') return true
+  // Programs listing. `/my-courses` and `/my-lectures` are aliases that redirect
+  // to the canonical `/my-programs`; all three must be migrated or the layout
+  // would bounce an opted-in student back to the old LMS before the alias route
+  // ever runs. Sub-paths are excluded — the batch detail is `/course/:id` here,
+  // a route the old LMS hands off differently and that is not migrated.
+  if (
+    pathname === '/my-programs' ||
+    pathname === '/my-courses' ||
+    pathname === '/my-lectures'
+  ) {
+    return true
+  }
+  // Profile: only the overview. The old LMS's `/profile-settings` is a separate
+  // page with no counterpart here.
+  if (pathname === '/profile') return true
   return false
 }

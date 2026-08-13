@@ -16,12 +16,17 @@
  *   /learn/assignments/:id/problems/:problemId → /assignments/:id
  *     (the old problem view needs a third `:elementID` segment we don't have,
  *      so fall back to the assignment detail page)
- *   /my-courses[/…]                → /my-lectures[/…]
+ *   /my-programs[/…]               → /my-lectures[/…]
+ *   /my-courses[/…]                → /my-lectures[/…]  (pre-rename alias)
  *   /course/:id                    → /new-courses/:id
  */
 export function mapToLegacyPath(pathname: string): string {
-  if (pathname === '/my-courses' || pathname.startsWith('/my-courses/')) {
-    return pathname.replace(/^\/my-courses/, '/my-lectures')
+  // `/my-courses` is the pre-rename alias for `/my-programs`; both are the old
+  // LMS's `/my-lectures`. Listed here as well as in the redirect route so a
+  // hand-off from the alias lands on the right old-LMS page rather than a 404.
+  const programsPath = /^\/(my-programs|my-courses)(?=\/|$)/
+  if (programsPath.test(pathname)) {
+    return pathname.replace(programsPath, '/my-lectures')
   }
   if (pathname === '/course' || pathname.startsWith('/course/')) {
     return pathname.replace(/^\/course/, '/new-courses')

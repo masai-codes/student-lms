@@ -35,7 +35,7 @@ const ENABLE_SUPPORT_FLOATER = true
  * Paths served by this app when legacy redirect is enabled (everything else →
  * old LMS). Deliberately minimal: only the migrated pages (flag-gated, handled
  * separately) plus `masaiverse`, `support` and `interviews` stay on the new LMS.
- * Everything else — profile, my-courses, course, etc. — redirects to the old LMS.
+ * Everything else — profile, my-programs, course, etc. — redirects to the old LMS.
  *
  * `support` is also a migrated route: the flag decides which app the *old* LMS
  * sends the student to, but on this side it is always served — `/support` (and
