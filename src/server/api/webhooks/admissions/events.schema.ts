@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { payloadClientSchema } from '@/server/api/webhooks/admissions/payloadClient.schema'
 import { ADMISSION_EVENT } from '@/server/api/webhooks/admissions/types'
 
 const TRANSFER_EVENTS: string[] = [
@@ -13,6 +14,8 @@ const TRANSFER_EVENTS: string[] = [
  * `type` and `data.enrolment_id` (plus `data.to_batch_id` for transfer events —
  * it becomes `batch_user.batch_transfer_id`); the entire envelope is dumped into
  * the audit trail, so unknown fields are allowed through (`.passthrough()`).
+ * `data.client`, when sent, narrows the enrolment lookup to students of that
+ * client — see `payloadClientSchema`.
  *
  * Every optional field is `.nullish()`, not `.optional()`: admissions serialises
  * "no value yet" as an explicit `null` (e.g. `full_fees_paid_invoice: null` on a
@@ -35,6 +38,8 @@ export const admissionEventSchema = z
     data: z
       .object({
         enrolment_id: z.number().int().positive(),
+        // Scopes the enrolment lookup to students of this `users.client`.
+        client: payloadClientSchema,
         // Disambiguates when one enrolment maps to several batch_user rows.
         lms_batch_user_id: z.number().int().positive().nullish(),
         to_batch_id: z.number().int().positive().nullish(),
