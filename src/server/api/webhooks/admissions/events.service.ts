@@ -27,7 +27,9 @@ export type AdmissionEventResult = {
 
 /**
  * Unified dispatcher for the admissions events webhook. Every event locates the
- * batch_user by `data.enrolment_id` (404 if unknown), dumps the whole envelope
+ * batch_user by `data.enrolment_id` — scoped to `data.client` when admissions
+ * sends it, so an enrolment belonging to another client's student reads as
+ * unknown — (404 if unknown), dumps the whole envelope
  * into the audit trail, and applies its one mutation — all in a transaction.
  *
  * After the transaction commits, the student's cached enrolment sets are dropped
@@ -48,12 +50,12 @@ export async function processAdmissionEvent(
   })
 
   const { userId, batchUserId } = await db.transaction(async (tx) => {
-    const batchUser = await findBatchUserByEnrolmentId(
-      tx,
+    const batchUser = await findBatchUserByEnrolmentId(tx, {
       enrolmentId,
       // `null` from admissions means "not specified" — same as omitted.
-      event.data.lms_batch_user_id ?? undefined,
-    )
+      lmsBatchUserId: event.data.lms_batch_user_id ?? undefined,
+      client: event.data.client ?? undefined,
+    })
     const payload = { ...event }
 
     switch (event.type) {

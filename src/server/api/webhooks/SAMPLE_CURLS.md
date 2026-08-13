@@ -94,12 +94,18 @@ Soft-deletes the batch_user + all its section_users, sets the
 `batchEnrolmentCancelled` restriction flag, and records the payload.
 Returns `{ batchUserId, userId, batchId, cancelledSectionUserIds }`.
 
+Optionally send `client` (`masai` / `ihub` / `iitj`, case-insensitive): the
+enrolment is then only matched when the student's `users.client` equals it, so a
+mismatch is a 404 `ENROLMENT_NOT_FOUND` instead of cancelling another portal's
+enrolment that happens to share the id. Omitted or `null` = match any client.
+
 ```bash
 curl -X POST 'BASE_URL/api/webhooks/admissions/cancel-enrolment' \
   -H 'Content-Type: application/json' \
   -H 'x-api-key: YOUR_ADMISSIONS_API_KEY' \
   -d '{
-    "enrolment_id": 314294967295
+    "enrolment_id": 314294967295,
+    "client": "iitj"
   }'
 ```
 
@@ -129,7 +135,11 @@ Supported `type` values:
 Only `type` + `data.enrolment_id` are needed (transfer events also need
 `data.to_batch_id`). Optionally send `data.lms_batch_user_id` — when one
 `enrolment_id` maps to several `batch_user` rows it selects that exact row;
-without it, the latest-created row is used. Any other fields the platform sends
+without it, the latest-created row is used. Optionally send `data.client`
+(`masai` / `ihub` / `iitj`, case-insensitive) — the enrolment then only matches
+when the student's `users.client` equals it, otherwise the event 404s with
+`ENROLMENT_NOT_FOUND`; it is applied before `lms_batch_user_id`, so that id can
+only ever pick among the client's own rows. Any other fields the platform sends
 are ignored by the logic but still stored verbatim in the audit trail — the
 samples below show just the required keys.
 
@@ -148,7 +158,7 @@ curl -X POST 'BASE_URL/api/webhooks/admissions/events' \
   -H 'x-api-key: YOUR_ADMISSIONS_API_KEY' \
   -d '{
     "type": "lms.batch.paid",
-    "data": { "enrolment_id": 314294967295 }
+    "data": { "enrolment_id": 314294967295, "client": "iitj" }
   }'
 ```
 
