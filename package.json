@@ -30,7 +30,8 @@
     "seed:catalog": "tsx seed/catalog/generate.ts",
     "db:pull": "drizzle-kit pull && node scripts/sync-schema.mjs && prettier --write src/db/schema.ts",
     "db:generate": "drizzle-kit generate && node scripts/fix-migration-identifiers.mjs",
-    "db:migrate": "node scripts/migrate.mjs"
+    "db:migrate": "node scripts/migrate.mjs",
+    "db:status": "node scripts/migrate.mjs --status"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",

@@ -3,18 +3,26 @@
 Standard drizzle-kit workflow, tracked in a `__drizzle_migrations` table in the
 target database. Three commands cover everything:
 
-| Command               | What it does                                                                                                                                |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Command               | What it does                                                                                                                                                                                                                                                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `npm run db:pull`     | Introspect the **prod read replica** (`PROD_READ_ONLY_DATABASE_URL`, falls back to `DATABASE_URL`; managed tables only) and rewrite `src/db/schema.ts`. Use to **adopt changes made outside this app**. Managed tables missing from the DB (pending migrations not yet on prod) are preserved from the previous schema. |
-| `npm run db:generate` | Diff `src/db/schema.ts` against the last snapshot in `drizzle/meta/` and write a new SQL migration file to `drizzle/`.                      |
-| `npm run db:migrate`  | Apply all migrations not yet recorded in `__drizzle_migrations` on the target DB (`DATABASE_URL` from the shell, else `.env.local`/`.env`). |
+| `npm run db:generate` | Diff `src/db/schema.ts` against the last snapshot in `drizzle/meta/` and write a new SQL migration file to `drizzle/`.                                                                                                                                                                                                  |
+| `npm run db:status`   | Dry run: show which migrations are applied vs pending on the target DB, print the exact SQL that would run, and flag destructive statements.                                                                                                                                                                            |
+| `npm run db:migrate`  | Apply all migrations not yet recorded in `__drizzle_migrations` on the target DB (`DATABASE_URL` from the shell, else `.env.local`/`.env`).                                                                                                                                                                             |
+
+Migrations are matched by **content hash** (sha256 of the file), not by
+timestamp, so regenerating or renaming unapplied files can't confuse the
+tracker. Corollary: never edit an applied file — the hash won't match and it
+would count as pending again.
 
 ## Day-to-day: making a schema change
 
 1. Edit `src/db/schema.ts` (add a column, table, index…). If it's a brand-new
    table, also add its SQL name to `src/db/managedTables.ts`.
 2. `npm run db:generate` — review the generated SQL file in `drizzle/`.
-3. `npm run db:migrate` — applies it and records it. Running it again is a
+3. `npm run db:status` — see exactly what will run against the target DB
+   (destructive statements are flagged with ⚠️).
+4. `npm run db:migrate` — applies it and records it. Running it again is a
    no-op ("No pending migrations.").
 
 To ship the change to another environment (e.g. production), run the same

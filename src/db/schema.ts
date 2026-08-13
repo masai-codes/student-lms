@@ -1309,6 +1309,7 @@ export const profiles = mysqlTable(
       .default(0)
       .notNull(),
     storeReview: json('store_review').$type<Record<string, any>>(),
+    userStatus: varchar('user_status', { length: 255 }),
   },
   (table) => [primaryKey({ columns: [table.id], name: 'profiles_id' })],
 )

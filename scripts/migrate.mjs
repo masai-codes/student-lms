@@ -1,33 +1,43 @@
 /**
- * Applies pending Drizzle migrations from ./drizzle, tracked in the
- * `__drizzle_migrations` table (standard drizzle-orm migrator).
+ * Applies pending Drizzle migrations from ./drizzle, tracked by content hash
+ * in the `__drizzle_migrations` table.
  *
- * One extra behaviour on top of the stock migrator — auto-baseline:
- * this app's schema predates migration tracking (it was reverse-engineered
- * from a live MySQL DB), so on a database that already has the app tables
- * but no `__drizzle_migrations` rows, the FIRST journal entry (the `0000`
- * baseline snapshot) is marked as applied WITHOUT running it. On a truly
- * empty database the baseline runs for real and creates every table.
- * Either way, everything after 0000 is applied normally and recorded.
+ *   npm run db:status    — show applied/pending + the exact SQL that would run
+ *   npm run db:migrate   — apply pending migrations
+ *
+ * Differences from the stock drizzle-orm migrator (which this replaces):
+ *
+ * - **Hash-based, not timestamp-based.** A migration is "applied" iff its
+ *   file's sha256 is recorded. The stock migrator compares journal timestamps
+ *   against the last recorded row, which re-applies everything if the
+ *   baseline is ever regenerated with a newer timestamp.
+ * - **Auto-baseline.** The schema predates migration tracking, so if the
+ *   FIRST journal entry (the `0000` baseline snapshot) is unapplied but the
+ *   DB already has the app's tables (sentinel: `users`), it is recorded
+ *   WITHOUT being executed. On an empty DB it runs for real.
+ * - **Destructive-statement warnings.** DROP/TRUNCATE/DELETE in pending SQL
+ *   is flagged in both status and migrate output.
  *
  * DATABASE_URL resolution: a value already set in the shell wins (so
- * `DATABASE_URL=... npm run db:migrate` targets exactly that DB), otherwise
+ * `DATABASE_URL=… npm run db:migrate` targets exactly that DB), otherwise
  * .env then .env.local, matching the rest of the repo's scripts.
- *
- * Usage: npm run db:migrate
  */
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import dotenv from 'dotenv'
 import mysql from 'mysql2/promise'
-import { drizzle } from 'drizzle-orm/mysql2'
-import { migrate } from 'drizzle-orm/mysql2/migrator'
+
+const statusOnly = process.argv.includes('--status')
 
 const root = process.cwd()
 const urlFromShell = process.env.DATABASE_URL
-dotenv.config({ path: resolve(root, '.env') })
-dotenv.config({ path: resolve(root, '.env.local'), override: true })
+dotenv.config({ path: resolve(root, '.env'), quiet: true })
+dotenv.config({
+  path: resolve(root, '.env.local'),
+  override: true,
+  quiet: true,
+})
 const databaseUrl = urlFromShell ?? process.env.DATABASE_URL
 
 if (!databaseUrl) {
@@ -42,14 +52,30 @@ const journal = JSON.parse(
   readFileSync(resolve(MIGRATIONS_FOLDER, 'meta/_journal.json'), 'utf8'),
 )
 
-const connection = await mysql.createConnection({ uri: databaseUrl })
-
-async function lastAppliedMillis() {
-  const [rows] = await connection.query(
-    `select created_at from \`${TRACKING_TABLE}\` order by created_at desc limit 1`,
+const migrations = journal.entries.map((entry) => {
+  const sql = readFileSync(
+    resolve(MIGRATIONS_FOLDER, `${entry.tag}.sql`),
+    'utf8',
   )
-  return rows.length > 0 ? Number(rows[0].created_at) : null
-}
+  return {
+    ...entry,
+    sql,
+    hash: createHash('sha256').update(sql).digest('hex'),
+    statements: sql
+      .split('--> statement-breakpoint')
+      .map((s) => s.trim())
+      .filter(Boolean),
+  }
+})
+
+const destructiveStatements = (migration) =>
+  migration.statements.filter((s) =>
+    /^\s*(drop\s|truncate\s)|\balter\s+table\b[\s\S]*\bdrop\b|^\s*delete\s+from\b/i.test(
+      s,
+    ),
+  )
+
+const connection = await mysql.createConnection({ uri: databaseUrl })
 
 try {
   const target = new URL(databaseUrl)
@@ -63,38 +89,89 @@ try {
      )`,
   )
 
-  // Auto-baseline: existing schema, empty tracking table.
-  if ((await lastAppliedMillis()) === null) {
-    const [existing] = await connection.query(`show tables like 'users'`)
-    if (existing.length > 0) {
-      const baseline = journal.entries[0]
-      const sql = readFileSync(
-        resolve(MIGRATIONS_FOLDER, `${baseline.tag}.sql`),
-        'utf8',
+  const [rows] = await connection.query(
+    `select hash from \`${TRACKING_TABLE}\``,
+  )
+  const appliedHashes = new Set(rows.map((r) => r.hash))
+  const [usersTable] = await connection.query(`show tables like 'users'`)
+  const schemaExists = usersTable.length > 0
+
+  const plan = migrations.map((m) => ({
+    migration: m,
+    action: appliedHashes.has(m.hash)
+      ? 'applied'
+      : m.idx === journal.entries[0].idx && schemaExists
+        ? 'baseline' // record as applied without executing
+        : 'run',
+  }))
+  const pending = plan.filter((p) => p.action !== 'applied')
+
+  if (statusOnly) {
+    console.log('')
+    for (const { migration, action } of plan) {
+      const label = {
+        applied: '✓ applied',
+        baseline:
+          '○ pending — will be marked applied WITHOUT running (baseline; schema already exists)',
+        run: '● pending — will RUN',
+      }[action]
+      console.log(`${migration.tag}  ${label}`)
+      if (action === 'run') {
+        for (const stmt of migration.statements) {
+          console.log(stmt.replace(/^/gm, '    ') + '\n')
+        }
+        for (const stmt of destructiveStatements(migration)) {
+          console.log(
+            `    ⚠️  DESTRUCTIVE statement above: ${stmt.split('\n')[0].slice(0, 80)}`,
+          )
+        }
+      }
+    }
+    const stale =
+      rows.length - plan.filter((p) => p.action === 'applied').length
+    if (stale > 0) {
+      console.log(
+        `\n(note: ${stale} recorded row(s) in ${TRACKING_TABLE} match no current migration file — historical, ignored)`,
       )
-      const hash = createHash('sha256').update(sql).digest('hex')
+    }
+    console.log(
+      pending.length === 0
+        ? '\nNothing to do — database is up to date.'
+        : `\n${pending.length} migration(s) pending. Run \`npm run db:migrate\` to apply.`,
+    )
+  } else {
+    if (pending.length === 0) {
+      console.log('No pending migrations.')
+    }
+    for (const { migration, action } of pending) {
+      if (action === 'baseline') {
+        await connection.query(
+          `insert into \`${TRACKING_TABLE}\` (hash, created_at) values (?, ?)`,
+          [migration.hash, migration.when],
+        )
+        console.log(
+          `${migration.tag}: existing schema — marked applied without running (baseline).`,
+        )
+        continue
+      }
+      const destructive = destructiveStatements(migration)
+      if (destructive.length > 0) {
+        console.log(
+          `⚠️  ${migration.tag} contains ${destructive.length} destructive statement(s) — review with \`npm run db:status\` next time.`,
+        )
+      }
+      for (const stmt of migration.statements) {
+        await connection.query(stmt)
+      }
       await connection.query(
         `insert into \`${TRACKING_TABLE}\` (hash, created_at) values (?, ?)`,
-        [hash, baseline.when],
+        [migration.hash, migration.when],
       )
       console.log(
-        `Existing schema with no migration history — marked ${baseline.tag} as already applied (not run).`,
+        `${migration.tag}: applied (${migration.statements.length} statement(s)).`,
       )
     }
   }
-
-  const last = await lastAppliedMillis()
-  const pending = journal.entries.filter((e) => last === null || e.when > last)
-  if (pending.length === 0) {
-    console.log('No pending migrations.')
-  } else {
-    console.log(`Applying ${pending.length} migration(s):`)
-    for (const e of pending) console.log(`  - ${e.tag}`)
-  }
-
-  await migrate(drizzle(connection), { migrationsFolder: MIGRATIONS_FOLDER })
-
-  if (pending.length > 0) console.log('Done.')
 } finally {
   await connection.end()
 }
