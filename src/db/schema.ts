@@ -88,10 +88,10 @@ export const aiTutorSessions = mysqlTable(
     updatedAt: timestamp('updated_at', { mode: 'string' }),
   },
   (table) => [
-    index('ai_tutor_sessions_created_at_index').on(table.createdAt),
-    index('ai_tutor_sessions_lecture_id_index').on(table.lectureId),
-    index('ai_tutor_sessions_unique_id_index').on(table.uniqueId),
     index('ai_tutor_sessions_user_id_index').on(table.userId),
+    index('ai_tutor_sessions_lecture_id_index').on(table.lectureId),
+    index('ai_tutor_sessions_created_at_index').on(table.createdAt),
+    index('ai_tutor_sessions_unique_id_index').on(table.uniqueId),
     primaryKey({ columns: [table.id], name: 'ai_tutor_sessions_id' }),
   ],
 )
@@ -327,10 +327,10 @@ export const attendances = mysqlTable(
     lateByMinutes: int('late_by_minutes', { unsigned: true }),
   },
   (table) => [
-    index('attendances_batch_id_index').on(table.batchId),
     index('attendances_lecture_id_index').on(table.lectureId),
-    index('attendances_section_id_index').on(table.sectionId),
     index('attendances_user_id_index').on(table.userId),
+    index('attendances_section_id_index').on(table.sectionId),
+    index('attendances_batch_id_index').on(table.batchId),
     primaryKey({ columns: [table.id], name: 'attendances_id' }),
     unique('attendances_lecture_id_user_id_key').on(
       table.lectureId,
@@ -428,10 +428,10 @@ export const banners = mysqlTable(
     updatedAt: timestamp('updated_at', { mode: 'string' }),
   },
   (table) => [
-    index('idx_banners_group_name').on(table.groupName),
-    index('idx_banners_is_active').on(table.isActive),
     index('idx_banners_type').on(table.type),
     index('idx_banners_variant').on(table.variant),
+    index('idx_banners_group_name').on(table.groupName),
+    index('idx_banners_is_active').on(table.isActive),
     primaryKey({ columns: [table.id], name: 'banners_id' }),
     unique('banners_group_name_key').on(table.groupName),
   ],
@@ -444,7 +444,9 @@ export const batchUser = mysqlTable(
     createdAt: timestamp('created_at', { mode: 'string' }).default(
       sql`CURRENT_TIMESTAMP`,
     ),
-    updatedAt: datetime('updated_at', { mode: 'string' }).default(sql`(now())`),
+    updatedAt: datetime('updated_at', { mode: 'string' }).default(
+      sql`(CURRENT_TIMESTAMP)`,
+    ),
     deletedAt: datetime('deleted_at', { mode: 'string' }),
     username: varchar({ length: 300 }),
     admission: varchar({ length: 300 }),
@@ -461,14 +463,14 @@ export const batchUser = mysqlTable(
       .references(() => batches.id),
     history: json().$type<Record<string, any>>(),
     status: varchar({ length: 300 }),
-    enrolmentId: bigint('enrolment_id', { mode: 'number', unsigned: true }),
-    batchTransferId: bigint('batch_transfer_id', {
-      mode: 'number',
-      unsigned: true,
-    }),
+    enrolmentId: bigint('enrolment_id', { mode: 'number' }),
+    batchTransferId: bigint('batch_transfer_id', { mode: 'number' }),
     batchTransferStatus: varchar('batch_transfer_status', { length: 50 }),
   },
-  (table) => [primaryKey({ columns: [table.id], name: 'batch_user_id' })],
+  (table) => [
+    index('batch_user_enrolment_id_index').on(table.enrolmentId),
+    primaryKey({ columns: [table.id], name: 'batch_user_id' }),
+  ],
 )
 
 export const batches = mysqlTable(
@@ -497,16 +499,18 @@ export const batches = mysqlTable(
     partners: varchar({ length: 255 }),
     programDomain: varchar('program_domain', { length: 255 }),
     programType: varchar('program_type', { length: 255 }),
+    calendarToken: varchar('calendar_token', { length: 64 }),
   },
   (table) => [
-    index('idx_active').on(table.active),
-    index('idx_active_starting').on(table.active, table.starting),
-    index('idx_duration').on(table.duration),
     index('idx_name').on(table.name),
-    index('idx_program').on(table.program),
     index('idx_starting').on(table.starting),
+    index('idx_duration').on(table.duration),
+    index('idx_program').on(table.program),
+    index('idx_active').on(table.active),
     index('idx_starting_active').on(table.starting, table.active),
+    index('idx_active_starting').on(table.active, table.starting),
     primaryKey({ columns: [table.id], name: 'batches_id' }),
+    unique('batches_calendar_token_key').on(table.calendarToken),
   ],
 )
 
@@ -549,6 +553,7 @@ export const bookmarks = mysqlTable(
       table.entityType,
       table.entityId,
     ),
+    index('bookmarks_created_at_idx').on(table.createdAt),
     primaryKey({ columns: [table.id], name: 'bookmarks_id' }),
   ],
 )
@@ -652,11 +657,11 @@ export const discussions = mysqlTable(
     gptCentralData: json('gpt_central_data').$type<Record<string, any>>(),
   },
   (table) => [
-    index('discussions_created_at_idx').on(table.createdAt),
     index('discussions_entity_type_entity_id_index').on(
       table.entityType,
       table.entityId,
     ),
+    index('discussions_created_at_idx').on(table.createdAt),
     primaryKey({ columns: [table.id], name: 'discussions_id' }),
   ],
 )
@@ -786,12 +791,12 @@ export const helpFaqs = mysqlTable(
   },
   (table) => [
     index('help_faqs_category_index').on(table.category),
+    index('help_faqs_sub_category_index').on(table.subCategory),
+    index('help_faqs_is_hidden_index').on(table.isHidden),
     index('help_faqs_category_sub_category_index').on(
       table.category,
       table.subCategory,
     ),
-    index('help_faqs_is_hidden_index').on(table.isHidden),
-    index('help_faqs_sub_category_index').on(table.subCategory),
     primaryKey({ columns: [table.id], name: 'help_faqs_id' }),
   ],
 )
@@ -932,11 +937,11 @@ export const lectures = mysqlTable(
     zoomDetails: json('zoom_details').$type<Record<string, any>>(),
   },
   (table) => [
-    index('idx_category').on(table.category),
-    index('idx_concludes').on(table.concludes),
     index('idx_schedule').on(table.schedule),
     index('idx_title').on(table.title),
+    index('idx_category').on(table.category),
     index('idx_type').on(table.type),
+    index('idx_concludes').on(table.concludes),
     index('idx_updated_at').on(table.updatedAt),
     primaryKey({ columns: [table.id], name: 'lectures_id' }),
   ],
@@ -949,7 +954,6 @@ export const lecturesAi = mysqlTable(
     transcript: longtext(),
     summary: longtext(),
     concepts: json().$type<Record<string, any>>(),
-    faqs: json().$type<Record<string, any>>(),
     lectureId: int({ unsigned: true })
       .notNull()
       .references(() => lectures.id, {
@@ -961,8 +965,9 @@ export const lecturesAi = mysqlTable(
     transcriptSegments: json().$type<Record<string, any>>(),
     createdAt: timestamp('created_at', { mode: 'string' }),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
-    lastRefetchTime: datetime({ mode: 'string' }),
+    lastRefetchTime: datetime({ mode: 'string', fsp: 3 }),
     transcriptId: varchar({ length: 191 }),
+    faqs: json().$type<Record<string, any>>(),
   },
   (table) => [
     primaryKey({ columns: [table.id], name: 'lectures_ai_id' }),
@@ -976,15 +981,15 @@ export const loginAttempts = mysqlTable(
     id: bigint({ mode: 'number', unsigned: true }).autoincrement().notNull(),
     identifier: varchar({ length: 255 }).notNull(),
     ipAddress: varchar('ip_address', { length: 45 }),
-    attemptedAt: datetime('attempted_at', { mode: 'string' }).notNull(),
-    createdAt: datetime('created_at', { mode: 'string' })
-      .default(sql`(now(3))`)
+    attemptedAt: datetime('attempted_at', { mode: 'string', fsp: 3 }).notNull(),
+    createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
+      .default(sql`(CURRENT_TIMESTAMP(3))`)
       .notNull(),
   },
   (table) => [
-    index('login_attempts_attempted_at_idx').on(table.attemptedAt),
     index('login_attempts_identifier_idx').on(table.identifier),
     index('login_attempts_ip_address_idx').on(table.ipAddress),
+    index('login_attempts_attempted_at_idx').on(table.attemptedAt),
     primaryKey({ columns: [table.id], name: 'login_attempts_id' }),
   ],
 )
@@ -1055,13 +1060,13 @@ export const masaiverseLeaderboard = mysqlTable(
       .notNull(),
   },
   (table) => [
-    index('masaiverse_leaderboard_club_id_index').on(table.clubId),
-    index('masaiverse_leaderboard_created_by_index').on(table.createdBy),
-    index('masaiverse_leaderboard_event_id_index').on(table.eventId),
-    index('masaiverse_leaderboard_post_id_index').on(table.postId),
-    index('masaiverse_leaderboard_reason_index').on(table.reason),
-    index('masaiverse_leaderboard_reply_id_index').on(table.replyId),
     index('masaiverse_leaderboard_user_id_index').on(table.userId),
+    index('masaiverse_leaderboard_created_by_index').on(table.createdBy),
+    index('masaiverse_leaderboard_post_id_index').on(table.postId),
+    index('masaiverse_leaderboard_reply_id_index').on(table.replyId),
+    index('masaiverse_leaderboard_event_id_index').on(table.eventId),
+    index('masaiverse_leaderboard_reason_index').on(table.reason),
+    index('masaiverse_leaderboard_club_id_index').on(table.clubId),
     primaryKey({ columns: [table.id], name: 'masaiverse_leaderboard_id' }),
   ],
 )
@@ -1139,14 +1144,14 @@ export const notificationLogs = mysqlTable(
     updatedAt: timestamp('updated_at', { mode: 'string' }).notNull(),
   },
   (table) => [
+    index('notification_logs_user_id_index').on(table.userId),
     index('notification_logs_entity_index').on(
       table.entityType,
       table.entityId,
     ),
-    index('notification_logs_sent_at_index').on(table.sentAt),
-    index('notification_logs_status_index').on(table.status),
     index('notification_logs_type_index').on(table.notificationType),
-    index('notification_logs_user_id_index').on(table.userId),
+    index('notification_logs_status_index').on(table.status),
+    index('notification_logs_sent_at_index').on(table.sentAt),
     primaryKey({ columns: [table.id], name: 'notification_logs_id' }),
     unique('notification_logs_unique_notification').on(
       table.userId,
@@ -1179,11 +1184,11 @@ export const otpCodes = mysqlTable(
     identifier: varchar({ length: 255 }).notNull(),
     channel: varchar({ length: 20 }).notNull(),
     otpHash: varchar('otp_hash', { length: 255 }).notNull(),
-    expiresAt: datetime('expires_at', { mode: 'string' }).notNull(),
+    expiresAt: datetime('expires_at', { mode: 'string', fsp: 3 }).notNull(),
     attempts: int().default(0).notNull(),
-    usedAt: datetime('used_at', { mode: 'string' }),
-    createdAt: datetime('created_at', { mode: 'string' })
-      .default(sql`(now(3))`)
+    usedAt: datetime('used_at', { mode: 'string', fsp: 3 }),
+    createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
+      .default(sql`(CURRENT_TIMESTAMP(3))`)
       .notNull(),
   },
   (table) => [
@@ -1219,9 +1224,9 @@ export const posts = mysqlTable(
     meta: json().$type<Record<string, any>>(),
   },
   (table) => [
-    index('posts_banned_by_index').on(table.bannedBy),
     index('posts_club_id_index').on(table.clubId),
     index('posts_user_id_index').on(table.userId),
+    index('posts_banned_by_index').on(table.bannedBy),
     primaryKey({ columns: [table.id], name: 'posts_id' }),
   ],
 )
@@ -1299,6 +1304,11 @@ export const profiles = mysqlTable(
     haveClosedModal: int({ unsigned: true }),
     legalData: json('legal_data').$type<Record<string, any>>(),
     slackId: varchar('slack_id', { length: 255 }),
+    askStoreReview: tinyint('ask_store_review').default(0).notNull(),
+    askStoreReviewOnHome: tinyint('ask_store_review_on_home')
+      .default(0)
+      .notNull(),
+    storeReview: json('store_review').$type<Record<string, any>>(),
   },
   (table) => [primaryKey({ columns: [table.id], name: 'profiles_id' })],
 )
@@ -1457,8 +1467,8 @@ export const sessions = mysqlTable(
     lastActivity: int('last_activity').notNull(),
   },
   (table) => [
-    index('sessions_last_activity_index').on(table.lastActivity),
     index('sessions_user_id_index').on(table.userId),
+    index('sessions_last_activity_index').on(table.lastActivity),
     primaryKey({ columns: [table.id], name: 'sessions_id' }),
   ],
 )
@@ -1528,18 +1538,18 @@ export const studentAttendances = mysqlTable(
     updatedAt: timestamp('updated_at', { mode: 'string' }).notNull(),
   },
   (table) => [
-    index('student_attendances_batch_id_index').on(table.batchId),
-    index('student_attendances_lecture_id_index').on(table.lectureId),
-    index('student_attendances_schedule_index').on(table.schedule),
-    index('student_attendances_section_id_schedule_index').on(
-      table.sectionId,
-      table.schedule,
-    ),
-    index('student_attendances_status_index').on(table.status),
     index('student_attendances_user_id_schedule_index').on(
       table.userId,
       table.schedule,
     ),
+    index('student_attendances_lecture_id_index').on(table.lectureId),
+    index('student_attendances_section_id_schedule_index').on(
+      table.sectionId,
+      table.schedule,
+    ),
+    index('student_attendances_batch_id_index').on(table.batchId),
+    index('student_attendances_schedule_index').on(table.schedule),
+    index('student_attendances_status_index').on(table.status),
     primaryKey({ columns: [table.id], name: 'student_attendances_id' }),
     unique('student_attendances_lecture_id_user_id_unique').on(
       table.lectureId,
@@ -1628,8 +1638,8 @@ export const tickets = mysqlTable(
     logstamps: json().$type<Record<string, any>>(),
   },
   (table) => [
-    index('tickets_closed_at_index').on(table.closedAt),
     index('tickets_created_at_index').on(table.createdAt),
+    index('tickets_closed_at_index').on(table.closedAt),
     index('tickets_updated_at_index').on(table.updatedAt),
     primaryKey({ columns: [table.id], name: 'tickets_id' }),
   ],
@@ -1713,8 +1723,8 @@ export const userBatchAdmissionData = mysqlTable(
     meta: json().$type<Record<string, any>>(),
   },
   (table) => [
-    index('user_batch_admission_data_batch_id_index').on(table.batchId),
     index('user_batch_admission_data_user_id_index').on(table.userId),
+    index('user_batch_admission_data_batch_id_index').on(table.batchId),
     primaryKey({ columns: [table.id], name: 'user_batch_admission_data_id' }),
     unique('user_batch_admission_data_user_id_batch_id_unique').on(
       table.userId,
@@ -1776,9 +1786,9 @@ export const userDeviceTokens = mysqlTable(
     updatedAt: timestamp('updated_at', { mode: 'string' }).notNull(),
   },
   (table) => [
-    index('user_device_tokens_active_index').on(table.active),
-    index('user_device_tokens_token_index').on(table.token),
     index('user_device_tokens_user_id_index').on(table.userId),
+    index('user_device_tokens_token_index').on(table.token),
+    index('user_device_tokens_active_index').on(table.active),
     primaryKey({ columns: [table.id], name: 'user_device_tokens_id' }),
     unique('user_device_tokens_user_id_token_unique').on(
       table.userId,
@@ -1808,7 +1818,7 @@ export const users = mysqlTable(
     role: varchar({ length: 255 }),
     mobile: varchar({ length: 255 }),
     title: varchar({ length: 255 }),
-    status: varchar({ length: 255 }),
+    status: varchar({ length: 255 }).default('active'),
     username: varchar({ length: 255 }),
     lastActiveAt: timestamp('last_active_at', { mode: 'string' }),
     statusTime: datetime('status_time', { mode: 'string' }),
@@ -1918,7 +1928,7 @@ export const zefLmsMetaData = mysqlTable(
     meta: json().$type<Record<string, any>>(),
     source: mysqlEnum(['zef', 'lms']).default('zef').notNull(),
     createdAt: timestamp('created_at', { mode: 'string' }).default(
-      sql`(now())`,
+      sql`CURRENT_TIMESTAMP`,
     ),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
   },
@@ -1942,7 +1952,7 @@ export const zefLmsLo = mysqlTable(
     isCompleted: tinyint('is_completed').default(0).notNull(),
     markedCompletedAt: datetime('marked_completed_at', { mode: 'string' }),
     createdAt: timestamp('created_at', { mode: 'string' }).default(
-      sql`(now())`,
+      sql`CURRENT_TIMESTAMP`,
     ),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
   },
@@ -1968,7 +1978,7 @@ export const zefLmsFeedbackSubmissions = mysqlTable(
     source: mysqlEnum(['zef', 'lms']).default('zef').notNull(),
     submittedAt: timestamp('submitted_at', { mode: 'string' }),
     createdAt: timestamp('created_at', { mode: 'string' }).default(
-      sql`(now())`,
+      sql`CURRENT_TIMESTAMP`,
     ),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
   },
@@ -2000,7 +2010,7 @@ export const zefLmsPollsQuestions = mysqlTable(
     startTimestamp: datetime('start_timestamp', { mode: 'string' }),
     endTimestamp: datetime('end_timestamp', { mode: 'string' }),
     createdAt: timestamp('created_at', { mode: 'string' }).default(
-      sql`(now())`,
+      sql`CURRENT_TIMESTAMP`,
     ),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
   },
@@ -2027,7 +2037,7 @@ export const zefLmsPollsSubmissions = mysqlTable(
     }).notNull(),
     submittedAt: timestamp('submitted_at', { mode: 'string' }),
     createdAt: timestamp('created_at', { mode: 'string' }).default(
-      sql`(now())`,
+      sql`CURRENT_TIMESTAMP`,
     ),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
   },
@@ -2057,13 +2067,13 @@ export const zefLmsQuiz = mysqlTable(
     startTimestamp: datetime('start_timestamp', { mode: 'string' }),
     endTimestamp: datetime('end_timestamp', { mode: 'string' }),
     createdAt: timestamp('created_at', { mode: 'string' }).default(
-      sql`(now())`,
+      sql`CURRENT_TIMESTAMP`,
     ),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
   },
   (table) => [
-    index('zef_lms_quiz_assessment_id_index').on(table.assessmentId),
     index('zef_lms_quiz_meta_index').on(table.zefLmsMetaDataId),
+    index('zef_lms_quiz_assessment_id_index').on(table.assessmentId),
     primaryKey({ columns: [table.id], name: 'zef_lms_quiz_id' }),
   ],
 )
@@ -2083,7 +2093,7 @@ export const zefLmsQuizSubmission = mysqlTable(
     htmlReport: longtext('html_report'),
     evaluatedAt: timestamp('evaluated_at', { mode: 'string' }),
     createdAt: timestamp('created_at', { mode: 'string' }).default(
-      sql`(now())`,
+      sql`CURRENT_TIMESTAMP`,
     ),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
   },
@@ -2112,7 +2122,7 @@ export const zefLmsSqlSandbox = mysqlTable(
     error: text(),
     executedAt: timestamp('executed_at', { mode: 'string' }),
     createdAt: timestamp('created_at', { mode: 'string' }).default(
-      sql`(now())`,
+      sql`CURRENT_TIMESTAMP`,
     ),
     updatedAt: timestamp('updated_at', { mode: 'string' }),
   },
