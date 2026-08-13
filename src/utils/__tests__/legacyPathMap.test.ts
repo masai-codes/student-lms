@@ -18,7 +18,16 @@ describe('mapToLegacyPath', () => {
     expect(mapToLegacyPath(pathname)).toBe(expected)
   })
 
-  it.each(['/', '/learn', '/support', '/chat', '/bookmarks'])(
+  it.each([
+    '/',
+    '/learn',
+    '/support',
+    '/chat',
+    '/bookmarks',
+    '/profile',
+    // Already the old LMS's own path for the programs listing.
+    '/my-lectures',
+  ])(
     'leaves %s untouched (same route on both apps)',
     (pathname) => {
       expect(mapToLegacyPath(pathname)).toBe(pathname)
