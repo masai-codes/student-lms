@@ -75,6 +75,84 @@ const destructiveStatements = (migration) =>
     ),
   )
 
+/**
+ * Extract what each DROP statement targets, so it can be checked against the
+ * DB before anything runs.
+ *
+ * Worth doing because `drizzle-kit pull` discards the DB's real FK constraint
+ * names (see docs/database-migrations.md), so a generated
+ * `DROP FOREIGN KEY <convention_name>` can name a constraint that prod calls
+ * something else — which otherwise fails halfway through a migration.
+ *
+ * `IF EXISTS` targets are skipped: they are already no-ops when absent.
+ */
+function dropTargets(statement) {
+  const targets = []
+  const push = (kind, table, name) => targets.push({ kind, table, name })
+  const clean = (s) => s?.replace(/[`;]/g, '')
+
+  for (const m of statement.matchAll(
+    /alter\s+table\s+`?([\w.]+)`?\s+drop\s+foreign\s+key\s+`?([\w$]+)`?/gi,
+  )) {
+    push('foreign key', clean(m[1]), clean(m[2]))
+  }
+  for (const m of statement.matchAll(
+    /alter\s+table\s+`?([\w.]+)`?\s+drop\s+index\s+`?([\w$]+)`?/gi,
+  )) {
+    push('index', clean(m[1]), clean(m[2]))
+  }
+  for (const m of statement.matchAll(
+    /drop\s+index\s+`?([\w$]+)`?\s+on\s+`?([\w.]+)`?/gi,
+  )) {
+    push('index', clean(m[2]), clean(m[1]))
+  }
+  for (const m of statement.matchAll(
+    /alter\s+table\s+`?([\w.]+)`?\s+drop\s+(?:column\s+)?(?!foreign\b|index\b|constraint\b|primary\b|key\b|check\b)`?([\w$]+)`?/gi,
+  )) {
+    push('column', clean(m[1]), clean(m[2]))
+  }
+  for (const m of statement.matchAll(
+    /drop\s+table\s+(?!if\s+exists)`?([\w.]+)`?/gi,
+  )) {
+    push('table', clean(m[1]), null)
+  }
+  return targets
+}
+
+/** Does the DROP target actually exist on the connected DB? */
+async function dropTargetExists(connection, { kind, table, name }) {
+  const queries = {
+    'foreign key': [
+      `select 1 from information_schema.referential_constraints
+       where constraint_schema = database() and table_name = ? and constraint_name = ? limit 1`,
+      [table, name],
+    ],
+    index: [
+      `select 1 from information_schema.statistics
+       where table_schema = database() and table_name = ? and index_name = ? limit 1`,
+      [table, name],
+    ],
+    column: [
+      `select 1 from information_schema.columns
+       where table_schema = database() and table_name = ? and column_name = ? limit 1`,
+      [table, name],
+    ],
+    table: [
+      `select 1 from information_schema.tables
+       where table_schema = database() and table_name = ? limit 1`,
+      [table],
+    ],
+  }
+  const [sql, params] = queries[kind]
+  const [rows] = await connection.query(sql, params)
+  return rows.length > 0
+}
+
+const describeTarget = ({ kind, table, name }) =>
+  kind === 'table'
+    ? `table \`${table}\``
+    : `${kind} \`${name}\` on \`${table}\``
+
 const connection = await mysql.createConnection({ uri: databaseUrl })
 
 try {
@@ -106,6 +184,20 @@ try {
   }))
   const pending = plan.filter((p) => p.action !== 'applied')
 
+  // Preflight: every DROP target in migrations that will actually RUN must
+  // exist on this DB, else the migration dies partway through.
+  const missingTargets = []
+  for (const { migration, action } of pending) {
+    if (action !== 'run') continue
+    for (const stmt of migration.statements) {
+      for (const target of dropTargets(stmt)) {
+        if (!(await dropTargetExists(connection, target))) {
+          missingTargets.push({ tag: migration.tag, target })
+        }
+      }
+    }
+  }
+
   if (statusOnly) {
     console.log('')
     for (const { migration, action } of plan) {
@@ -134,12 +226,39 @@ try {
         `\n(note: ${stale} recorded row(s) in ${TRACKING_TABLE} match no current migration file — historical, ignored)`,
       )
     }
+    if (missingTargets.length > 0) {
+      console.log(
+        `\n❌ ${missingTargets.length} DROP target(s) do NOT exist on this database — these statements WILL FAIL:`,
+      )
+      for (const { tag, target } of missingTargets) {
+        console.log(`    ${tag}: ${describeTarget(target)} not found`)
+      }
+      console.log(
+        `\n   Most likely cause: drizzle generated a convention constraint name that this DB\n` +
+          `   does not use (see docs/database-migrations.md). Check the real name with\n` +
+          `   \`SHOW CREATE TABLE <table>\` and edit the migration SQL to match.\n` +
+          `   \`npm run db:migrate\` will refuse to run until this is resolved.`,
+      )
+    }
     console.log(
       pending.length === 0
         ? '\nNothing to do — database is up to date.'
         : `\n${pending.length} migration(s) pending. Run \`npm run db:migrate\` to apply.`,
     )
   } else {
+    if (missingTargets.length > 0) {
+      console.error(
+        `\n❌ Refusing to migrate: ${missingTargets.length} DROP target(s) do not exist on this database.`,
+      )
+      for (const { tag, target } of missingTargets) {
+        console.error(`    ${tag}: ${describeTarget(target)} not found`)
+      }
+      console.error(
+        `\nNothing was applied. Run \`npm run db:status\` for details.`,
+      )
+      await connection.end()
+      process.exit(1)
+    }
     if (pending.length === 0) {
       console.log('No pending migrations.')
     }

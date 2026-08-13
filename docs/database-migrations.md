@@ -76,9 +76,13 @@ so every DB gets `0001` exactly once either way.
   `scripts/fix-migration-identifiers.mjs` (part of `db:generate`) shortens
   them deterministically. Related: a generated `DROP FOREIGN KEY` will use the
   convention name, which may not match the real constraint name on an old
-  shared DB — review those by hand.
+  shared DB. **Both `db:status` and `db:migrate` preflight every DROP target**
+  (foreign key / index / column / table) against the target DB and refuse to
+  run if one is missing, so this fails before touching anything instead of
+  halfway through. Fix by copying the real name out of
+  `SHOW CREATE TABLE <table>` into the migration SQL.
 - Never edit an already-applied migration file: its sha256 is recorded in
-  `__drizzle_migrations`, and drizzle applies strictly by journal timestamp.
+  `__drizzle_migrations`, so an edit makes it count as pending again.
   Fix mistakes with a new migration.
 - Re-baselining (regenerating `0000`) requires truncating `__drizzle_migrations`
   on every target DB first — avoid unless the history is genuinely broken.
