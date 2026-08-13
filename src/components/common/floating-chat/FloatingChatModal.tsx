@@ -732,7 +732,9 @@ export function FloatingChatModal({
         subCategory: selectedSubCategory,
         message: finalMessage,
         entityId: selectedItem?.id ?? null,
-        fromFloater: !isFullPage,
+        // Same underlying widget powers both the anchored floater and the
+        // `/support` full-page experience — both origins should be logged.
+        fromFloater: true,
       })
     } else if (view === 'tickets' && selectedTicketId) {
       replyMutation.mutate({
