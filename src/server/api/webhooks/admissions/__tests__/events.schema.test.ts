@@ -143,6 +143,27 @@ describe('admissionEventSchema', () => {
     expect(parsed.success).toBe(false)
   })
 
+  it('accepts and normalises data.client', () => {
+    const parsed = admissionEventSchema.safeParse(
+      envelope('lms.batch.paid', { client: ' IHub ' }),
+    )
+    expect(parsed.success && parsed.data.data.client).toBe('ihub')
+  })
+
+  it('accepts a null data.client as "not sent"', () => {
+    const parsed = admissionEventSchema.safeParse(
+      envelope('lms.batch.paid', { client: null }),
+    )
+    expect(parsed.success && parsed.data.data.client).toBe(null)
+  })
+
+  it('rejects an empty data.client string', () => {
+    expect(
+      admissionEventSchema.safeParse(envelope('lms.batch.paid', { client: '' }))
+        .success,
+    ).toBe(false)
+  })
+
   it('keeps unknown envelope + data fields (passthrough)', () => {
     const parsed = admissionEventSchema.safeParse(
       envelope('lms.batch.paid', { from_batch_id: 10, requested_by: 'x@y.z' }),

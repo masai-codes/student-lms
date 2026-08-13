@@ -25,4 +25,35 @@ describe('cancelEnrolmentSchema', () => {
       false,
     )
   })
+
+  it('accepts and normalises a client', () => {
+    const parsed = cancelEnrolmentSchema.safeParse({
+      enrolment_id: 123,
+      client: ' IITJ ',
+    })
+    expect(parsed.success && parsed.data.client).toBe('iitj')
+  })
+
+  it('accepts a null client as "not sent"', () => {
+    const parsed = cancelEnrolmentSchema.safeParse({
+      enrolment_id: 123,
+      client: null,
+    })
+    expect(parsed.success && parsed.data.client).toBe(null)
+  })
+
+  it('accepts an unknown client verbatim (it just matches no student)', () => {
+    const parsed = cancelEnrolmentSchema.safeParse({
+      enrolment_id: 123,
+      client: 'brand-new-portal',
+    })
+    expect(parsed.success && parsed.data.client).toBe('brand-new-portal')
+  })
+
+  it('rejects an empty client string', () => {
+    expect(
+      cancelEnrolmentSchema.safeParse({ enrolment_id: 123, client: '  ' })
+        .success,
+    ).toBe(false)
+  })
 })
