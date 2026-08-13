@@ -111,14 +111,21 @@ describe('MyCourseCard', () => {
     expect(hoisted.pushGtmEvent).not.toHaveBeenCalled()
   })
 
-  it('falls back to an icon tile when there is no logo', () => {
+  it('falls back to the portal wordmark when there is no logo', () => {
     render(<MyCourseCard course={course({ courseLogo: null })} />)
 
-    expect(screen.getByTestId('my-courses-card-logo-10-fallback')).toBeTruthy()
+    const fallback = screen.getByTestId('my-courses-card-logo-10-fallback')
+    expect(fallback).toBeTruthy()
     expect(screen.queryByTestId('my-courses-card-logo-10')).toBeNull()
+    // ThemedLogo ships both artworks and swaps them with `dark:`, so the right
+    // one is present on the first frame in either theme.
+    const images = fallback.querySelectorAll('img')
+    expect(images).toHaveLength(2)
+    expect(images[0].className).toContain('dark:hidden')
+    expect(images[1].className).toContain('dark:block')
   })
 
-  it('falls back to an icon tile when the logo url fails to load', () => {
+  it('falls back to the portal wordmark when the logo url fails to load', () => {
     render(<MyCourseCard course={course()} />)
 
     fireEvent.error(screen.getByTestId('my-courses-card-logo-10'))
