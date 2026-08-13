@@ -1310,6 +1310,7 @@ export const profiles = mysqlTable(
       .notNull(),
     storeReview: json('store_review').$type<Record<string, any>>(),
     userStatus: varchar('user_status', { length: 255 }),
+    finalStatus: varchar('final_status', { length: 255 }),
   },
   (table) => [primaryKey({ columns: [table.id], name: 'profiles_id' })],
 )
