@@ -6,7 +6,12 @@ export type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
 /**
  * Which product a user belongs to — derived from the `isiHub` / `isiitj` flags
- * on the payload.
+ * on the create-enrolment payload.
+ *
+ * Note this is *not* the type of the `client` field admissions now sends on the
+ * cancel / events payloads: that one is matched against `users.client` verbatim
+ * (a plain `varchar(20)`), so an unknown value must resolve to
+ * `ENROLMENT_NOT_FOUND` rather than a 400. See `payloadClientSchema`.
  */
 export type EnrolmentClient = 'ihub' | 'iitj' | 'masai'
 
