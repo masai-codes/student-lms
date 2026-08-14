@@ -39,7 +39,13 @@ export function DashboardLayout({
   const { now } = useServerTime()
 
   return (
-    <div data-testid="dashboard-root" className="mb-8 mt-4 container mx-auto">
+    /* `<main>` is `layout-full-width-main` here (no gutter below `lg`), so the
+       dashboard column carries the standard page gutter itself — without it the
+       sidebar cards sit flush against the viewport edges on mobile. */
+    <div
+      data-testid="dashboard-root"
+      className="layout-gutter-x mb-8 mt-4 container mx-auto"
+    >
       {overview.feePaymentBanners.length > 0 ? (
         <div className="mb-4">
           <FeePaymentBanners banners={overview.feePaymentBanners} />
