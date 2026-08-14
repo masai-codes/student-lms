@@ -21,6 +21,7 @@ describe('isMigratedRoute', () => {
     '/my-courses',
     '/my-lectures',
     '/profile',
+    '/my-calendar',
   ])('treats %s as migrated', (pathname) => {
     expect(isMigratedRoute(pathname)).toBe(true)
   })
