@@ -85,9 +85,9 @@ describe('getMyCourses service', () => {
     hoisted.getUserBatchRestrictions.mockResolvedValue(new Map())
   })
 
-  it('maps enrolled batches, newest enrolment first', async () => {
-    // getBatchIdsForEnrolledUser returns oldest-first; the listing leads with newest.
-    hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([20, 10])
+  it('maps enrolled batches, preserving newest-enrolment-first order', async () => {
+    // getBatchIdsForEnrolledUser already orders by min(section_user.created_at) desc.
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([10, 20])
     mockDb([10, 20], [AIML, FSWD])
 
     const result = await run()
@@ -166,10 +166,10 @@ describe('getMyCourses service', () => {
     await expect(run()).resolves.toEqual({ active: [], paused: [], cancelled: [] })
   })
 
-  it('sorts programs with no detail page last, newest-first within each group', async () => {
-    // 20 (no detail page) is the newer enrolment, so it would lead the listing
-    // on enrolment order alone — it is demoted below the openable 10.
-    hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([10, 20])
+  it('sorts programs with no detail page last, newest-enrolment-first within each group', async () => {
+    // 20 (no detail page) is the newer enrolment, so it leads the input — it is
+    // still demoted below the openable 10.
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([20, 10])
     mockDb([10, 20], [AIML, FSWD])
 
     const result = await run()
@@ -178,7 +178,7 @@ describe('getMyCourses service', () => {
   })
 
   it('sorts paused programs with no detail page last too', async () => {
-    hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([10, 20])
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([20, 10])
     hoisted.getUserBatchRestrictions.mockResolvedValue(
       new Map([
         [10, flags({ paused: true })],

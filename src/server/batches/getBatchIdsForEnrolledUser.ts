@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from 'drizzle-orm'
+import { and, eq, isNull, sql } from 'drizzle-orm'
 import { db } from '@/db'
 import { batches, sectionUser, sections } from '@/db/schema'
 import { getRequestPortal } from '@/server/auth/v2/portalContext'
@@ -53,13 +53,26 @@ export async function getBatchIdsForEnrolledUser(
           batchScopeForPortal(portal),
         ),
       )
-      // Most recently started batch first — downstream surfaces (learn batch
-      // switcher default selection, dropdown order) rely on this ordering.
-      .orderBy(desc(batches.starting), desc(batches.createdAt)),
+      // Most recently ENROLLED batch first — the program the student joined last
+      // leads every listing (my-courses grid, learn batch switcher and its default
+      // selection, dropdown order). A student can hold several `section_user` rows
+      // per batch (extra sections added later), so the batch's enrolment date is
+      // the EARLIEST of them — `min(created_at)` — otherwise being added to one
+      // more section of an old program would jump it to the top. Grouping also
+      // collapses those rows to one id per batch.
+      .groupBy(sections.batchId)
+      .orderBy(
+        sql`min(${sectionUser.createdAt}) desc`,
+        // Deterministic tie-breakers for batches enrolled in the same instant
+        // (bulk admission writes). Both must be aggregated under ONLY_FULL_GROUP_BY.
+        sql`max(${batches.starting}) desc`,
+        sql`max(${batches.id}) desc`,
+      ),
     getUserBatchRestrictions(userId),
   ])
 
   const cancelled = getCancelledBatchIds(restrictions)
+  // `GROUP BY` already yields one row per batch; the Set is belt-and-braces.
   const batchIds = [...new Set(rows.map((r) => r.batchId))].filter(
     (batchId) => !cancelled.has(batchId),
   )
