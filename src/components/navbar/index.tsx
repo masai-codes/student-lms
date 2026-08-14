@@ -1,9 +1,6 @@
 'use client'
 
-import {
-  IndependenceDayDecor,
-  IndependenceDayGreeting,
-} from './independence-day-decor'
+import { IndependenceDayDecor } from './independence-day-decor'
 import { NavbarLogo } from './navbar-logo'
 import { NavbarNavItems } from './navbar-nav-items'
 import { NavbarProfileMenu } from './navbar-profile-menu'
@@ -87,7 +84,6 @@ export function Navbar({
       >
         <div className="flex min-w-0 flex-1 items-stretch gap-4 xl:gap-8 2xl:gap-12">
           <NavbarLogo logo={logo} />
-          {showIndependenceDayUi ? <IndependenceDayGreeting /> : null}
           <NavbarNavItems items={navItems} />
         </div>
 
