@@ -171,9 +171,9 @@ export type NavbarProps = {
    */
   forceDark?: boolean
   /**
-   * Seasonal Independence Day dressing (tiranga washes + bottom ribbon +
-   * chakra greeting). Wired from `VITE_SHOW_INDEPENDENCE_DAY_UI`; decorative
-   * only, adapts to light/dark via the `--festive-*` tokens.
+   * Seasonal Independence Day dressing (tiranga washes + bottom ribbon). Wired
+   * from the date window in `isIndependenceDayUiEnabled`; decorative only,
+   * adapts to light/dark via the `--festive-*` tokens.
    */
   showIndependenceDayUi?: boolean
 }

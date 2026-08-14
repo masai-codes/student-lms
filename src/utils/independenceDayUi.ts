@@ -1,6 +1,6 @@
 /**
  * Seasonal window for the Independence Day navbar dressing (tiranga washes,
- * ribbon + chakra greeting — see `IndependenceDayDecor`). Purely date-driven:
+ * ribbon — see `IndependenceDayDecor`). Purely date-driven:
  * shows from the eve of Aug 15, 2026 and disappears on its own at
  * 11:00 AM IST on Aug 16, 2026 — no env flag, no redeploy to turn it off.
  * Offsets are written as `+05:30` (IST has no DST) so the window is the same
