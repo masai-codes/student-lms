@@ -34,8 +34,12 @@ type ThemeToggleProps = {
  * page-sized cost, which read as a hitch — don't reintroduce it.
  */
 export function ThemeToggle({ className, size = 'navbar' }: ThemeToggleProps) {
-  const { toggleTheme } = useTheme()
+  const { toggleTheme, themeLocked, hydrated } = useTheme()
   const buttonRef = useRef<HTMLButtonElement>(null)
+
+  // The app shell pins light (see `lib/theme/appForcedTheme.ts`), so offering a
+  // toggle there would do nothing. Gated on `hydrated` — SSR can't know.
+  if (hydrated && themeLocked) return null
 
   const handleClick = () => {
     // Restart the one-shot pop/ring on every click: remove the attribute,
