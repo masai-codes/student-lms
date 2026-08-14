@@ -17,6 +17,7 @@ describe('isMigratedRoute', () => {
     '/whats-new',
     '/chat',
     '/support',
+    '/profile-settings',
   ])('treats %s as migrated', (pathname) => {
     expect(isMigratedRoute(pathname)).toBe(true)
   })
