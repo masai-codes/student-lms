@@ -47,5 +47,7 @@ export function isMigratedRoute(pathname: string): boolean {
   // Profile: only the overview. The old LMS's `/profile-settings` is a separate
   // page with no counterpart here.
   if (pathname === '/profile') return true
+  // Calendar (the old LMS serves it at the same `/my-calendar` path).
+  if (pathname === '/my-calendar') return true
   return false
 }

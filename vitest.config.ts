@@ -21,6 +21,7 @@ const TZ_MUTATING_TESTS = [
   'components/features/dashboard/shared/scheduleMapping.test.ts',
   'components/features/dashboard/section-sidebar/LmsSupportPanel.test.tsx',
   'server/assignments/utils/__tests__/buildAssessSectionTiming.test.ts',
+  'lib/calendar/calendarEventMapping.test.ts',
 ]
 
 export default defineConfig({

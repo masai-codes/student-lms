@@ -62,6 +62,10 @@ export function mapThrownErrorToResponse(error: unknown): Response {
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_DASHBOARD_SCHEDULE':
         return jsonError(500, error.message)
+      case 'SERVER_ERROR_FETCHING_CALENDAR_EVENTS':
+      case 'SERVER_ERROR_FETCHING_CALENDAR_BATCHES':
+      case 'SERVER_ERROR_FETCHING_CALENDAR_SUBSCRIPTION_LINK':
+        return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_DASHBOARD_BANNERS':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_DASHBOARD_ACTION_BANNERS':
