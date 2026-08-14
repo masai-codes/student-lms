@@ -11,10 +11,16 @@ const APP_MOBILE_PLATFORM_HEADER = 'X-App-Mobile-Platform'
  */
 export const MOBILE_VIEWPORT_HEADER = 'X-Client-Mobile-Viewport'
 
-const APP_MOBILE_STORAGE_KEY = 'lms.appMobile'
+/**
+ * Session flag for "this tab is the native app shell". Exported because the
+ * pre-paint theme script (`lib/theme/theme-script.ts`) must read it as a raw
+ * string literal — it runs before any module code.
+ */
+export const APP_MOBILE_STORAGE_KEY = 'lms.appMobile'
 const APP_MOBILE_PLATFORM_STORAGE_KEY = 'lms.appMobilePlatform'
 
-const IS_APP_QUERY_KEY = 'isApp'
+/** `?isApp=true` — the query param the app shell appends to every entry URL. */
+export const IS_APP_QUERY_KEY = 'isApp'
 const PLATFORM_QUERY_KEY = 'platform'
 
 export type AppMobileContext = {

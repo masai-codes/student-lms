@@ -8,6 +8,7 @@ import {
 const requireSessionUserId = vi.hoisted(() => vi.fn())
 const loadMasaiLiveUser = vi.hoisted(() => vi.fn())
 const resolveMasaiLiveConnectSid = vi.hoisted(() => vi.fn())
+const syncLmsPremiumForMasaiLiveLogin = vi.hoisted(() => vi.fn())
 
 vi.mock('@/server/api/http/requireSessionUser', () => ({
   requireSessionUserId,
@@ -19,6 +20,9 @@ vi.mock(
     resolveMasaiLiveConnectSid,
   }),
 )
+vi.mock('@/server/api/user-auth/services/syncLmsPremium.service', () => ({
+  syncLmsPremiumForMasaiLiveLogin,
+}))
 vi.mock('@/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }))
@@ -34,6 +38,7 @@ beforeEach(() => {
   requireSessionUserId.mockReset().mockResolvedValue(7)
   loadMasaiLiveUser.mockReset().mockResolvedValue(USER)
   resolveMasaiLiveConnectSid.mockReset()
+  syncLmsPremiumForMasaiLiveLogin.mockReset().mockResolvedValue(undefined)
   delete process.env.FRONTEND_URL
 })
 
@@ -63,6 +68,10 @@ describe('handlePostMasaiLiveLogin', () => {
       USER,
       'https://live.test',
     )
+    expect(syncLmsPremiumForMasaiLiveLogin).toHaveBeenCalledWith({
+      user: USER,
+      connectSid: 's%3Ax',
+    })
   })
 
   it('defaults redirect when the body is empty or invalid JSON', async () => {
@@ -92,6 +101,7 @@ describe('handlePostMasaiLiveLogin', () => {
       }),
     )
     expect(res.status).toBe(401)
+    expect(syncLmsPremiumForMasaiLiveLogin).not.toHaveBeenCalled()
   })
 
   it('returns the service status/message on failure', async () => {
@@ -112,6 +122,7 @@ describe('handlePostMasaiLiveLogin', () => {
       success: false,
       message: 'User enrolment not found',
     })
+    expect(syncLmsPremiumForMasaiLiveLogin).not.toHaveBeenCalled()
   })
 })
 
@@ -130,6 +141,10 @@ describe('handleGetMasaiLiveLogin', () => {
     expect(res.headers.get('Location')).toBe('https://live.test/join')
     expect(res.headers.get('Set-Cookie')).toContain('connect.sid=')
     expect(res.headers.get('Set-Cookie')).toContain('Domain=.masaischool.com')
+    expect(syncLmsPremiumForMasaiLiveLogin).toHaveBeenCalledWith({
+      user: USER,
+      connectSid: 's%3Asession',
+    })
   })
 
   it('still redirects to Masai Live when enrolment is missing', async () => {
@@ -147,6 +162,7 @@ describe('handleGetMasaiLiveLogin', () => {
     expect(res.status).toBe(302)
     expect(res.headers.get('Location')).toBe('https://live.test')
     expect(res.headers.get('Set-Cookie')).toBeNull()
+    expect(syncLmsPremiumForMasaiLiveLogin).not.toHaveBeenCalled()
   })
 
   it('bounces home on other failures', async () => {
@@ -162,6 +178,7 @@ describe('handleGetMasaiLiveLogin', () => {
     )
     expect(res.status).toBe(302)
     expect(res.headers.get('Location')).toBe('https://students.example.com')
+    expect(syncLmsPremiumForMasaiLiveLogin).not.toHaveBeenCalled()
   })
 
   it('bounces home when the session user row is missing', async () => {

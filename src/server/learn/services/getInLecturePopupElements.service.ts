@@ -5,18 +5,77 @@ import { zefLmsMetaData, zefLmsPollsQuestions, zefLmsQuiz } from '@/db/schema'
 import type { InLecturePopupElements } from '@/server/learn/lectureDetailTypes'
 
 /**
- * Convert an element's absolute (offset-stamped ISO) timestamp into a
- * video-relative offset in whole seconds, measured from `referenceMs`
- * (the meta row's `scheduledAt`, i.e. video t=0). Returns `null` when the
- * timestamp is missing or unparseable so the caller can drop the element.
+ * Parse a ZEF timestamp to epoch-ms *on its own wall clock*, deliberately
+ * discarding any zone designator.
+ *
+ * The two sides of the offset subtraction reach us stamped differently:
+ * `zef_lms_*.start_timestamp` / `end_timestamp` / `scheduled_at` are DATETIME
+ * columns read through the `istDatetime` type, so they arrive as
+ * `2026-08-14T12:13:48+05:30`, while `meta.effectiveScheduledAt.value` is
+ * written by ZEF as `2026-08-14T12:11:16.006Z`. Those suffixes describe the
+ * writer, not a shared clock — the `effectiveScheduledAt` rows sourced from
+ * `schedule` carry the DATETIME's exact wall-clock digits restamped as `Z`,
+ * which is only self-consistent if the two are compared digit-for-digit.
+ * Trusting the suffixes instead would inject a fixed 5h30m error and push every
+ * element to a negative `startSec`.
+ *
+ * Since only the *difference* between two of these values is ever used,
+ * stripping the zone from both sides is exact — and leaves the `scheduledAt`
+ * fallback path byte-identical to its previous behaviour, where both operands
+ * carried the same `+05:30` stamp.
+ */
+function toWallClockMs(timestamp: string | null | undefined): number | null {
+  if (!timestamp) return null
+  const trimmed = timestamp.trim()
+  if (trimmed === '') return null
+  const naive = trimmed
+    .replace(' ', 'T')
+    .replace(/(?:[zZ]|[+-]\d{2}:?\d{2})$/, '')
+  const ms = new Date(`${naive}Z`).getTime()
+  return Number.isFinite(ms) ? ms : null
+}
+
+/**
+ * The recording-aware video t=0 recorded on the meta row, or `null` when the
+ * lecture predates the sync or the value is unusable.
+ *
+ * `scheduled_at` is when the session was *meant* to start; a recording that
+ * actually rolled late (or was trimmed at the head) makes it a wrong origin,
+ * shifting every popup by the difference. ZEF backfills the corrected origin
+ * into `meta.effectiveScheduledAt`, which is already post-trim — its sibling
+ * `leadingTrimSeconds` is a record of what was cut, not a further adjustment to
+ * apply here.
+ */
+function readEffectiveScheduledAt(meta: unknown): string | null {
+  const parsed =
+    typeof meta === 'string'
+      ? ((): unknown => {
+          try {
+            return JSON.parse(meta)
+          } catch {
+            return null
+          }
+        })()
+      : meta
+
+  if (!parsed || typeof parsed !== 'object') return null
+  const effective = (parsed as Record<string, unknown>).effectiveScheduledAt
+  if (!effective || typeof effective !== 'object') return null
+  const value = (effective as Record<string, unknown>).value
+  return typeof value === 'string' && value.trim() !== '' ? value : null
+}
+
+/**
+ * Convert an element's timestamp into a video-relative offset in whole seconds,
+ * measured from `referenceMs` (video t=0). Returns `null` when the timestamp is
+ * missing or unparseable so the caller can drop the element.
  */
 function toOffsetSec(
   timestamp: string | null,
   referenceMs: number,
 ): number | null {
-  if (!timestamp) return null
-  const ms = new Date(timestamp).getTime()
-  if (!Number.isFinite(ms)) return null
+  const ms = toWallClockMs(timestamp)
+  if (ms === null) return null
   return Math.round((ms - referenceMs) / 1000)
 }
 
@@ -29,11 +88,13 @@ function toOffsetSec(
  * we return empties. Otherwise the quizzes and polls hang off `meta.id`.
  *
  * Each element's absolute start/end timestamps are converted here into the
- * video-relative window (`startSec` / `endSec`) using the meta row's
- * `scheduledAt` as video t=0. Elements are dropped when they can't be placed —
- * no `scheduledAt` reference, or a missing/unparseable timestamp. Remaining
- * window validation (start < end, clamp to the real video duration, ordering)
- * stays client-side, where the loaded video's duration is known.
+ * video-relative window (`startSec` / `endSec`) using video t=0 as the origin —
+ * `meta.effectiveScheduledAt.value` when ZEF has synced the recording-aware
+ * origin, otherwise the meta row's nominal `scheduledAt`. Elements are dropped
+ * when they can't be placed — no usable reference, or a missing/unparseable
+ * timestamp. Remaining window validation (start < end, clamp to the real video
+ * duration, ordering) stays client-side, where the loaded video's duration is
+ * known.
  */
 export async function getInLecturePopupElements(
   lectureId: number,
@@ -43,6 +104,7 @@ export async function getInLecturePopupElements(
       id: zefLmsMetaData.id,
       lectureId: zefLmsMetaData.lectureId,
       scheduledAt: zefLmsMetaData.scheduledAt,
+      meta: zefLmsMetaData.meta,
       source: zefLmsMetaData.source,
       createdAt: zefLmsMetaData.createdAt,
       updatedAt: zefLmsMetaData.updatedAt,
@@ -54,21 +116,25 @@ export async function getInLecturePopupElements(
   const meta = metaRows[0]
   if (!meta) return { metaData: null, quiz: [], polls: [] }
 
+  const effectiveScheduledAt = readEffectiveScheduledAt(meta.meta)
+
   const metaData = {
     id: meta.id,
     lectureId: meta.lectureId,
     scheduledAt: meta.scheduledAt ?? null,
+    effectiveScheduledAt,
     source: meta.source,
     createdAt: meta.createdAt ?? null,
     updatedAt: meta.updatedAt ?? null,
   }
 
-  // Without a `scheduledAt` reference we can't place any element on the video
-  // timeline, so surface the meta row but no elements.
-  const referenceMs = meta.scheduledAt
-    ? new Date(meta.scheduledAt).getTime()
-    : NaN
-  if (!Number.isFinite(referenceMs)) {
+  // Video t=0: the recording-aware `effectiveScheduledAt` when ZEF has synced
+  // one, else the session's nominal `scheduledAt`. Without either reference we
+  // can't place any element on the video timeline, so surface the meta row but
+  // no elements.
+  const referenceMs =
+    toWallClockMs(effectiveScheduledAt) ?? toWallClockMs(meta.scheduledAt)
+  if (referenceMs === null) {
     return { metaData, quiz: [], polls: [] }
   }
 
