@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchMyCourses } from '@/lib/api/courses/coursesApi'
 import { MyCourseCard } from './MyCourseCard'
 import { CancelledCoursesSection } from './CancelledCoursesSection'
+import { PausedCoursesSection } from './PausedCoursesSection'
 import {
   MyCoursesEmptyState,
   MyCoursesErrorState,
@@ -23,8 +24,14 @@ export function MyCoursesPage() {
   })
 
   const active = data?.active ?? []
+  const paused = data?.paused ?? []
   const cancelled = data?.cancelled ?? []
-  const isEmpty = !isLoading && !isError && active.length === 0 && cancelled.length === 0
+  const isEmpty =
+    !isLoading &&
+    !isError &&
+    active.length === 0 &&
+    paused.length === 0 &&
+    cancelled.length === 0
 
   return (
     <div
@@ -45,7 +52,7 @@ export function MyCoursesPage() {
       {active.length > 0 && (
         <ul
           data-testid="my-courses-grid"
-          className="grid list-none grid-cols-1 gap-4 p-0 md:grid-cols-2 md:gap-6"
+          className="grid list-none auto-rows-fr grid-cols-1 gap-4 p-0 md:grid-cols-2 md:gap-6"
         >
           {active.map((course) => (
             <li key={course.batchId} className="min-w-0">
@@ -55,6 +62,7 @@ export function MyCoursesPage() {
         </ul>
       )}
 
+      <PausedCoursesSection courses={paused} />
       <CancelledCoursesSection courses={cancelled} />
     </div>
   )

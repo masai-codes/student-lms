@@ -69,6 +69,7 @@ const DATA: MyCoursesData = {
       showBatchDetails: false,
     },
   ],
+  paused: [],
   cancelled: [],
 }
 
@@ -106,7 +107,7 @@ describe('MyCoursesPage', () => {
   })
 
   it('shows the empty state when there are no programs at all', async () => {
-    hoisted.fetchMyCourses.mockResolvedValue({ active: [], cancelled: [] })
+    hoisted.fetchMyCourses.mockResolvedValue({ active: [], paused: [], cancelled: [] })
     renderPage()
 
     await screen.findByTestId('my-courses-empty-state')
@@ -117,6 +118,7 @@ describe('MyCoursesPage', () => {
   it('shows the cancelled section, and no empty state, when only cancelled programs exist', async () => {
     hoisted.fetchMyCourses.mockResolvedValue({
       active: [],
+      paused: [],
       cancelled: [
         {
           batchId: 30,
@@ -135,12 +137,36 @@ describe('MyCoursesPage', () => {
     expect(screen.queryByTestId('my-courses-grid')).toBeNull()
   })
 
-  it('hides the cancelled section when there are none', async () => {
+  it('hides the cancelled and paused sections when there are none', async () => {
     hoisted.fetchMyCourses.mockResolvedValue(DATA)
     renderPage()
 
     await screen.findByTestId('my-courses-grid')
     expect(screen.queryByTestId('my-courses-cancelled-section')).toBeNull()
+    expect(screen.queryByTestId('my-courses-paused-section')).toBeNull()
+  })
+
+  it('shows the paused section, and no empty state, when only paused programs exist', async () => {
+    hoisted.fetchMyCourses.mockResolvedValue({
+      active: [],
+      paused: [
+        {
+          batchId: 40,
+          courseTitle: 'Data Analytics',
+          instituteName: 'Masai',
+          courseLogo: null,
+          pausedOn: '2026-07-02',
+          showBatchDetails: true,
+        },
+      ],
+      cancelled: [],
+    })
+    renderPage()
+
+    await screen.findByTestId('my-courses-paused-section')
+    expect(screen.getByTestId('my-courses-paused-card-40')).toBeTruthy()
+    expect(screen.queryByTestId('my-courses-empty-state')).toBeNull()
+    expect(screen.queryByTestId('my-courses-grid')).toBeNull()
   })
 
   it('shows an error state, not an empty state, when the request fails', async () => {

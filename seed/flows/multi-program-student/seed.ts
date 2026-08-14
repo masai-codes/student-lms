@@ -1,5 +1,6 @@
 import {
   createBatch,
+  createBatchUser,
   createEnrollment,
   createLecture,
   createSection,
@@ -18,6 +19,9 @@ import {
 } from './config'
 
 const SECOND_PROGRAM_NAME = 'Data Science'
+const PAUSED_PROGRAM_NAME = 'Product Design'
+/** IST wall-clock cutoff written to `batch_user.meta.batchPausedDate`. */
+const PAUSED_DAYS_AGO = 7
 
 function buildTestUsers(
   world: Awaited<ReturnType<typeof buildLiveLecturePhasesWorld>>,
@@ -46,6 +50,10 @@ function buildTestUsers(
  * Science) with its own section and lecture — so `getEnrolledBatchesForUser`
  * returns two batches and the `/learn` batch switcher has something to switch
  * between.
+ *
+ * A third batch (Product Design) is seeded with the enrolment PAUSED
+ * (`batch_user.meta.batchPaused`) and a lecture on each side of the pause
+ * cutoff, so /my-courses has a "Paused Programs" section to render.
  */
 export async function seedMultiProgramStudent(): Promise<SeedFlowResult> {
   const world = await buildLiveLecturePhasesWorld(MULTI_PROGRAM_STUDENT_FLOW_ID)
@@ -90,6 +98,82 @@ export async function seedMultiProgramStudent(): Promise<SeedFlowResult> {
     zoomLink: null,
   })
 
+  // Third batch: same student, enrolment PAUSED. Their `section_user` row stays
+  // active (a pause is not a cancellation), so the batch still resolves through
+  // `getBatchIdsForEnrolledUser` — /my-courses is what splits it into the
+  // "Paused Programs" section, and /learn hides only post-cutoff content.
+  const pausedBatchStarting = offsetFromNow({ daysAgo: 60 })
+
+  const pausedBatch = await createBatch({
+    name: `Product Design Batch [${MULTI_PROGRAM_STUDENT_FLOW_ID}]`,
+    program: PAUSED_PROGRAM_NAME,
+    duration: '20 weeks',
+    starting: formatMysqlDate(pausedBatchStarting),
+    settings: { showBatchDetails: true },
+  })
+
+  const pausedSection = await createSection({
+    batchId: pausedBatch.id,
+    name: `Product Design Section [${MULTI_PROGRAM_STUDENT_FLOW_ID}]`,
+  })
+
+  const pausedEnrollment = await createEnrollment({
+    sectionId: pausedSection.id,
+    userId: world.student.id,
+    managerId: world.admin.id,
+  })
+
+  const pausedCutoff = offsetFromNow({ daysAgo: PAUSED_DAYS_AGO })
+
+  const pausedBatchUser = await createBatchUser({
+    userId: world.student.id,
+    batchId: pausedBatch.id,
+    meta: JSON.stringify({
+      batchPaused: true,
+      batchPausedDate: formatMysqlDate(pausedCutoff),
+    }),
+  })
+
+  // One lecture on each side of the pause cutoff, so the pause has a visible
+  // effect on /learn as well as on the /my-courses listing.
+  const preePauseLectureSchedule = offsetFromNow({ daysAgo: PAUSED_DAYS_AGO + 7 })
+
+  const prePauseLecture = await createLecture({
+    batchId: pausedBatch.id,
+    sectionId: pausedSection.id,
+    userId: world.admin.id,
+    title: `[${MULTI_PROGRAM_STUDENT_FLOW_ID}] Product Design — Before the pause`,
+    category: 'course',
+    module: 'Design Foundations',
+    type: 'video',
+    description: 'Scheduled before the pause cutoff — stays visible to the student.',
+    optional: 0,
+    week: 1,
+    day: 1,
+    schedule: formatMysqlDatetime(preePauseLectureSchedule),
+    startDate: formatMysqlDate(preePauseLectureSchedule),
+    zoomLink: null,
+  })
+
+  const postPauseLectureSchedule = offsetFromNow({ daysAgo: 1 })
+
+  const postPauseLecture = await createLecture({
+    batchId: pausedBatch.id,
+    sectionId: pausedSection.id,
+    userId: world.admin.id,
+    title: `[${MULTI_PROGRAM_STUDENT_FLOW_ID}] Product Design — After the pause`,
+    category: 'course',
+    module: 'Design Foundations',
+    type: 'video',
+    description: 'Scheduled after the pause cutoff — hidden while the pause stands.',
+    optional: 0,
+    week: 3,
+    day: 1,
+    schedule: formatMysqlDatetime(postPauseLectureSchedule),
+    startDate: formatMysqlDate(postPauseLectureSchedule),
+    zoomLink: null,
+  })
+
   return {
     flowId: multiProgramStudentConfig.id,
     entities: {
@@ -109,10 +193,18 @@ export async function seedMultiProgramStudent(): Promise<SeedFlowResult> {
       secondSection,
       secondEnrollment,
       secondBatchLecture,
+      pausedBatch,
+      pausedSection,
+      pausedEnrollment,
+      pausedBatchUser,
+      prePauseLecture,
+      postPauseLecture,
     },
     testUsers: buildTestUsers(world),
     timing: {
       secondBatchStarting: formatMysqlDate(secondBatchStarting),
+      pausedBatchStarting: formatMysqlDate(pausedBatchStarting),
+      batchPausedDate: formatMysqlDate(pausedCutoff),
     },
   }
 }

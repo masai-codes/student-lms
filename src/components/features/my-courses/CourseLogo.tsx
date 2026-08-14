@@ -16,8 +16,13 @@ interface Props {
  * Logos are wordmarks, so the box is height-constrained with a free (capped)
  * width rather than square — matching the legacy LMS, which sized them 40px /
  * 56px tall with `w-auto`.
+ *
+ * `object-left` matters for near-square logos: those hit `max-w-[140px]` before
+ * they fill it, and `object-contain` would centre the letterboxed image, leaving
+ * the logo visibly indented from the card's title below it.
  */
-const LOGO_BOX = 'h-10 md:h-14 w-auto max-w-[140px] shrink-0 object-contain'
+const LOGO_BOX =
+  'h-10 md:h-14 w-auto max-w-[140px] shrink-0 object-contain object-left'
 
 /**
  * A program's logo, falling back to the current portal's own wordmark
