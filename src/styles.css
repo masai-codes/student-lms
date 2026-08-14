@@ -296,6 +296,15 @@ code {
     rgb(75, 67, 150),
     rgb(105, 98, 172)
   );
+
+  /* Independence Day (seasonal, decorative-only — see IndependenceDayDecor).
+     Official tiranga hues, tuned per theme so the washes stay whisper-quiet
+     on white and the ribbon still glows on near-black. */
+  --festive-saffron: #ff9933;
+  --festive-white: #f4f6fb;
+  --festive-green: #138808;
+  --festive-chakra: #06038d;
+  --festive-wash-opacity: 1;
 }
 
 /* ── DARK — premium RED & BLACK. Neutral near-black surfaces; everything that
@@ -396,6 +405,14 @@ code {
 
   --chat-cta-gradient: linear-gradient(90.38deg, #c93a3a 2.62%, #f05252 100%);
   --chat-sphere-gradient: linear-gradient(155deg, #b32d2d, #f05252);
+
+  /* Independence Day — brightened tiranga so the ribbon and chakra read on
+     near-black; washes get a touch more presence than in light. */
+  --festive-saffron: #ffab5e;
+  --festive-white: #e9edf5;
+  --festive-green: #3fc46a;
+  --festive-chakra: #8ab4ff;
+  --festive-wash-opacity: 0.85;
 }
 
 /* ── Theme toggle delight ─────────────────────────────────────────────────
@@ -448,6 +465,78 @@ code {
   }
   [data-theme-toggle-pop]::after {
     display: none;
+  }
+}
+
+/* ── Independence Day navbar (seasonal, flag-gated) ───────────────────────
+   Decorative-only layers rendered by `IndependenceDayDecor` inside the navbar
+   when `VITE_SHOW_INDEPENDENCE_DAY_UI` is on. Three quiet touches:
+   ribbon — a hairline tiranga gradient hugging the navbar's bottom edge;
+   sheen  — a soft highlight that drifts across the ribbon every few seconds;
+   washes — barely-there saffron (left) / green (right) glows in the header.
+   All colors come from the per-theme `--festive-*` tokens above. */
+.festive-tiranga-ribbon {
+  background: linear-gradient(
+    90deg,
+    var(--festive-saffron) 0%,
+    var(--festive-saffron) 26%,
+    var(--festive-white) 46%,
+    var(--festive-white) 54%,
+    var(--festive-green) 74%,
+    var(--festive-green) 100%
+  );
+}
+
+.festive-tiranga-washes {
+  opacity: var(--festive-wash-opacity);
+  /* Full-strip tricolor, corner-weighted: the saturated saffron/green live
+     only in the outermost corners (radials + a fast-falling edge band), the
+     rest of the strip is a whisper-light tint easing into a wide whitish
+     middle — the flag's white band carries most of the width. */
+  background:
+    radial-gradient(
+      16rem 140% at 0% 0%,
+      color-mix(in srgb, var(--festive-saffron) 30%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      16rem 140% at 100% 0%,
+      color-mix(in srgb, var(--festive-green) 26%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--festive-saffron) 22%, transparent) 0%,
+      color-mix(in srgb, var(--festive-saffron) 7%, transparent) 12%,
+      color-mix(in srgb, var(--festive-white) 8%, transparent) 28%,
+      color-mix(in srgb, var(--festive-white) 8%, transparent) 72%,
+      color-mix(in srgb, var(--festive-green) 6%, transparent) 88%,
+      color-mix(in srgb, var(--festive-green) 20%, transparent) 100%
+    );
+}
+
+@keyframes festive-sheen {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes festive-chakra-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .festive-tiranga-sheen {
+    animation: festive-sheen 7s ease-in-out infinite;
+  }
+  .festive-chakra {
+    animation: festive-chakra-spin 60s linear infinite;
   }
 }
 
