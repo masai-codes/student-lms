@@ -89,7 +89,9 @@ function reconcileCustomTypes(src) {
 /** Split a schema file into a Map<tableName, blockText>, preserving order. */
 function parseTableBlocks(src) {
   const map = new Map()
-  const re = /export const \w+ = mysqlTable\("([^"]+)"/g
+  // Matches both the raw dump (`mysqlTable("name"`) and the prettier-formatted
+  // previous schema (`mysqlTable(\n  'name',`).
+  const re = /export const \w+ = mysqlTable\(\s*["']([^"']+)["']/g
   const starts = []
   let m
   while ((m = re.exec(src)) !== null) starts.push({ idx: m.index, table: m[1] })
@@ -221,6 +223,14 @@ writeFileSync(OUT, `${header}\n\n${body}\n`, 'utf8')
 
 try {
   unlinkSync(DUMP)
+} catch {
+  /* best-effort cleanup */
+}
+
+// `drizzle-kit pull` also emits a relations.ts next to the dump; nothing in
+// the app imports it, so remove it to keep ./drizzle migrations-only.
+try {
+  unlinkSync(path.join(root, 'drizzle', 'relations.ts'))
 } catch {
   /* best-effort cleanup */
 }

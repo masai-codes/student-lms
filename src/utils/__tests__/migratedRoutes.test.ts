@@ -17,10 +17,15 @@ describe('isMigratedRoute', () => {
     '/whats-new',
     '/chat',
     '/support',
+    // Programs listing plus its two redirecting aliases — all three must be
+    // migrated or the layout bounces an opted-in student out before the alias
+    // route can run.
     '/my-programs',
     '/my-courses',
     '/my-lectures',
     '/profile',
+    // Mobile "More" hub; same path on both apps.
+    '/profile-settings',
     '/my-calendar',
   ])('treats %s as migrated', (pathname) => {
     expect(isMigratedRoute(pathname)).toBe(true)
@@ -29,9 +34,8 @@ describe('isMigratedRoute', () => {
   it.each([
     // Zoom web view is served only by the old LMS — must never switch.
     '/lectures/1/zoom',
-    // Only the profile overview and the bare programs listing are migrated —
-    // these sub-paths / settings pages have no counterpart here.
-    '/profile-settings',
+    // Only the BARE programs listing is migrated: the batch detail is
+    // `/course/:id` here, which the old LMS hands off differently.
     '/my-programs/12',
     '/masaiverse',
     '/interviews',

@@ -39,7 +39,10 @@ export function ScheduleSection({
   return (
     <section
       data-testid="dashboard-schedule-section"
-      className="flex h-full flex-col gap-5 rounded-2xl md:border border-border md:bg-surface py-2 px-2 md:p-4 transition-colors duration-300 hover:border-[#4F6BED]/25 dark:hover:border-brand/30 sm:p-5"
+      // Borderless below `md`, so no inner side padding there: the dashboard
+      // column's own gutter already insets it, and doubling up pushed this
+      // section further in than the sidebar cards next to it.
+      className="flex h-full flex-col gap-5 rounded-2xl md:border border-border md:bg-surface py-2 px-0 md:p-4 transition-colors duration-300 hover:border-[#4F6BED]/25 dark:hover:border-brand/30 sm:p-5"
     >
       <div className="flex items-center gap-2 sm:gap-3">
         <TabButton

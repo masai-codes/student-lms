@@ -251,6 +251,9 @@ CREATE TABLE `batch_user` (
 	`batch_id` int unsigned NOT NULL,
 	`history` json,
 	`status` varchar(300),
+	`enrolment_id` bigint,
+	`batch_transfer_id` bigint,
+	`batch_transfer_status` varchar(50),
 	CONSTRAINT `batch_user_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
@@ -276,7 +279,9 @@ CREATE TABLE `batches` (
 	`partners` varchar(255),
 	`program_domain` varchar(255),
 	`program_type` varchar(255),
-	CONSTRAINT `batches_id` PRIMARY KEY(`id`)
+	`calendar_token` varchar(64),
+	CONSTRAINT `batches_id` PRIMARY KEY(`id`),
+	CONSTRAINT `batches_calendar_token_key` UNIQUE(`calendar_token`)
 );
 --> statement-breakpoint
 CREATE TABLE `blocks` (
@@ -513,7 +518,8 @@ CREATE TABLE `lectures_ai` (
 	`created_at` timestamp,
 	`updated_at` timestamp,
 	`lastRefetchTime` datetime,
-	`transcriptID` varchar(191),
+	`transcriptId` varchar(191),
+	`faqs` json,
 	CONSTRAINT `lectures_ai_id` PRIMARY KEY(`id`),
 	CONSTRAINT `lectures_ai_lectureId_key` UNIQUE(`lectureId`)
 );
@@ -711,6 +717,9 @@ CREATE TABLE `profiles` (
 	`haveClosedModal` int unsigned,
 	`legal_data` json,
 	`slack_id` varchar(255),
+	`ask_store_review` tinyint NOT NULL DEFAULT 0,
+	`ask_store_review_on_home` tinyint NOT NULL DEFAULT 0,
+	`store_review` json,
 	CONSTRAINT `profiles_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
@@ -999,7 +1008,7 @@ CREATE TABLE `users` (
 	`role` varchar(255),
 	`mobile` varchar(255),
 	`title` varchar(255),
-	`status` varchar(255),
+	`status` varchar(255) DEFAULT 'active',
 	`username` varchar(255),
 	`last_active_at` timestamp,
 	`status_time` datetime,
@@ -1007,7 +1016,6 @@ CREATE TABLE `users` (
 	`client` varchar(20) NOT NULL DEFAULT 'masai',
 	CONSTRAINT `users_id` PRIMARY KEY(`id`),
 	CONSTRAINT `users_email_client_unique` UNIQUE(`email`,`client`),
-	CONSTRAINT `users_email_unique` UNIQUE(`email`),
 	CONSTRAINT `users_username_unique` UNIQUE(`username`)
 );
 --> statement-breakpoint
@@ -1052,6 +1060,111 @@ CREATE TABLE `whatsnew` (
 	`created_at` timestamp,
 	`updated_at` timestamp,
 	CONSTRAINT `whatsnew_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `zef_lms_feedback_submissions` (
+	`id` int unsigned AUTO_INCREMENT NOT NULL,
+	`zef_lms_meta_data_id` int unsigned NOT NULL,
+	`user_id` bigint unsigned NOT NULL,
+	`rating` tinyint unsigned NOT NULL,
+	`message` text,
+	`followup_tags` json,
+	`source` enum('zef','lms') NOT NULL DEFAULT 'zef',
+	`submitted_at` timestamp,
+	`created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` timestamp,
+	CONSTRAINT `zef_lms_feedback_submissions_id` PRIMARY KEY(`id`),
+	CONSTRAINT `zef_lms_feedback_submissions_meta_user_unique` UNIQUE(`zef_lms_meta_data_id`,`user_id`)
+);
+--> statement-breakpoint
+CREATE TABLE `zef_lms_lo` (
+	`id` int unsigned AUTO_INCREMENT NOT NULL,
+	`zef_lms_meta_data_id` int unsigned NOT NULL,
+	`lms_lo_id` int unsigned,
+	`text` text NOT NULL,
+	`display_order` int unsigned NOT NULL DEFAULT 0,
+	`is_completed` tinyint NOT NULL DEFAULT 0,
+	`marked_completed_at` datetime,
+	`created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` timestamp,
+	CONSTRAINT `zef_lms_lo_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `zef_lms_meta_data` (
+	`id` int unsigned AUTO_INCREMENT NOT NULL,
+	`lecture_id` int unsigned NOT NULL,
+	`scheduled_at` datetime,
+	`meta` json,
+	`source` enum('zef','lms') NOT NULL DEFAULT 'zef',
+	`created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` timestamp,
+	CONSTRAINT `zef_lms_meta_data_id` PRIMARY KEY(`id`),
+	CONSTRAINT `zef_lms_meta_data_lecture_id_unique` UNIQUE(`lecture_id`)
+);
+--> statement-breakpoint
+CREATE TABLE `zef_lms_polls_questions` (
+	`id` int unsigned AUTO_INCREMENT NOT NULL,
+	`zef_lms_meta_data_id` int unsigned NOT NULL,
+	`question` text NOT NULL,
+	`options` json NOT NULL,
+	`status` enum('active','inactive') NOT NULL DEFAULT 'active',
+	`duration_seconds` int unsigned,
+	`start_timestamp` datetime,
+	`end_timestamp` datetime,
+	`created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` timestamp,
+	CONSTRAINT `zef_lms_polls_questions_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `zef_lms_polls_submissions` (
+	`id` int unsigned AUTO_INCREMENT NOT NULL,
+	`zef_lms_polls_questions_id` int unsigned NOT NULL,
+	`user_id` bigint unsigned NOT NULL,
+	`selected_option_index` int unsigned NOT NULL,
+	`submitted_at` timestamp,
+	`created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` timestamp,
+	CONSTRAINT `zef_lms_polls_submissions_id` PRIMARY KEY(`id`),
+	CONSTRAINT `zef_lms_polls_submissions_question_user_unique` UNIQUE(`zef_lms_polls_questions_id`,`user_id`)
+);
+--> statement-breakpoint
+CREATE TABLE `zef_lms_quiz` (
+	`id` int unsigned AUTO_INCREMENT NOT NULL,
+	`zef_lms_meta_data_id` int unsigned NOT NULL,
+	`assessment_id` varchar(255) NOT NULL,
+	`status` enum('active','inactive') NOT NULL DEFAULT 'active',
+	`duration_seconds` int unsigned,
+	`start_timestamp` datetime,
+	`end_timestamp` datetime,
+	`created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` timestamp,
+	CONSTRAINT `zef_lms_quiz_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `zef_lms_quiz_submission` (
+	`id` int unsigned AUTO_INCREMENT NOT NULL,
+	`zef_lms_quiz_id` int unsigned NOT NULL,
+	`user_id` bigint unsigned NOT NULL,
+	`is_correct` tinyint,
+	`score` decimal(10,2),
+	`html_report` longtext,
+	`evaluated_at` timestamp,
+	`created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` timestamp,
+	CONSTRAINT `zef_lms_quiz_submission_id` PRIMARY KEY(`id`),
+	CONSTRAINT `zef_lms_quiz_submission_quiz_user_unique` UNIQUE(`zef_lms_quiz_id`,`user_id`)
+);
+--> statement-breakpoint
+CREATE TABLE `zef_lms_sql_sandbox` (
+	`id` int unsigned AUTO_INCREMENT NOT NULL,
+	`zef_lms_meta_data_id` int unsigned NOT NULL,
+	`query` longtext NOT NULL,
+	`status` enum('pending','success','error') NOT NULL DEFAULT 'pending',
+	`error` text,
+	`executed_at` timestamp,
+	`created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+	`updated_at` timestamp,
+	CONSTRAINT `zef_lms_sql_sandbox_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 ALTER TABLE `ai_chat_practice_questions` ADD CONSTRAINT `ai_chat_practice_questions_lectureId_lectures_id_fk` FOREIGN KEY (`lectureId`) REFERENCES `lectures`(`id`) ON DELETE restrict ON UPDATE cascade;--> statement-breakpoint
@@ -1169,95 +1282,120 @@ ALTER TABLE `video_attendances` ADD CONSTRAINT `video_attendances_host_id_users_
 ALTER TABLE `votes` ADD CONSTRAINT `votes_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `votes` ADD CONSTRAINT `votes_post_id_posts_id_fk` FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `votes` ADD CONSTRAINT `votes_reply_id_replies_id_fk` FOREIGN KEY (`reply_id`) REFERENCES `replies`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `zef_lms_feedback_submissions` ADD CONSTRAINT `zef_lms_feedback_submissions_zef_lms_meta_data_id_zef_l_1fa5e9af` FOREIGN KEY (`zef_lms_meta_data_id`) REFERENCES `zef_lms_meta_data`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `zef_lms_feedback_submissions` ADD CONSTRAINT `zef_lms_feedback_submissions_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `zef_lms_lo` ADD CONSTRAINT `zef_lms_lo_zef_lms_meta_data_id_zef_lms_meta_data_id_fk` FOREIGN KEY (`zef_lms_meta_data_id`) REFERENCES `zef_lms_meta_data`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `zef_lms_meta_data` ADD CONSTRAINT `zef_lms_meta_data_lecture_id_lectures_id_fk` FOREIGN KEY (`lecture_id`) REFERENCES `lectures`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `zef_lms_polls_questions` ADD CONSTRAINT `zef_lms_polls_questions_zef_lms_meta_data_id_zef_lms_me_dd788bbf` FOREIGN KEY (`zef_lms_meta_data_id`) REFERENCES `zef_lms_meta_data`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `zef_lms_polls_submissions` ADD CONSTRAINT `zef_lms_polls_submissions_zef_lms_polls_questions_id_ze_f72bfcf1` FOREIGN KEY (`zef_lms_polls_questions_id`) REFERENCES `zef_lms_polls_questions`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `zef_lms_polls_submissions` ADD CONSTRAINT `zef_lms_polls_submissions_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `zef_lms_quiz` ADD CONSTRAINT `zef_lms_quiz_zef_lms_meta_data_id_zef_lms_meta_data_id_fk` FOREIGN KEY (`zef_lms_meta_data_id`) REFERENCES `zef_lms_meta_data`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `zef_lms_quiz_submission` ADD CONSTRAINT `zef_lms_quiz_submission_zef_lms_quiz_id_zef_lms_quiz_id_fk` FOREIGN KEY (`zef_lms_quiz_id`) REFERENCES `zef_lms_quiz`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `zef_lms_quiz_submission` ADD CONSTRAINT `zef_lms_quiz_submission_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `zef_lms_sql_sandbox` ADD CONSTRAINT `zef_lms_sql_sandbox_zef_lms_meta_data_id_zef_lms_meta_data_id_fk` FOREIGN KEY (`zef_lms_meta_data_id`) REFERENCES `zef_lms_meta_data`(`id`) ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX `ai_chat_practice_questions_created_at_idx` ON `ai_chat_practice_questions` (`created_at`);--> statement-breakpoint
-CREATE INDEX `ai_tutor_sessions_created_at_index` ON `ai_tutor_sessions` (`created_at`);--> statement-breakpoint
-CREATE INDEX `ai_tutor_sessions_lecture_id_index` ON `ai_tutor_sessions` (`lecture_id`);--> statement-breakpoint
-CREATE INDEX `ai_tutor_sessions_unique_id_index` ON `ai_tutor_sessions` (`unique_id`);--> statement-breakpoint
 CREATE INDEX `ai_tutor_sessions_user_id_index` ON `ai_tutor_sessions` (`user_id`);--> statement-breakpoint
+CREATE INDEX `ai_tutor_sessions_lecture_id_index` ON `ai_tutor_sessions` (`lecture_id`);--> statement-breakpoint
+CREATE INDEX `ai_tutor_sessions_created_at_index` ON `ai_tutor_sessions` (`created_at`);--> statement-breakpoint
+CREATE INDEX `ai_tutor_sessions_unique_id_index` ON `ai_tutor_sessions` (`unique_id`);--> statement-breakpoint
 CREATE INDEX `announcement_reads_user_id_is_unread_index` ON `announcement_reads` (`user_id`,`is_unread`);--> statement-breakpoint
-CREATE INDEX `attendances_batch_id_index` ON `attendances` (`batch_id`);--> statement-breakpoint
 CREATE INDEX `attendances_lecture_id_index` ON `attendances` (`lecture_id`);--> statement-breakpoint
-CREATE INDEX `attendances_section_id_index` ON `attendances` (`section_id`);--> statement-breakpoint
 CREATE INDEX `attendances_user_id_index` ON `attendances` (`user_id`);--> statement-breakpoint
-CREATE INDEX `idx_banners_group_name` ON `banners` (`group_name`);--> statement-breakpoint
-CREATE INDEX `idx_banners_is_active` ON `banners` (`is_active`);--> statement-breakpoint
+CREATE INDEX `attendances_section_id_index` ON `attendances` (`section_id`);--> statement-breakpoint
+CREATE INDEX `attendances_batch_id_index` ON `attendances` (`batch_id`);--> statement-breakpoint
 CREATE INDEX `idx_banners_type` ON `banners` (`type`);--> statement-breakpoint
 CREATE INDEX `idx_banners_variant` ON `banners` (`variant`);--> statement-breakpoint
-CREATE INDEX `idx_active` ON `batches` (`active`);--> statement-breakpoint
-CREATE INDEX `idx_active_starting` ON `batches` (`active`,`starting`);--> statement-breakpoint
-CREATE INDEX `idx_duration` ON `batches` (`duration`);--> statement-breakpoint
+CREATE INDEX `idx_banners_group_name` ON `banners` (`group_name`);--> statement-breakpoint
+CREATE INDEX `idx_banners_is_active` ON `banners` (`is_active`);--> statement-breakpoint
+CREATE INDEX `batch_user_enrolment_id_index` ON `batch_user` (`enrolment_id`);--> statement-breakpoint
 CREATE INDEX `idx_name` ON `batches` (`name`);--> statement-breakpoint
-CREATE INDEX `idx_program` ON `batches` (`program`);--> statement-breakpoint
 CREATE INDEX `idx_starting` ON `batches` (`starting`);--> statement-breakpoint
+CREATE INDEX `idx_duration` ON `batches` (`duration`);--> statement-breakpoint
+CREATE INDEX `idx_program` ON `batches` (`program`);--> statement-breakpoint
+CREATE INDEX `idx_active` ON `batches` (`active`);--> statement-breakpoint
 CREATE INDEX `idx_starting_active` ON `batches` (`starting`,`active`);--> statement-breakpoint
+CREATE INDEX `idx_active_starting` ON `batches` (`active`,`starting`);--> statement-breakpoint
 CREATE INDEX `bookmarks_entity_type_entity_id_index` ON `bookmarks` (`entity_type`,`entity_id`);--> statement-breakpoint
+CREATE INDEX `bookmarks_created_at_idx` ON `bookmarks` (`created_at`);--> statement-breakpoint
 CREATE INDEX `club_members_club_id_index` ON `club_members` (`club_id`);--> statement-breakpoint
 CREATE INDEX `clubs_created_by_index` ON `clubs` (`created_by`);--> statement-breakpoint
 CREATE INDEX `comments_created_at_index` ON `comments` (`created_at`);--> statement-breakpoint
 CREATE INDEX `comments_updated_at_index` ON `comments` (`updated_at`);--> statement-breakpoint
-CREATE INDEX `discussions_created_at_idx` ON `discussions` (`created_at`);--> statement-breakpoint
 CREATE INDEX `discussions_entity_type_entity_id_index` ON `discussions` (`entity_type`,`entity_id`);--> statement-breakpoint
+CREATE INDEX `discussions_created_at_idx` ON `discussions` (`created_at`);--> statement-breakpoint
 CREATE INDEX `event_enrollments_event_id_index` ON `event_enrollments` (`event_id`);--> statement-breakpoint
 CREATE INDEX `events_club_id_index` ON `events` (`club_id`);--> statement-breakpoint
 CREATE INDEX `events_created_by_index` ON `events` (`created_by`);--> statement-breakpoint
 CREATE INDEX `idx_name` ON `feedback` (`name`);--> statement-breakpoint
 CREATE INDEX `help_faqs_category_index` ON `help_faqs` (`category`);--> statement-breakpoint
-CREATE INDEX `help_faqs_category_sub_category_index` ON `help_faqs` (`category`,`sub_category`);--> statement-breakpoint
-CREATE INDEX `help_faqs_is_hidden_index` ON `help_faqs` (`is_hidden`);--> statement-breakpoint
 CREATE INDEX `help_faqs_sub_category_index` ON `help_faqs` (`sub_category`);--> statement-breakpoint
+CREATE INDEX `help_faqs_is_hidden_index` ON `help_faqs` (`is_hidden`);--> statement-breakpoint
+CREATE INDEX `help_faqs_category_sub_category_index` ON `help_faqs` (`category`,`sub_category`);--> statement-breakpoint
 CREATE INDEX `lecture_feedback_lecture_id_foreign` ON `lecture_feedback` (`lecture_id`);--> statement-breakpoint
-CREATE INDEX `idx_category` ON `lectures` (`category`);--> statement-breakpoint
-CREATE INDEX `idx_concludes` ON `lectures` (`concludes`);--> statement-breakpoint
 CREATE INDEX `idx_schedule` ON `lectures` (`schedule`);--> statement-breakpoint
 CREATE INDEX `idx_title` ON `lectures` (`title`);--> statement-breakpoint
+CREATE INDEX `idx_category` ON `lectures` (`category`);--> statement-breakpoint
 CREATE INDEX `idx_type` ON `lectures` (`type`);--> statement-breakpoint
+CREATE INDEX `idx_concludes` ON `lectures` (`concludes`);--> statement-breakpoint
 CREATE INDEX `idx_updated_at` ON `lectures` (`updated_at`);--> statement-breakpoint
-CREATE INDEX `login_attempts_attempted_at_idx` ON `login_attempts` (`attempted_at`);--> statement-breakpoint
 CREATE INDEX `login_attempts_identifier_idx` ON `login_attempts` (`identifier`);--> statement-breakpoint
 CREATE INDEX `login_attempts_ip_address_idx` ON `login_attempts` (`ip_address`);--> statement-breakpoint
+CREATE INDEX `login_attempts_attempted_at_idx` ON `login_attempts` (`attempted_at`);--> statement-breakpoint
 CREATE INDEX `masaiverse_banners_created_by_index` ON `masaiverse_banners` (`created_by`);--> statement-breakpoint
 CREATE INDEX `masaiverse_banners_last_edited_by_index` ON `masaiverse_banners` (`last_edited_by`);--> statement-breakpoint
-CREATE INDEX `masaiverse_leaderboard_club_id_index` ON `masaiverse_leaderboard` (`club_id`);--> statement-breakpoint
-CREATE INDEX `masaiverse_leaderboard_created_by_index` ON `masaiverse_leaderboard` (`created_by`);--> statement-breakpoint
-CREATE INDEX `masaiverse_leaderboard_event_id_index` ON `masaiverse_leaderboard` (`event_id`);--> statement-breakpoint
-CREATE INDEX `masaiverse_leaderboard_post_id_index` ON `masaiverse_leaderboard` (`post_id`);--> statement-breakpoint
-CREATE INDEX `masaiverse_leaderboard_reason_index` ON `masaiverse_leaderboard` (`reason`);--> statement-breakpoint
-CREATE INDEX `masaiverse_leaderboard_reply_id_index` ON `masaiverse_leaderboard` (`reply_id`);--> statement-breakpoint
 CREATE INDEX `masaiverse_leaderboard_user_id_index` ON `masaiverse_leaderboard` (`user_id`);--> statement-breakpoint
+CREATE INDEX `masaiverse_leaderboard_created_by_index` ON `masaiverse_leaderboard` (`created_by`);--> statement-breakpoint
+CREATE INDEX `masaiverse_leaderboard_post_id_index` ON `masaiverse_leaderboard` (`post_id`);--> statement-breakpoint
+CREATE INDEX `masaiverse_leaderboard_reply_id_index` ON `masaiverse_leaderboard` (`reply_id`);--> statement-breakpoint
+CREATE INDEX `masaiverse_leaderboard_event_id_index` ON `masaiverse_leaderboard` (`event_id`);--> statement-breakpoint
+CREATE INDEX `masaiverse_leaderboard_reason_index` ON `masaiverse_leaderboard` (`reason`);--> statement-breakpoint
+CREATE INDEX `masaiverse_leaderboard_club_id_index` ON `masaiverse_leaderboard` (`club_id`);--> statement-breakpoint
 CREATE INDEX `messages_created_at_idx` ON `messages` (`created_at`);--> statement-breakpoint
-CREATE INDEX `notification_logs_entity_index` ON `notification_logs` (`entity_type`,`entity_id`);--> statement-breakpoint
-CREATE INDEX `notification_logs_sent_at_index` ON `notification_logs` (`sent_at`);--> statement-breakpoint
-CREATE INDEX `notification_logs_status_index` ON `notification_logs` (`status`);--> statement-breakpoint
-CREATE INDEX `notification_logs_type_index` ON `notification_logs` (`notification_type`);--> statement-breakpoint
 CREATE INDEX `notification_logs_user_id_index` ON `notification_logs` (`user_id`);--> statement-breakpoint
+CREATE INDEX `notification_logs_entity_index` ON `notification_logs` (`entity_type`,`entity_id`);--> statement-breakpoint
+CREATE INDEX `notification_logs_type_index` ON `notification_logs` (`notification_type`);--> statement-breakpoint
+CREATE INDEX `notification_logs_status_index` ON `notification_logs` (`status`);--> statement-breakpoint
+CREATE INDEX `notification_logs_sent_at_index` ON `notification_logs` (`sent_at`);--> statement-breakpoint
 CREATE INDEX `otp_codes_identifier_idx` ON `otp_codes` (`identifier`);--> statement-breakpoint
-CREATE INDEX `posts_banned_by_index` ON `posts` (`banned_by`);--> statement-breakpoint
 CREATE INDEX `posts_club_id_index` ON `posts` (`club_id`);--> statement-breakpoint
 CREATE INDEX `posts_user_id_index` ON `posts` (`user_id`);--> statement-breakpoint
+CREATE INDEX `posts_banned_by_index` ON `posts` (`banned_by`);--> statement-breakpoint
 CREATE INDEX `replies_post_id_index` ON `replies` (`post_id`);--> statement-breakpoint
 CREATE INDEX `replies_user_id_index` ON `replies` (`user_id`);--> statement-breakpoint
 CREATE INDEX `idx_role` ON `section_user` (`role`);--> statement-breakpoint
 CREATE INDEX `idx_name` ON `sections` (`name`);--> statement-breakpoint
-CREATE INDEX `sessions_last_activity_index` ON `sessions` (`last_activity`);--> statement-breakpoint
 CREATE INDEX `sessions_user_id_index` ON `sessions` (`user_id`);--> statement-breakpoint
-CREATE INDEX `student_attendances_batch_id_index` ON `student_attendances` (`batch_id`);--> statement-breakpoint
-CREATE INDEX `student_attendances_lecture_id_index` ON `student_attendances` (`lecture_id`);--> statement-breakpoint
-CREATE INDEX `student_attendances_schedule_index` ON `student_attendances` (`schedule`);--> statement-breakpoint
-CREATE INDEX `student_attendances_section_id_schedule_index` ON `student_attendances` (`section_id`,`schedule`);--> statement-breakpoint
-CREATE INDEX `student_attendances_status_index` ON `student_attendances` (`status`);--> statement-breakpoint
+CREATE INDEX `sessions_last_activity_index` ON `sessions` (`last_activity`);--> statement-breakpoint
 CREATE INDEX `student_attendances_user_id_schedule_index` ON `student_attendances` (`user_id`,`schedule`);--> statement-breakpoint
-CREATE INDEX `tickets_closed_at_index` ON `tickets` (`closed_at`);--> statement-breakpoint
+CREATE INDEX `student_attendances_lecture_id_index` ON `student_attendances` (`lecture_id`);--> statement-breakpoint
+CREATE INDEX `student_attendances_section_id_schedule_index` ON `student_attendances` (`section_id`,`schedule`);--> statement-breakpoint
+CREATE INDEX `student_attendances_batch_id_index` ON `student_attendances` (`batch_id`);--> statement-breakpoint
+CREATE INDEX `student_attendances_schedule_index` ON `student_attendances` (`schedule`);--> statement-breakpoint
+CREATE INDEX `student_attendances_status_index` ON `student_attendances` (`status`);--> statement-breakpoint
 CREATE INDEX `tickets_created_at_index` ON `tickets` (`created_at`);--> statement-breakpoint
+CREATE INDEX `tickets_closed_at_index` ON `tickets` (`closed_at`);--> statement-breakpoint
 CREATE INDEX `tickets_updated_at_index` ON `tickets` (`updated_at`);--> statement-breakpoint
-CREATE INDEX `user_batch_admission_data_batch_id_index` ON `user_batch_admission_data` (`batch_id`);--> statement-breakpoint
 CREATE INDEX `user_batch_admission_data_user_id_index` ON `user_batch_admission_data` (`user_id`);--> statement-breakpoint
+CREATE INDEX `user_batch_admission_data_batch_id_index` ON `user_batch_admission_data` (`batch_id`);--> statement-breakpoint
 CREATE INDEX `user_callback_tickets_status_index` ON `user_callback_tickets` (`status`);--> statement-breakpoint
-CREATE INDEX `user_device_tokens_active_index` ON `user_device_tokens` (`active`);--> statement-breakpoint
-CREATE INDEX `user_device_tokens_token_index` ON `user_device_tokens` (`token`);--> statement-breakpoint
 CREATE INDEX `user_device_tokens_user_id_index` ON `user_device_tokens` (`user_id`);--> statement-breakpoint
+CREATE INDEX `user_device_tokens_token_index` ON `user_device_tokens` (`token`);--> statement-breakpoint
+CREATE INDEX `user_device_tokens_active_index` ON `user_device_tokens` (`active`);--> statement-breakpoint
 CREATE INDEX `idx_name` ON `users` (`name`);--> statement-breakpoint
 CREATE INDEX `idx_video_att_batch_lecture` ON `video_attendances` (`batch_id`,`lecture_id`);--> statement-breakpoint
 CREATE INDEX `idx_video_att_created` ON `video_attendances` (`created_at`);--> statement-breakpoint
 CREATE INDEX `idx_video_att_user_lecture` ON `video_attendances` (`user_id`,`lecture_id`);--> statement-breakpoint
 CREATE INDEX `votes_post_id_index` ON `votes` (`post_id`);--> statement-breakpoint
-CREATE INDEX `votes_reply_id_index` ON `votes` (`reply_id`);
+CREATE INDEX `votes_reply_id_index` ON `votes` (`reply_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_feedback_submissions_meta_index` ON `zef_lms_feedback_submissions` (`zef_lms_meta_data_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_feedback_submissions_user_id_index` ON `zef_lms_feedback_submissions` (`user_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_lo_zef_lms_meta_data_id_index` ON `zef_lms_lo` (`zef_lms_meta_data_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_meta_data_lecture_id_index` ON `zef_lms_meta_data` (`lecture_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_polls_questions_meta_index` ON `zef_lms_polls_questions` (`zef_lms_meta_data_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_polls_submissions_question_index` ON `zef_lms_polls_submissions` (`zef_lms_polls_questions_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_polls_submissions_user_id_index` ON `zef_lms_polls_submissions` (`user_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_quiz_meta_index` ON `zef_lms_quiz` (`zef_lms_meta_data_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_quiz_assessment_id_index` ON `zef_lms_quiz` (`assessment_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_quiz_submission_quiz_index` ON `zef_lms_quiz_submission` (`zef_lms_quiz_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_quiz_submission_user_id_index` ON `zef_lms_quiz_submission` (`user_id`);--> statement-breakpoint
+CREATE INDEX `zef_lms_sql_sandbox_meta_index` ON `zef_lms_sql_sandbox` (`zef_lms_meta_data_id`);

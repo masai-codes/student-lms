@@ -13,9 +13,9 @@ interface Props {
 }
 
 /**
- * Logos are wordmarks, so the box is height-constrained with a free width
- * (capped) rather than square — matching the legacy LMS, which sized them
- * `40px` / `56px` tall with `w-auto`.
+ * Logos are wordmarks, so the box is height-constrained with a free (capped)
+ * width rather than square — matching the legacy LMS, which sized them 40px /
+ * 56px tall with `w-auto`.
  */
 const LOGO_BOX = 'h-10 md:h-14 w-auto max-w-[140px] shrink-0 object-contain'
 

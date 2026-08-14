@@ -1,6 +1,6 @@
 'use client'
 
-import { User } from 'lucide-react'
+import { LayoutGrid } from 'lucide-react'
 import { useNavigate, useRouterState } from '@tanstack/react-router'
 
 import { TabNavbar } from '@/components/tab-navbar'
@@ -42,9 +42,11 @@ function toTabNavbarItem(
 
 /**
  * Mobile Tier 1: mirrors the desktop navbar's Tier 1 tabs exactly (same
- * `useAppNavItems` source — no separately maintained item list), plus a
- * Profile tab that opens the profile page (desktop surfaces the equivalent
- * items in the avatar dropdown instead).
+ * `useAppNavItems` source — no separately maintained item list), plus the
+ * "More" tab, which opens `/profile-settings` exactly as the old LMS bottom nav
+ * does. Mobile has no avatar dropdown and no trailing icon cluster, so that
+ * page is the only route to profile, My Programs, Bookmarks, Level up and
+ * sign-out on small screens.
  */
 export default function AppMobileTabBar() {
   const navigate = useNavigate()
@@ -54,15 +56,21 @@ export default function AppMobileTabBar() {
   const items: TabNavbarItem[] = [
     ...tier1.map((item) => toTabNavbarItem(item, navigate)),
     {
-      id: 'profile',
-      label: 'Profile',
+      id: 'more',
+      label: 'More',
       icon: (
-        <User strokeWidth={1.75} className="size-6 shrink-0 text-current" />
+        <LayoutGrid
+          strokeWidth={1.75}
+          className="size-6 shrink-0 text-current"
+        />
       ),
-      isActive: pathname.startsWith('/profile'),
-      onClick: () => {
-        void navigate({ to: '/profile', search: { tab: 'details' } })
-      },
+      // Both `/profile-settings` and `/profile` light the tab: the hub is the
+      // only way into the profile page on mobile, so they are one destination
+      // from the student's point of view.
+      isActive:
+        pathname.startsWith('/profile-settings') ||
+        pathname.startsWith('/profile'),
+      onClick: () => void navigate({ to: '/profile-settings' }),
     },
   ]
 

@@ -115,10 +115,9 @@ describe('MyCourseCard', () => {
     render(<MyCourseCard course={course({ courseLogo: null })} />)
 
     const fallback = screen.getByTestId('my-courses-card-logo-10-fallback')
-    expect(fallback).toBeTruthy()
     expect(screen.queryByTestId('my-courses-card-logo-10')).toBeNull()
     // ThemedLogo ships both artworks and swaps them with `dark:`, so the right
-    // one is present on the first frame in either theme.
+    // one is on screen from the first frame in either theme.
     const images = fallback.querySelectorAll('img')
     expect(images).toHaveLength(2)
     expect(images[0].className).toContain('dark:hidden')
