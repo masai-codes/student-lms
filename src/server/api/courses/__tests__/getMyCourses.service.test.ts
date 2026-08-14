@@ -93,6 +93,7 @@ describe('getMyCourses service', () => {
     const result = await run()
 
     expect(result.cancelled).toEqual([])
+    expect(result.paused).toEqual([])
     expect(result.active.map((c) => c.batchId)).toEqual([10, 20])
     expect(result.active[0]).toEqual({
       batchId: 10,
@@ -162,19 +163,102 @@ describe('getMyCourses service', () => {
     )
     mockDb([10], [])
 
-    await expect(run()).resolves.toEqual({ active: [], cancelled: [] })
+    await expect(run()).resolves.toEqual({ active: [], paused: [], cancelled: [] })
   })
 
-  it('ignores non-cancellation restrictions such as paused and agreement-banned', async () => {
+  it('sorts programs with no detail page last, newest-first within each group', async () => {
+    // 20 (no detail page) is the newer enrolment, so it would lead the listing
+    // on enrolment order alone — it is demoted below the openable 10.
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([10, 20])
+    mockDb([10, 20], [AIML, FSWD])
+
+    const result = await run()
+    expect(result.active.map((c) => c.batchId)).toEqual([10, 20])
+    expect(result.active.map((c) => c.showBatchDetails)).toEqual([true, false])
+  })
+
+  it('sorts paused programs with no detail page last too', async () => {
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([10, 20])
+    hoisted.getUserBatchRestrictions.mockResolvedValue(
+      new Map([
+        [10, flags({ paused: true })],
+        [20, flags({ paused: true })],
+      ]),
+    )
+    mockDb([10, 20], [AIML, FSWD])
+
+    const result = await run()
+    expect(result.active).toEqual([])
+    expect(result.paused.map((c) => c.batchId)).toEqual([10, 20])
+  })
+
+  it('keeps an agreement-banned batch in the active listing', async () => {
     hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([20])
     hoisted.getUserBatchRestrictions.mockResolvedValue(
-      new Map([[20, flags({ paused: true, agreementBanned: true })]]),
+      new Map([[20, flags({ agreementBanned: true })]]),
     )
     mockDb([20], [FSWD])
 
     const result = await run()
     expect(result.cancelled).toEqual([])
+    expect(result.paused).toEqual([])
     expect(result.active.map((c) => c.batchId)).toEqual([20])
+  })
+
+  it('moves a paused batch out of active into its own list, with its pause date', async () => {
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([20, 10])
+    hoisted.getUserBatchRestrictions.mockResolvedValue(
+      new Map([[10, flags({ paused: true, pausedDate: '2026-07-02' })]]),
+    )
+    mockDb([10, 20], [AIML, FSWD])
+
+    const result = await run()
+    expect(result.active.map((c) => c.batchId)).toEqual([20])
+    expect(result.paused).toEqual([
+      {
+        batchId: 10,
+        courseTitle: 'AI & Machine Learning',
+        instituteName: 'IIT Patna',
+        courseLogo: 'https://cdn/aiml.png',
+        pausedOn: '2026-07-02',
+        showBatchDetails: true,
+      },
+    ])
+  })
+
+  it('lists a paused batch with a null date when the admin left one off', async () => {
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([20])
+    hoisted.getUserBatchRestrictions.mockResolvedValue(
+      new Map([[20, flags({ paused: true })]]),
+    )
+    mockDb([20], [FSWD])
+
+    const result = await run()
+    expect(result.active).toEqual([])
+    expect(result.paused).toEqual([
+      {
+        batchId: 20,
+        courseTitle: 'FSWD Batch 9',
+        instituteName: 'Masai',
+        courseLogo: null,
+        pausedOn: null,
+        showBatchDetails: false,
+      },
+    ])
+  })
+
+  it('shows a batch that is both paused and cancelled only under cancelled', async () => {
+    // Cancellation is the more severe state, and getBatchIdsForEnrolledUser has
+    // already dropped the batch, so it never reaches the paused list.
+    hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([])
+    hoisted.getUserBatchRestrictions.mockResolvedValue(
+      new Map([[10, flags({ enrolmentCancelled: true, paused: true })]]),
+    )
+    mockDb([10], [AIML])
+
+    const result = await run()
+    expect(result.paused).toEqual([])
+    expect(result.cancelled.map((c) => c.batchId)).toEqual([10])
   })
 
   it('drops ids with no matching (or soft-deleted) batch row', async () => {
@@ -193,7 +277,7 @@ describe('getMyCourses service', () => {
     hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([])
     mockDb([], [])
 
-    await expect(run()).resolves.toEqual({ active: [], cancelled: [] })
+    await expect(run()).resolves.toEqual({ active: [], paused: [], cancelled: [] })
     // Only the ever-enrolled lookup ran; there were no batch ids to load.
     expect(hoisted.dbSelect).toHaveBeenCalledTimes(1)
   })
