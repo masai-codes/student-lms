@@ -1,5 +1,14 @@
-export { ThemeProvider, useTheme } from './ThemeProvider'
+export { ThemeProvider, useForcedLightTheme, useTheme } from './ThemeProvider'
 export { buildThemeInitScript } from './theme-script'
+export {
+  APP_FORCED_PREFERENCE,
+  FORCED_LIGHT_PATH_PREFIXES,
+  forceLightTheme,
+  forceLightThemeForApp,
+  isAppShell,
+  isForcedLightPath,
+  shouldForceLightTheme,
+} from './appForcedTheme'
 export {
   applyThemeToDocument,
   getSystemTheme,

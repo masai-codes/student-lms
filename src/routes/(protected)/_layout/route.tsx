@@ -238,9 +238,12 @@ function RouteComponent() {
   // Masaiverse gets the same support surface as every other page: the provider
   // is mounted there too, so the navbar's Support tab opens the floating chat
   // drawer instead of falling back to a full-page navigation to /support.
+  // The native app shell has its own support entry point, so the floating icon
+  // is suppressed there — the provider stays mounted so the navbar's Support
+  // tab still opens the drawer.
   const showFloatingChat = ENABLE_SUPPORT_FLOATER && !isSupportRoute
   const showFloatingChatSphere =
-    showFloatingChat && !shouldHideSupportIcon(renderedPathname)
+    showFloatingChat && !isApp && !shouldHideSupportIcon(renderedPathname)
 
   // `data-app-shell`: hook target for the lecture page viewport lock (styles.css).
   const layout = (
@@ -260,6 +263,7 @@ function RouteComponent() {
       ) : null}
       {!ENABLE_SUPPORT_FLOATER &&
       pathname === '/' &&
+      !isApp &&
       !isMasaiverseRoute &&
       !isSupportRoute ? (
         <SupportChatButton />
