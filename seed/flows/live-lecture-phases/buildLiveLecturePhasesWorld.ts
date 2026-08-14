@@ -51,7 +51,7 @@ type LecturesAiRow = typeof lecturesAi.$inferSelect
 type DiscussionRow = typeof discussions.$inferSelect
 type ThreadRow = typeof threads.$inferSelect
 
-export type LiveLecturePhaseKey =
+type LiveLecturePhaseKey =
   | 'beforeUnlock'
   | 'duringJoin'
   | 'afterNoRecording'
@@ -585,7 +585,7 @@ export async function buildLiveLecturePhasesWorld(
     ).join('\n\n'),
     transcriptSegments: [...ATTENDANCE_ON_TRANSCRIPT_SEGMENTS],
     isSummaryPublished: 1,
-    faqs: [...ATTENDANCE_ON_AI_FAQS],
+    faqs: { faqs: [...ATTENDANCE_ON_AI_FAQS] },
   })
 
   const associatedLecture = await createLecture({

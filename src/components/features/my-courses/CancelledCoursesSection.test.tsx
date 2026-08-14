@@ -102,11 +102,15 @@ describe('CancelledCoursesSection', () => {
     )
   })
 
-  it('falls back to the icon tile for a cancelled program with no logo', () => {
+  it('falls back to the portal wordmark, greyed out, for a cancelled program with no logo', () => {
     render(<CancelledCoursesSection courses={[cancelled(1)]} />)
-    expect(
-      screen.getByTestId('my-courses-cancelled-card-logo-1-fallback'),
-    ).toBeTruthy()
+
+    const fallback = screen.getByTestId(
+      'my-courses-cancelled-card-logo-1-fallback',
+    )
+    // Muting sits on the wrapper so it applies to whichever theme's artwork shows.
+    expect(fallback.className).toContain('grayscale')
+    expect(fallback.querySelectorAll('img')).toHaveLength(2)
   })
 
   it('renders the logo, greyed out, when one is present', () => {

@@ -22,11 +22,18 @@ describe('getAuthBranding', () => {
   it('returns IIT Jodhpur branding for the iitj origin', () => {
     expect(getAuthBranding('iitj')).toMatchObject({
       logoSrc:
-        'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iitj-logo-new.png',
+        'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iitj_masai_light.png',
+      logoDarkSrc:
+        'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iitj_masai_dark.png',
       logoAlt: 'IIT Jodhpur',
       pageTitle: 'IIT Jodhpur',
       signInHeading: 'IIT Jodhpur',
       showLegalLinks: false,
     })
+  })
+
+  it('leaves the dark artwork undefined for portals with a single logo', () => {
+    expect(getAuthBranding('masai').logoDarkSrc).toBeUndefined()
+    expect(getAuthBranding('ihub').logoDarkSrc).toBeUndefined()
   })
 })

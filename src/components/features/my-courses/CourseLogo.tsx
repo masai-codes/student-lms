@@ -1,6 +1,8 @@
-import { GraduationCap } from '@phosphor-icons/react'
 import { useState } from 'react'
+import { ThemedLogo } from '@/components/common/ThemedLogo'
 import { cn } from '@/lib/utils'
+import { getAuthBranding } from '@/utils/authBranding'
+import { getPortal } from '@/utils/portal'
 
 interface Props {
   src: string | null
@@ -11,27 +13,40 @@ interface Props {
 }
 
 /**
- * A program's logo, with a branded icon tile as the fallback. `batches.meta.courseLogo`
- * is admin-authored and frequently absent or a dead S3 URL, so a broken-image icon is
- * the common case, not the edge case — `onError` swaps to the tile.
+ * Logos are wordmarks, so the box is height-constrained with a free (capped)
+ * width rather than square — matching the legacy LMS, which sized them 40px /
+ * 56px tall with `w-auto`.
+ */
+const LOGO_BOX = 'h-10 md:h-14 w-auto max-w-[140px] shrink-0 object-contain'
+
+/**
+ * A program's logo, falling back to the current portal's own wordmark
+ * (Masai / i-HUB / IIT Jodhpur) the way the legacy LMS did.
+ *
+ * `batches.meta.courseLogo` is admin-authored and frequently absent or a dead S3
+ * URL, so a broken image is the common case rather than the edge case — the
+ * fallback covers `onError` as well as a missing `src`.
+ *
+ * The fallback goes through `ThemedLogo` so portals with a purpose-made dark
+ * wordmark get it; recolouring a light logo with `dark:invert` would flip brand
+ * accents (Masai's red dot) to the wrong hue.
  */
 export function CourseLogo({ src, title, muted = false, testId }: Props) {
   const [failed, setFailed] = useState(false)
+  const mutedClasses = muted && 'opacity-60 grayscale'
 
   if (!src || failed) {
+    const branding = getAuthBranding(getPortal())
     return (
       <div
         data-testid={`${testId}-fallback`}
-        aria-hidden="true"
-        className={cn(
-          'flex size-10 md:size-14 shrink-0 items-center justify-center rounded-xl bg-brand-subtle',
-          muted && 'opacity-60 grayscale',
-        )}
+        className={cn('flex h-10 md:h-14 shrink-0 items-center', mutedClasses)}
       >
-        <GraduationCap
-          size={24}
-          weight="duotone"
-          className="text-brand transition-transform duration-200 group-hover:scale-110"
+        <ThemedLogo
+          lightSrc={branding.logoSrc}
+          darkSrc={branding.logoDarkSrc ?? branding.logoSrc}
+          alt={branding.logoAlt}
+          className={LOGO_BOX}
         />
       </div>
     )
@@ -45,8 +60,9 @@ export function CourseLogo({ src, title, muted = false, testId }: Props) {
       loading="lazy"
       onError={() => setFailed(true)}
       className={cn(
-        'size-10 md:size-14 shrink-0 object-contain transition-transform duration-200 group-hover:scale-105',
-        muted && 'opacity-60 grayscale',
+        LOGO_BOX,
+        'transition-transform duration-200 group-hover:scale-105',
+        mutedClasses,
       )}
     />
   )
