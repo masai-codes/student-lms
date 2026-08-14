@@ -2,7 +2,7 @@
  * The migrated pages released to the new LMS behind the per-user "Try New"
  * flag: Dashboard, Learn listing, Lecture / Assignment / Resource detail, plus
  * Announcements, Messages, Bookmarks, What's New, Support, Chat, the Programs
- * listing (`/my-programs`) and Profile. When the user opts in
+ * listing (`/my-programs`), Profile and Calendar. When the user opts in
  * these stay on the new LMS; otherwise (with legacy redirect enabled) they are
  * served by the old LMS.
  *
