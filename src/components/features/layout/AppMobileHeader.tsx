@@ -14,7 +14,9 @@ import { TryNewToggle } from '@/components/features/layout/TryNewToggle'
 import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
 import { useAppNavItems } from '@/lib/navigation/useAppNavItems'
+import { IndependenceDayDecor } from '@/components/navbar/independence-day-decor'
 import { hidesMasaiOnlyFeatures } from '@/utils/portal'
+import { isIndependenceDayUiEnabled } from '@/utils/independenceDayUi'
 
 /**
  * Mobile-only sticky top header for the dashboard home. On mobile the desktop
@@ -55,8 +57,9 @@ export default function AppMobileHeader() {
   return (
     <header
       data-testid="app-mobile-header"
-      className="sticky top-0 z-30 flex items-center justify-between gap-3 rounded-b-2xl bg-surface px-4 py-4 shadow-sm lg:hidden"
+      className="sticky top-0 z-30 flex items-center justify-between gap-3 overflow-hidden rounded-b-2xl bg-surface px-4 py-4 shadow-sm lg:hidden"
     >
+      {isIndependenceDayUiEnabled() ? <IndependenceDayDecor /> : null}
       {nextAction ? (
         <div className="min-w-0 flex-1">
           <NextActionBanner className="max-w-full" />
