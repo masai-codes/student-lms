@@ -1,5 +1,13 @@
 export type InterviewDomain =
-  'software-development' | 'data-ai-ml' | 'product-management' | 'general'
+  | 'frontend'
+  | 'backend'
+  | 'fullstack'
+  | 'digital-marketing'
+  | 'product-management'
+  | 'data-analytics'
+  | 'data-science'
+  | 'applied-ai'
+  | 'general'
 
 export type InterviewAnswerSource = 'voice' | 'typed'
 
@@ -91,10 +99,16 @@ export type InterviewTopic = {
   iconKey: string
   blurb: string
   rubricFocus: Array<string>
+  /** Fine-grained curriculum subtopics — fed into question generation so
+   * questions draw from the actual syllabus, not just the topic label.
+   * Empty for dynamically-derived (curriculum:*) topics. */
+  subtopics: Array<string>
 }
 
 export type InterviewTopicsForUser = {
-  domain: InterviewDomain
+  /** All interview domains enabled for the student's active batch
+   * (`batches.meta.interviews`) — `['general']` when unset/no enrollment. */
+  domains: Array<InterviewDomain>
   catalogTopics: Array<InterviewTopic>
   curriculumTopics: Array<InterviewTopic>
 }

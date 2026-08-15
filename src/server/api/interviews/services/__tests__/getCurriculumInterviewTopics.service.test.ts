@@ -25,6 +25,7 @@ const catalogTopics = [
     iconKey: 'network',
     blurb: '',
     rubricFocus: [],
+    subtopics: [],
   },
 ]
 

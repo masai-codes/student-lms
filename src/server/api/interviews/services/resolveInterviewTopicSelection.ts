@@ -1,13 +1,14 @@
 import {
   findCatalogTopicById,
-  getCatalogTopicsForDomain,
+  findCatalogTopicDomainById,
+  getCatalogTopicsForDomains,
 } from '@/server/api/interviews/catalog/interviewTopicCatalog'
 import {
   buildCurriculumRubricFocus,
   getCurriculumInterviewTopics,
   isCurriculumTopicId,
 } from '@/server/api/interviews/services/getCurriculumInterviewTopics.service'
-import { resolveInterviewDomain } from '@/server/api/interviews/services/resolveInterviewDomain'
+import { resolveInterviewDomains } from '@/server/api/interviews/services/resolveInterviewDomain'
 import { ApiError } from '@/server/api/http/apiError'
 import type {
   InterviewDomain,
@@ -19,22 +20,25 @@ export type ResolvedInterviewTopicSelection = {
   topicLabel: string
   domain: InterviewDomain
   rubricFocus: Array<string>
+  subtopics: Array<string>
 }
 
 /**
- * Validates a client-supplied `topicId` against the catalog for the user's
- * resolved domain, or (for `curriculum:*` ids) against the user's OWN
- * curriculum-derived topics — never trusting a client-supplied label. Throws
- * `INTERVIEW_TOPIC_INVALID` for anything else.
+ * Validates a client-supplied `topicId` against the catalog, or (for
+ * `curriculum:*` ids) against the user's OWN curriculum-derived topics —
+ * never trusting a client-supplied label. Throws `INTERVIEW_TOPIC_INVALID`
+ * for anything else. `domain` on the result is the topic's OWN catalog
+ * domain (not necessarily the batch's resolved domain — a catalog topic id
+ * is valid regardless of which domains the student's batch enables).
  */
 export async function resolveInterviewTopicSelection(
   userId: number,
   topicId: string,
 ): Promise<ResolvedInterviewTopicSelection> {
-  const domain = await resolveInterviewDomain(userId)
-  const catalogTopics = getCatalogTopicsForDomain(domain)
+  const domains = await resolveInterviewDomains(userId)
 
   if (isCurriculumTopicId(topicId)) {
+    const catalogTopics = getCatalogTopicsForDomains(domains)
     const curriculumTopics = await getCurriculumInterviewTopics(
       userId,
       catalogTopics,
@@ -44,20 +48,21 @@ export async function resolveInterviewTopicSelection(
     return {
       topicId: topic.id,
       topicLabel: topic.label,
-      domain,
+      domain: domains[0] ?? 'general',
       rubricFocus: topic.rubricFocus,
+      subtopics: topic.subtopics,
     }
   }
 
-  const topic: InterviewTopic | undefined =
-    findCatalogTopicById(topicId) ?? catalogTopics.find((t) => t.id === topicId)
+  const topic: InterviewTopic | undefined = findCatalogTopicById(topicId)
   if (!topic) throw new ApiError(400, 'INTERVIEW_TOPIC_INVALID')
 
   return {
     topicId: topic.id,
     topicLabel: topic.label,
-    domain,
+    domain: findCatalogTopicDomainById(topicId) ?? domains[0] ?? 'general',
     rubricFocus: topic.rubricFocus,
+    subtopics: topic.subtopics,
   }
 }
 

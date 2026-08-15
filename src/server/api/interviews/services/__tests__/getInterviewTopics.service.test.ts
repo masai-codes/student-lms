@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
-  domain: 'general',
+  domains: ['general'] as Array<string>,
   curriculumTopics: [] as Array<{ id: string; label: string }>,
 }))
 
 vi.mock('@/server/api/interviews/services/resolveInterviewDomain', () => ({
-  resolveInterviewDomain: vi.fn(async () => hoisted.domain),
+  resolveInterviewDomains: vi.fn(async () => hoisted.domains),
 }))
 
 vi.mock(
@@ -19,14 +19,14 @@ vi.mock(
 describe('getInterviewTopicsForUser', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns catalog topics for the resolved domain plus curriculum topics', async () => {
-    hoisted.domain = 'data-ai-ml'
+  it('returns catalog topics for the resolved domains plus curriculum topics', async () => {
+    hoisted.domains = ['data-science']
     hoisted.curriculumTopics = [{ id: 'curriculum:pandas', label: 'Pandas' }]
     const { getInterviewTopicsForUser } =
       await import('../getInterviewTopics.service')
 
     const result = await getInterviewTopicsForUser(1)
-    expect(result.domain).toBe('data-ai-ml')
+    expect(result.domains).toEqual(['data-science'])
     expect(result.catalogTopics.length).toBeGreaterThan(0)
     expect(
       result.catalogTopics.every((t) => t.id !== 'curriculum:pandas'),
@@ -35,13 +35,13 @@ describe('getInterviewTopicsForUser', () => {
   })
 
   it('falls back to the general catalog when no batch is resolved, never empty', async () => {
-    hoisted.domain = 'general'
+    hoisted.domains = ['general']
     hoisted.curriculumTopics = []
     const { getInterviewTopicsForUser } =
       await import('../getInterviewTopics.service')
 
     const result = await getInterviewTopicsForUser(1)
-    expect(result.domain).toBe('general')
+    expect(result.domains).toEqual(['general'])
     expect(result.catalogTopics.length).toBeGreaterThan(0)
     expect(result.curriculumTopics).toEqual([])
   })

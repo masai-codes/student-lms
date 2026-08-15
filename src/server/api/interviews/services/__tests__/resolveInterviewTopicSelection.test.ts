@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as GetCurriculumInterviewTopicsService from '../getCurriculumInterviewTopics.service'
 
 const hoisted = vi.hoisted(() => ({
-  domain: 'software-development' as const,
+  domains: ['backend'] as Array<string>,
   curriculumTopics: [] as Array<{
     id: string
     label: string
@@ -11,7 +11,7 @@ const hoisted = vi.hoisted(() => ({
 }))
 
 vi.mock('@/server/api/interviews/services/resolveInterviewDomain', () => ({
-  resolveInterviewDomain: vi.fn(async () => hoisted.domain),
+  resolveInterviewDomains: vi.fn(async () => hoisted.domains),
 }))
 
 vi.mock(
@@ -33,10 +33,11 @@ describe('resolveInterviewTopicSelection', () => {
   it('resolves a valid catalog topic id', async () => {
     const { resolveInterviewTopicSelection } =
       await import('../resolveInterviewTopicSelection')
-    const result = await resolveInterviewTopicSelection(1, 'dsa')
-    expect(result.topicId).toBe('dsa')
-    expect(result.domain).toBe('software-development')
+    const result = await resolveInterviewTopicSelection(1, 'backend-dsa')
+    expect(result.topicId).toBe('backend-dsa')
+    expect(result.domain).toBe('backend')
     expect(result.rubricFocus.length).toBeGreaterThan(0)
+    expect(result.subtopics.length).toBeGreaterThan(0)
   })
 
   it('throws INTERVIEW_TOPIC_INVALID for an unknown catalog id', async () => {

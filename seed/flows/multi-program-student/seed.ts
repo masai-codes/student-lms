@@ -57,6 +57,7 @@ export async function seedMultiProgramStudent(): Promise<SeedFlowResult> {
     program: SECOND_PROGRAM_NAME,
     duration: '24 weeks',
     starting: formatMysqlDate(secondBatchStarting),
+    meta: { interviews: ['data-science'] },
   })
 
   const secondSection = await createSection({

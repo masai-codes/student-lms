@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const hoisted = vi.hoisted(() => ({
-  rows: [] as Array<{ programDomain: string | null; program: string | null }>,
+  rows: [] as Array<{ meta: unknown }>,
 }))
 
 vi.mock('@/db', () => {
@@ -20,58 +20,64 @@ vi.mock('@/server/batches/portalBatchScope', () => ({
   batchScopeForPortal: () => undefined,
 }))
 
-describe('classifyProgramText', () => {
-  it('classifies data/ai/ml keywords', async () => {
-    const { classifyProgramText } = await import('../resolveInterviewDomain')
-    expect(classifyProgramText('Data Science')).toBe('data-ai-ml')
-    expect(classifyProgramText('AI/ML')).toBe('data-ai-ml')
-    expect(classifyProgramText('Analytics')).toBe('data-ai-ml')
+describe('parseInterviewDomainsFromMeta', () => {
+  it('extracts and validates the interviews array', async () => {
+    const { parseInterviewDomainsFromMeta } =
+      await import('../resolveInterviewDomain')
+    expect(
+      parseInterviewDomainsFromMeta({ interviews: ['frontend', 'backend'] }),
+    ).toEqual(['frontend', 'backend'])
   })
 
-  it('classifies product management keywords', async () => {
-    const { classifyProgramText } = await import('../resolveInterviewDomain')
-    expect(classifyProgramText('Product Management')).toBe('product-management')
-    expect(classifyProgramText('PM')).toBe('product-management')
+  it('drops unknown or malformed entries', async () => {
+    const { parseInterviewDomainsFromMeta } =
+      await import('../resolveInterviewDomain')
+    expect(
+      parseInterviewDomainsFromMeta({
+        interviews: ['data-science', 'not-a-real-domain', 42, null],
+      }),
+    ).toEqual(['data-science'])
   })
 
-  it('falls back to software-development for anything else', async () => {
-    const { classifyProgramText } = await import('../resolveInterviewDomain')
-    expect(classifyProgramText('SDE')).toBe('software-development')
-    expect(classifyProgramText('FT')).toBe('software-development')
-  })
-
-  it('returns null for empty/blank text', async () => {
-    const { classifyProgramText } = await import('../resolveInterviewDomain')
-    expect(classifyProgramText(null)).toBeNull()
-    expect(classifyProgramText(undefined)).toBeNull()
-    expect(classifyProgramText('   ')).toBeNull()
+  it('returns an empty array for missing/malformed meta', async () => {
+    const { parseInterviewDomainsFromMeta } =
+      await import('../resolveInterviewDomain')
+    expect(parseInterviewDomainsFromMeta(null)).toEqual([])
+    expect(parseInterviewDomainsFromMeta({})).toEqual([])
+    expect(parseInterviewDomainsFromMeta({ interviews: 'frontend' })).toEqual(
+      [],
+    )
   })
 })
 
-describe('resolveInterviewDomain', () => {
+describe('resolveInterviewDomains', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns general when the user has no active enrollment', async () => {
+  it('returns [general] when the user has no active enrollment', async () => {
     hoisted.rows = []
-    const { resolveInterviewDomain } = await import('../resolveInterviewDomain')
-    expect(await resolveInterviewDomain(1)).toBe('general')
+    const { resolveInterviewDomains } =
+      await import('../resolveInterviewDomain')
+    expect(await resolveInterviewDomains(1)).toEqual(['general'])
   })
 
-  it('prefers programDomain over program when both present', async () => {
-    hoisted.rows = [{ programDomain: 'Product', program: 'Data Science' }]
-    const { resolveInterviewDomain } = await import('../resolveInterviewDomain')
-    expect(await resolveInterviewDomain(1)).toBe('product-management')
+  it('returns the batch meta.interviews domains', async () => {
+    hoisted.rows = [{ meta: { interviews: ['data-analytics'] } }]
+    const { resolveInterviewDomains } =
+      await import('../resolveInterviewDomain')
+    expect(await resolveInterviewDomains(1)).toEqual(['data-analytics'])
   })
 
-  it('falls back to program when programDomain is empty', async () => {
-    hoisted.rows = [{ programDomain: null, program: 'Data Science' }]
-    const { resolveInterviewDomain } = await import('../resolveInterviewDomain')
-    expect(await resolveInterviewDomain(1)).toBe('data-ai-ml')
+  it('supports multiple enabled domains on one batch', async () => {
+    hoisted.rows = [{ meta: { interviews: ['frontend', 'backend'] } }]
+    const { resolveInterviewDomains } =
+      await import('../resolveInterviewDomain')
+    expect(await resolveInterviewDomains(1)).toEqual(['frontend', 'backend'])
   })
 
-  it('defaults to software-development for unrecognized program text', async () => {
-    hoisted.rows = [{ programDomain: null, program: 'SDE' }]
-    const { resolveInterviewDomain } = await import('../resolveInterviewDomain')
-    expect(await resolveInterviewDomain(1)).toBe('software-development')
+  it('falls back to [general] when meta.interviews is missing or empty', async () => {
+    hoisted.rows = [{ meta: {} }]
+    const { resolveInterviewDomains } =
+      await import('../resolveInterviewDomain')
+    expect(await resolveInterviewDomains(1)).toEqual(['general'])
   })
 })

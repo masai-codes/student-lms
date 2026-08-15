@@ -28,7 +28,7 @@ describe('handleGetInterviewTopics', () => {
   it('returns the resolved topics for the session user', async () => {
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.getInterviewTopicsForUser.mockResolvedValueOnce({
-      domain: 'software-development',
+      domains: ['fullstack'],
       catalogTopics: [],
       curriculumTopics: [],
     })
@@ -38,7 +38,7 @@ describe('handleGetInterviewTopics', () => {
     expect(res.status).toBe(200)
     expect(hoisted.getInterviewTopicsForUser).toHaveBeenCalledWith(7)
     await expect(res.json()).resolves.toEqual({
-      domain: 'software-development',
+      domains: ['fullstack'],
       catalogTopics: [],
       curriculumTopics: [],
     })

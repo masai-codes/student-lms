@@ -75,6 +75,7 @@ export async function getCurriculumInterviewTopics(
       iconKey: 'curriculum',
       blurb: `Practice interview questions from your ${label} coursework.`,
       rubricFocus: buildCurriculumRubricFocus(label),
+      subtopics: [],
     })
   }
 

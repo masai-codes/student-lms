@@ -94,6 +94,7 @@ export async function* createInterviewSessionStream(
     topicLabel: selection.topicLabel,
     domain: selection.domain,
     rubricFocus: selection.rubricFocus,
+    subtopics: selection.subtopics,
     numQuestions: INTERVIEW_TOTAL_QUESTIONS,
   })
 
