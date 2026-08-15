@@ -37,6 +37,7 @@ import { ApiClientError } from '@/lib/api/apiClientError'
 
 import { CATEGORIES } from './mockData'
 import type { Item, Message, TicketFilter, FloatingChatView } from './types'
+import { ENABLE_SUPPORT_AI_REPLY_CARD } from './supportAiFlags'
 
 import { FloatingChatHeader } from './FloatingChatHeader'
 import { CourseSelector } from './CourseSelector'
@@ -99,13 +100,18 @@ function threadMessagesToChat(
     side: string
     author: { name: string }
     createdAt?: string | null
+    isAi?: boolean
   }>,
 ): Message[] {
   return messages.map((m) => ({
     role: m.side === 'student' ? 'user' : m.side === 'system' ? 'bot' : 'agent',
     text: m.message,
-    name: m.side === 'agent' ? m.author.name : undefined,
+    name:
+      m.side === 'agent' && !(ENABLE_SUPPORT_AI_REPLY_CARD && m.isAi)
+        ? m.author.name
+        : undefined,
     isAutoReply: m.side === 'system',
+    isAi: ENABLE_SUPPORT_AI_REPLY_CARD && m.isAi === true,
     createdAt: m.createdAt ?? null,
   }))
 }
@@ -508,8 +514,12 @@ export function FloatingChatModal({
   })
 
   const rateTicketMutation = useMutation({
-    mutationFn: (input: { ticketId: number; rating: 1 | 5 }) =>
-      rateSupportTicket(input),
+    mutationFn: (input: {
+      ticketId: number
+      rating: 1 | 5
+      reasons?: string[]
+      comment?: string
+    }) => rateSupportTicket(input),
     onSuccess: (_data, { ticketId }) => refreshAfterMutation(ticketId),
   })
 
@@ -761,16 +771,30 @@ export function FloatingChatModal({
     reopenTicketMutation.isPending ||
     escalateTicketMutation.isPending
 
-  const handleSubmitTicketRating = async (rating: 1 | 5) => {
+  const handleSubmitTicketRating = async (input: {
+    rating: 1 | 5
+    reasons: string[]
+    comment: string
+  }) => {
     if (!selectedTicketId) return
-    await rateTicketMutation.mutateAsync({ ticketId: selectedTicketId, rating })
+    await rateTicketMutation.mutateAsync({
+      ticketId: selectedTicketId,
+      rating: input.rating,
+      reasons: input.reasons,
+      comment: input.comment,
+    })
   }
 
-  const handleReopenEscalateTicket = async () => {
+  const handleReopenEscalateTicket = async (input: {
+    reasons: string[]
+    comment: string
+  }) => {
     if (!selectedTicketId) return
     await rateTicketMutation.mutateAsync({
       ticketId: selectedTicketId,
       rating: 1,
+      reasons: input.reasons,
+      comment: input.comment,
     })
     if (ticketThread?.capabilities?.canEscalate) {
       await escalateTicketMutation.mutateAsync(selectedTicketId)

@@ -115,6 +115,10 @@ export async function handleAddReply(request: Request): Promise<Response> {
 const rateSchema = z.object({
   ticketId: z.number().int().positive(),
   rating: z.union([z.literal(1), z.literal(5)]),
+  /** Pill reasons from the post-resolve feedback form. */
+  reasons: z.array(z.string().min(1)).max(20).optional(),
+  /** Free-text comment from the feedback form. */
+  comment: z.string().max(2000).optional(),
 })
 
 /** POST /api/support/tickets/rate */
