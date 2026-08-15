@@ -1,4 +1,6 @@
-const OPENAI_CHAT_COMPLETIONS_URL = 'https://api.openai.com/v1/chat/completions'
+import { generateObject } from 'ai'
+import { z } from 'zod'
+import { getOpenAiChatModel } from '@/server/ai-chat/clients/openAiChatModel'
 
 const SYSTEM_PROMPT = `You are an AI moderator for a student learning platform forum.
 
@@ -22,46 +24,22 @@ Any other program related query or feedback
 Edge cases:
 
 If the message is loosely related to career but not tied to course content → NON_CURRICULUM
-If unsure, default to NON_CURRICULUM
+If unsure, default to NON_CURRICULUM`
 
-Respond ONLY with a JSON object of the form: { "classification": "CURRICULUM_RELATED" | "NON_CURRICULUM" }`
+const classificationSchema = z.object({
+  classification: z.enum(['CURRICULUM_RELATED', 'NON_CURRICULUM']),
+})
 
 /** Classifies discussion content as curriculum-related (public) or not (private). */
 export async function checkIfValidQuery(query: string): Promise<boolean> {
-  const apiKey = process.env.OPENAI_API_KEY?.trim()
-  if (!apiKey) {
-    return false
-  }
-
   try {
-    const response = await fetch(OPENAI_CHAT_COMPLETIONS_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-mini',
-        response_format: { type: 'json_object' },
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: query },
-        ],
-      }),
+    const { object } = await generateObject({
+      model: getOpenAiChatModel(),
+      schema: classificationSchema,
+      system: SYSTEM_PROMPT,
+      prompt: query,
     })
-
-    if (!response.ok) {
-      return false
-    }
-
-    const payload = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string | null } }>
-    }
-    const content = payload.choices?.[0]?.message?.content
-    if (!content) return false
-
-    const parsed = JSON.parse(content) as { classification?: string }
-    return parsed.classification === 'CURRICULUM_RELATED'
+    return object.classification === 'CURRICULUM_RELATED'
   } catch {
     return false
   }

@@ -1,10 +1,16 @@
 /**
- * Low-level OpenRouter `/chat/completions` caller shared by the audio turn
- * client and the text-only clients (opening question, report scoring).
- * OpenRouter fronts Anthropic (and other) models behind one OpenAI-compatible
- * endpoint, so a single `OPENROUTER_API_KEY` covers all three call sites —
- * no separate `ANTHROPIC_API_KEY` needed for this feature.
+ * OpenRouter `/chat/completions` callers for the interview feature.
+ *
+ * The plain text-in/text-out calls (opening question generation, report
+ * scoring) go through the Vercel AI SDK via `openRouterModel.ts`'s
+ * OpenAI-compatible provider. The audio-in/audio-out turn call
+ * (`requestOpenRouterAudioStream`) stays on a raw fetch below: it needs
+ * `modalities: ['text','audio']`, base64 PCM16 audio deltas, and tool-call
+ * deltas interleaved on the same stream, none of which the AI SDK's
+ * `LanguageModel` interface represents today.
  */
+import { generateText, streamText, type ModelMessage } from 'ai'
+import { getOpenRouterTextModel } from '@/server/api/interviews/clients/openRouterModel'
 
 export const OPENROUTER_CHAT_COMPLETIONS_URL =
   'https://openrouter.ai/api/v1/chat/completions'
@@ -27,72 +33,100 @@ export type OpenRouterChatMessage = {
   content: string | Array<OpenRouterContentPart>
 }
 
-/** Posts to OpenRouter and returns the raw assistant message content string. */
+/** The text-only callers below never send `input_audio` parts — only the raw
+ * audio-stream path does — so this narrows to what the AI SDK's message
+ * shape accepts and fails loudly if that assumption is ever violated. */
+function toModelMessages(
+  messages: Array<OpenRouterChatMessage>,
+): Array<ModelMessage> {
+  return messages.map((message) => {
+    if (typeof message.content === 'string') {
+      return { role: message.role, content: message.content }
+    }
+    const parts = message.content.map((part) => {
+      if (part.type !== 'text') {
+        throw new Error('INTERVIEW_OPENROUTER_REQUEST_FAILED')
+      }
+      return { type: 'text' as const, text: part.text }
+    })
+    return { role: message.role, content: parts } as ModelMessage
+  })
+}
+
+function mapModelError(error: unknown): Error {
+  if (
+    error instanceof Error &&
+    OPENROUTER_KNOWN_ERROR_MESSAGES.has(error.message)
+  ) {
+    return error
+  }
+  if (error instanceof Error && error.name === 'TimeoutError') {
+    return new Error('INTERVIEW_OPENROUTER_TIMEOUT')
+  }
+  return new Error('INTERVIEW_OPENROUTER_REQUEST_FAILED')
+}
+
+/** Posts to OpenRouter and returns the assistant message content string. */
 export async function requestOpenRouterChatCompletion(input: {
   messages: Array<OpenRouterChatMessage>
   model: string
 }): Promise<string> {
-  const apiKey = process.env.OPENROUTER_API_KEY?.trim()
-  if (!apiKey) {
-    throw new Error('INTERVIEW_OPENROUTER_NOT_CONFIGURED')
+  const model = getOpenRouterTextModel(input.model)
+
+  let result
+  try {
+    result = await generateText({
+      model,
+      messages: toModelMessages(input.messages),
+      abortSignal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
+    })
+  } catch (error) {
+    throw mapModelError(error)
   }
 
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS)
+  const content = result.text?.trim()
+  if (!content) {
+    throw new Error('INTERVIEW_OPENROUTER_EMPTY_RESPONSE')
+  }
 
+  return content
+}
+
+/**
+ * Posts to OpenRouter with streaming enabled and yields assistant message
+ * content deltas as they arrive.
+ */
+export async function* requestOpenRouterChatCompletionStream(input: {
+  messages: Array<OpenRouterChatMessage>
+  model: string
+}): AsyncGenerator<string> {
+  const model = getOpenRouterTextModel(input.model)
+
+  let sawContent = false
   try {
-    const response = await fetch(OPENROUTER_CHAT_COMPLETIONS_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: input.model,
-        messages: input.messages,
-      }),
-      signal: controller.signal,
+    const result = streamText({
+      model,
+      messages: toModelMessages(input.messages),
+      abortSignal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
     })
-
-    if (!response.ok) {
-      console.error(
-        'OpenRouter chat completion request failed',
-        response.status,
-        await response.text().catch(() => ''),
-      )
-      throw new Error('INTERVIEW_OPENROUTER_REQUEST_FAILED')
+    for await (const delta of result.textStream) {
+      sawContent = true
+      yield delta
     }
-
-    const payload = (await response.json().catch(() => null)) as {
-      choices?: Array<{ message?: { content?: string | null } }>
-    } | null
-
-    const content = payload?.choices?.[0]?.message?.content?.trim()
-    if (!content) {
-      throw new Error('INTERVIEW_OPENROUTER_EMPTY_RESPONSE')
-    }
-
-    return content
   } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error('INTERVIEW_OPENROUTER_TIMEOUT')
-    }
-    if (
-      error instanceof Error &&
-      OPENROUTER_KNOWN_ERROR_MESSAGES.has(error.message)
-    ) {
-      throw error
-    }
-    throw new Error('INTERVIEW_OPENROUTER_REQUEST_FAILED')
-  } finally {
-    clearTimeout(timeout)
+    throw mapModelError(error)
+  }
+
+  if (!sawContent) {
+    throw new Error('INTERVIEW_OPENROUTER_EMPTY_RESPONSE')
   }
 }
 
 /**
- * Shared POST + SSE-frame-parsing loop for both the text-delta stream and the
- * audio-delta stream below — same auth/timeout/error handling, only what's
- * extracted from each frame differs.
+ * Shared POST + SSE-frame-parsing loop for the audio-delta stream below —
+ * same auth/timeout/error handling as the AI-SDK-backed callers above, only
+ * hand-rolled because the audio modality isn't representable through the AI
+ * SDK's `LanguageModel` interface.
  */
 async function* streamOpenRouterFrames(
   body: Record<string, unknown>,
@@ -169,38 +203,6 @@ async function* streamOpenRouterFrames(
   } finally {
     clearTimeout(timeout)
   }
-}
-
-function extractStreamedContent(payload: string): string | null {
-  if (payload === '[DONE]') return null
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(payload)
-  } catch {
-    return null
-  }
-  const content = (
-    parsed as { choices?: Array<{ delta?: { content?: string } }> }
-  )?.choices?.[0]?.delta?.content
-  return typeof content === 'string' && content.length > 0 ? content : null
-}
-
-/**
- * Posts to OpenRouter with `stream: true` and yields assistant message
- * content deltas as they arrive.
- */
-export async function* requestOpenRouterChatCompletionStream(input: {
-  messages: Array<OpenRouterChatMessage>
-  model: string
-}): AsyncGenerator<string> {
-  yield* streamOpenRouterFrames(
-    {
-      model: input.model,
-      messages: input.messages,
-      stream: true,
-    },
-    extractStreamedContent,
-  )
 }
 
 export type OpenRouterAudioStreamEvent =

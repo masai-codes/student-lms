@@ -1,7 +1,7 @@
+import { generateText } from 'ai'
 import type { OpenAiChatMessage } from '@/server/ai-chat/services/buildChatPrompt'
+import { getOpenAiChatModel } from '@/server/ai-chat/clients/openAiChatModel'
 
-const OPENAI_CHAT_COMPLETIONS_URL = 'https://api.openai.com/v1/chat/completions'
-const DEFAULT_MODEL = 'gpt-4.1-mini'
 const DEFAULT_TIMEOUT_MS = 30_000
 
 function resolveTimeoutMs(): number {
@@ -19,57 +19,31 @@ export type RequestChatCompletionInput = {
 export async function requestOpenAiChatCompletion(
   input: RequestChatCompletionInput,
 ): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY?.trim()
-  if (!apiKey) {
-    throw new Error('AI_CHAT_OPENAI_NOT_CONFIGURED')
-  }
-
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), resolveTimeoutMs())
-
+  let result
   try {
-    const response = await fetch(OPENAI_CHAT_COMPLETIONS_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: input.model ?? DEFAULT_MODEL,
-        temperature: input.temperature ?? 0.4,
-        messages: input.messages,
-      }),
-      signal: controller.signal,
+    result = await generateText({
+      model: getOpenAiChatModel(input.model),
+      messages: input.messages,
+      temperature: input.temperature ?? 0.4,
+      abortSignal: AbortSignal.timeout(resolveTimeoutMs()),
     })
-
-    if (!response.ok) {
-      throw new Error('AI_CHAT_OPENAI_REQUEST_FAILED')
-    }
-
-    const payload = (await response.json().catch(() => null)) as {
-      choices?: Array<{ message?: { content?: string | null } }>
-    } | null
-
-    const content = payload?.choices?.[0]?.message?.content?.trim()
-    if (!content) {
-      throw new Error('AI_CHAT_OPENAI_EMPTY_RESPONSE')
-    }
-
-    return content
   } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error('AI_CHAT_OPENAI_TIMEOUT')
-    }
     if (
       error instanceof Error &&
-      (error.message === 'AI_CHAT_OPENAI_NOT_CONFIGURED' ||
-        error.message === 'AI_CHAT_OPENAI_REQUEST_FAILED' ||
-        error.message === 'AI_CHAT_OPENAI_EMPTY_RESPONSE')
+      error.message === 'AI_CHAT_OPENAI_NOT_CONFIGURED'
     ) {
       throw error
     }
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      throw new Error('AI_CHAT_OPENAI_TIMEOUT')
+    }
     throw new Error('AI_CHAT_OPENAI_REQUEST_FAILED')
-  } finally {
-    clearTimeout(timeout)
   }
+
+  const content = result.text?.trim()
+  if (!content) {
+    throw new Error('AI_CHAT_OPENAI_EMPTY_RESPONSE')
+  }
+
+  return content
 }
