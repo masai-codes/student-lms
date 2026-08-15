@@ -6,8 +6,15 @@ interface ResolvedTicketFeedbackProps {
   alreadySubmitted?: boolean
   isSubmitting?: boolean
   submitError?: string | null
-  onSubmitRating: (rating: 1 | 5) => void | Promise<void>
-  onReopenEscalate: () => void | Promise<void>
+  onSubmitRating: (input: {
+    rating: 1 | 5
+    reasons: string[]
+    comment: string
+  }) => void | Promise<void>
+  onReopenEscalate: (input: {
+    reasons: string[]
+    comment: string
+  }) => void | Promise<void>
 }
 
 export function ResolvedTicketFeedback({
@@ -50,11 +57,15 @@ export function ResolvedTicketFeedback({
   const handleSubmit = async (reopen: boolean) => {
     if (isSubmitting || rating == null) return
     setLocalError(null)
+    const payload = { reasons: selectedReasons, comment }
     try {
       if (reopen) {
-        await onReopenEscalate()
+        await onReopenEscalate(payload)
       } else {
-        await onSubmitRating(rating === 'up' ? 5 : 1)
+        await onSubmitRating({
+          rating: rating === 'up' ? 5 : 1,
+          ...payload,
+        })
         setIsSubmitted(true)
       }
     } catch {
