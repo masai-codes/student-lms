@@ -5,6 +5,7 @@ import { useLiveInterviewStt } from '@/hooks/useLiveInterviewStt'
 import type { SubmitInterviewAnswerInput } from '@/lib/api/interviews/interviewsApi'
 import { INTERVIEW_SEND_PARTIAL_TRANSCRIPT_ON_SUBMIT } from '@/lib/interviews/interviewConstants'
 import { LiveWaveform } from './LiveWaveform'
+import { clsx } from 'clsx'
 
 function formatDuration(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60)
@@ -14,7 +15,13 @@ function formatDuration(totalSeconds: number): string {
 
 /** Single-line live transcript, always scrolled to show the most recently
  * spoken words rather than wrapping or growing taller as it fills up. */
-function LiveTranscriptLine({ text }: { text: string }) {
+function LiveTranscriptLine({
+  text,
+  invisible,
+}: {
+  text: string
+  invisible: boolean
+}) {
   const lineRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -22,14 +29,16 @@ function LiveTranscriptLine({ text }: { text: string }) {
     if (el) el.scrollLeft = el.scrollWidth
   }, [text])
 
-  if (!text) return null
-
   return (
     <div
       ref={lineRef}
       data-testid="interview-live-transcript"
-      className="w-full max-w-xl overflow-x-hidden whitespace-nowrap text-center text-sm text-foreground-muted"
+      className={clsx(
+        'w-full max-w-xl overflow-x-hidden whitespace-nowrap text-right text-sm text-foreground-muted',
+        { invisible: invisible },
+      )}
     >
+      <span className="invisible w-0 overflow-x-hidden">Your transcript:</span>
       {text}
     </div>
   )
@@ -90,6 +99,23 @@ export function AnswerRecorder({
       sttStartedRef.current = false
     }
   }, [recorder.state, recorder.mediaStream, liveStt])
+  useEffect(() => {
+    const handleKeyboardShortcuts = (e: KeyboardEvent) => {
+      if (isRecording && e.key === 'Escape') {
+        handleDiscard()
+      }
+      if (!isRecording && e.key === ' ') {
+        handleStartRecording()
+      }
+      if (isRecording && e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+        handleSend()
+      }
+    }
+    document.addEventListener('keyup', handleKeyboardShortcuts)
+    return () => {
+      document.removeEventListener('keyup', handleKeyboardShortcuts)
+    }
+  }, [isRecording])
 
   async function handleStartRecording() {
     const started = await recorder.startRecording()
@@ -143,19 +169,9 @@ export function AnswerRecorder({
     setTypedAnswer('')
   }
 
-  const roleLabel = (
-    <div className="flex items-center gap-2 self-start pl-1">
-      <span className="size-1.5 rounded-full bg-foreground-subtle" />
-      <span className="type-b3-md text-foreground-subtle uppercase tracking-wider">
-        You
-      </span>
-    </div>
-  )
-
   if (typedMode) {
     return (
       <div className="flex w-full flex-col gap-3">
-        {roleLabel}
         <textarea
           value={typedAnswer}
           onChange={(e) => setTypedAnswer(e.target.value)}
@@ -200,7 +216,6 @@ export function AnswerRecorder({
 
   return (
     <div className="flex w-full flex-col items-center gap-3">
-      {roleLabel}
       <div
         data-testid="interview-record-pill"
         data-recording={isRecording || busy ? 'true' : 'false'}
@@ -303,26 +318,41 @@ export function AnswerRecorder({
         </button>
       </div>
 
-      {isRecording && !isPreparing ? (
-        <LiveTranscriptLine text={liveStt.partialTranscript} />
-      ) : null}
-
       <div
-        className={`flex flex-col items-center gap-2 transition-opacity duration-300 ${
-          isRecording || busy ? 'pointer-events-none opacity-0' : 'opacity-100'
-        }`}
+        className={`flex flex-col items-center gap-2 transition-opacity duration-300 w-full`}
       >
-        <span className="text-sm font-semibold text-foreground">
-          Tap to record
-        </span>
         <button
-          type="button"
-          data-testid="interview-type-instead"
-          onClick={() => setTypedMode(true)}
-          className="text-sm text-foreground-muted underline underline-offset-4 hover:text-foreground"
+          className={clsx(
+            'text-sm font-semibold text-foreground',
+            isRecording || busy
+              ? 'pointer-events-none opacity-0'
+              : 'opacity-100',
+          )}
+          onClick={handleStartRecording}
         >
-          or type your answer instead
+          Tap here when you are ready!
         </button>
+        <div className="h-10 w-full">
+          {isRecording || isSpeaking ? (
+            <div className="text-right w-full">
+              <LiveTranscriptLine
+                invisible={!isRecording || isPreparing}
+                text={liveStt.partialTranscript}
+              />
+            </div>
+          ) : (
+            <div className="w-full text-center">
+              <button
+                type="button"
+                data-testid="interview-type-instead"
+                onClick={() => setTypedMode(true)}
+                className="text-sm text-foreground-muted underline underline-offset-4 hover:text-foreground"
+              >
+                or type your answer instead
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

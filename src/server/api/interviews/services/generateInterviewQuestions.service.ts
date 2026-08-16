@@ -50,11 +50,14 @@ export async function generateAllInterviewQuestions(input: {
   rubricFocus: Array<string>
   subtopics: Array<string>
   numQuestions: number
+  /** Overrides `getInterviewReportModel()` — lets evals compare model
+   * variants against the exact same prompt/parsing logic production uses. */
+  model?: string
 }): Promise<Array<string>> {
   let raw: string
   try {
     raw = await requestOpenRouterChatCompletion({
-      model: getInterviewReportModel(),
+      model: input.model ?? getInterviewReportModel(),
       messages: [
         { role: 'system', content: buildQuestionsSystemPrompt(input) },
         { role: 'user', content: 'Generate the questions now.' },

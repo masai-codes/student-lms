@@ -18,6 +18,7 @@ import {
   readStoredAiLectureChatLanguage,
   writeStoredAiLectureChatLanguage,
 } from '@/components/features/lecture-ai-chat/languages'
+import { INTERVIEW_LANGUAGES, toInterviewLanguage } from './interviewLanguages'
 import { getTopicIcon } from './topicIcons'
 import { cn } from '@/lib/utils'
 
@@ -234,7 +235,9 @@ export function InterviewsPage() {
   const navigate = useNavigate()
   const { data, isPending, isError } = useQuery(interviewTopicsQuery())
   const [creatingTopicId, setCreatingTopicId] = useState<string | null>(null)
-  const [language, setLanguage] = useState(readStoredAiLectureChatLanguage)
+  const [language, setLanguage] = useState(() =>
+    toInterviewLanguage(readStoredAiLectureChatLanguage()),
+  )
 
   function handleLanguageChange(next: typeof language) {
     setLanguage(next)
@@ -287,6 +290,7 @@ export function InterviewsPage() {
           value={language}
           onChange={handleLanguageChange}
           disabled={creatingTopicId !== null}
+          languages={INTERVIEW_LANGUAGES}
         />
       </div>
       <p className="mb-6 text-sm text-foreground-muted">
