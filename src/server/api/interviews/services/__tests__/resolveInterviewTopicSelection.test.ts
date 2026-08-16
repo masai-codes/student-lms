@@ -6,7 +6,9 @@ const hoisted = vi.hoisted(() => ({
   curriculumTopics: [] as Array<{
     id: string
     label: string
+    domain: string
     rubricFocus: Array<string>
+    subtopics: Array<string>
   }>,
 }))
 
@@ -40,6 +42,39 @@ describe('resolveInterviewTopicSelection', () => {
     expect(result.subtopics.length).toBeGreaterThan(0)
   })
 
+  it('narrows subtopics to the requested subset when valid', async () => {
+    const { resolveInterviewTopicSelection } =
+      await import('../resolveInterviewTopicSelection')
+    const result = await resolveInterviewTopicSelection(1, 'backend-dsa', [
+      'Big-O time & space intuition',
+      'Linear search',
+    ])
+    expect(result.subtopics).toEqual([
+      'Big-O time & space intuition',
+      'Linear search',
+    ])
+  })
+
+  it("drops requested subtopics that are not actually the topic's own", async () => {
+    const { resolveInterviewTopicSelection } =
+      await import('../resolveInterviewTopicSelection')
+    const result = await resolveInterviewTopicSelection(1, 'backend-dsa', [
+      'Linear search',
+      'Not a real subtopic',
+    ])
+    expect(result.subtopics).toEqual(['Linear search'])
+  })
+
+  it('falls back to the full subtopic list when the request matches nothing', async () => {
+    const { resolveInterviewTopicSelection } =
+      await import('../resolveInterviewTopicSelection')
+    const full = await resolveInterviewTopicSelection(1, 'backend-dsa')
+    const result = await resolveInterviewTopicSelection(1, 'backend-dsa', [
+      'Not a real subtopic',
+    ])
+    expect(result.subtopics).toEqual(full.subtopics)
+  })
+
   it('throws INTERVIEW_TOPIC_INVALID for an unknown catalog id', async () => {
     const { resolveInterviewTopicSelection } =
       await import('../resolveInterviewTopicSelection')
@@ -53,7 +88,9 @@ describe('resolveInterviewTopicSelection', () => {
       {
         id: 'curriculum:pandas',
         label: 'Pandas',
+        domain: 'data-science',
         rubricFocus: ['Pandas fundamentals'],
+        subtopics: [],
       },
     ]
     const { resolveInterviewTopicSelection } =

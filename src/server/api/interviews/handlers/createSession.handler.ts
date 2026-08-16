@@ -9,9 +9,15 @@ export async function handleCreateInterviewSession(
 ): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
-    const { topicId, language } = await parseCreateSessionRequest(request)
+    const { topicId, language, subtopics } =
+      await parseCreateSessionRequest(request)
 
-    const result = await createInterviewSession(userId, topicId, language)
+    const result = await createInterviewSession(
+      userId,
+      topicId,
+      language,
+      subtopics,
+    )
     return jsonOk(result, { status: 201 })
   } catch (error) {
     if (!isApiError(error)) {

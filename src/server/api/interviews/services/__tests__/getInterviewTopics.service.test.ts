@@ -31,6 +31,9 @@ describe('getInterviewTopicsForUser', () => {
     expect(
       result.catalogTopics.every((t) => t.id !== 'curriculum:pandas'),
     ).toBe(true)
+    expect(result.catalogTopics.every((t) => t.domain === 'data-science')).toBe(
+      true,
+    )
     expect(result.curriculumTopics).toEqual(hoisted.curriculumTopics)
   })
 

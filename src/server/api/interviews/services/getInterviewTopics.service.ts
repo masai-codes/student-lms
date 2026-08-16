@@ -16,6 +16,7 @@ export async function getInterviewTopicsForUser(
   const catalogTopics = getCatalogTopicsForDomains(domains)
   const curriculumTopics = await getCurriculumInterviewTopics(
     userId,
+    domains[0] ?? 'general',
     catalogTopics,
   )
 

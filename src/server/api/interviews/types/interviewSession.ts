@@ -98,6 +98,7 @@ export type InterviewTopic = {
   label: string
   iconKey: string
   blurb: string
+  domain: InterviewDomain
   rubricFocus: Array<string>
   /** Fine-grained curriculum subtopics — fed into question generation so
    * questions draw from the actual syllabus, not just the topic label.

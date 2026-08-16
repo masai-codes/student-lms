@@ -3,9 +3,12 @@ import type {
   InterviewTopic,
 } from '@/server/api/interviews/types/interviewSession'
 
+/** Catalog storage shape — `domain` is the record key, not repeated per topic. */
+export type CatalogTopic = Omit<InterviewTopic, 'domain'>
+
 export const INTERVIEW_TOPIC_CATALOG: Record<
   InterviewDomain,
-  Array<InterviewTopic>
+  Array<CatalogTopic>
 > = {
   frontend: [
     {
@@ -2517,7 +2520,7 @@ export const INTERVIEW_TOPIC_CATALOG: Record<
 export function getCatalogTopicsForDomain(
   domain: InterviewDomain,
 ): Array<InterviewTopic> {
-  return INTERVIEW_TOPIC_CATALOG[domain]
+  return INTERVIEW_TOPIC_CATALOG[domain].map((topic) => ({ ...topic, domain }))
 }
 
 export function getCatalogTopicsForDomains(
@@ -2529,7 +2532,7 @@ export function getCatalogTopicsForDomains(
     for (const topic of INTERVIEW_TOPIC_CATALOG[domain]) {
       if (seen.has(topic.id)) continue
       seen.add(topic.id)
-      topics.push(topic)
+      topics.push({ ...topic, domain })
     }
   }
   return topics
@@ -2537,7 +2540,7 @@ export function getCatalogTopicsForDomains(
 
 export function findCatalogTopicById(
   topicId: string,
-): InterviewTopic | undefined {
+): CatalogTopic | undefined {
   for (const topics of Object.values(INTERVIEW_TOPIC_CATALOG)) {
     const found = topics.find((topic) => topic.id === topicId)
     if (found) return found

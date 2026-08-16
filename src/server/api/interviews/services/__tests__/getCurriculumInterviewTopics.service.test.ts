@@ -24,6 +24,7 @@ const catalogTopics = [
     label: 'System Design',
     iconKey: 'network',
     blurb: '',
+    domain: 'backend' as const,
     rubricFocus: [],
     subtopics: [],
   },
@@ -36,7 +37,9 @@ describe('getCurriculumInterviewTopics', () => {
     hoisted.sectionIds = []
     const { getCurriculumInterviewTopics } =
       await import('../getCurriculumInterviewTopics.service')
-    expect(await getCurriculumInterviewTopics(1, catalogTopics)).toEqual([])
+    expect(
+      await getCurriculumInterviewTopics(1, 'backend', catalogTopics),
+    ).toEqual([])
   })
 
   it('maps distinct non-empty modules to curriculum topics', async () => {
@@ -49,7 +52,11 @@ describe('getCurriculumInterviewTopics', () => {
     const { getCurriculumInterviewTopics, buildCurriculumTopicId } =
       await import('../getCurriculumInterviewTopics.service')
 
-    const topics = await getCurriculumInterviewTopics(1, catalogTopics)
+    const topics = await getCurriculumInterviewTopics(
+      1,
+      'backend',
+      catalogTopics,
+    )
     expect(topics).toEqual([
       expect.objectContaining({
         id: buildCurriculumTopicId('Data Analysis'),
@@ -67,7 +74,9 @@ describe('getCurriculumInterviewTopics', () => {
     const { getCurriculumInterviewTopics } =
       await import('../getCurriculumInterviewTopics.service')
 
-    expect(await getCurriculumInterviewTopics(1, catalogTopics)).toEqual([])
+    expect(
+      await getCurriculumInterviewTopics(1, 'backend', catalogTopics),
+    ).toEqual([])
   })
 
   it('marks curriculum topic ids so they can be recognized later', async () => {

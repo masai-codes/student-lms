@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { Check, CircleDashed, LoaderCircleIcon } from 'lucide-react'
+import { ArrowRightIcon, Check, CircleDashed } from 'lucide-react'
 import type {
   InterviewSessionSummary,
   InterviewTopic,
@@ -20,18 +20,17 @@ import {
 } from '@/components/features/lecture-ai-chat/languages'
 import { INTERVIEW_LANGUAGES, toInterviewLanguage } from './interviewLanguages'
 import { getTopicIcon } from './topicIcons'
-import { cn } from '@/lib/utils'
+import { TopicCard } from './TopicCard'
+import { SubtopicDrawer } from './SubtopicDrawer'
 
 dayjs.extend(relativeTime)
 
-function TopicButton({
+function CourseworkHighlight({
   topic,
-  isSelected,
   isDisabled,
   onSelect,
 }: {
   topic: InterviewTopic
-  isSelected: boolean
   isDisabled: boolean
   onSelect: () => void
 }) {
@@ -43,71 +42,27 @@ function TopicButton({
       data-topic-id={topic.id}
       onClick={onSelect}
       disabled={isDisabled}
-      aria-pressed={isSelected}
-      className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-colors disabled:opacity-60 ${
-        isSelected
-          ? 'border-brand bg-brand/5'
-          : 'border-border bg-surface hover:bg-surface-muted'
-      }`}
+      className="group flex w-full items-center gap-4 rounded-2xl border border-brand/20 bg-brand-subtle p-4 text-left transition-opacity disabled:opacity-60 sm:p-5"
     >
       <span
-        className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
-          isSelected
-            ? 'bg-brand text-brand-foreground'
-            : 'bg-surface-muted text-foreground-muted'
-        }`}
+        className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground"
         aria-hidden
       >
-        <Icon className={cn('size-4', isSelected && 'opacity-25')} />
-        <LoaderCircleIcon
-          className={cn('animate-spin absolute', !isSelected && 'hidden')}
-        />
+        <Icon className="size-5" />
       </span>
-      <span className="flex-1 min-w-0">
-        <span className="type-b1-md block font-medium text-foreground">
+      <span className="min-w-0 flex-1">
+        <span className="type-b1-md block font-medium text-brand-subtle-foreground">
           {topic.label}
         </span>
-        <span className="text-xs line-clamp-2 lg:line-clamp-2 text-foreground-muted">
+        <span className="type-b3-regular block truncate text-brand-subtle-foreground/80">
           {topic.blurb}
         </span>
       </span>
-      {isSelected ? (
-        <Check className="size-5 shrink-0 text-brand" aria-hidden />
-      ) : null}
+      <span className="type-b2-md hidden shrink-0 items-center gap-1 text-brand-subtle-foreground sm:flex">
+        Start
+        <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
+      </span>
     </button>
-  )
-}
-
-function TopicGroup({
-  title,
-  topics,
-  creatingTopicId,
-  onSelect,
-}: {
-  title: string
-  topics: Array<InterviewTopic>
-  creatingTopicId: string | null
-  onSelect: (topic: InterviewTopic) => void
-}) {
-  if (topics.length === 0) return null
-
-  return (
-    <div data-testid="interview-topic-group" className="mb-6">
-      <h2 className="type-b2-md mb-2 font-semibold text-foreground-muted">
-        {title}
-      </h2>
-      <div className="flex flex-col gap-2">
-        {topics.map((topic) => (
-          <TopicButton
-            key={topic.id}
-            topic={topic}
-            isSelected={creatingTopicId === topic.id}
-            isDisabled={creatingTopicId !== null}
-            onSelect={() => onSelect(topic)}
-          />
-        ))}
-      </div>
-    </div>
   )
 }
 
@@ -170,14 +125,14 @@ function SessionRow({ session }: { session: InterviewSessionSummary }) {
           params: { sessionId: String(session.id) },
         })
       }
-      className="group flex w-full items-center gap-3 rounded-xl border border-border bg-surface p-4 text-left transition-colors hover:bg-surface-muted"
+      className="group flex w-full items-center gap-3 rounded-xl border border-border bg-surface p-3 text-left transition-colors hover:bg-surface-muted"
     >
       <SessionStatusIcon status={session.status} />
-      <span className="flex-1 min-w-0">
-        <span className="type-b1-md block truncate font-medium text-foreground">
+      <span className="min-w-0 flex-1">
+        <span className="type-b2-md block truncate font-medium text-foreground">
           {session.topicLabel}
         </span>
-        <span className="text-xs text-foreground-muted">
+        <span className="type-b3-regular text-foreground-muted">
           {sessionStatusLabel(session.status)}
           {startedAt ? ` · ${startedAt.fromNow()}` : null}
         </span>
@@ -186,35 +141,43 @@ function SessionRow({ session }: { session: InterviewSessionSummary }) {
   )
 }
 
-function SessionsSection() {
+function SessionsRail() {
   const { data, isPending, isError } = useQuery(interviewSessionsQuery())
 
-  if (isPending) {
-    return (
-      <div className="mb-6 flex flex-col gap-2">
-        {[0, 1].map((i) => (
-          <div
-            key={i}
-            className="h-[68px] animate-pulse rounded-xl bg-surface-muted"
-          />
-        ))}
-      </div>
-    )
-  }
-
-  if (isError || !data || data.length === 0) return null
-
   return (
-    <div className="mb-6">
+    <aside className="w-full shrink-0 lg:sticky lg:top-4 lg:w-72">
       <h2 className="type-b2-md mb-2 font-semibold text-foreground-muted">
         Your sessions
       </h2>
-      <div data-testid="interview-session-list" className="flex flex-col gap-2">
-        {data.map((session) => (
-          <SessionRow key={session.id} session={session} />
-        ))}
-      </div>
-    </div>
+
+      {isPending ? (
+        <div className="flex flex-col gap-2">
+          {[0, 1].map((i) => (
+            <div
+              key={i}
+              className="h-[60px] animate-pulse rounded-xl bg-surface-muted"
+            />
+          ))}
+        </div>
+      ) : null}
+
+      {!isPending && (isError || !data || data.length === 0) ? (
+        <p className="type-b3-regular rounded-xl border border-dashed border-border p-3 text-foreground-muted">
+          No practice sessions yet — pick a topic to start your first one.
+        </p>
+      ) : null}
+
+      {data && data.length > 0 ? (
+        <div
+          data-testid="interview-session-list"
+          className="flex flex-col gap-2"
+        >
+          {data.map((session) => (
+            <SessionRow key={session.id} session={session} />
+          ))}
+        </div>
+      ) : null}
+    </aside>
   )
 }
 
@@ -235,6 +198,8 @@ export function InterviewsPage() {
   const navigate = useNavigate()
   const { data, isPending, isError } = useQuery(interviewTopicsQuery())
   const [creatingTopicId, setCreatingTopicId] = useState<string | null>(null)
+  const [customizingTopic, setCustomizingTopic] =
+    useState<InterviewTopic | null>(null)
   const [language, setLanguage] = useState(() =>
     toInterviewLanguage(readStoredAiLectureChatLanguage()),
   )
@@ -244,7 +209,10 @@ export function InterviewsPage() {
     writeStoredAiLectureChatLanguage(next)
   }
 
-  async function handleSelect(topic: InterviewTopic) {
+  async function handleSelect(
+    topic: InterviewTopic,
+    subtopics?: Array<string>,
+  ) {
     if (creatingTopicId) return
     setCreatingTopicId(topic.id)
 
@@ -256,17 +224,22 @@ export function InterviewsPage() {
     const outcome = await new Promise<
       { status: 'done'; sessionId: number } | { status: 'error' }
     >((resolve) => {
-      streamCreateInterviewSession(topic.id, language, {
-        onAudioDelta: (data) => player.pushChunk(data),
-        onDone: (result) => {
-          player.finish()
-          resolve({ status: 'done', sessionId: result.sessionId })
+      streamCreateInterviewSession(
+        topic.id,
+        language,
+        {
+          onAudioDelta: (chunk) => player.pushChunk(chunk),
+          onDone: (result) => {
+            player.finish()
+            resolve({ status: 'done', sessionId: result.sessionId })
+          },
+          onError: () => {
+            player.cancel()
+            resolve({ status: 'error' })
+          },
         },
-        onError: () => {
-          player.cancel()
-          resolve({ status: 'error' })
-        },
-      })
+        subtopics,
+      )
     })
 
     if (outcome.status === 'done') {
@@ -278,6 +251,11 @@ export function InterviewsPage() {
       toast.error('Could not start the interview. Please try again.')
       setCreatingTopicId(null)
     }
+  }
+
+  function handleDrawerStart(topic: InterviewTopic, subtopics: Array<string>) {
+    setCustomizingTopic(null)
+    void handleSelect(topic, subtopics)
   }
 
   return (
@@ -306,28 +284,64 @@ export function InterviewsPage() {
       ) : null}
 
       {data ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
-          <div className="order-1">
-            <TopicGroup
-              title="From your coursework"
-              topics={data.curriculumTopics}
-              creatingTopicId={creatingTopicId}
-              onSelect={(topic) => void handleSelect(topic)}
-            />
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
+          <div className="min-w-0 flex-1">
+            {data.curriculumTopics.length > 0 ? (
+              <div className="mb-8">
+                <h2 className="type-b2-md mb-2 font-semibold text-foreground-muted">
+                  Continue your coursework
+                </h2>
+                <div className="flex flex-col gap-3">
+                  {data.curriculumTopics.map((topic) => (
+                    <CourseworkHighlight
+                      key={topic.id}
+                      topic={topic}
+                      isDisabled={creatingTopicId !== null}
+                      onSelect={() => void handleSelect(topic)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {data.catalogTopics.length > 0 ? (
+              <div>
+                <h2 className="type-b2-md mb-2 font-semibold text-foreground-muted">
+                  Topics for your program
+                </h2>
+                <div
+                  data-testid="interview-topic-grid"
+                  className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
+                >
+                  {data.catalogTopics.map((topic, index) => (
+                    <TopicCard
+                      key={topic.id}
+                      topic={topic}
+                      accentIndex={index}
+                      isSelected={creatingTopicId === topic.id}
+                      isDisabled={creatingTopicId !== null}
+                      onSelect={() => void handleSelect(topic)}
+                      onCustomize={() => setCustomizingTopic(topic)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
-          <div className="order-3">
-            <TopicGroup
-              title="Recommended for your program"
-              topics={data.catalogTopics}
-              creatingTopicId={creatingTopicId}
-              onSelect={(topic) => void handleSelect(topic)}
-            />
-          </div>
-          <div className="order-4">
-            <SessionsSection />
-          </div>
+
+          <SessionsRail />
         </div>
       ) : null}
+
+      <SubtopicDrawer
+        topic={customizingTopic}
+        open={customizingTopic !== null}
+        onOpenChange={(open) => {
+          if (!open) setCustomizingTopic(null)
+        }}
+        isStarting={creatingTopicId !== null}
+        onStart={handleDrawerStart}
+      />
     </div>
   )
 }
