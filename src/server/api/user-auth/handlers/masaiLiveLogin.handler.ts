@@ -7,6 +7,7 @@ import {
   loadMasaiLiveUser,
   resolveMasaiLiveConnectSid,
 } from '@/server/api/user-auth/services/resolveMasaiLiveConnectSid.service'
+import { syncLmsPremiumForMasaiLiveLogin } from '@/server/api/user-auth/services/syncLmsPremium.service'
 import { ApiError } from '@/server/api/http/apiError'
 import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
@@ -58,6 +59,11 @@ export async function handlePostMasaiLiveLogin(
       )
     }
 
+    await syncLmsPremiumForMasaiLiveLogin({
+      user,
+      connectSid: result.connectSid,
+    })
+
     return jsonOk({
       success: true,
       data: { connectSid: result.connectSid },
@@ -107,6 +113,11 @@ export async function handleGetMasaiLiveLogin(
       })
       return redirectResponse(home)
     }
+
+    await syncLmsPremiumForMasaiLiveLogin({
+      user,
+      connectSid: result.connectSid,
+    })
 
     logger.info({
       msg: 'Masai Live GET login: redirecting with connect.sid cookie',

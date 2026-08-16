@@ -66,6 +66,7 @@ import { Route as ApiAnnouncementPopupsRouteImport } from './routes/api/announce
 import { Route as ApiAnnouncementFilterOptionsRouteImport } from './routes/api/announcement/filter-options'
 import { Route as ApiAdmissionsEnrolmentPaymentRedirectRouteImport } from './routes/api/admissions/enrolment-payment-redirect'
 import { Route as protectedLayoutThemeLabRouteImport } from './routes/(protected)/_layout/theme-lab'
+import { Route as protectedLayoutProfileSettingsRouteImport } from './routes/(protected)/_layout/profile-settings'
 import { Route as protectedLayoutMyCoursesRouteImport } from './routes/(protected)/_layout/my-courses'
 import { Route as authV2ResetPasswordRouteImport } from './routes/(auth)/v2/reset-password'
 import { Route as authV2MeRouteImport } from './routes/(auth)/v2/me'
@@ -530,6 +531,12 @@ const protectedLayoutThemeLabRoute = protectedLayoutThemeLabRouteImport.update({
   path: '/theme-lab',
   getParentRoute: () => protectedLayoutRouteRoute,
 } as any)
+const protectedLayoutProfileSettingsRoute =
+  protectedLayoutProfileSettingsRouteImport.update({
+    id: '/profile-settings',
+    path: '/profile-settings',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const protectedLayoutMyCoursesRoute =
   protectedLayoutMyCoursesRouteImport.update({
     id: '/my-courses',
@@ -1485,6 +1492,7 @@ export interface FileRoutesByFullPath {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/profile-settings': typeof protectedLayoutProfileSettingsRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
@@ -1702,6 +1710,7 @@ export interface FileRoutesByTo {
   '/v2/me': typeof authV2MeRoute
   '/v2/reset-password': typeof authV2ResetPasswordRoute
   '/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/profile-settings': typeof protectedLayoutProfileSettingsRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
@@ -1922,6 +1931,7 @@ export interface FileRoutesById {
   '/(auth)/v2/me': typeof authV2MeRoute
   '/(auth)/v2/reset-password': typeof authV2ResetPasswordRoute
   '/(protected)/_layout/my-courses': typeof protectedLayoutMyCoursesRoute
+  '/(protected)/_layout/profile-settings': typeof protectedLayoutProfileSettingsRoute
   '/(protected)/_layout/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
@@ -2142,6 +2152,7 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/my-courses'
+    | '/profile-settings'
     | '/theme-lab'
     | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
@@ -2359,6 +2370,7 @@ export interface FileRouteTypes {
     | '/v2/me'
     | '/v2/reset-password'
     | '/my-courses'
+    | '/profile-settings'
     | '/theme-lab'
     | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
@@ -2578,6 +2590,7 @@ export interface FileRouteTypes {
     | '/(auth)/v2/me'
     | '/(auth)/v2/reset-password'
     | '/(protected)/_layout/my-courses'
+    | '/(protected)/_layout/profile-settings'
     | '/(protected)/_layout/theme-lab'
     | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
@@ -3330,6 +3343,13 @@ declare module '@tanstack/react-router' {
       path: '/theme-lab'
       fullPath: '/theme-lab'
       preLoaderRoute: typeof protectedLayoutThemeLabRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/profile-settings': {
+      id: '/(protected)/_layout/profile-settings'
+      path: '/profile-settings'
+      fullPath: '/profile-settings'
+      preLoaderRoute: typeof protectedLayoutProfileSettingsRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/my-courses': {
@@ -4523,6 +4543,7 @@ const protectedLayoutLearnAssignmentsAssignmentIdRouteRouteWithChildren =
 interface protectedLayoutRouteRouteChildren {
   protectedLayoutMasaiverseRouteRoute: typeof protectedLayoutMasaiverseRouteRouteWithChildren
   protectedLayoutMyCoursesRoute: typeof protectedLayoutMyCoursesRoute
+  protectedLayoutProfileSettingsRoute: typeof protectedLayoutProfileSettingsRoute
   protectedLayoutThemeLabRoute: typeof protectedLayoutThemeLabRoute
   protectedLayoutIndexRoute: typeof protectedLayoutIndexRoute
   protectedLayoutAnnouncementsIdRouteRoute: typeof protectedLayoutAnnouncementsIdRouteRoute
@@ -4553,6 +4574,7 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutMasaiverseRouteRoute:
     protectedLayoutMasaiverseRouteRouteWithChildren,
   protectedLayoutMyCoursesRoute: protectedLayoutMyCoursesRoute,
+  protectedLayoutProfileSettingsRoute: protectedLayoutProfileSettingsRoute,
   protectedLayoutThemeLabRoute: protectedLayoutThemeLabRoute,
   protectedLayoutIndexRoute: protectedLayoutIndexRoute,
   protectedLayoutAnnouncementsIdRouteRoute:

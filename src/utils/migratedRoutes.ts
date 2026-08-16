@@ -1,7 +1,8 @@
 /**
  * The migrated pages released to the new LMS behind the per-user "Try New"
  * flag: Dashboard, Learn listing, Lecture / Assignment / Resource detail, plus
- * Announcements, Messages, Bookmarks, What's New, Support and Chat. When the user opts in
+ * Announcements, Messages, Bookmarks, What's New, Support, Chat and
+ * Profile & Settings. When the user opts in
  * these stay on the new LMS; otherwise (with legacy redirect enabled) they are
  * served by the old LMS.
  *
@@ -24,6 +25,8 @@ export function isMigratedRoute(pathname: string): boolean {
   if (pathname.startsWith('/bookmarks')) return true
   if (pathname.startsWith('/whats-new')) return true
   if (pathname.startsWith('/chat')) return true
+  // Mobile bottom nav "More" → Profile & Settings hub. Same path on both apps.
+  if (pathname.startsWith('/profile-settings')) return true
   // Support is the one migrated page that must stay reachable here even for
   // opted-out students: the old LMS embeds this app's `/support` (and
   // `/support/context`) in an iframe, so bouncing it back would recurse. The
