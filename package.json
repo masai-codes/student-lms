@@ -19,6 +19,7 @@
     "eval:interviews": "braintrust eval --no-send-logs --env-file .env evals/interviews",
     "test:e2e:watch": "vitest --config vitest.e2e.config.ts",
     "lint": "eslint . --ext .ts,.tsx",
+    "lint:rules:test": "node --test eslint-rules",
     "lint:format": "prettier --check .",
     "format": "prettier",
     "check": "prettier --write . && eslint --fix",
