@@ -143,9 +143,19 @@ export function AnswerRecorder({
     setTypedAnswer('')
   }
 
+  const roleLabel = (
+    <div className="flex items-center gap-2 self-start pl-1">
+      <span className="size-1.5 rounded-full bg-foreground-subtle" />
+      <span className="type-b3-md text-foreground-subtle uppercase tracking-wider">
+        You
+      </span>
+    </div>
+  )
+
   if (typedMode) {
     return (
-      <div className="flex w-full flex-col gap-2">
+      <div className="flex w-full flex-col gap-3">
+        {roleLabel}
         <textarea
           value={typedAnswer}
           onChange={(e) => setTypedAnswer(e.target.value)}
@@ -190,6 +200,7 @@ export function AnswerRecorder({
 
   return (
     <div className="flex w-full flex-col items-center gap-3">
+      {roleLabel}
       <div
         data-testid="interview-record-pill"
         data-recording={isRecording || busy ? 'true' : 'false'}

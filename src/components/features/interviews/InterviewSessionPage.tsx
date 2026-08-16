@@ -47,9 +47,10 @@ function EndInterviewButton({ sessionId }: { sessionId: number }) {
         data-testid="interview-end-button"
         aria-label="End interview"
         onClick={() => setConfirmOpen(true)}
-        className="absolute right-4 top-4 z-10 flex size-9 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+        className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-foreground-muted transition-colors hover:bg-surface-muted hover:text-foreground"
       >
-        <X size={20} />
+        <span className="type-b3-md">End</span>
+        <X size={16} />
       </button>
 
       <Modal open={confirmOpen} onOpenChange={setConfirmOpen}>
@@ -175,7 +176,19 @@ export function InterviewSessionPage({ sessionId }: { sessionId: number }) {
       data-testid="interview-session"
       className="relative flex h-dvh w-full flex-col overflow-hidden bg-background"
     >
-      <EndInterviewButton sessionId={sessionId} />
+      <header className="flex shrink-0 items-center justify-between border-b border-border px-5 py-3 sm:px-8">
+        <div className="flex items-center gap-2">
+          <span className="relative flex size-2">
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-danger opacity-75" />
+            <span className="relative inline-flex size-2 rounded-full bg-danger" />
+          </span>
+          <span className="type-b3-md text-foreground-subtle uppercase tracking-wider">
+            Live · {session.topicLabel}
+          </span>
+        </div>
+
+        <EndInterviewButton sessionId={sessionId} />
+      </header>
 
       <div className="flex flex-1 items-center justify-center overflow-y-auto px-6 py-10">
         <InterviewTimeline

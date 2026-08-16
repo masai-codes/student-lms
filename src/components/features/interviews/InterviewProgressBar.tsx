@@ -11,20 +11,24 @@ export function InterviewProgressBar({
   return (
     <div
       data-testid="interview-progress-bar"
-      className="flex w-full max-w-[30rem] gap-2"
+      className="flex w-full max-w-[30rem] gap-1.5"
     >
-      {Array.from({ length: totalQuestions }, (_, i) => (
-        <div
-          key={i}
-          className={`h-1.5 flex-1 rounded-full transition-colors ${
-            i < questionNumber - 1
-              ? 'bg-brand'
-              : i === questionNumber - 1
-                ? 'bg-brand/50'
-                : 'bg-border'
-          }`}
-        />
-      ))}
+      {Array.from({ length: totalQuestions }, (_, i) => {
+        const isDone = i < questionNumber - 1
+        const isCurrent = i === questionNumber - 1
+        return (
+          <div
+            key={i}
+            className={`h-1 flex-1 rounded-full transition-colors duration-500 ${
+              isDone
+                ? 'bg-brand'
+                : isCurrent
+                  ? 'animate-pulse bg-brand'
+                  : 'bg-border'
+            }`}
+          />
+        )
+      })}
     </div>
   )
 }
