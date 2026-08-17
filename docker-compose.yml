@@ -1,11 +1,14 @@
-# Local development database for student-lms.
-# Pinned to the same MySQL version we run in RDS so local behaviour matches prod.
+# Local development services for student-lms: MySQL, Redis and Mailpit.
+# MySQL is pinned to the same version we run in RDS so local behaviour matches prod.
 #
 # Usage:
 #   npm run db:setup   # start MySQL + download & import the seed dump
 #   npm run db:up      # just start MySQL
 #   npm run db:down    # stop MySQL (keeps data)
 #   npm run db:reset   # wipe the volume and re-seed from scratch
+#
+#   docker compose up -d              # start everything (mysql + redis + mailpit)
+#   docker compose up -d redis mailpit
 #
 # All values below can be overridden from your .env file (see .env.example).
 
@@ -37,6 +40,57 @@ services:
       retries: 30
       start_period: 20s
 
+  # Caches + distributed locks (src/server/redis/*). The app only connects when
+  # ENABLE_REDIS=true; with it unset every cache/lock degrades to the DB path,
+  # so this container is optional unless you're working on cached code paths.
+  redis:
+    image: redis:7.4.10
+    container_name: student-lms-redis
+    restart: unless-stopped
+    # appendonly keeps the keyspace across container restarts. Harmless for a
+    # cache — drop the volume below (or `docker compose down -v`) to start clean.
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    volumes:
+      - student_lms_redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+
+  # Local SMTP sink for outgoing mail (login OTP emails — src/server/auth/v2/otpEmail.ts
+  # sends via localhost:1025 whenever NODE_ENV=development instead of AWS SES).
+  # Read the captured mail in the web UI at http://localhost:8025.
+  mailpit:
+    image: axllent/mailpit:v1.30.7
+    container_name: student-lms-mailpit
+    restart: unless-stopped
+    environment:
+      # Without MP_DATABASE mailpit keeps mail in memory only; this persists it
+      # in the volume below so captured OTPs survive a container restart.
+      MP_DATABASE: /data/mailpit.db
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    ports:
+      - '${MAILPIT_SMTP_PORT:-1025}:1025' # SMTP — what nodemailer talks to
+      - '${MAILPIT_UI_PORT:-8025}:8025' # web UI / API
+    volumes:
+      - student_lms_mailpit_data:/data
+    healthcheck:
+      test: ['CMD', '/mailpit', 'readyz']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+
 volumes:
   student_lms_mysql_data:
     name: student_lms_mysql_data
+  student_lms_redis_data:
+    name: student_lms_redis_data
+  student_lms_mailpit_data:
+    name: student_lms_mailpit_data

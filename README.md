@@ -66,6 +66,25 @@ DATABASE_URL="mysql://root:root@localhost:3306/lms_dev_db"
 - Data persists in the `student_lms_mysql_data` Docker volume across restarts.
   Use `npm run db:reset` for a clean slate.
 
+# Redis & Mailpit (local)
+
+`docker-compose.yml` also defines two optional dev services. Neither is needed
+for the app to boot; start them only when you work on the features below.
+
+```bash
+docker compose up -d redis mailpit   # or `docker compose up -d` for everything
+```
+
+| Service           | Port(s)                    | Why                                                                                                                                                    |
+| ----------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `redis` (7.4.10)  | `6379` (`REDIS_PORT`)      | Caches + distributed locks (`src/server/redis/*`). Set `ENABLE_REDIS=true` in `.env` to use it; when off, everything falls back to the DB.             |
+| `mailpit` (v1.30) | `1025` SMTP, `8025` web UI | Catches outgoing mail. With `NODE_ENV=development`, login OTP emails go to `localhost:1025` instead of AWS SES — read them at <http://localhost:8025>. |
+
+Host ports can be remapped via `REDIS_PORT` / `MAILPIT_SMTP_PORT` /
+`MAILPIT_UI_PORT` in `.env`, but note the OTP mailer hardcodes port `1025`
+(`src/server/auth/v2/otpEmail.ts`), so keep the SMTP mapping at `1025` unless you
+change that too.
+
 # Building For Production
 
 To build this application for production:
