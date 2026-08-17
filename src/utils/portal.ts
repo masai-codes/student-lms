@@ -5,7 +5,9 @@ import {
   portalHasMasaiLivePromo,
   portalHasMobileApp,
   portalHasSupport,
+  portalShowsCatchUpCountdown,
   portalShowsSectionOnLearnCard,
+  portalUsesWatchedAttendanceWording,
 } from '@/utils/portalCapabilities'
 
 /**
@@ -96,4 +98,23 @@ export function isMobileAppPortal(): boolean {
  */
 export function showsSectionOnLearnCard(): boolean {
   return portalShowsSectionOnLearnCard(getAppOrigin())
+}
+
+/**
+ * Whether lecture attendance reads as watch progress ("Watched" / "Not
+ * Watched") instead of presence ("Present" / "Absent") on the portal we're
+ * running on — IIT Jodhpur only. The allowlist lives in
+ * `WATCHED_ATTENDANCE_WORDING_PORTALS` (`@/utils/portalCapabilities`).
+ */
+export function usesWatchedAttendanceWording(): boolean {
+  return portalUsesWatchedAttendanceWording(getAppOrigin())
+}
+
+/**
+ * Whether the catch-up "N days remaining" countdown is shown on the portal
+ * we're running on — hidden for IIT Jodhpur. The allowlist lives in
+ * `CATCH_UP_COUNTDOWN_PORTALS` (`@/utils/portalCapabilities`).
+ */
+export function showsCatchUpCountdown(): boolean {
+  return portalShowsCatchUpCountdown(getAppOrigin())
 }
