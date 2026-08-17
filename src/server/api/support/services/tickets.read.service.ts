@@ -272,12 +272,14 @@ export async function getTicketThread(input: {
       | null
       | undefined
     const isAutoReply = commentData?.firstTemplateResponse === true
+    const isAi = commentData?.source === 'ai'
 
     return {
       id: m.id,
       message: m.message,
       createdAt: m.createdAt,
       side: isAutoReply ? 'system' : messageSide(m.authorId, input.userId),
+      isAi: isAi || undefined,
       author: toPerson({
         id: m.authorId,
         name: m.authorName,

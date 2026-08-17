@@ -42,7 +42,7 @@ export function CategorySelector({
           onClick={onRequestCallback}
           className="group flex shrink-0 items-center gap-[13px] p-[14px_12px] mt-1 rounded-[14px] border-[1.5px] border-dashed border-[#4b4396]/30 dark:border-brand/40 bg-[#f8f8fc] dark:bg-brand/10 cursor-pointer transition-all duration-150 ease-out hover:bg-[rgba(75,67,150,0.05)] dark:hover:bg-brand/15 hover:border-[#4b4396]/60 dark:hover:border-brand/60 hover:translate-y-[-1px] shadow-sm"
         >
-          <div className="flex items-center justify-center shrink-0 size-[38px] rounded-full bg-gradient-to-br from-[#4b4396] to-[#6962ac] text-white shadow-md">
+          <div className="flex items-center justify-center shrink-0 size-[38px] rounded-full bg-gradient-to-br from-[#4b4396] to-[#6962ac] text-white shadow-md dark:bg-none dark:bg-brand dark:text-brand-foreground">
             <PhoneCall weight="fill" className="size-[18px]" />
           </div>
           <div className="flex-1 min-w-0">
