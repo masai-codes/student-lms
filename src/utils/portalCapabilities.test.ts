@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  ATTENDANCE_DISCLAIMER_BANNER_PORTALS,
   CATCH_UP_COUNTDOWN_PORTALS,
   CHAT_PORTALS,
   ID_CARD_PORTALS,
@@ -13,6 +14,7 @@ import {
   portalHasMasaiLivePromo,
   portalHasMobileApp,
   portalHasSupport,
+  portalShowsAttendanceDisclaimerBanner,
   portalShowsCatchUpCountdown,
   portalShowsSectionOnLearnCard,
   portalUsesWatchedAttendanceWording,
@@ -113,5 +115,17 @@ describe('portalShowsCatchUpCountdown', () => {
 
   it('stays in sync with the allowlist', () => {
     expect([...CATCH_UP_COUNTDOWN_PORTALS]).toEqual(['masai', 'ihub'])
+  })
+})
+
+describe('portalShowsAttendanceDisclaimerBanner', () => {
+  it('hides the disclaimer strip for IIT Jodhpur only', () => {
+    expect(portalShowsAttendanceDisclaimerBanner('iitj')).toBe(false)
+    expect(portalShowsAttendanceDisclaimerBanner('masai')).toBe(true)
+    expect(portalShowsAttendanceDisclaimerBanner('ihub')).toBe(true)
+  })
+
+  it('stays in sync with the allowlist', () => {
+    expect([...ATTENDANCE_DISCLAIMER_BANNER_PORTALS]).toEqual(['masai', 'ihub'])
   })
 })

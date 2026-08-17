@@ -129,3 +129,21 @@ export const CATCH_UP_COUNTDOWN_PORTALS: ReadonlyArray<AppOrigin> = [
 export function portalShowsCatchUpCountdown(portal: AppOrigin): boolean {
   return CATCH_UP_COUNTDOWN_PORTALS.includes(portal)
 }
+
+/**
+ * Portals that show the blue attendance disclaimer strip beneath the recording
+ * on the lecture detail page (see `resolveLectureAttendanceBanner`). IIT
+ * Jodhpur hides it — its copy is written around live-session attendance, which
+ * doesn't match how IITJ students consume lectures.
+ */
+export const ATTENDANCE_DISCLAIMER_BANNER_PORTALS: ReadonlyArray<AppOrigin> = [
+  'masai',
+  'ihub',
+]
+
+/** Whether the lecture attendance disclaimer strip shows for `portal`. */
+export function portalShowsAttendanceDisclaimerBanner(
+  portal: AppOrigin,
+): boolean {
+  return ATTENDANCE_DISCLAIMER_BANNER_PORTALS.includes(portal)
+}

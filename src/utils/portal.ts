@@ -5,6 +5,7 @@ import {
   portalHasMasaiLivePromo,
   portalHasMobileApp,
   portalHasSupport,
+  portalShowsAttendanceDisclaimerBanner,
   portalShowsCatchUpCountdown,
   portalShowsSectionOnLearnCard,
   portalUsesWatchedAttendanceWording,
@@ -117,4 +118,14 @@ export function usesWatchedAttendanceWording(): boolean {
  */
 export function showsCatchUpCountdown(): boolean {
   return portalShowsCatchUpCountdown(getAppOrigin())
+}
+
+/**
+ * Whether the blue attendance disclaimer strip shows beneath the recording on
+ * the lecture detail page for the portal we're running on — hidden for IIT
+ * Jodhpur. The allowlist lives in `ATTENDANCE_DISCLAIMER_BANNER_PORTALS`
+ * (`@/utils/portalCapabilities`).
+ */
+export function showsAttendanceDisclaimerBanner(): boolean {
+  return portalShowsAttendanceDisclaimerBanner(getAppOrigin())
 }
