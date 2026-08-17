@@ -3,6 +3,7 @@ import type {
   LectureRecordingStatus,
   LectureSupportSnapshot,
 } from '@/server/api/support/support.types'
+import { getAttendanceStatusLabels } from '@/lib/lecture-attendance/attendanceStatusLabels'
 import { formatCatchUpRemainingLabel } from '@/lib/lecture-attendance/formatCatchUpRemainingLabel'
 import { getListingAttendanceRender } from '@/lib/lecture-attendance/getListingAttendanceRender'
 import type { ListingAttendanceVisibleState } from '@/lib/lecture-attendance/types'
@@ -84,6 +85,11 @@ export function getSupportAttendancePresentation(
   colorClass: string
   showAbsentReason: boolean
   absentReason: string | null
+  /**
+   * Whether this is a hard "absent" (vs pending / N/A). Callers style off this
+   * instead of comparing `label`, which is portal-dependent wording.
+   */
+  isAbsent: boolean
 } {
   if (!snapshot.showAttendance) {
     return {
@@ -91,16 +97,19 @@ export function getSupportAttendancePresentation(
       colorClass: 'text-[#62647d] dark:text-foreground-muted',
       showAbsentReason: false,
       absentReason: null,
+      isAbsent: false,
     }
   }
 
+  const labels = getAttendanceStatusLabels()
   const render = getListingAttendanceRender(snapshot.attendance)
   if (render.uiState === 'present') {
     return {
-      label: 'Present',
+      label: labels.present,
       colorClass: 'text-[#0E9F6E] dark:text-success',
       showAbsentReason: false,
       absentReason: null,
+      isAbsent: false,
     }
   }
 
@@ -111,12 +120,13 @@ export function getSupportAttendancePresentation(
   ) {
     const isPending = render.uiState === 'continue_watching'
     return {
-      label: isPending ? 'Pending' : 'Absent',
+      label: isPending ? 'Pending' : labels.absent,
       colorClass: isPending
         ? 'text-[#62647d] dark:text-foreground-muted'
         : 'text-[#ef4444] dark:text-danger',
       showAbsentReason: true,
       absentReason: buildAttendanceReason(snapshot, render.uiState),
+      isAbsent: !isPending,
     }
   }
 
@@ -125,6 +135,7 @@ export function getSupportAttendancePresentation(
     colorClass: 'text-[#62647d] dark:text-foreground-muted',
     showAbsentReason: false,
     absentReason: null,
+    isAbsent: false,
   }
 }
 
