@@ -265,4 +265,17 @@ describe('InLectureQuizModal', () => {
       vi.useRealTimers()
     }
   })
+
+  it('hides subjective scores on an already-submitted quiz', async () => {
+    hoisted.generateUrl.mockResolvedValue({
+      url: 'https://assess.example.com/t/1/review',
+      alreadySubmitted: true,
+    })
+    renderModal()
+
+    const iframe = await screen.findByTitle('In-lecture quiz')
+    expect(iframe.getAttribute('src')).toBe(
+      'https://assess.example.com/t/1/review?hideSubjectiveScores=1',
+    )
+  })
 })
