@@ -5,6 +5,7 @@ import { LectureAttendanceStatusBadge } from './LectureAttendanceStatusBadge'
 import { formatCatchUpRemainingLabel } from '@/lib/lecture-attendance/formatCatchUpRemainingLabel'
 import type { ListingAttendanceRender } from '@/lib/lecture-attendance/types'
 import { cn } from '@/lib/utils'
+import { showsCatchUpCountdown } from '@/utils/portal'
 
 type LectureAttendanceInlineProps = ListingAttendanceRender & {
   /**
@@ -31,7 +32,10 @@ export function LectureAttendanceInline({
     return null
   }
 
-  const showDays = daysRemaining != null && daysRemaining >= 0
+  // Portals that hide the catch-up countdown drop the label entirely — only the
+  // badge remains (see `showsCatchUpCountdown`).
+  const showDays =
+    daysRemaining != null && daysRemaining >= 0 && showsCatchUpCountdown()
   const remainingText = formatCatchUpRemainingLabel(daysRemaining)
 
   const badge = showBadge ? (

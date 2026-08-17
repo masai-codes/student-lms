@@ -1,5 +1,6 @@
 'use client'
 
+import { IndependenceDayDecor } from './independence-day-decor'
 import { NavbarLogo } from './navbar-logo'
 import { NavbarNavItems } from './navbar-nav-items'
 import { NavbarProfileMenu } from './navbar-profile-menu'
@@ -51,6 +52,7 @@ export function Navbar({
   className,
   forceDark,
   upNext,
+  showIndependenceDayUi,
 }: NavbarProps) {
   const hasSecondaryLinks = Boolean(secondaryRowLinks?.length)
   const hasIconCluster = Boolean(trailingActions?.length)
@@ -71,6 +73,7 @@ export function Navbar({
         className,
       )}
     >
+      {showIndependenceDayUi ? <IndependenceDayDecor /> : null}
       {/* Row 1 (Tier 1): logo + primary nav, icon cluster + CTAs + profile. */}
       <div
         data-testid="navbar-row-primary"
