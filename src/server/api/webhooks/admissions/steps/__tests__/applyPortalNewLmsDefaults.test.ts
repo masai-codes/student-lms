@@ -33,21 +33,24 @@ function writtenMeta(set: ReturnType<typeof tx>['set']) {
 }
 
 describe('applyPortalNewLmsDefaults', () => {
-  it('sets both flags for an iitj user with no meta', async () => {
-    const { handle, set } = tx(null)
+  it.each(['masai', 'ihub', 'iitj'] as const)(
+    'sets both flags for a %s user with no meta',
+    async (client) => {
+      const { handle, set } = tx(null)
 
-    await applyPortalNewLmsDefaults(handle, { userId: 7, client: 'iitj' })
+      await applyPortalNewLmsDefaults(handle, { userId: 7, client })
 
-    expect(writtenMeta(set)).toMatchObject({
-      new_lms_pages_enabled: true,
-      hide_switch_option: true,
-    })
-  })
+      expect(writtenMeta(set)).toMatchObject({
+        new_lms_pages_enabled: true,
+        hide_switch_option: true,
+      })
+    },
+  )
 
   it('preserves unrelated meta keys already on the user', async () => {
     const { handle, set } = tx({ profile_pic: 'https://example.com/a.png' })
 
-    await applyPortalNewLmsDefaults(handle, { userId: 7, client: 'iitj' })
+    await applyPortalNewLmsDefaults(handle, { userId: 7, client: 'masai' })
 
     expect(writtenMeta(set)).toMatchObject({
       profile_pic: 'https://example.com/a.png',
@@ -56,13 +59,13 @@ describe('applyPortalNewLmsDefaults', () => {
     })
   })
 
-  it('does not overwrite an explicit existing value, only fills the gap', async () => {
+  it('re-enables a user who had previously switched back to the old LMS', async () => {
     const { handle, set } = tx({ new_lms_pages_enabled: false })
 
-    await applyPortalNewLmsDefaults(handle, { userId: 7, client: 'iitj' })
+    await applyPortalNewLmsDefaults(handle, { userId: 7, client: 'masai' })
 
     expect(writtenMeta(set)).toMatchObject({
-      new_lms_pages_enabled: false,
+      new_lms_pages_enabled: true,
       hide_switch_option: true,
     })
   })
@@ -73,7 +76,7 @@ describe('applyPortalNewLmsDefaults', () => {
       hide_switch_option: true,
     })
 
-    await applyPortalNewLmsDefaults(handle, { userId: 7, client: 'iitj' })
+    await applyPortalNewLmsDefaults(handle, { userId: 7, client: 'masai' })
 
     expect(set).not.toHaveBeenCalled()
   })
@@ -81,23 +84,11 @@ describe('applyPortalNewLmsDefaults', () => {
   it('treats a non-object meta as empty rather than throwing', async () => {
     const { handle, set } = tx('not-an-object')
 
-    await applyPortalNewLmsDefaults(handle, { userId: 7, client: 'iitj' })
+    await applyPortalNewLmsDefaults(handle, { userId: 7, client: 'masai' })
 
     expect(writtenMeta(set)).toEqual({
       new_lms_pages_enabled: true,
       hide_switch_option: true,
     })
   })
-
-  it.each(['masai', 'ihub'] as const)(
-    'is a no-op for the %s client — it never even reads the user',
-    async (client) => {
-      const { handle, set, select } = tx(null)
-
-      await applyPortalNewLmsDefaults(handle, { userId: 7, client })
-
-      expect(select).not.toHaveBeenCalled()
-      expect(set).not.toHaveBeenCalled()
-    },
-  )
 })

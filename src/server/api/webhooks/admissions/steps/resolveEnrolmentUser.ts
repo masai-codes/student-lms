@@ -19,7 +19,7 @@ const FN = 'resolveEnrolmentUser'
 /**
  * Every student created here starts on the new LMS with no way back: the new
  * pages come from this app and neither LMS offers a switch. Applies to all
- * clients — `applyPortalNewLmsDefaults` still backfills *existing* iitj users.
+ * clients — `applyPortalNewLmsDefaults` does the same for *existing* users.
  */
 const NEW_STUDENT_META = {
   [NEW_LMS_PAGES_META_KEY]: true,

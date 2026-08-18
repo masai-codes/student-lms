@@ -15,29 +15,31 @@ const FN = 'applyPortalNewLmsDefaults'
 
 type Params = {
   userId: number
+  /** Logging only — the flags are applied to every client alike. */
   client: EnrolmentClient
 }
 
-/** Portals whose students live on the new LMS with no switch back to the old one. */
-const NEW_LMS_ONLY_CLIENTS: ReadonlySet<EnrolmentClient> = new Set(['iitj'])
-
 /**
- * IIT Jodhpur students are new-LMS-only: they get `new_lms_pages_enabled` so the
- * migrated pages come from this app, and `hide_switch_option` so neither LMS
- * offers a way back. Runs on every iitj enrolment (create *and* revive), so a
- * user enrolled before the flags existed is backfilled on their next enrolment.
+ * Every student enrolled through the admissions webhook lands on the new LMS:
+ * `new_lms_pages_enabled` so the migrated pages (dashboard, learn, detail
+ * pages) come from this app, and `hide_switch_option` so neither LMS offers a
+ * way back. Applies to all clients — masai, iHub and iitj alike.
  *
- * Only ever *fills in* absent keys — a value already on `users.meta` is left
- * alone, so a deliberate override (support unblocking one student) survives a
- * re-enrolment. Read-modify-write preserving every other meta key, mirroring
- * `newLmsPreference.service.ts`. No-op for masai / iHub.
+ * Runs on every enrolment (create *and* revive), so a user enrolled before this
+ * became the default is migrated on their next enrolment. That covers batch
+ * transfers too: admissions moves a student by cancelling the old enrolment and
+ * creating one on the destination batch, so the create webhook fires again.
+ *
+ * Both keys are forced to `true` rather than only filled when absent: a student
+ * who previously switched back has `new_lms_pages_enabled: false`, and leaving
+ * that while setting `hide_switch_option` would strand them on the old LMS with
+ * no CTA to return. Read-modify-write preserving every other meta key,
+ * mirroring `newLmsPreference.service.ts`.
  */
 export async function applyPortalNewLmsDefaults(
   tx: DbTransaction,
   { userId, client }: Params,
 ): Promise<void> {
-  if (!NEW_LMS_ONLY_CLIENTS.has(client)) return
-
   const rows = await tx
     .select({ meta: users.meta })
     .from(users)
@@ -48,14 +50,16 @@ export async function applyPortalNewLmsDefaults(
     rows[0]?.meta && typeof rows[0].meta === 'object' ? rows[0].meta : {}
   ) as Record<string, unknown>
 
-  const missingKeys = [
-    NEW_LMS_PAGES_META_KEY,
-    HIDE_SWITCH_OPTION_META_KEY,
-  ].filter((key) => existingMeta[key] === undefined)
-  if (missingKeys.length === 0) return
+  const alreadySet =
+    existingMeta[NEW_LMS_PAGES_META_KEY] === true &&
+    existingMeta[HIDE_SWITCH_OPTION_META_KEY] === true
+  if (alreadySet) return
 
-  const newMeta = { ...existingMeta }
-  for (const key of missingKeys) newMeta[key] = true
+  const newMeta = {
+    ...existingMeta,
+    [NEW_LMS_PAGES_META_KEY]: true,
+    [HIDE_SWITCH_OPTION_META_KEY]: true,
+  }
 
   await tx
     .update(users)
@@ -63,10 +67,9 @@ export async function applyPortalNewLmsDefaults(
     .where(eq(users.id, userId))
 
   logger.info({
-    msg: 'Applied new-LMS-only defaults to user meta',
+    msg: 'Applied new-LMS defaults to user meta',
     fn: FN,
     userId,
     client,
-    keys: missingKeys,
   })
 }
