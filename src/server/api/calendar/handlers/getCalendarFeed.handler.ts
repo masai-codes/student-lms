@@ -15,6 +15,7 @@ const DAY_MS = 86_400_000
  */
 export async function handleGetCalendarFeed(
   rawToken: string,
+  request?: Request,
 ): Promise<Response> {
   try {
     const token = rawToken.replace(/\.ics$/i, '')
@@ -31,7 +32,7 @@ export async function handleGetCalendarFeed(
     // MAX_CALENDAR_WINDOW_DAYS caps the page's requests, not this trusted span.
     const { events } = await getCalendarEvents(userId, window, null, now)
 
-    const origin = resolveAppOrigin()
+    const origin = resolveAppOrigin(request)
     const body = buildIcsFeed({ events, origin, now })
     return new Response(body, {
       status: 200,
@@ -51,7 +52,21 @@ function toDateString(ms: number): string {
   return new Date(ms).toISOString().slice(0, 10)
 }
 
-/** Deep-link origin for VEVENT URLs; falls back to the public app host. */
-function resolveAppOrigin(): string {
-  return process.env.APP_PUBLIC_ORIGIN ?? 'https://students.masaischool.com'
+/**
+ * Deep-link origin for VEVENT URLs. Taken from the incoming request so each
+ * environment links to itself (a demo subscription must not deep-link into
+ * production); `APP_PUBLIC_ORIGIN` overrides when the public host differs from
+ * what the app sees behind a proxy.
+ */
+function resolveAppOrigin(request?: Request): string {
+  const configured = process.env.APP_PUBLIC_ORIGIN?.trim()
+  if (configured) return configured.replace(/\/$/, '')
+  if (request) {
+    try {
+      return new URL(request.url).origin
+    } catch {
+      // Fall through to the default host below.
+    }
+  }
+  return 'https://students.masaischool.com'
 }
