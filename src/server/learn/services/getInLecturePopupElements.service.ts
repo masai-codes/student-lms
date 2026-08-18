@@ -65,6 +65,48 @@ function readEffectiveScheduledAt(meta: unknown): string | null {
   return typeof value === 'string' && value.trim() !== '' ? value : null
 }
 
+/** IST is a fixed UTC+05:30 (India has no DST). */
+const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000
+
+/**
+ * Whether a meta row's ZEF-sourced timestamps are stored as IST wall clock.
+ *
+ * Mirrors `isIstStored` in the admin's `zefQuizTimestampTz.ts`, deliberately: the
+ * two apps must agree on this or the same lecture reads differently in the panel
+ * and in the player.
+ *
+ * Everything in this area — `effectiveScheduledAt`, `scheduled_at`, and the poll
+ * windows — is IST wall clock, which is what ZEF sends and what the import
+ * stores verbatim. The quiz windows are the lone exception: ZEF sends those
+ * already pushed 5h30m ahead, as if the IST wall clock had been read as UTC and
+ * converted back to IST, so only they need pulling down onto everyone else's
+ * clock. Rows written by the manual pop-up upload (`source: 'lms'`) are
+ * converted on the way in and pass through untouched.
+ *
+ * KNOWN LIMITATION: this treats the convention as a property of the row's
+ * source, which is not what the data always says — some `zef` rows carry a real
+ * UTC quiz and some `lms` rows carry an IST one. Those land 5h30m out and are
+ * dropped downstream. Fixing that properly means normalising at ingest rather
+ * than compensating on read.
+ */
+function isIstStored(source: 'zef' | 'lms'): boolean {
+  return source === 'zef'
+}
+
+/**
+ * A stored timestamp as true-UTC epoch ms: the wall-clock digits, pulled back by
+ * the IST offset when the value is one of the IST-stored ones. Returns `null`
+ * when the timestamp is missing or unparseable.
+ */
+function toUtcMs(
+  timestamp: string | null | undefined,
+  istStored: boolean,
+): number | null {
+  const ms = toWallClockMs(timestamp)
+  if (ms === null) return null
+  return istStored ? ms - IST_OFFSET_MS : ms
+}
+
 /**
  * Convert an element's timestamp into a video-relative offset in whole seconds,
  * measured from `referenceMs` (video t=0). Returns `null` when the timestamp is
@@ -73,8 +115,9 @@ function readEffectiveScheduledAt(meta: unknown): string | null {
 function toOffsetSec(
   timestamp: string | null,
   referenceMs: number,
+  istStored: boolean,
 ): number | null {
-  const ms = toWallClockMs(timestamp)
+  const ms = toUtcMs(timestamp, istStored)
   if (ms === null) return null
   return Math.round((ms - referenceMs) / 1000)
 }
@@ -132,6 +175,9 @@ export async function getInLecturePopupElements(
   // one, else the session's nominal `scheduledAt`. Without either reference we
   // can't place any element on the video timeline, so surface the meta row but
   // no elements.
+  // The origin is taken as stored: it shares the poll windows' clock, and only
+  // the quiz windows are corrected against it.
+  const istStored = isIstStored(meta.source)
   const referenceMs =
     toWallClockMs(effectiveScheduledAt) ?? toWallClockMs(meta.scheduledAt)
   if (referenceMs === null) {
@@ -175,8 +221,9 @@ export async function getInLecturePopupElements(
   return {
     metaData,
     quiz: quizRows.flatMap((row) => {
-      const startSec = toOffsetSec(row.startTimestamp, referenceMs)
-      const endSec = toOffsetSec(row.endTimestamp, referenceMs)
+      // Quiz windows are the only ones stored ahead of the reference's clock.
+      const startSec = toOffsetSec(row.startTimestamp, referenceMs, istStored)
+      const endSec = toOffsetSec(row.endTimestamp, referenceMs, istStored)
       if (startSec === null || endSec === null) return []
       return [
         {
@@ -189,8 +236,9 @@ export async function getInLecturePopupElements(
       ]
     }),
     polls: pollRows.flatMap((row) => {
-      const startSec = toOffsetSec(row.startTimestamp, referenceMs)
-      const endSec = toOffsetSec(row.endTimestamp, referenceMs)
+      // Polls already share the reference's clock — never corrected.
+      const startSec = toOffsetSec(row.startTimestamp, referenceMs, false)
+      const endSec = toOffsetSec(row.endTimestamp, referenceMs, false)
       if (startSec === null || endSec === null) return []
       return [
         {
