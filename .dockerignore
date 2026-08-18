@@ -1,0 +1,60 @@
+# Build context for the Dockerfile. Only what `vite build` actually reads should
+# get shipped to the daemon — node_modules alone is 1.1GB and is reinstalled
+# inside the image from package-lock.json anyway.
+
+# Dependencies & build artifacts (rebuilt in the image)
+node_modules
+.output
+.nitro
+.tanstack
+.vite
+dist
+
+# VCS & tooling
+.git
+.gitignore
+.github
+.husky
+.vscode
+.cursor
+.agents
+# .claude/worktrees holds full checkouts of the repo (18MB+ and growing)
+.claude
+.DS_Store
+**/.DS_Store
+
+# Secrets — NEVER copy these into an image. `.env.production` is deliberately
+# NOT ignored: it is checked in, holds only public VITE_* / non-secret server
+# values, and `vite build` loads it to inline the client-side vars.
+.env
+.env.local
+.env.*.local
+
+# Tests, fixtures and reports — not part of the server bundle
+e2e
+tests
+test-results
+playwright-report
+playwright.config.ts
+vitest.config.ts
+vitest.e2e.config.ts
+vitest.setup.ts
+**/*.test.ts
+**/*.test.tsx
+
+# Deploy config for the current EC2 + CodeDeploy path (superseded by this image)
+appspec.yml
+buildspec.yml
+cloudformation.yml
+ecosystem.config.cjs
+ecosystem.local.config.cjs
+hooks
+config/cloudwatch
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Docs
+docs
+*.md
+!README.md

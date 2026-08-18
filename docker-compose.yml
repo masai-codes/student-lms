@@ -87,6 +87,40 @@ services:
       retries: 20
       start_period: 5s
 
+  # The production image (see Dockerfile) run against the containers above, so
+  # you can sanity-check a build before pushing it to ECR. Behind a profile so
+  # plain `docker compose up -d` still starts only the infra services.
+  #
+  #   docker compose --profile app up -d --build app
+  #   open http://localhost:3000
+  #
+  # This is NOT the dev loop — there is no HMR and the client bundle is built
+  # once, at image build time. Keep using `npm run dev` (port 3002) for that.
+  app:
+    profiles: ['app']
+    build:
+      context: .
+    container_name: student-lms-app
+    restart: unless-stopped
+    # Secrets and per-developer config come from .env.local; the overrides below
+    # win because `environment` is applied after `env_file`. They have to exist:
+    # .env.local points at 127.0.0.1, which inside the container is the
+    # container itself, not your host.
+    env_file:
+      - .env.local
+    environment:
+      DATABASE_URL: mysql://root:${MYSQL_ROOT_PASSWORD:-root}@mysql:3306/${MYSQL_DATABASE:-lms_dev_db}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 3000
+    ports:
+      - '${APP_PORT:-3000}:3000'
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   student_lms_mysql_data:
     name: student_lms_mysql_data

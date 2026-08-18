@@ -1,4 +1,3 @@
-import { GetParameterCommand, SSMClient } from '@aws-sdk/client-ssm'
 import { fromIni } from '@aws-sdk/credential-providers'
 import dotenv from 'dotenv'
 
@@ -6,24 +5,6 @@ let secretsPromise: Promise<void> | null = null
 
 function isLocalEnvironment() {
   return process.env.NODE_ENV === 'development'
-}
-
-function getAwsRegion() {
-  return process.env.AWS_REGION?.trim() || 'ap-south-1'
-}
-
-function createSsmClient() {
-  const region = getAwsRegion()
-  const profile = process.env.AWS_PROFILE?.trim()
-
-  if (isLocalEnvironment() && profile) {
-    return new SSMClient({
-      region,
-      credentials: fromIni({ profile }),
-    })
-  }
-
-  return new SSMClient({ region })
 }
 
 function loadLocalSecrets() {
@@ -37,30 +18,13 @@ function loadLocalSecrets() {
   }
 }
 
+// Non-local environments (EC2, ECS) get runtime secrets injected directly into
+// process.env by the deployment platform before the app starts — CodeDeploy's
+// AfterInstall hook + pm2 env, or an ECS task definition `secrets` block. There
+// is nothing left to fetch here; this only loads .env for local dev.
 async function loadSecrets() {
   if (isLocalEnvironment()) {
     loadLocalSecrets()
-  }
-
-  const paramName = import.meta.env.VITE_SSM_AWS_SECRET_NAME
-
-  // In local/dev, allow running with only .env values (no SSM required).
-  if (!paramName) {
-    return
-  }
-
-  const command = new GetParameterCommand({
-    Name: paramName,
-    WithDecryption: true,
-  })
-
-  const ssmClient = createSsmClient()
-  const response = await ssmClient.send(command)
-
-  const secrets = JSON.parse(response.Parameter?.Value || '{}')
-
-  for (const key in secrets) {
-    process.env[key] = secrets[key]
   }
 }
 

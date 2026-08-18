@@ -1,0 +1,1577 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  student-lms-production-ecs - ECS Fargate deployment stack for the Student LMS,
+  parallel to cloudformation.yml (EC2 + CodeDeploy). Includes: VPC networking,
+  ALB (IP target type), ECS Cluster + Fargate Service, ECR repository,
+  CloudFront distribution, S3 (static assets + pipeline artifacts), CodePipeline
+  (GitHub source -> Test -> Docker build/push -> ECS deploy), CloudWatch
+  monitoring and dashboard, Route53 DNS.
+  ---
+  This stack is intentionally self-contained and every named resource is
+  suffixed/prefixed so it can be deployed ALONGSIDE the existing EC2 stack in
+  the same account/region without name collisions (S3 buckets, ALB, Route53
+  record, Lambda, IAM roles all differ). Point DomainName at a staging alias
+  (e.g. learn-ecs.masaischool.com) while validating, then cut DNS over to this
+  stack's CloudFront distribution once you're confident, and finally retire
+  cloudformation.yml.
+
+# =============================================================================
+# PARAMETERS
+# =============================================================================
+Parameters:
+  ContainerImageTag:
+    Type: String
+    Default: bootstrap
+    Description: >
+      Initial image tag to seed the task definition with (CodePipeline pushes
+      new tags on every deploy after that). The ECR repo is empty on first
+      stack creation, so this should point at any tag you've pushed manually,
+      or leave 'bootstrap' and push one before the service can reach RUNNING.
+
+  SecretsManagerARN:
+    Type: String
+    Description: >
+      ARN of the AWS Secrets Manager secret containing application runtime
+      secrets (DATABASE_URL, JWT_SECRET_KEY, etc.) as a JSON blob. Same secret
+      the EC2 stack uses — ECS reads individual keys out of it directly via
+      the task definition's `secrets` block instead of a bash/jq hook.
+    AllowedPattern: '^arn:aws:secretsmanager:[a-z0-9-]+:[0-9]+:secret:.+$'
+
+  CertificateTemplatesS3BucketArn:
+    Type: String
+    Default: 'arn:aws:s3:::experience-api-production'
+    Description: Bucket ARN holding certificate templates (src/secrets.ts resolveCertificateS3Config).
+
+  AppUploadsS3BucketArn:
+    Type: String
+    Description: >
+      Bucket ARN the app reads/writes via src/server/storage/s3Upload.ts
+      (AWS_S3_BUCKET_NAME in .env.production, e.g. arn:aws:s3:::coding-platform).
+
+  RDSInstanceIdentifier:
+    Type: String
+    Description: RDS instance identifier for CloudWatch dashboard metrics.
+
+  DesiredTaskCount:
+    Type: Number
+    Default: 4
+    Description: Steady-state number of Fargate tasks.
+
+  ContainerCpu:
+    Type: String
+    Default: '1024'
+    AllowedValues: ['512', '1024', '2048', '4096']
+    Description: Fargate task-level vCPU units (1024 = 1 vCPU).
+
+  ContainerMemory:
+    Type: String
+    Default: '2048'
+    Description: Fargate task-level memory in MiB. Must be a valid pairing for ContainerCpu.
+
+  GitHubOrg:
+    Type: String
+    Default: masai-codes
+    Description: GitHub organisation name.
+
+  GitHubRepo:
+    Type: String
+    Default: student-lms
+    Description: GitHub repository name.
+
+  GitHubBranch:
+    Type: String
+    Default: main
+    Description: Branch that triggers the pipeline.
+
+  GitHubConnection:
+    Type: String
+    Default: 'arn:aws:codestar-connections:ap-south-1:016530944324:connection/71493bbf-615c-48c1-adc5-fbb0e15ecffa'
+    Description: >
+      ARN of an existing CodeStar/CodeConnections GitHub connection (same one
+      the EC2 pipeline uses — CodeConnections is not consumed exclusively).
+    AllowedPattern: '^arn:aws:(codestar-connections|codeconnections):[a-z0-9-]+:[0-9]+:connection/.+$'
+
+  ACMCertificateARNRegional:
+    Type: String
+    Default: 'arn:aws:acm:ap-south-1:016530944324:certificate/23c7139a-ae42-4b85-b56a-92c0b7efd56e'
+    Description: ACM certificate ARN in ap-south-1 (used by the ALB).
+
+  ACMCertificateARNCloudFront:
+    Type: String
+    Default: 'arn:aws:acm:us-east-1:016530944324:certificate/ca368ef5-069e-4f1c-8730-e5e3bc505417'
+    Description: ACM certificate ARN in us-east-1 (used by CloudFront).
+
+  HostedZoneId:
+    Type: String
+    Default: Z0182996VBEVAGTG3F6U
+    Description: Route53 hosted zone ID for masaischool.com.
+
+  DomainName:
+    Type: String
+    Default: learn-ecs.masaischool.com
+    Description: >
+      Domain name for this stack's CloudFront distribution. Defaults to a
+      staging alias so it can run alongside the EC2 stack's learn.masaischool.com
+      — repoint this to the production domain only when cutting over.
+
+  SNSTopicARN:
+    Type: String
+    Default: 'arn:aws:sns:ap-south-1:016530944324:Tech-Product-Stakeholders'
+    Description: Existing SNS topic ARN for CloudWatch alarm notifications.
+
+# =============================================================================
+# METADATA
+# =============================================================================
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label: { default: 'Required - fill these in before deploying' }
+        Parameters:
+          [SecretsManagerARN, AppUploadsS3BucketArn, RDSInstanceIdentifier]
+      - Label: { default: 'ECS / Fargate' }
+        Parameters:
+          [ContainerImageTag, DesiredTaskCount, ContainerCpu, ContainerMemory]
+      - Label: { default: 'GitHub Source' }
+        Parameters: [GitHubOrg, GitHubRepo, GitHubBranch, GitHubConnection]
+      - Label: { default: 'DNS & TLS' }
+        Parameters:
+          [
+            DomainName,
+            HostedZoneId,
+            ACMCertificateARNRegional,
+            ACMCertificateARNCloudFront,
+          ]
+      - Label: { default: 'Notifications' }
+        Parameters: [SNSTopicARN]
+
+# =============================================================================
+# RESOURCES
+# =============================================================================
+Resources:
+  # ---------------------------------------------------------------------------
+  # S3 - Static Assets Bucket
+  # ---------------------------------------------------------------------------
+  StaticAssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'student-lms-ecs-static-assets-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Suspended
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  StaticAssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StaticAssetsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontOAC
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${StaticAssetsBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+          - Sid: AllowCodeBuildUpload
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt CodeBuildRole.Arn
+            Action:
+              - s3:PutObject
+              - s3:PutObjectAcl
+            Resource: !Sub '${StaticAssetsBucket.Arn}/assets/*'
+
+  # ---------------------------------------------------------------------------
+  # S3 - Pipeline Artifacts Bucket
+  # ---------------------------------------------------------------------------
+  PipelineArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'student-lms-ecs-pipeline-artifacts-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireALBLogs
+            Status: Enabled
+            Prefix: alb-logs/
+            ExpirationInDays: 30
+          - Id: ExpireOldArtifacts
+            Status: Enabled
+            Prefix: codepipeline/
+            ExpirationInDays: 90
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  PipelineArtifactsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref PipelineArtifactsBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowALBAccessLogs
+            Effect: Allow
+            Principal:
+              AWS: 'arn:aws:iam::718504428378:root' # AWS ELB service account for ap-south-1
+            Action: s3:PutObject
+            Resource: !Sub '${PipelineArtifactsBucket.Arn}/alb-logs/*'
+
+  # ---------------------------------------------------------------------------
+  # NETWORKING - Custom resource Lambda to look up default VPC + subnets
+  # (separate names from the EC2 stack's lookup so both can coexist)
+  # ---------------------------------------------------------------------------
+  DefaultVpcLookupRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-ecs-vpc-lookup-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DescribeVpcSubnets
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeVpcs
+                  - ec2:DescribeSubnets
+                Resource: '*'
+
+  DefaultVpcLookupFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: student-lms-ecs-vpc-lookup
+      Runtime: python3.12
+      Handler: index.handler
+      Role: !GetAtt DefaultVpcLookupRole.Arn
+      Timeout: 30
+      Code:
+        ZipFile: |
+          import boto3, json, urllib.request, urllib.parse
+          def send(event, context, status, data={}, reason=''):
+            body = json.dumps({'Status': status, 'Reason': reason,
+              'PhysicalResourceId': context.log_stream_name,
+              'StackId': event['StackId'], 'RequestId': event['RequestId'],
+              'LogicalResourceId': event['LogicalResourceId'], 'Data': data})
+            req = urllib.request.Request(event['ResponseURL'],
+              data=body.encode(), method='PUT',
+              headers={'Content-Type': '', 'Content-Length': len(body)})
+            urllib.request.urlopen(req)
+          def handler(event, context):
+            try:
+              if event['RequestType'] == 'Delete':
+                return send(event, context, 'SUCCESS')
+              ec2 = boto3.client('ec2')
+              vpcs = ec2.describe_vpcs(Filters=[{'Name':'isDefault','Values':['true']}])['Vpcs']
+              vpc_id = vpcs[0]['VpcId']
+              subnets = ec2.describe_subnets(Filters=[{'Name':'vpc-id','Values':[vpc_id]},
+                {'Name':'defaultForAz','Values':['true']}])['Subnets']
+              subnet_ids = ','.join(s['SubnetId'] for s in subnets)
+              send(event, context, 'SUCCESS', {'VpcId': vpc_id, 'SubnetIds': subnet_ids})
+            except Exception as e:
+              send(event, context, 'FAILED', reason=str(e))
+
+  DefaultVpcInfo:
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: !GetAtt DefaultVpcLookupFunction.Arn
+
+  # ---------------------------------------------------------------------------
+  # NETWORKING - Security Groups
+  # ---------------------------------------------------------------------------
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: student-lms-ecs-alb-sg
+      GroupDescription: Security group for the student-lms ECS ALB
+      VpcId: !GetAtt DefaultVpcInfo.VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: HTTP from internet
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: HTTPS from internet
+      Tags:
+        - Key: Name
+          Value: student-lms-ecs-alb-sg
+        - Key: Project
+          Value: student-lms
+
+  ECSTaskSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: student-lms-ecs-tasks-sg
+      GroupDescription: Security group for student-lms Fargate tasks - allows inbound only from ALB
+      VpcId: !GetAtt DefaultVpcInfo.VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+          Description: App port from ALB only
+      Tags:
+        - Key: Name
+          Value: student-lms-ecs-tasks-sg
+        - Key: Project
+          Value: student-lms
+
+  # RDS Security Group (attach to your RDS instance manually post-deploy,
+  # alongside — not instead of — the EC2 stack's RDS security group)
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: student-lms-ecs-rds-sg
+      GroupDescription: Allows MySQL from student-lms Fargate tasks only. Attach to RDS instance after stack creation.
+      VpcId: !GetAtt DefaultVpcInfo.VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref ECSTaskSecurityGroup
+          Description: MySQL from Fargate tasks only
+      Tags:
+        - Key: Name
+          Value: student-lms-ecs-rds-sg
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # ALB - Application Load Balancer
+  # ---------------------------------------------------------------------------
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: student-lms-ecs-alb
+      Type: application
+      Scheme: internet-facing
+      IpAddressType: ipv4
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+      Subnets: !Split [',', !GetAtt DefaultVpcInfo.SubnetIds]
+      LoadBalancerAttributes:
+        - Key: access_logs.s3.enabled
+          Value: 'true'
+        - Key: access_logs.s3.bucket
+          Value: !Ref PipelineArtifactsBucket
+        - Key: access_logs.s3.prefix
+          Value: alb-logs
+        - Key: idle_timeout.timeout_seconds
+          Value: '60'
+        - Key: routing.http2.enabled
+          Value: 'true'
+      Tags:
+        - Key: Name
+          Value: student-lms-ecs-alb
+        - Key: Project
+          Value: student-lms
+
+  # Fargate requires TargetType: ip (tasks don't have a stable instance ID)
+  ALBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: student-lms-ecs-tg
+      Protocol: HTTP
+      Port: 3000
+      VpcId: !GetAtt DefaultVpcInfo.VpcId
+      TargetType: ip
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '30'
+      HealthCheckEnabled: true
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /api/health
+      HealthCheckPort: '3000'
+      HealthCheckIntervalSeconds: 15
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+      Matcher:
+        HttpCode: '200'
+      Tags:
+        - Key: Name
+          Value: student-lms-ecs-tg
+        - Key: Project
+          Value: student-lms
+
+  ALBListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Protocol: HTTPS
+      Port: 443
+      Certificates:
+        - CertificateArn: !Ref ACMCertificateARNRegional
+      SslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ALBTargetGroup
+
+  ALBListenerHTTP:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Protocol: HTTP
+      Port: 80
+      DefaultActions:
+        - Type: redirect
+          RedirectConfig:
+            Protocol: HTTPS
+            Port: '443'
+            StatusCode: HTTP_301
+
+  # ---------------------------------------------------------------------------
+  # ECR - Container Repository
+  # ---------------------------------------------------------------------------
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: student-lms
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Expire untagged images after 7 days",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 7
+                },
+                "action": { "type": "expire" }
+              },
+              {
+                "rulePriority": 2,
+                "description": "Keep only the last 30 tagged images",
+                "selection": {
+                  "tagStatus": "tagged",
+                  "tagPrefixList": ["v", "sha-"],
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 30
+                },
+                "action": { "type": "expire" }
+              }
+            ]
+          }
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # CloudWatch - Log Group
+  # ---------------------------------------------------------------------------
+  AppLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /student-lms/production-ecs/app
+      RetentionInDays: 30
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # IAM - ECS Task Execution Role (pulls image from ECR, writes logs, reads
+  # secrets — this is the role ECS itself assumes to START the container, NOT
+  # the app's own runtime identity)
+  # ---------------------------------------------------------------------------
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-ecs-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        # Covers ecr:GetAuthorizationToken/BatchGetImage/GetDownloadUrlForLayer
+        # and logs:CreateLogStream/PutLogEvents for the awslogs driver below.
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: SecretsManagerReadOnly
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Ref SecretsManagerARN
+              # Only needed if SecretsManagerARN is encrypted with a *customer*
+              # CMK rather than the default aws/secretsmanager key. Uncomment
+              # and scope to your CMK ARN if so:
+              # - Effect: Allow
+              #   Action: kms:Decrypt
+              #   Resource: !Ref SecretsKmsKeyArn
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # IAM - ECS Task Role (the app's own runtime AWS identity — replaces the
+  # instance profile the EC2 app relied on for the AWS SDK default credential
+  # chain: S3 cert templates, S3 uploads, SES)
+  # ---------------------------------------------------------------------------
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-ecs-task-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CertificateTemplatesReadOnly
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource: !Sub '${CertificateTemplatesS3BucketArn}/certificates/*'
+        - PolicyName: AppUploadsBucketAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: !Sub '${AppUploadsS3BucketArn}/*'
+        - PolicyName: SendTransactionalEmail
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: '*'
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # ECS - Cluster
+  # ---------------------------------------------------------------------------
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: student-lms-ecs
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+      CapacityProviders:
+        - FARGATE
+        - FARGATE_SPOT
+      DefaultCapacityProviderStrategy:
+        # Mirrors the EC2 stack's mixed On-Demand + Spot ASG policy: a small
+        # guaranteed on-demand base, everything else on Spot for cost.
+        - CapacityProvider: FARGATE
+          Base: 2
+          Weight: 1
+        - CapacityProvider: FARGATE_SPOT
+          Weight: 4
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # ECS - Task Definition
+  # ---------------------------------------------------------------------------
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: student-lms
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      Cpu: !Ref ContainerCpu
+      Memory: !Ref ContainerMemory
+      RuntimePlatform:
+        CpuArchitecture: ARM64 # matches the Graviton build the Dockerfile documents; build ARM images in CI
+        OperatingSystemFamily: LINUX
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ECSTaskRole.Arn
+      ContainerDefinitions:
+        - Name: student-lms
+          Image: !Sub '${ECRRepository.RepositoryUri}:${ContainerImageTag}'
+          Essential: true
+          PortMappings:
+            - ContainerPort: 3000
+              Protocol: tcp
+          # Give in-flight requests time to drain, matching the 15s kill_timeout
+          # the old PM2/CodeDeploy path used, plus headroom for Nitro's SIGTERM
+          # handler.
+          StopTimeout: 30
+          HealthCheck:
+            Command:
+              - CMD-SHELL
+              - 'node -e "fetch(''http://127.0.0.1:3000/api/health'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"'
+            Interval: 30
+            Timeout: 5
+            Retries: 3
+            StartPeriod: 20
+          # Static, non-secret config — the server-side equivalent of
+          # .env.production. Runtime secrets are injected below via `Secrets`,
+          # not here.
+          Environment:
+            - Name: NODE_ENV
+              Value: production
+            - Name: PORT
+              Value: '3000'
+            - Name: COOKIE_NAME
+              Value: ss_masai_lms_session
+            - Name: ADMISSIONS_SSO_BASE_URL
+              Value: https://admissions.masaischool.com
+            - Name: EXPERIENCE_API_BASE_URL
+              Value: https://experience-api.masaischool.com
+            - Name: AWS_REGION
+              Value: ap-south-1
+            - Name: AWS_S3_BUCKET_NAME
+              Value: coding-platform
+          # Each entry pulls one key out of the single JSON-blob secret via the
+          # `:jsonKey::` ARN suffix — no custom fetch code, no bash/jq hook.
+          # ECS injects these into the container's env before the app starts,
+          # using ECSTaskExecutionRole. Trim this list to match the keys that
+          # actually exist in SecretsManagerARN's JSON — a referenced key that
+          # isn't present there fails the task at launch, not silently.
+          # AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / *_SESSION_TOKEN and the
+          # S3_* credential equivalents are deliberately NOT listed: on ECS the
+          # task role above replaces them via the default credential chain,
+          # same as the EC2 instance profile did.
+          Secrets:
+            - Name: DATABASE_URL
+              ValueFrom: !Sub '${SecretsManagerARN}:DATABASE_URL::'
+            - Name: PROD_READ_ONLY_DATABASE_URL
+              ValueFrom: !Sub '${SecretsManagerARN}:PROD_READ_ONLY_DATABASE_URL::'
+            - Name: JWT_SECRET_KEY
+              ValueFrom: !Sub '${SecretsManagerARN}:JWT_SECRET_KEY::'
+            - Name: SSO_JWT_SECRET
+              ValueFrom: !Sub '${SecretsManagerARN}:SSO_JWT_SECRET::'
+            - Name: SECRET_LOGIN_TOKEN
+              ValueFrom: !Sub '${SecretsManagerARN}:SECRET_LOGIN_TOKEN::'
+            - Name: ADMISSIONS_SSO_SECRET
+              ValueFrom: !Sub '${SecretsManagerARN}:ADMISSIONS_SSO_SECRET::'
+            - Name: LMS_MASAI_LIVE_INTERNAL_KEY
+              ValueFrom: !Sub '${SecretsManagerARN}:LMS_MASAI_LIVE_INTERNAL_KEY::'
+            - Name: ASSESS_PLATFORM_AUTH_TOKEN
+              ValueFrom: !Sub '${SecretsManagerARN}:ASSESS_PLATFORM_AUTH_TOKEN::'
+            - Name: ASSESS_PLATFORM_SECRET_KEY
+              ValueFrom: !Sub '${SecretsManagerARN}:ASSESS_PLATFORM_SECRET_KEY::'
+            - Name: ASSESS_PLATFORM_CALLBACK_TOKEN
+              ValueFrom: !Sub '${SecretsManagerARN}:ASSESS_PLATFORM_CALLBACK_TOKEN::'
+            - Name: ASSESS_PRODUCT_SECRET
+              ValueFrom: !Sub '${SecretsManagerARN}:ASSESS_PRODUCT_SECRET::'
+            - Name: ANTHROPIC_API_KEY
+              ValueFrom: !Sub '${SecretsManagerARN}:ANTHROPIC_API_KEY::'
+            - Name: OPENAI_API_KEY
+              ValueFrom: !Sub '${SecretsManagerARN}:OPENAI_API_KEY::'
+            - Name: RAG_PLATFORM_API_KEY
+              ValueFrom: !Sub '${SecretsManagerARN}:RAG_PLATFORM_API_KEY::'
+            - Name: AI_TUTOR_RAG_INGEST_SECRET
+              ValueFrom: !Sub '${SecretsManagerARN}:AI_TUTOR_RAG_INGEST_SECRET::'
+            - Name: OPENROUTER_API_KEY
+              ValueFrom: !Sub '${SecretsManagerARN}:OPENROUTER_API_KEY::'
+            - Name: SUPABASE_SERVICE_ROLE_KEY
+              ValueFrom: !Sub '${SecretsManagerARN}:SUPABASE_SERVICE_ROLE_KEY::'
+            - Name: OTP_2FACTOR_API_KEY
+              ValueFrom: !Sub '${SecretsManagerARN}:OTP_2FACTOR_API_KEY::'
+            - Name: WHATSAPP_SERRI_API_KEY
+              ValueFrom: !Sub '${SecretsManagerARN}:WHATSAPP_SERRI_API_KEY::'
+            - Name: WHATSAPP_SERRI_API_KEY_MASAI
+              ValueFrom: !Sub '${SecretsManagerARN}:WHATSAPP_SERRI_API_KEY_MASAI::'
+            - Name: WHATSAPP_SERRI_API_KEY_IHUB
+              ValueFrom: !Sub '${SecretsManagerARN}:WHATSAPP_SERRI_API_KEY_IHUB::'
+            - Name: EXPO_ACCESS_TOKEN
+              ValueFrom: !Sub '${SecretsManagerARN}:EXPO_ACCESS_TOKEN::'
+            - Name: COMMUNITY_MASAIVERSE_INTERNAL_SECRET
+              ValueFrom: !Sub '${SecretsManagerARN}:COMMUNITY_MASAIVERSE_INTERNAL_SECRET::'
+            - Name: ZOOM_REDIRECTION_JWT_SECRET
+              ValueFrom: !Sub '${SecretsManagerARN}:ZOOM_REDIRECTION_JWT_SECRET::'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref AppLogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # ECS - Service
+  # ---------------------------------------------------------------------------
+  ECSService:
+    Type: AWS::ECS::Service
+    DependsOn: ALBListenerHTTPS
+    Properties:
+      ServiceName: student-lms
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref TaskDefinition
+      DesiredCount: !Ref DesiredTaskCount
+      HealthCheckGracePeriodSeconds: 120
+      CapacityProviderStrategy:
+        - CapacityProvider: FARGATE
+          Base: 2
+          Weight: 1
+        - CapacityProvider: FARGATE_SPOT
+          Weight: 4
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 100
+        MaximumPercent: 200
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets: !Split [',', !GetAtt DefaultVpcInfo.SubnetIds]
+          SecurityGroups:
+            - !Ref ECSTaskSecurityGroup
+          # Default VPC subnets are public-only; Fargate tasks need a public
+          # IP (or a NAT gateway in a real private subnet) to pull from ECR.
+          AssignPublicIp: ENABLED
+      LoadBalancers:
+        - ContainerName: student-lms
+          ContainerPort: 3000
+          TargetGroupArn: !Ref ALBTargetGroup
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # IAM - CodeBuild Role (test + docker build/push to ECR)
+  # ---------------------------------------------------------------------------
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-ecs-codebuild-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodeBuildPermissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/student-lms-ecs-*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetObjectVersion
+                Resource:
+                  - !Sub '${PipelineArtifactsBucket.Arn}/*'
+                  - !Sub '${StaticAssetsBucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt PipelineArtifactsBucket.Arn
+                  - !GetAtt StaticAssetsBucket.Arn
+              - Effect: Allow
+                Action:
+                  - codebuild:CreateReportGroup
+                  - codebuild:CreateReport
+                  - codebuild:UpdateReport
+                  - codebuild:BatchPutTestCases
+                Resource: !Sub 'arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:report-group/student-lms-ecs-*'
+              - Effect: Allow
+                Action: ecr:GetAuthorizationToken
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+                  - ecr:PutImage
+                Resource: !GetAtt ECRRepository.Arn
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # CodeBuild - Test Project
+  # ---------------------------------------------------------------------------
+  CodeBuildTestProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: student-lms-ecs-test
+      Description: Runs vitest unit tests for student-lms
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: ARM_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/amazonlinux2-aarch64-standard:3.0
+        PrivilegedMode: false
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            install:
+              runtime-versions:
+                nodejs: 24
+              commands:
+                - npm ci
+            build:
+              commands:
+                - npm test
+          cache:
+            paths:
+              - node_modules/**/*
+              - /root/.npm/**/*
+      Cache:
+        Type: S3
+        Location: !Sub '${PipelineArtifactsBucket}/codebuild-cache/test'
+      TimeoutInMinutes: 15
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # CodeBuild - Docker Build + Push to ECR
+  #
+  # Runs on the same ARM64 CodeBuild image the task definition's
+  # RuntimePlatform expects, so the image is built natively — no QEMU
+  # emulation (see the Dockerfile's "Deploying to ECS" notes on this).
+  # ---------------------------------------------------------------------------
+  CodeBuildDockerProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: student-lms-ecs-docker-build
+      Description: Builds the production Docker image and pushes it to ECR
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: ARM_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/amazonlinux2-aarch64-standard:3.0
+        PrivilegedMode: true # required for the Docker daemon
+        EnvironmentVariables:
+          - Name: ECR_REPO_URI
+            Value: !GetAtt ECRRepository.RepositoryUri
+          - Name: CONTAINER_NAME
+            Value: student-lms
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - echo "Logging in to ECR..."
+                - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$ECR_REPO_URI"
+                - IMAGE_TAG="sha-$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-12)"
+            build:
+              commands:
+                - echo "Building Docker image..."
+                - docker build -t "$ECR_REPO_URI:$IMAGE_TAG" -t "$ECR_REPO_URI:latest" .
+            post_build:
+              commands:
+                - echo "Pushing image to ECR..."
+                - docker push "$ECR_REPO_URI:$IMAGE_TAG"
+                - docker push "$ECR_REPO_URI:latest"
+                - printf '[{"name":"%s","imageUri":"%s"}]' "$CONTAINER_NAME" "$ECR_REPO_URI:$IMAGE_TAG" > imagedefinitions.json
+                - cat imagedefinitions.json
+      TimeoutInMinutes: 30
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # IAM - CodePipeline Role
+  # ---------------------------------------------------------------------------
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-ecs-codepipeline-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodePipelinePermissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketVersioning
+                Resource:
+                  - !GetAtt PipelineArtifactsBucket.Arn
+                  - !Sub '${PipelineArtifactsBucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource:
+                  - !GetAtt CodeBuildTestProject.Arn
+                  - !GetAtt CodeBuildDockerProject.Arn
+              - Effect: Allow
+                Action:
+                  - codestar-connections:UseConnection
+                Resource: !Ref GitHubConnection
+              - Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+              # ECS deploy action: registers a new task definition revision
+              # (from imagedefinitions.json) and updates the service.
+              - Effect: Allow
+                Action:
+                  - ecs:DescribeServices
+                  - ecs:DescribeTaskDefinition
+                  - ecs:DescribeTasks
+                  - ecs:ListTasks
+                  - ecs:RegisterTaskDefinition
+                  - ecs:UpdateService
+                Resource: '*'
+              - Effect: Allow
+                Action: iam:PassRole
+                Resource:
+                  - !GetAtt ECSTaskExecutionRole.Arn
+                  - !GetAtt ECSTaskRole.Arn
+                Condition:
+                  StringEquals:
+                    iam:PassedToService: ecs-tasks.amazonaws.com
+              - Effect: Allow
+                Action: sns:Publish
+                Resource: !Ref SNSTopicARN
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # CodePipeline
+  # ---------------------------------------------------------------------------
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: student-lms-production-ecs
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PipelineArtifactsBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: GitHubSource
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: '1'
+              Configuration:
+                ConnectionArn: !Ref GitHubConnection
+                FullRepositoryId: !Sub '${GitHubOrg}/${GitHubRepo}'
+                BranchName: !Ref GitHubBranch
+                OutputArtifactFormat: CODE_ZIP
+                DetectChanges: 'true'
+              OutputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+
+        - Name: Approval
+          Actions:
+            - Name: ManualApproval
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: '1'
+              Configuration:
+                NotificationArn: !Ref SNSTopicARN
+                CustomData: !Sub >-
+                  Approve to test, build and deploy ${GitHubOrg}/${GitHubRepo}
+                  (branch ${GitHubBranch}) to ${DomainName} (ECS).
+                ExternalEntityLink: !Sub 'https://github.com/${GitHubOrg}/${GitHubRepo}/commits/${GitHubBranch}'
+              RunOrder: 1
+
+        - Name: TestAndBuild
+          Actions:
+            - Name: Test
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildTestProject
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+
+            - Name: DockerBuildAndPush
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildDockerProject
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 1
+
+        - Name: Deploy
+          Actions:
+            - Name: ECSDeploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ECS
+                Version: '1'
+              Configuration:
+                ClusterName: !Ref ECSCluster
+                ServiceName: !GetAtt ECSService.Name
+                FileName: imagedefinitions.json
+              InputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 1
+
+        - Name: Invalidate
+          Actions:
+            - Name: CloudFrontInvalidation
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildInvalidationProject
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # CodeBuild - CloudFront Invalidation Project (post-deploy step)
+  # ---------------------------------------------------------------------------
+  CodeBuildInvalidationProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: student-lms-ecs-cf-invalidation
+      Description: Invalidates non-hashed CloudFront paths after each deployment
+      ServiceRole: !GetAtt CodeBuildInvalidationRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        EnvironmentVariables:
+          - Name: CLOUDFRONT_DISTRIBUTION_ID
+            Value: !Ref CloudFrontDistribution
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            build:
+              commands:
+                - echo "Invalidating CloudFront non-hashed paths..."
+                - |
+                  aws cloudfront create-invalidation \
+                    --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+                    --paths "/" "/manifest.json" "/favicon.ico"
+                - echo "CloudFront invalidation submitted."
+      TimeoutInMinutes: 5
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  CodeBuildInvalidationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: student-lms-ecs-cf-invalidation-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudFrontInvalidation
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: cloudfront:CreateInvalidation
+                Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/student-lms-ecs-cf-invalidation*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: !Sub '${PipelineArtifactsBucket.Arn}/*'
+
+  # ---------------------------------------------------------------------------
+  # CloudFront
+  # ---------------------------------------------------------------------------
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: student-lms-ecs-s3-oac
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: student-lms production-ecs distribution
+        Aliases: [!Ref DomainName]
+        ViewerCertificate:
+          AcmCertificateArn: !Ref ACMCertificateARNCloudFront
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        PriceClass: PriceClass_All
+
+        Origins:
+          - Id: S3StaticAssets
+            DomainName: !GetAtt StaticAssetsBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+            OriginAccessControlId: !GetAtt CloudFrontOAC.Id
+
+          - Id: ALBOrigin
+            DomainName: !GetAtt ALB.DNSName
+            CustomOriginConfig:
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+
+        CacheBehaviors:
+          - PathPattern: /assets/*
+            TargetOriginId: S3StaticAssets
+            ViewerProtocolPolicy: redirect-to-https
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimized
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+
+          - PathPattern: /api/cache/*
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimized
+            OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3 # Managed-AllViewer
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+
+        DefaultCacheBehavior:
+          TargetOriginId: ALBOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
+          OriginRequestPolicyId: 216adef6-5c7f-47e4-b989-5492eafa07d3 # Managed-AllViewer
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /
+            ErrorCachingMinTTL: 0
+
+      Tags:
+        - Key: Project
+          Value: student-lms
+
+  # ---------------------------------------------------------------------------
+  # Route53 - DNS records
+  # ---------------------------------------------------------------------------
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2 # CloudFront hosted zone ID (constant for all distributions)
+        EvaluateTargetHealth: false
+
+  DNSRecordIPv6:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: AAAA
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+        EvaluateTargetHealth: false
+
+  # ---------------------------------------------------------------------------
+  # CloudWatch - Dashboard
+  # ---------------------------------------------------------------------------
+  ProductionDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: student-lms-production-ecs
+      DashboardBody: !Sub
+        - |
+          {
+            "widgets": [
+              {
+                "type": "metric", "x": 0, "y": 0, "width": 12, "height": 6,
+                "properties": {
+                  "title": "ALB Request Volume", "region": "${Region}",
+                  "view": "timeSeries", "stacked": false, "period": 60, "stat": "Sum",
+                  "metrics": [
+                    [ "AWS/ApplicationELB", "RequestCount", "LoadBalancer", "${ALBFullName}" ],
+                    [ ".", "HTTPCode_Target_2XX_Count", ".", "." ],
+                    [ ".", "HTTPCode_Target_4XX_Count", ".", "." ],
+                    [ ".", "HTTPCode_Target_5XX_Count", ".", "." ]
+                  ]
+                }
+              },
+              {
+                "type": "metric", "x": 12, "y": 0, "width": 12, "height": 6,
+                "properties": {
+                  "title": "ALB Latency (P99 / TM10:99)", "region": "${Region}",
+                  "view": "timeSeries", "stacked": false, "period": 60,
+                  "metrics": [
+                    [ "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${ALBFullName}", { "stat": "p99" } ],
+                    [ "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${ALBFullName}", { "stat": "TM(10%:99%)" } ]
+                  ]
+                }
+              },
+              {
+                "type": "metric", "x": 0, "y": 6, "width": 8, "height": 6,
+                "properties": {
+                  "title": "ECS Service CPU Utilization", "region": "${Region}",
+                  "view": "timeSeries", "stacked": false, "period": 300,
+                  "metrics": [
+                    [ "AWS/ECS", "CPUUtilization", "ClusterName", "${ClusterName}", "ServiceName", "${ServiceName}" ]
+                  ]
+                }
+              },
+              {
+                "type": "metric", "x": 8, "y": 6, "width": 8, "height": 6,
+                "properties": {
+                  "title": "ECS Service Memory Utilization", "region": "${Region}",
+                  "view": "timeSeries", "stacked": false, "period": 300,
+                  "metrics": [
+                    [ "AWS/ECS", "MemoryUtilization", "ClusterName", "${ClusterName}", "ServiceName", "${ServiceName}" ]
+                  ]
+                }
+              },
+              {
+                "type": "metric", "x": 16, "y": 6, "width": 8, "height": 6,
+                "properties": {
+                  "title": "ECS Running Task Count", "region": "${Region}",
+                  "view": "timeSeries", "stacked": false, "period": 60,
+                  "metrics": [
+                    [ "ECS/ContainerInsights", "RunningTaskCount", "ClusterName", "${ClusterName}", "ServiceName", "${ServiceName}" ]
+                  ]
+                }
+              },
+              {
+                "type": "metric", "x": 0, "y": 12, "width": 8, "height": 6,
+                "properties": {
+                  "title": "ALB Unhealthy Hosts", "region": "${Region}",
+                  "view": "timeSeries", "stacked": false, "period": 60,
+                  "metrics": [
+                    [ "AWS/ApplicationELB", "UnHealthyHostCount", "LoadBalancer", "${ALBFullName}", "TargetGroup", "${TargetGroupFullName}" ]
+                  ]
+                }
+              },
+              {
+                "type": "metric", "x": 8, "y": 12, "width": 8, "height": 6,
+                "properties": {
+                  "title": "RDS CPU Utilization", "region": "${Region}",
+                  "view": "timeSeries", "stacked": false, "period": 300,
+                  "metrics": [
+                    [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "${RDSId}" ]
+                  ]
+                }
+              },
+              {
+                "type": "metric", "x": 16, "y": 12, "width": 8, "height": 6,
+                "properties": {
+                  "title": "RDS Database Connections", "region": "${Region}",
+                  "view": "timeSeries", "stacked": false, "period": 300,
+                  "metrics": [
+                    [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${RDSId}" ]
+                  ]
+                }
+              }
+            ]
+          }
+        - Region: !Ref AWS::Region
+          ALBFullName: !GetAtt ALB.LoadBalancerFullName
+          TargetGroupFullName: !GetAtt ALBTargetGroup.TargetGroupFullName
+          ClusterName: !Ref ECSCluster
+          ServiceName: !GetAtt ECSService.Name
+          RDSId: !Ref RDSInstanceIdentifier
+
+  # ---------------------------------------------------------------------------
+  # CloudWatch - Alarms
+  # ---------------------------------------------------------------------------
+  AlarmTargetResponseTimeHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: student-lms-ecs-p99-response-time-high
+      AlarmDescription: ALB P99 target response time exceeded 2 seconds
+      Namespace: AWS/ApplicationELB
+      MetricName: TargetResponseTime
+      Dimensions:
+        - Name: LoadBalancer
+          Value: !GetAtt ALB.LoadBalancerFullName
+      ExtendedStatistic: p99
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 2
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref SNSTopicARN]
+      OKActions: [!Ref SNSTopicARN]
+
+  Alarm5XXHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: student-lms-ecs-5xx-count-high
+      AlarmDescription: ALB target 5XX count exceeded 50 per minute
+      Namespace: AWS/ApplicationELB
+      MetricName: HTTPCode_Target_5XX_Count
+      Dimensions:
+        - Name: LoadBalancer
+          Value: !GetAtt ALB.LoadBalancerFullName
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 50
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref SNSTopicARN]
+      OKActions: [!Ref SNSTopicARN]
+
+  AlarmCPUHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: student-lms-ecs-cpu-high
+      AlarmDescription: ECS service average CPU utilization exceeded 85%
+      Namespace: AWS/ECS
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Ref ECSCluster
+        - Name: ServiceName
+          Value: !GetAtt ECSService.Name
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 85
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref SNSTopicARN]
+      OKActions: [!Ref SNSTopicARN]
+
+  AlarmMemoryHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: student-lms-ecs-memory-high
+      AlarmDescription: ECS service average memory utilization exceeded 85%
+      Namespace: AWS/ECS
+      MetricName: MemoryUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Ref ECSCluster
+        - Name: ServiceName
+          Value: !GetAtt ECSService.Name
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 85
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref SNSTopicARN]
+      OKActions: [!Ref SNSTopicARN]
+
+  AlarmUnhealthyHosts:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: student-lms-ecs-unhealthy-hosts
+      AlarmDescription: One or more ALB targets are unhealthy
+      Namespace: AWS/ApplicationELB
+      MetricName: UnHealthyHostCount
+      Dimensions:
+        - Name: LoadBalancer
+          Value: !GetAtt ALB.LoadBalancerFullName
+        - Name: TargetGroup
+          Value: !GetAtt ALBTargetGroup.TargetGroupFullName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref SNSTopicARN]
+      OKActions: [!Ref SNSTopicARN]
+
+Outputs:
+  ManualStepsRequired:
+    Description: >
+      1. GITHUB CONNECTION: Developer Tools > Connections > Update pending
+         connection (reuse the same one the EC2 stack uses, or create a new one).
+      2. RDS SECURITY GROUP: Attach RDSSecurityGroupId output to your RDS instance
+         (in addition to, not instead of, the EC2 stack's RDS security group).
+      3. FIRST IMAGE: The ECR repo is empty on stack creation and ContainerImageTag
+         defaults to a tag that doesn't exist yet, so the initial ECS service will
+         sit at 0/N healthy tasks until you push an image or run the pipeline once:
+         aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin <ECRRepositoryUri>
+         docker build -t <ECRRepositoryUri>:bootstrap .
+         docker push <ECRRepositoryUri>:bootstrap
+      4. SECRETS: Confirm every key referenced in TaskDefinition's `Secrets`
+         block actually exists in SecretsManagerARN's JSON — a missing key fails
+         task launch. Trim the list in the template to match your real secret.
+    Value: 'See description above'
+
+  CloudFrontDistributionId:
+    Description: CloudFront distribution ID
+    Value: !Ref CloudFrontDistribution
+
+  CloudFrontDomainName:
+    Description: CloudFront distribution domain name
+    Value: !GetAtt CloudFrontDistribution.DomainName
+
+  ALBDNSName:
+    Description: ALB DNS name (internal - traffic comes via CloudFront)
+    Value: !GetAtt ALB.DNSName
+
+  ECRRepositoryUri:
+    Description: ECR repository URI to push images to
+    Value: !GetAtt ECRRepository.RepositoryUri
+
+  ECSClusterName:
+    Description: ECS cluster name
+    Value: !Ref ECSCluster
+
+  ECSServiceName:
+    Description: ECS service name
+    Value: !GetAtt ECSService.Name
+
+  StaticAssetsBucketName:
+    Description: S3 bucket for static assets
+    Value: !Ref StaticAssetsBucket
+
+  PipelineArtifactsBucketName:
+    Description: S3 bucket for pipeline artifacts
+    Value: !Ref PipelineArtifactsBucket
+
+  RDSSecurityGroupId:
+    Description: >
+      Security group ID to attach to your RDS instance.
+      Manual step: RDS Console -> Instance -> Modify -> Add this SG.
+    Value: !Ref RDSSecurityGroup
+
+  PipelineURL:
+    Description: CodePipeline console URL
+    Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/codesuite/codepipeline/pipelines/student-lms-production-ecs/view'
+
+  DashboardURL:
+    Description: CloudWatch dashboard URL
+    Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home#dashboards:name=student-lms-production-ecs'
+
+  AppLogGroupName:
+    Description: CloudWatch Logs group for application stdout/stderr
+    Value: !Ref AppLogGroup
+
+  AppURL:
+    Description: Application URL
+    Value: !Sub 'https://${DomainName}'

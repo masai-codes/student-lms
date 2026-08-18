@@ -9,7 +9,7 @@ new feature in `student-lms-experience`. Read it before touching any code.
 
 | Layer          | Technology                                                        |
 | -------------- | ----------------------------------------------------------------- |
-| Runtime        | Node.js ≥ 22                                                      |
+| Runtime        | Node.js ≥ 24                                                      |
 | Framework      | TanStack Start (full-stack React) + TanStack Router (file-based)  |
 | Bundler        | Vite 7                                                            |
 | Server runtime | Nitro (`node-server` preset)                                      |
@@ -20,7 +20,7 @@ new feature in `student-lms-experience`. Read it before touching any code.
 | Validation     | Zod                                                               |
 | AI             | Vercel AI SDK + Anthropic                                         |
 | Storage        | AWS S3                                                            |
-| Testing        | Vitest + Testing Library                                          |
+| Testing        | Vitest + Testing Library + Playwright Test                        |
 | Deploy         | `vite build` → `.output/server/`, PM2                             |
 
 ---
