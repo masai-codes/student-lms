@@ -15,6 +15,7 @@ const FN = 'applyPortalNewLmsDefaults'
 
 type Params = {
   userId: number
+  /** Logging only — the flags are applied to every client alike. */
   client: EnrolmentClient
 }
 
@@ -25,7 +26,9 @@ type Params = {
  * way back. Applies to all clients — masai, iHub and iitj alike.
  *
  * Runs on every enrolment (create *and* revive), so a user enrolled before this
- * became the default is migrated on their next enrolment.
+ * became the default is migrated on their next enrolment. That covers batch
+ * transfers too: admissions moves a student by cancelling the old enrolment and
+ * creating one on the destination batch, so the create webhook fires again.
  *
  * Both keys are forced to `true` rather than only filled when absent: a student
  * who previously switched back has `new_lms_pages_enabled: false`, and leaving
