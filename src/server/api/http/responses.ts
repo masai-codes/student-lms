@@ -50,6 +50,7 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_FETCHING_ANNOUNCEMENTS':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_ENROLLED_BATCHES':
+      case 'SERVER_ERROR_FETCHING_MY_COURSES':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_BATCH_LEARNING_DATA':
         return jsonError(500, error.message)

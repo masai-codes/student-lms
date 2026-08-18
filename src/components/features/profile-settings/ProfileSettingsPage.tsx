@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { CaretRight, SignOut } from '@phosphor-icons/react'
 
-import { fetchProfile } from '@/lib/api/profile/profileApi'
+import { fetchProfileOverview } from '@/lib/api/profile/profileApi'
+import { DEFAULT_PROFILE_TAB } from '@/components/features/profile/profileTabsConfig'
 import type { NavItem } from '@/lib/navigation/navItemConfig'
 import { useAppNavItems } from '@/lib/navigation/useAppNavItems'
 import { hidesMasaiOnlyFeatures } from '@/utils/portal'
@@ -79,7 +80,7 @@ export function ProfileSettingsPage() {
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
-    queryFn: fetchProfile,
+    queryFn: fetchProfileOverview,
     staleTime: 2 * 60 * 1000,
   })
 
@@ -121,8 +122,8 @@ export function ProfileSettingsPage() {
   ].filter((item): item is NavItem => Boolean(item))
 
   const displayName = profile?.name ?? user.name
-  const avatarSrc = profile?.profileImageUrl ?? user.profileImageUrl ?? null
-  const subtitle = profile?.mobile ?? profile?.email ?? null
+  const avatarSrc = profile?.avatarUrl ?? user.profileImageUrl ?? null
+  const subtitle = profile?.phone ?? profile?.email ?? null
 
   return (
     <div
@@ -140,7 +141,7 @@ export function ProfileSettingsPage() {
           onClick={() =>
             void navigate({
               to: '/profile',
-              search: { tab: 'profile-details' },
+              search: { tab: DEFAULT_PROFILE_TAB },
             })
           }
           data-testid="profile-settings-profile-card"

@@ -318,7 +318,7 @@ export function useAppNavItems() {
       {
         id: 'courses',
         type: 'internal-link',
-        to: '/my-courses',
+        to: '/my-programs',
         label: 'My Programs',
         icon: GraduationCap,
         uiType: 'tertiary',

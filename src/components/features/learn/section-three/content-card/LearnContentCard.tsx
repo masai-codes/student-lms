@@ -214,8 +214,9 @@ export function LearnContentCard({
                         type="default"
                         size="regular"
                         label={tag}
+                        title={tag}
                         tabIndex={-1}
-                        className="cursor-default transition-colors duration-200"
+                        className="max-w-[24ch] cursor-default transition-colors duration-200"
                         {...resolveTagChipPalette(tag)}
                       />
                     ))}
@@ -256,8 +257,9 @@ export function LearnContentCard({
                         type="default"
                         size="regular"
                         label={tag}
+                        title={tag}
                         tabIndex={-1}
-                        className="cursor-default transition-colors duration-200"
+                        className="max-w-[24ch] cursor-default transition-colors duration-200"
                         {...resolveTagChipPalette(tag)}
                       />
                     ))}

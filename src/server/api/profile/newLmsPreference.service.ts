@@ -69,7 +69,7 @@ export async function getNewLmsPagesPreference(
 
 /**
  * Sets the flag, preserving every other key already on users.meta.
- * Read-modify-write, mirroring emailPreferences.service.ts.
+ * Read-modify-write against users.meta.
  *
  * When the user switches back (true → false), appends an entry to the
  * `new_lms_switch_feedback` array with the optional feedback text, so all
