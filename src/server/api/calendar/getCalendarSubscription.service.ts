@@ -33,9 +33,17 @@ export async function getCalendarSubscriptionLink(
 
   if (typeof token !== 'string' || token.length < 16) {
     token = randomBytes(16).toString('hex')
+    // Write ONLY this JSON path instead of re-serialising the whole object.
+    // `users.meta` is shared with several features that read-modify-write it;
+    // a full-object write here would clobber any key another request changed
+    // in between (and vice-versa, a lost token silently kills every live
+    // calendar subscription, since the feed URL is the token). JSON_SET is
+    // atomic at the path level and can't be expressed with the query builder.
     await db
       .update(users)
-      .set({ meta: { ...meta, [CALENDAR_TOKEN_META_KEY]: token } })
+      .set({
+        meta: sql`json_set(coalesce(${users.meta}, '{}'), '$.calendar_token', ${token})`,
+      })
       .where(eq(users.id, userId))
   }
 

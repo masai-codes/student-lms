@@ -49,17 +49,23 @@ describe('getCalendarSubscriptionLink', () => {
     expect(hoisted.updateSet).not.toHaveBeenCalled()
   })
 
-  it('mints and persists a token when none exists, preserving other meta', async () => {
+  it('mints a token via an atomic JSON_SET so concurrent meta writes survive', async () => {
     hoisted.selectRows = [{ meta: { showWelcomeModal: true } }]
     const result = await getCalendarSubscriptionLink(9, ORIGIN)
     expect(result.calendarUrl).toMatch(
       new RegExp(`^${ORIGIN}/api/calendar/feed/[a-f0-9]{32}\\.ics$`),
     )
+    // The update must target only `$.calendar_token` — a whole-object write
+    // would drop keys another request changed in between.
     const written = hoisted.updateSet.mock.calls[0][0] as {
-      meta: Record<string, unknown>
+      meta: { queryChunks?: Array<{ value?: Array<string> }> }
     }
-    expect(written.meta.showWelcomeModal).toBe(true)
-    expect(written.meta.calendar_token).toMatch(/^[a-f0-9]{32}$/)
+    const sqlText = (written.meta.queryChunks ?? [])
+      .map((chunk) => (Array.isArray(chunk.value) ? chunk.value.join('') : ''))
+      .join('')
+    expect(sqlText).toContain('json_set')
+    expect(sqlText).toContain('$.calendar_token')
+    expect(written.meta).not.toHaveProperty('showWelcomeModal')
   })
 
   it('mints when meta is null', async () => {
