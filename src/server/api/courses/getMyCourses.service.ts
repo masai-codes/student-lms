@@ -128,8 +128,8 @@ function toCancelledItem(
 /**
  * Programs the student can actually open first, the ones with no detail page last —
  * a card with no "Program Details" button is a dead end, so it should not sit above
- * a program the student can act on. Stable, so the newest-enrolment-first order is
- * preserved within each group.
+ * a program the student can act on. Stable, so newest-enrolment-first order holds
+ * within each group.
  */
 function detailsFirst<T extends { showBatchDetails: boolean }>(items: Array<T>): Array<T> {
   return [
@@ -186,10 +186,9 @@ export async function getMyCourses(userId: number): Promise<MyCoursesData> {
     ...cancelledEntries.map((entry) => entry.batchId),
   ])
 
-  // `getBatchIdsForEnrolledUser` returns oldest enrolment first; the listing leads
-  // with the student's most recent program, matching /learn's default selection.
-  const enrolledRows = [...activeBatchIds]
-    .reverse()
+  // `getBatchIdsForEnrolledUser` already returns newest-enrolment-first, which is
+  // the order this listing wants — keep it, matching /learn's default selection.
+  const enrolledRows = activeBatchIds
     .map((batchId) => byId.get(batchId))
     .filter((row): row is BatchRow => row !== undefined)
 

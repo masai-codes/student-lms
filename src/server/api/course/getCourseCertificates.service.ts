@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm'
 import { db } from '@/db'
 import { resolveCertificateS3Config } from '@/secrets'
+import { asHttpUrl } from '@/lib/certificates/certificateShare'
 
 export interface CertificateItem {
   certificateObjectId: string
@@ -107,10 +108,21 @@ async function generateSignedUrl(objectKey: string): Promise<string | null> {
   }
 }
 
+/**
+ * @param batchId a batch to scope to, or `null` for every batch the user holds a
+ *   certificate in (the profile tab, which is not batch-scoped).
+ */
 export async function getCourseCertificates(
-  batchId: number,
+  batchId: number | null,
   userId: number,
 ): Promise<CertificateItem[]> {
+  // Composed rather than interpolated as `(? IS NULL OR …)` so the unscoped
+  // query stays index-friendly on `certificate_user_relation(user_id)`.
+  const relationBatchFilter =
+    batchId == null ? sql`` : sql`AND cur.batch_id = ${batchId}`
+  const legacyBatchFilter =
+    batchId == null ? sql`` : sql`AND batch_id = ${batchId}`
+
   const [newRows, legacyRows] = await Promise.all([
     normalizeRows(
       await db.execute(sql`
@@ -118,22 +130,24 @@ export async function getCourseCertificates(
         cbs.certificate_object_id,
         cbs.meta                     AS cbsMeta,
         ctb.meta                     AS ctbMeta,
-        ctb.batch_name               AS batchName
+        ctb.batch_name               AS templateBatchName,
+        b.name                       AS batchName
       FROM certificate_user_relation cur
       JOIN certificates_batch_students cbs ON cbs.id = cur.certificate_id
       JOIN certificates_template_batch ctb ON ctb.id = cbs.batch_id
+      LEFT JOIN batches b ON b.id = cur.batch_id
       WHERE cur.user_id  = ${userId}
-        AND cur.batch_id = ${batchId}
+        ${relationBatchFilter}
         AND cur.deleted_at IS NULL
       ORDER BY cur.created_at DESC
     `),
     ),
     normalizeRows(
       await db.execute(sql`
-      SELECT id, certificate_type, certificate_url, share_text, created_at
+      SELECT id, certificate_type, certificate_code, certificate_url, share_text, created_at
       FROM user_certificates
       WHERE user_id  = ${userId}
-        AND batch_id = ${batchId}
+        ${legacyBatchFilter}
       ORDER BY created_at DESC
     `),
     ),
@@ -161,7 +175,20 @@ export async function getCourseCertificates(
         certificateObjectId: objectKey,
         code: null,
         pdfUrl,
+        // The admin tool stores the public verification link on the student row
+        // when it issues the certificate; that is the authoritative value and the
+        // only one the old LMS reads. Building it from CERTIFICATE_VERIFY_BASE_URL
+        // is a fallback for rows issued before that field existed — and it yields
+        // null wherever that env var is unset, which is why every certificate
+        // looked unshareable/unviewable before this.
         verificationUrl: (() => {
+          const stored = asHttpUrl(
+            cbsMeta['verificationUrl']
+              ? String(cbsMeta['verificationUrl'])
+              : null,
+          )
+          if (stored) return stored
+
           const certId = cbsMeta['certificateId']
             ? String(cbsMeta['certificateId'])
             : null
@@ -170,7 +197,7 @@ export async function getCourseCertificates(
             /\/$/,
             '',
           )
-          return base ? `${base}/${certId}` : null
+          return base ? asHttpUrl(`${base}/${certId}`) : null
         })(),
         certificateTitle: ctbMeta['certificateTitle']
           ? String(ctbMeta['certificateTitle'])
@@ -181,7 +208,10 @@ export async function getCourseCertificates(
         issuedDateIso: verificationConfig['issuedDateIso']
           ? String(verificationConfig['issuedDateIso'])
           : null,
-        batchName: String(row.batchName ?? ''),
+        // The enrolment batch ("IITRPRAI-2409"), matching the old LMS. The
+        // template's own `batch_name` is an internal label ("test2") and is only
+        // a fallback.
+        batchName: String(row.batchName ?? row.templateBatchName ?? ''),
       }
     }),
   )
@@ -190,8 +220,15 @@ export async function getCourseCertificates(
     (row): CertificateItem => ({
       certificateObjectId: `legacy-${String(row.id)}`,
       code: row.certificate_code ? String(row.certificate_code) : null,
-      pdfUrl: row.certificate_url ? String(row.certificate_url) : null,
-      verificationUrl: row.share_text ? String(row.share_text) : null,
+      // `user_certificates.certificate_url` is a public verification page
+      // (verify.masaischool.com/certificate/<code>), not a file, so it belongs in
+      // verificationUrl. It was previously mapped to pdfUrl while
+      // verificationUrl was taken from `share_text` — LinkedIn caption copy —
+      // which the view modal then tried to load as an iframe src.
+      pdfUrl: null,
+      verificationUrl: asHttpUrl(
+        row.certificate_url ? String(row.certificate_url) : null,
+      ),
       certificateTitle: row.certificate_type
         ? String(row.certificate_type)
         : null,
