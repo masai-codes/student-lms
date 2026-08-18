@@ -50,7 +50,9 @@ const PROVIDERS: Array<{
 ]
 
 // Same URL recipes as the old LMS (Google wants the `cid` form with an http
-// scheme; Apple uses webcal), so subscriptions behave identically.
+// scheme; Apple uses webcal), so subscriptions behave identically. The feed
+// host serves the ICS over plain HTTP as well as HTTPS, so the downgrade is
+// safe — verified against the deployed host.
 export function buildProviderUrl(
   provider: Exclude<CalendarProvider, 'copy'>,
   calendarUrl: string,
