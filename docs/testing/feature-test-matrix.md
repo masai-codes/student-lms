@@ -1,6 +1,13 @@
 # Feature Test Matrix
 
-Last updated: 2026-08-12
+Last updated: 2026-08-14
+
+## My Calendar (`/my-calendar`)
+
+- Area: Rebuild of the old LMS's live `/my-calendar` (react-big-calendar month/week/day of lectures + assignments + quizzes, batch filter, event modal, ICS subscribe). REST only: `GET /api/calendar/events` (server-derived section scope — fixes the old GraphQL API trusting client `section_ids`; true-overlap window + IST pad + exact trim; `makePausedScheduleFilter` restrictions; per-type `effectiveEnd` fallbacks; lecture `joinLive` via the shared learn CTA builder), `GET /api/calendar/batches`, `GET /api/calendar/subscription-link` (token at `users.meta.calendar_token`, old-LMS-compatible), public `GET /api/calendar/feed/$token` (RFC 5545, true-UTC). URL state `?view=&date=&batchId=` deep-links weeks/days (old page only kept the month name). Stable per-type token colors + legend, Today button, timezone-correct grid, skeleton/empty/error+retry, `data-testid` + `l_calendar_*` GTM throughout; react-big-calendar skinned with semantic tokens (`calendar-rbc.css`). Nav item flipped from external old-LMS link to internal; `/my-calendar` added to `isMigratedRoute()`.
+- Status: Covered (window validation, event building, scoping/leak prevention, restriction filtering, merge/sort/trim, ICS serialization + token lifecycle, handler status mapping, URL-state parsing, range math, non-IST viewer day bucketing (TZ-mutating), toolbar/modal/page UI states).
+- Test files: `src/server/api/calendar/**/__tests__/*.test.ts`, `src/lib/calendar/*.test.ts`, `src/components/features/calendar/*.test.tsx`
+- Notes: See `docs/testing/features/my-calendar.md` and `docs/my-calendar-old-vs-new.md`. Quiz events have no detail link (no quiz route in the new LMS yet). RBC grid interactions not exercised in jsdom — browser QA recommended.
 
 ## My Programs listing (`/my-programs`)
 

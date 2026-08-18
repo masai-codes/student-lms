@@ -2,8 +2,8 @@
  * The migrated pages released to the new LMS behind the per-user "Try New"
  * flag: Dashboard, Learn listing, Lecture / Assignment / Resource detail, plus
  * Announcements, Messages, Bookmarks, What's New, Support, Chat, the Programs
- * listing (`/my-programs`) and Profile & Settings. When the user opts in
- * these stay on the new LMS; otherwise (with legacy redirect enabled) they are
+ * listing (`/my-programs`), Profile & Settings and Calendar. When the user
+ * opts in these stay on the new LMS; otherwise (with legacy redirect enabled) they are
  * served by the old LMS.
  *
  * Keep this list in sync with the old LMS `isMigratedPath` matcher
@@ -49,5 +49,7 @@ export function isMigratedRoute(pathname: string): boolean {
   // Profile: only the overview. Its tabs live in `?tab=`, not sub-paths, and
   // the sibling `/profile-settings` hub is matched separately above.
   if (pathname === '/profile') return true
+  // Calendar (the old LMS serves it at the same `/my-calendar` path).
+  if (pathname === '/my-calendar') return true
   return false
 }

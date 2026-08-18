@@ -26,6 +26,7 @@ describe('isMigratedRoute', () => {
     '/profile',
     // Mobile "More" hub; same path on both apps.
     '/profile-settings',
+    '/my-calendar',
   ])('treats %s as migrated', (pathname) => {
     expect(isMigratedRoute(pathname)).toBe(true)
   })

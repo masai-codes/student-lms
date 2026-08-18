@@ -62,6 +62,9 @@ import { Route as ApiDashboardPendingTasksRouteImport } from './routes/api/dashb
 import { Route as ApiDashboardOverviewAppRouteImport } from './routes/api/dashboard/overview-app'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiDashboardNavbarPillRouteImport } from './routes/api/dashboard/navbar-pill'
+import { Route as ApiCalendarSubscriptionLinkRouteImport } from './routes/api/calendar/subscription-link'
+import { Route as ApiCalendarEventsRouteImport } from './routes/api/calendar/events'
+import { Route as ApiCalendarBatchesRouteImport } from './routes/api/calendar/batches'
 import { Route as ApiBookmarksFilterOptionsRouteImport } from './routes/api/bookmarks/filter-options'
 import { Route as ApiAssessmentCallbackLiveProgressRouteImport } from './routes/api/assessment-callback/live-progress'
 import { Route as ApiAnnouncementUnreadCountRouteImport } from './routes/api/announcement/unread-count'
@@ -87,6 +90,7 @@ import { Route as ApiAnnouncementIdIndexRouteImport } from './routes/api/announc
 import { Route as protectedLayoutWhatsNewIndexRouteImport } from './routes/(protected)/_layout/whats-new/index'
 import { Route as protectedLayoutSupportIndexRouteImport } from './routes/(protected)/_layout/support/index'
 import { Route as protectedLayoutProfileIndexRouteImport } from './routes/(protected)/_layout/profile/index'
+import { Route as protectedLayoutMyCalendarIndexRouteImport } from './routes/(protected)/_layout/my-calendar/index'
 import { Route as protectedLayoutMasaiverseIndexRouteImport } from './routes/(protected)/_layout/masaiverse/index'
 import { Route as protectedLayoutLearnIndexRouteImport } from './routes/(protected)/_layout/learn/index'
 import { Route as protectedLayoutInterviewsIndexRouteImport } from './routes/(protected)/_layout/interviews/index'
@@ -156,6 +160,7 @@ import { Route as ApiCourseBatchIdDetailsRouteImport } from './routes/api/course
 import { Route as ApiCourseBatchIdCertificatesRouteImport } from './routes/api/course/$batchId/certificates'
 import { Route as ApiCourseBatchIdAttendanceRouteImport } from './routes/api/course/$batchId/attendance'
 import { Route as ApiCourseBatchIdAgreementsRouteImport } from './routes/api/course/$batchId/agreements'
+import { Route as ApiCalendarFeedTokenRouteImport } from './routes/api/calendar/feed.$token'
 import { Route as ApiAnnouncementIdMarkUnreadRouteImport } from './routes/api/announcement/$id/mark-unread'
 import { Route as ApiAnnouncementIdMarkReadRouteImport } from './routes/api/announcement/$id/mark-read'
 import { Route as ApiAnnouncementIdBookmarkRouteImport } from './routes/api/announcement/$id/bookmark'
@@ -511,6 +516,22 @@ const ApiDashboardNavbarPillRoute = ApiDashboardNavbarPillRouteImport.update({
   path: '/api/dashboard/navbar-pill',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCalendarSubscriptionLinkRoute =
+  ApiCalendarSubscriptionLinkRouteImport.update({
+    id: '/api/calendar/subscription-link',
+    path: '/api/calendar/subscription-link',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiCalendarEventsRoute = ApiCalendarEventsRouteImport.update({
+  id: '/api/calendar/events',
+  path: '/api/calendar/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCalendarBatchesRoute = ApiCalendarBatchesRouteImport.update({
+  id: '/api/calendar/batches',
+  path: '/api/calendar/batches',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBookmarksFilterOptionsRoute =
   ApiBookmarksFilterOptionsRouteImport.update({
     id: '/api/bookmarks/filter-options',
@@ -649,6 +670,12 @@ const protectedLayoutProfileIndexRoute =
   protectedLayoutProfileIndexRouteImport.update({
     id: '/profile/',
     path: '/profile/',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
+const protectedLayoutMyCalendarIndexRoute =
+  protectedLayoutMyCalendarIndexRouteImport.update({
+    id: '/my-calendar/',
+    path: '/my-calendar/',
     getParentRoute: () => protectedLayoutRouteRoute,
   } as any)
 const protectedLayoutMasaiverseIndexRoute =
@@ -1052,6 +1079,11 @@ const ApiCourseBatchIdAgreementsRoute =
     path: '/api/course/$batchId/agreements',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiCalendarFeedTokenRoute = ApiCalendarFeedTokenRouteImport.update({
+  id: '/api/calendar/feed/$token',
+  path: '/api/calendar/feed/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAnnouncementIdMarkUnreadRoute =
   ApiAnnouncementIdMarkUnreadRouteImport.update({
     id: '/api/announcement/$id/mark-unread',
@@ -1533,6 +1565,9 @@ export interface FileRoutesByFullPath {
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/assessment-callback/live-progress': typeof ApiAssessmentCallbackLiveProgressRoute
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
+  '/api/calendar/batches': typeof ApiCalendarBatchesRoute
+  '/api/calendar/events': typeof ApiCalendarEventsRoute
+  '/api/calendar/subscription-link': typeof ApiCalendarSubscriptionLinkRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/overview-app': typeof ApiDashboardOverviewAppRoute
@@ -1601,6 +1636,7 @@ export interface FileRoutesByFullPath {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/calendar/feed/$token': typeof ApiCalendarFeedTokenRoute
   '/api/course/$batchId/agreements': typeof ApiCourseBatchIdAgreementsRoute
   '/api/course/$batchId/attendance': typeof ApiCourseBatchIdAttendanceRoute
   '/api/course/$batchId/certificates': typeof ApiCourseBatchIdCertificatesRoute
@@ -1670,6 +1706,7 @@ export interface FileRoutesByFullPath {
   '/interviews/': typeof protectedLayoutInterviewsIndexRoute
   '/learn/': typeof protectedLayoutLearnIndexRoute
   '/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/my-calendar/': typeof protectedLayoutMyCalendarIndexRoute
   '/profile/': typeof protectedLayoutProfileIndexRoute
   '/support/': typeof protectedLayoutSupportIndexRoute
   '/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
@@ -1756,6 +1793,9 @@ export interface FileRoutesByTo {
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/assessment-callback/live-progress': typeof ApiAssessmentCallbackLiveProgressRoute
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
+  '/api/calendar/batches': typeof ApiCalendarBatchesRoute
+  '/api/calendar/events': typeof ApiCalendarEventsRoute
+  '/api/calendar/subscription-link': typeof ApiCalendarSubscriptionLinkRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/overview-app': typeof ApiDashboardOverviewAppRoute
@@ -1824,6 +1864,7 @@ export interface FileRoutesByTo {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/calendar/feed/$token': typeof ApiCalendarFeedTokenRoute
   '/api/course/$batchId/agreements': typeof ApiCourseBatchIdAgreementsRoute
   '/api/course/$batchId/attendance': typeof ApiCourseBatchIdAttendanceRoute
   '/api/course/$batchId/certificates': typeof ApiCourseBatchIdCertificatesRoute
@@ -1893,6 +1934,7 @@ export interface FileRoutesByTo {
   '/interviews': typeof protectedLayoutInterviewsIndexRoute
   '/learn': typeof protectedLayoutLearnIndexRoute
   '/masaiverse': typeof protectedLayoutMasaiverseIndexRoute
+  '/my-calendar': typeof protectedLayoutMyCalendarIndexRoute
   '/profile': typeof protectedLayoutProfileIndexRoute
   '/support': typeof protectedLayoutSupportIndexRoute
   '/whats-new': typeof protectedLayoutWhatsNewIndexRoute
@@ -1982,6 +2024,9 @@ export interface FileRoutesById {
   '/api/announcement/unread-count': typeof ApiAnnouncementUnreadCountRoute
   '/api/assessment-callback/live-progress': typeof ApiAssessmentCallbackLiveProgressRoute
   '/api/bookmarks/filter-options': typeof ApiBookmarksFilterOptionsRoute
+  '/api/calendar/batches': typeof ApiCalendarBatchesRoute
+  '/api/calendar/events': typeof ApiCalendarEventsRoute
+  '/api/calendar/subscription-link': typeof ApiCalendarSubscriptionLinkRoute
   '/api/dashboard/navbar-pill': typeof ApiDashboardNavbarPillRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/dashboard/overview-app': typeof ApiDashboardOverviewAppRoute
@@ -2050,6 +2095,7 @@ export interface FileRoutesById {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/calendar/feed/$token': typeof ApiCalendarFeedTokenRoute
   '/api/course/$batchId/agreements': typeof ApiCourseBatchIdAgreementsRoute
   '/api/course/$batchId/attendance': typeof ApiCourseBatchIdAttendanceRoute
   '/api/course/$batchId/certificates': typeof ApiCourseBatchIdCertificatesRoute
@@ -2119,6 +2165,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/interviews/': typeof protectedLayoutInterviewsIndexRoute
   '/(protected)/_layout/learn/': typeof protectedLayoutLearnIndexRoute
   '/(protected)/_layout/masaiverse/': typeof protectedLayoutMasaiverseIndexRoute
+  '/(protected)/_layout/my-calendar/': typeof protectedLayoutMyCalendarIndexRoute
   '/(protected)/_layout/profile/': typeof protectedLayoutProfileIndexRoute
   '/(protected)/_layout/support/': typeof protectedLayoutSupportIndexRoute
   '/(protected)/_layout/whats-new/': typeof protectedLayoutWhatsNewIndexRoute
@@ -2208,6 +2255,9 @@ export interface FileRouteTypes {
     | '/api/announcement/unread-count'
     | '/api/assessment-callback/live-progress'
     | '/api/bookmarks/filter-options'
+    | '/api/calendar/batches'
+    | '/api/calendar/events'
+    | '/api/calendar/subscription-link'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/overview-app'
@@ -2276,6 +2326,7 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/calendar/feed/$token'
     | '/api/course/$batchId/agreements'
     | '/api/course/$batchId/attendance'
     | '/api/course/$batchId/certificates'
@@ -2345,6 +2396,7 @@ export interface FileRouteTypes {
     | '/interviews/'
     | '/learn/'
     | '/masaiverse/'
+    | '/my-calendar/'
     | '/profile/'
     | '/support/'
     | '/whats-new/'
@@ -2431,6 +2483,9 @@ export interface FileRouteTypes {
     | '/api/announcement/unread-count'
     | '/api/assessment-callback/live-progress'
     | '/api/bookmarks/filter-options'
+    | '/api/calendar/batches'
+    | '/api/calendar/events'
+    | '/api/calendar/subscription-link'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/overview-app'
@@ -2499,6 +2554,7 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/calendar/feed/$token'
     | '/api/course/$batchId/agreements'
     | '/api/course/$batchId/attendance'
     | '/api/course/$batchId/certificates'
@@ -2568,6 +2624,7 @@ export interface FileRouteTypes {
     | '/interviews'
     | '/learn'
     | '/masaiverse'
+    | '/my-calendar'
     | '/profile'
     | '/support'
     | '/whats-new'
@@ -2656,6 +2713,9 @@ export interface FileRouteTypes {
     | '/api/announcement/unread-count'
     | '/api/assessment-callback/live-progress'
     | '/api/bookmarks/filter-options'
+    | '/api/calendar/batches'
+    | '/api/calendar/events'
+    | '/api/calendar/subscription-link'
     | '/api/dashboard/navbar-pill'
     | '/api/dashboard/overview'
     | '/api/dashboard/overview-app'
@@ -2724,6 +2784,7 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/calendar/feed/$token'
     | '/api/course/$batchId/agreements'
     | '/api/course/$batchId/attendance'
     | '/api/course/$batchId/certificates'
@@ -2793,6 +2854,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/interviews/'
     | '/(protected)/_layout/learn/'
     | '/(protected)/_layout/masaiverse/'
+    | '/(protected)/_layout/my-calendar/'
     | '/(protected)/_layout/profile/'
     | '/(protected)/_layout/support/'
     | '/(protected)/_layout/whats-new/'
@@ -2875,6 +2937,9 @@ export interface RootRouteChildren {
   ApiAnnouncementPopupsRoute: typeof ApiAnnouncementPopupsRoute
   ApiAnnouncementUnreadCountRoute: typeof ApiAnnouncementUnreadCountRoute
   ApiBookmarksFilterOptionsRoute: typeof ApiBookmarksFilterOptionsRoute
+  ApiCalendarBatchesRoute: typeof ApiCalendarBatchesRoute
+  ApiCalendarEventsRoute: typeof ApiCalendarEventsRoute
+  ApiCalendarSubscriptionLinkRoute: typeof ApiCalendarSubscriptionLinkRoute
   ApiDashboardNavbarPillRoute: typeof ApiDashboardNavbarPillRoute
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
   ApiDashboardOverviewAppRoute: typeof ApiDashboardOverviewAppRoute
@@ -2927,6 +2992,7 @@ export interface RootRouteChildren {
   ApiAnnouncementIdBookmarkRoute: typeof ApiAnnouncementIdBookmarkRoute
   ApiAnnouncementIdMarkReadRoute: typeof ApiAnnouncementIdMarkReadRoute
   ApiAnnouncementIdMarkUnreadRoute: typeof ApiAnnouncementIdMarkUnreadRoute
+  ApiCalendarFeedTokenRoute: typeof ApiCalendarFeedTokenRoute
   ApiCourseBatchIdAgreementsRoute: typeof ApiCourseBatchIdAgreementsRoute
   ApiCourseBatchIdAttendanceRoute: typeof ApiCourseBatchIdAttendanceRoute
   ApiCourseBatchIdCertificatesRoute: typeof ApiCourseBatchIdCertificatesRoute
@@ -3381,6 +3447,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardNavbarPillRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/calendar/subscription-link': {
+      id: '/api/calendar/subscription-link'
+      path: '/api/calendar/subscription-link'
+      fullPath: '/api/calendar/subscription-link'
+      preLoaderRoute: typeof ApiCalendarSubscriptionLinkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/calendar/events': {
+      id: '/api/calendar/events'
+      path: '/api/calendar/events'
+      fullPath: '/api/calendar/events'
+      preLoaderRoute: typeof ApiCalendarEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/calendar/batches': {
+      id: '/api/calendar/batches'
+      path: '/api/calendar/batches'
+      fullPath: '/api/calendar/batches'
+      preLoaderRoute: typeof ApiCalendarBatchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/bookmarks/filter-options': {
       id: '/api/bookmarks/filter-options'
       path: '/api/bookmarks/filter-options'
@@ -3554,6 +3641,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile/'
       preLoaderRoute: typeof protectedLayoutProfileIndexRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/my-calendar/': {
+      id: '/(protected)/_layout/my-calendar/'
+      path: '/my-calendar'
+      fullPath: '/my-calendar/'
+      preLoaderRoute: typeof protectedLayoutMyCalendarIndexRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/masaiverse/': {
@@ -4037,6 +4131,13 @@ declare module '@tanstack/react-router' {
       path: '/api/course/$batchId/agreements'
       fullPath: '/api/course/$batchId/agreements'
       preLoaderRoute: typeof ApiCourseBatchIdAgreementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/calendar/feed/$token': {
+      id: '/api/calendar/feed/$token'
+      path: '/api/calendar/feed/$token'
+      fullPath: '/api/calendar/feed/$token'
+      preLoaderRoute: typeof ApiCalendarFeedTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/announcement/$id/mark-unread': {
@@ -4662,6 +4763,7 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutChatIndexRoute: typeof protectedLayoutChatIndexRoute
   protectedLayoutInterviewsIndexRoute: typeof protectedLayoutInterviewsIndexRoute
   protectedLayoutLearnIndexRoute: typeof protectedLayoutLearnIndexRoute
+  protectedLayoutMyCalendarIndexRoute: typeof protectedLayoutMyCalendarIndexRoute
   protectedLayoutProfileIndexRoute: typeof protectedLayoutProfileIndexRoute
   protectedLayoutSupportIndexRoute: typeof protectedLayoutSupportIndexRoute
   protectedLayoutWhatsNewIndexRoute: typeof protectedLayoutWhatsNewIndexRoute
@@ -4702,6 +4804,7 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutChatIndexRoute: protectedLayoutChatIndexRoute,
   protectedLayoutInterviewsIndexRoute: protectedLayoutInterviewsIndexRoute,
   protectedLayoutLearnIndexRoute: protectedLayoutLearnIndexRoute,
+  protectedLayoutMyCalendarIndexRoute: protectedLayoutMyCalendarIndexRoute,
   protectedLayoutProfileIndexRoute: protectedLayoutProfileIndexRoute,
   protectedLayoutSupportIndexRoute: protectedLayoutSupportIndexRoute,
   protectedLayoutWhatsNewIndexRoute: protectedLayoutWhatsNewIndexRoute,
@@ -4968,6 +5071,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAnnouncementPopupsRoute: ApiAnnouncementPopupsRoute,
   ApiAnnouncementUnreadCountRoute: ApiAnnouncementUnreadCountRoute,
   ApiBookmarksFilterOptionsRoute: ApiBookmarksFilterOptionsRoute,
+  ApiCalendarBatchesRoute: ApiCalendarBatchesRoute,
+  ApiCalendarEventsRoute: ApiCalendarEventsRoute,
+  ApiCalendarSubscriptionLinkRoute: ApiCalendarSubscriptionLinkRoute,
   ApiDashboardNavbarPillRoute: ApiDashboardNavbarPillRoute,
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
   ApiDashboardOverviewAppRoute: ApiDashboardOverviewAppRoute,
@@ -5020,6 +5126,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAnnouncementIdBookmarkRoute: ApiAnnouncementIdBookmarkRoute,
   ApiAnnouncementIdMarkReadRoute: ApiAnnouncementIdMarkReadRoute,
   ApiAnnouncementIdMarkUnreadRoute: ApiAnnouncementIdMarkUnreadRoute,
+  ApiCalendarFeedTokenRoute: ApiCalendarFeedTokenRoute,
   ApiCourseBatchIdAgreementsRoute: ApiCourseBatchIdAgreementsRoute,
   ApiCourseBatchIdAttendanceRoute: ApiCourseBatchIdAttendanceRoute,
   ApiCourseBatchIdCertificatesRoute: ApiCourseBatchIdCertificatesRoute,
