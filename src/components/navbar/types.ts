@@ -170,4 +170,10 @@ export type NavbarProps = {
    * the user's theme). Used on immersive pages like lecture detail.
    */
   forceDark?: boolean
+  /**
+   * Seasonal Independence Day dressing (tiranga washes + bottom ribbon). Wired
+   * from the date window in `isIndependenceDayUiEnabled`; decorative only,
+   * adapts to light/dark via the `--festive-*` tokens.
+   */
+  showIndependenceDayUi?: boolean
 }

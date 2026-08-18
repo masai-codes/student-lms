@@ -6,8 +6,15 @@ interface ResolvedTicketFeedbackProps {
   alreadySubmitted?: boolean
   isSubmitting?: boolean
   submitError?: string | null
-  onSubmitRating: (rating: 1 | 5) => void | Promise<void>
-  onReopenEscalate: () => void | Promise<void>
+  onSubmitRating: (input: {
+    rating: 1 | 5
+    reasons: string[]
+    comment: string
+  }) => void | Promise<void>
+  onReopenEscalate: (input: {
+    reasons: string[]
+    comment: string
+  }) => void | Promise<void>
 }
 
 export function ResolvedTicketFeedback({
@@ -38,8 +45,10 @@ export function ResolvedTicketFeedback({
 
   const currentReasons = rating === 'up' ? goodReasons : badReasons
   const errorMessage = localError ?? submitError
+  const hasFeedback = selectedReasons.length > 0 || comment.trim().length > 0
 
   const toggleReason = (reason: string) => {
+    setLocalError(null)
     setSelectedReasons((prev) =>
       prev.includes(reason)
         ? prev.filter((r) => r !== reason)
@@ -49,12 +58,20 @@ export function ResolvedTicketFeedback({
 
   const handleSubmit = async (reopen: boolean) => {
     if (isSubmitting || rating == null) return
+    if (!hasFeedback) {
+      setLocalError('Select at least one reason or enter a comment.')
+      return
+    }
     setLocalError(null)
+    const payload = { reasons: selectedReasons, comment: comment.trim() }
     try {
       if (reopen) {
-        await onReopenEscalate()
+        await onReopenEscalate(payload)
       } else {
-        await onSubmitRating(rating === 'up' ? 5 : 1)
+        await onSubmitRating({
+          rating: rating === 'up' ? 5 : 1,
+          ...payload,
+        })
         setIsSubmitted(true)
       }
     } catch {
@@ -93,6 +110,7 @@ export function ResolvedTicketFeedback({
           </span>
           <div className="flex items-center gap-2">
             <button
+              data-testid="support-feedback-rating-up"
               type="button"
               onClick={() => setRating('up')}
               className="p-2 rounded-full hover:bg-[#f0fdf4] text-[#62647d] hover:text-[#0E9F6E] dark:hover:bg-success-subtle dark:text-foreground-muted dark:hover:text-success-subtle-foreground transition-colors"
@@ -100,6 +118,7 @@ export function ResolvedTicketFeedback({
               <ThumbsUp weight="bold" className="size-[20px]" />
             </button>
             <button
+              data-testid="support-feedback-rating-down"
               type="button"
               onClick={() => setRating('down')}
               className="p-2 rounded-full hover:bg-[#fef2f2] text-[#62647d] hover:text-[#ef4444] dark:hover:bg-danger-subtle dark:text-foreground-muted dark:hover:text-danger-subtle-foreground transition-colors"
@@ -113,7 +132,10 @@ export function ResolvedTicketFeedback({
   }
 
   return (
-    <div className="shrink-0 p-4 border-t border-[#e9e9f3] dark:border-border bg-[#f9f9fc] dark:bg-surface-muted animate-in fade-in slide-in-from-bottom-2">
+    <div
+      data-testid="support-resolved-feedback-form"
+      className="shrink-0 p-4 border-t border-[#e9e9f3] dark:border-border bg-[#f9f9fc] dark:bg-surface-muted animate-in fade-in slide-in-from-bottom-2"
+    >
       <div className="flex items-center justify-between mb-4">
         <div className="text-[13.5px] font-bold text-[#15162c] dark:text-foreground">
           {rating === 'up'
@@ -121,6 +143,7 @@ export function ResolvedTicketFeedback({
             : 'Sorry about that. What went wrong?'}
         </div>
         <button
+          data-testid="support-feedback-back"
           type="button"
           disabled={isSubmitting}
           onClick={() => {
@@ -140,6 +163,7 @@ export function ResolvedTicketFeedback({
           return (
             <button
               key={reason}
+              data-testid="support-feedback-reason"
               type="button"
               onClick={() => toggleReason(reason)}
               className={cn(
@@ -158,11 +182,25 @@ export function ResolvedTicketFeedback({
       </div>
 
       <textarea
+        data-testid="support-feedback-comment"
         value={comment}
-        onChange={(e) => setComment(e.target.value)}
+        maxLength={2000}
+        onChange={(e) => {
+          setComment(e.target.value)
+          setLocalError(null)
+        }}
         placeholder="Tell us more..."
+        aria-describedby="support-feedback-requirement"
         className="w-full bg-surface border border-[#e9e9f3] rounded-[10px] p-3 text-[13.5px] text-[#15162c] placeholder:text-[#9496ab] focus:outline-none focus:border-[#4b4396] dark:border-border dark:text-foreground dark:placeholder:text-foreground-subtle dark:focus:border-brand resize-none mb-4 h-[70px]"
       />
+
+      <p
+        id="support-feedback-requirement"
+        data-testid="support-feedback-requirement"
+        className="mb-3 text-[12px] font-medium text-foreground-muted"
+      >
+        Select at least one reason or enter a comment.
+      </p>
 
       {errorMessage && (
         <p className="mb-3 rounded-[10px] bg-[#fef2f2] px-3 py-2 text-[12.5px] font-medium text-[#b42318] dark:bg-danger-subtle dark:text-danger-subtle-foreground">
@@ -172,8 +210,9 @@ export function ResolvedTicketFeedback({
 
       {rating === 'up' ? (
         <button
+          data-testid="support-feedback-submit"
           type="button"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !hasFeedback}
           onClick={() => void handleSubmit(false)}
           className="flex w-full items-center justify-center gap-2 p-[13px] rounded-[10px] font-bold text-[14px] text-white transition-all hover:-translate-y-[1px] hover:opacity-90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
           style={{ background: gradientBg }}
@@ -183,8 +222,9 @@ export function ResolvedTicketFeedback({
       ) : (
         <div className="flex gap-2">
           <button
+            data-testid="support-feedback-submit"
             type="button"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !hasFeedback}
             onClick={() => void handleSubmit(false)}
             className="flex-[1.5] flex items-center justify-center p-[13px] rounded-[10px] font-bold text-[13.5px] text-white transition-all hover:-translate-y-[1px] hover:opacity-90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: gradientBg }}
@@ -192,8 +232,9 @@ export function ResolvedTicketFeedback({
             {isSubmitting ? 'Submitting…' : 'Submit'}
           </button>
           <button
+            data-testid="support-feedback-reopen-escalate"
             type="button"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !hasFeedback}
             onClick={() => void handleSubmit(true)}
             className="flex-1 flex items-center justify-center p-[13px] rounded-[10px] font-bold text-[13.5px] text-[#62647d] border-[1.5px] border-[#e3e3fb] bg-surface hover:bg-[#f0f0fd] dark:text-foreground-muted dark:border-border dark:hover:bg-accent transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >

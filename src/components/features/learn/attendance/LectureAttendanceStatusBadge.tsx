@@ -1,5 +1,6 @@
 import { CheckCircle, PlayCircle, Timer, XCircle } from '@phosphor-icons/react'
 
+import { getAttendanceStatusLabels } from '@/lib/lecture-attendance/attendanceStatusLabels'
 import type { ListingAttendanceVisibleState } from '@/lib/lecture-attendance/types'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +16,10 @@ export function LectureAttendanceStatusBadge({
   state,
   className,
 }: LectureAttendanceStatusBadgeProps) {
+  // Portal-dependent wording (Present/Absent vs Watched/Not Watched) — the
+  // states, icons and colours below are identical across portals.
+  const labels = getAttendanceStatusLabels()
+
   if (state === 'present') {
     return (
       <span
@@ -23,14 +28,14 @@ export function LectureAttendanceStatusBadge({
           'bg-success-subtle text-success-subtle-foreground',
           className,
         )}
-        aria-label="Present"
+        aria-label={labels.present}
       >
         <CheckCircle
           weight="fill"
           className="size-[18px] shrink-0"
           aria-hidden
         />
-        <span className="capitalize">Present</span>
+        <span className="capitalize">{labels.present}</span>
       </span>
     )
   }
@@ -43,10 +48,10 @@ export function LectureAttendanceStatusBadge({
           'bg-danger-subtle text-danger-subtle-foreground',
           className,
         )}
-        aria-label="Absent"
+        aria-label={labels.absent}
       >
         <XCircle weight="fill" className="size-[18px] shrink-0" aria-hidden />
-        <span className="capitalize">Absent</span>
+        <span className="capitalize">{labels.absent}</span>
       </span>
     )
   }
@@ -83,7 +88,7 @@ export function LectureAttendanceStatusBadge({
         'gap-1.5 bg-danger-subtle pr-2.5 text-danger-subtle-foreground',
         className,
       )}
-      aria-label="Absent and attendance window over"
+      aria-label={labels.attWindowOver}
     >
       <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-danger">
         <Timer
@@ -93,7 +98,7 @@ export function LectureAttendanceStatusBadge({
         />
       </span>
       {/* Wraps below `sm` so the badge can't force 320px viewports to scroll. */}
-      <span className="sm:whitespace-nowrap">Absent and Att. Window Over</span>
+      <span className="sm:whitespace-nowrap">{labels.attWindowOver}</span>
     </span>
   )
 }

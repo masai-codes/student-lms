@@ -16,6 +16,7 @@ import { useTryNewCtaVisible } from '@/hooks/useTryNewCtaVisible'
 import { useSelectedLearnBatchId } from '@/hooks/useSelectedLearnBatchId'
 import { isMigratedRoute } from '@/utils/migratedRoutes'
 import { getAuthBranding } from '@/utils/authBranding'
+import { isIndependenceDayUiEnabled } from '@/utils/independenceDayUi'
 import type { NavItem } from '@/lib/navigation/navItemConfig'
 import { resolveNavItemPriority } from '@/lib/navigation/resolveNavItemPriority'
 import { useAppNavItems } from '@/lib/navigation/useAppNavItems'
@@ -234,6 +235,7 @@ export default function AppNavbar() {
       <Navbar
         className="z-40 max-lg:hidden"
         forceDark={lectureHasRecording}
+        showIndependenceDayUi={isIndependenceDayUiEnabled()}
         logo={{
           src: navbarLogoSrc(),
           darkSrc: navbarLogoDarkSrc(),

@@ -151,6 +151,10 @@ export async function replyToTicket(input: {
 export async function rateSupportTicket(input: {
   ticketId: number
   rating: TicketRating
+  /** Pill reasons from the post-resolve feedback form. */
+  reasons?: string[]
+  /** Free-text comment from the feedback form. */
+  comment?: string
 }): Promise<{ rating: number }> {
   return fetchJson(SUPPORT_API.ticketRate, jsonPost(input))
 }

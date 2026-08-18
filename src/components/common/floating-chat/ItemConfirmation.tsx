@@ -40,6 +40,7 @@ import {
   assignmentSupportSnapshotQuery,
   lectureSupportSnapshotQuery,
 } from '@/query/support/supportQueries'
+import { showsCatchUpCountdown } from '@/utils/portal'
 
 interface ItemConfirmationProps {
   categoryObj: Category
@@ -123,6 +124,8 @@ function LectureSnapshotCards({
 
   const attendance = getSupportAttendancePresentation(snapshot)
   const catchUp = getSupportCatchUpPresentation(snapshot)
+  // Portals that hide the catch-up countdown drop the whole "Days left" tile.
+  const showCatchUp = showsCatchUpCountdown()
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -182,20 +185,22 @@ function LectureSnapshotCards({
               {formatRecordingStatusLabel(snapshot.recordingStatus)}
             </span>
           </div>
-          <div className="flex flex-col p-[11px_12px] bg-surface border border-[#e9e9f3] dark:border-border rounded-[12px] shadow-sm">
-            <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d] dark:text-foreground-muted">
-              <Timer
-                weight="fill"
-                className="size-[13px] text-[#4b4396] dark:text-brand"
-              />
-              <span className="text-[10.5px] font-bold uppercase tracking-wide">
-                Days left
+          {showCatchUp ? (
+            <div className="flex flex-col p-[11px_12px] bg-surface border border-[#e9e9f3] dark:border-border rounded-[12px] shadow-sm">
+              <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d] dark:text-foreground-muted">
+                <Timer
+                  weight="fill"
+                  className="size-[13px] text-[#4b4396] dark:text-brand"
+                />
+                <span className="text-[10.5px] font-bold uppercase tracking-wide">
+                  Days left
+                </span>
+              </div>
+              <span className="text-[12.5px] font-extrabold text-[#15162c] dark:text-foreground">
+                {catchUp.label}
               </span>
             </div>
-            <span className="text-[12.5px] font-extrabold text-[#15162c] dark:text-foreground">
-              {catchUp.label}
-            </span>
-          </div>
+          ) : null}
           <div className="flex flex-col p-[11px_12px] bg-surface border border-[#e9e9f3] dark:border-border rounded-[12px] shadow-sm">
             <div className="flex items-center gap-1.5 mb-[3px] text-[#62647d] dark:text-foreground-muted">
               <Notepad
@@ -229,19 +234,19 @@ function LectureSnapshotCards({
           {attendance.showAbsentReason && attendance.absentReason && (
             <div
               className={
-                attendance.label === 'Absent'
+                attendance.isAbsent
                   ? 'col-span-2 flex items-center gap-2 p-[10px_12px] bg-[#fef2f2] dark:bg-danger-subtle border border-[#fecaca] dark:border-danger-subtle rounded-[12px] shadow-sm'
                   : 'col-span-2 flex items-center gap-2 p-[10px_12px] bg-[#f0f4ff] dark:bg-info-subtle border border-[#d6e4ff] dark:border-info-subtle rounded-[12px] shadow-sm'
               }
             >
               <Info
                 weight="fill"
-                className={`size-[15px] shrink-0 ${attendance.label === 'Absent' ? 'text-[#ef4444] dark:text-danger' : 'text-[#2952cc] dark:text-info'}`}
+                className={`size-[15px] shrink-0 ${attendance.isAbsent ? 'text-[#ef4444] dark:text-danger' : 'text-[#2952cc] dark:text-info'}`}
               />
               <span
-                className={`text-[12px] font-bold ${attendance.label === 'Absent' ? 'text-[#b91c1c] dark:text-danger-subtle-foreground' : 'text-[#1a3380] dark:text-info-subtle-foreground'}`}
+                className={`text-[12px] font-bold ${attendance.isAbsent ? 'text-[#b91c1c] dark:text-danger-subtle-foreground' : 'text-[#1a3380] dark:text-info-subtle-foreground'}`}
               >
-                {attendance.label === 'Absent' ? 'Reason: ' : ''}
+                {attendance.isAbsent ? 'Reason: ' : ''}
                 {attendance.absentReason}
               </span>
             </div>

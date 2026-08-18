@@ -27,6 +27,8 @@ export interface Message {
   name?: string
   /** The templated acknowledgement sent right after a ticket is raised. */
   isAutoReply?: boolean
+  /** True when this reply was produced by the support AI agent (not a human coordinator). */
+  isAi?: boolean
   /** ISO timestamp from `comments.created_at` (or the ticket row for the opening message). */
   createdAt?: string | null
 }
