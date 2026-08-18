@@ -17,7 +17,7 @@ const chipCustomPaletteBaseClassName =
   'focus-visible:ring-gray-400 disabled:border-border disabled:bg-surface-muted disabled:!text-foreground-subtle'
 
 const masaiChipsVariants = cva(
-  'inline-flex items-center justify-center rounded-[100px] border border-transparent outline-none transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none',
+  'inline-flex max-w-full items-center justify-center whitespace-nowrap rounded-[100px] border border-transparent outline-none transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none',
   {
     variants: {
       size: {
@@ -101,7 +101,9 @@ export function MasaiChips({
       {...props}
     >
       {type === 'left-icon' ? <span className="shrink-0">{icon}</span> : null}
-      {type !== 'icon-only' ? label : null}
+      {type !== 'icon-only' ? (
+        <span className="min-w-0 truncate">{label}</span>
+      ) : null}
       {type === 'right-icon' ? <span className="shrink-0">{icon}</span> : null}
       {type === 'icon-only' ? (
         <span className="size-4 shrink-0 [&_svg]:size-4">{icon}</span>
