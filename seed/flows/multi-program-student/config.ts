@@ -7,7 +7,7 @@ export type MultiProgramStudentFlowId = typeof MULTI_PROGRAM_STUDENT_FLOW_ID
 export const multiProgramStudentConfig: SeedFlowMeta = {
   id: MULTI_PROGRAM_STUDENT_FLOW_ID,
   description:
-    'Student enrolled in two programs/batches — the live-lecture-phases world (SDE) plus a second batch (Data Science) with its own section and lecture. Exercises the /learn batch switcher and `getEnrolledBatchesForUser` for a multi-batch student.',
+    'Student enrolled in three programs/batches — the live-lecture-phases world (SDE), a second batch (Data Science) with its own section and lecture, and a third batch (Product Design) whose enrolment is PAUSED (`batch_user.meta.batchPaused`) with a lecture on each side of the pause cutoff. Exercises the /learn batch switcher and `getEnrolledBatchesForUser` for a multi-batch student, plus the "Paused Programs" section on /my-courses.',
   timing: {},
   seedCommand: 'npm run seed multi-program-student',
   defaultCredentialEmails: [

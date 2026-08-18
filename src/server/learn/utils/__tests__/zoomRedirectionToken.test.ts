@@ -123,10 +123,44 @@ describe('generateZoomRedirectionUrl', () => {
     ).toBe(true)
   })
 
-  it('routes ivs lectures to the IVS platform without a batch lookup', async () => {
+  it('routes ivs lectures on non-iHub batches to the Masai IVS platform', async () => {
     hoisted.selectQueue = [
       [{ zoomDetails: null }],
       lectureRow({ zoomDetails: { redirectionType: 'ivs' }, batchId: 5 }),
+      [{ duration: 'full-time' }],
+    ]
+    const generate = await load()
+
+    const result = await generate({ lectureId: '572', user: STUDENT })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(
+      result.url.startsWith('https://classroom.masaischool.com/?token='),
+    ).toBe(true)
+  })
+
+  it('routes ivs lectures on iHub batches to the iHub IVS platform', async () => {
+    hoisted.selectQueue = [
+      [{ zoomDetails: null }],
+      lectureRow({ zoomDetails: { redirectionType: 'ivs' }, batchId: 5 }),
+      [{ duration: 'ihub' }],
+    ]
+    const generate = await load()
+
+    const result = await generate({ lectureId: '572', user: STUDENT })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(
+      result.url.startsWith('https://classroom.ihubiitrcourses.org/?token='),
+    ).toBe(true)
+  })
+
+  it('falls back to the Masai IVS platform when the lecture has no batch', async () => {
+    hoisted.selectQueue = [
+      [{ zoomDetails: null }],
+      lectureRow({ zoomDetails: { redirectionType: 'ivs' }, batchId: null }),
     ]
     const generate = await load()
 

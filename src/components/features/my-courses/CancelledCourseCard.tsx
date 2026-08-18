@@ -16,7 +16,7 @@ export function CancelledCourseCard({ course }: Props) {
   return (
     <div
       data-testid={`my-courses-cancelled-card-${course.batchId}`}
-      className="flex flex-col rounded-2xl border border-border bg-surface-muted p-4 animate-dash-row-in"
+      className="flex h-full flex-col rounded-2xl border border-border bg-surface-muted p-4 animate-dash-row-in"
     >
       <CourseLogo
         src={course.courseLogo}
@@ -38,7 +38,7 @@ export function CancelledCourseCard({ course }: Props) {
         </p>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
+      <div className="mt-auto pt-4 flex flex-wrap items-center gap-2">
         <span className="rounded-full bg-danger-subtle px-2.5 py-1 text-xs font-medium leading-4 text-danger-subtle-foreground">
           Enrolment cancelled
         </span>

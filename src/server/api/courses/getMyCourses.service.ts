@@ -27,6 +27,22 @@ export interface MyCourseListItem {
   showBatchDetails: boolean
 }
 
+/**
+ * A program whose enrolment is paused. Unlike a cancelled one this is still
+ * open — content scheduled before the pause date remains available — so the card
+ * keeps its "Program Details" link.
+ */
+export interface PausedCourseListItem {
+  batchId: number
+  courseTitle: string
+  instituteName: string
+  courseLogo: string | null
+  /** Raw IST wall-clock date or UTC instant from `batch_user.meta`; formatted client-side. */
+  pausedOn: string | null
+  /** As {@link MyCourseListItem.showBatchDetails} — gates the "Program Details" link. */
+  showBatchDetails: boolean
+}
+
 /** A program whose enrolment has been cancelled — shown, greyed out, for the record. */
 export interface CancelledCourseListItem {
   batchId: number
@@ -39,6 +55,7 @@ export interface CancelledCourseListItem {
 
 export interface MyCoursesData {
   active: Array<MyCourseListItem>
+  paused: Array<PausedCourseListItem>
   cancelled: Array<CancelledCourseListItem>
 }
 
@@ -79,6 +96,20 @@ function toActiveItem(row: BatchRow): MyCourseListItem {
   }
 }
 
+function toPausedItem(row: BatchRow, pausedOn: string | null): PausedCourseListItem {
+  const meta = asRecord(row.meta)
+  const settings = asRecord(row.settings)
+
+  return {
+    batchId: row.id,
+    courseTitle: resolveCourseTitle(meta, row.name),
+    instituteName: resolveInstituteName(meta),
+    courseLogo: resolveCourseLogo(meta),
+    pausedOn,
+    showBatchDetails: settings.showBatchDetails === true,
+  }
+}
+
 function toCancelledItem(
   row: BatchRow,
   cancelledOn: string | null,
@@ -92,6 +123,19 @@ function toCancelledItem(
     courseLogo: resolveCourseLogo(meta),
     cancelledOn,
   }
+}
+
+/**
+ * Programs the student can actually open first, the ones with no detail page last —
+ * a card with no "Program Details" button is a dead end, so it should not sit above
+ * a program the student can act on. Stable, so newest-enrolment-first order holds
+ * within each group.
+ */
+function detailsFirst<T extends { showBatchDetails: boolean }>(items: Array<T>): Array<T> {
+  return [
+    ...items.filter((item) => item.showBatchDetails),
+    ...items.filter((item) => !item.showBatchDetails),
+  ]
 }
 
 /**
@@ -118,6 +162,10 @@ async function getEverEnrolledBatchIds(userId: number): Promise<Set<number>> {
  * cancelled enrolments, so `active` and `cancelled` are disjoint by construction —
  * a batch that appears in both `section_user` and a cancelled `batch_user` row is
  * shown once, under Cancelled Enrolments.
+ *
+ * A paused batch IS still enrolled, so it comes back from
+ * `getBatchIdsForEnrolledUser`; it is moved out of `active` here so the three
+ * lists stay disjoint and each program appears exactly once.
  */
 export async function getMyCourses(userId: number): Promise<MyCoursesData> {
   const [activeBatchIds, restrictions, everEnrolledBatchIds] = await Promise.all([
@@ -138,13 +186,23 @@ export async function getMyCourses(userId: number): Promise<MyCoursesData> {
     ...cancelledEntries.map((entry) => entry.batchId),
   ])
 
-  // `getBatchIdsForEnrolledUser` returns oldest enrolment first; the listing leads
-  // with the student's most recent program, matching /learn's default selection.
-  const active = [...activeBatchIds]
-    .reverse()
+  // `getBatchIdsForEnrolledUser` already returns newest-enrolment-first, which is
+  // the order this listing wants — keep it, matching /learn's default selection.
+  const enrolledRows = activeBatchIds
     .map((batchId) => byId.get(batchId))
     .filter((row): row is BatchRow => row !== undefined)
-    .map(toActiveItem)
+
+  const isPaused = (batchId: number) => restrictions.get(batchId)?.paused === true
+
+  const active = detailsFirst(
+    enrolledRows.filter((row) => !isPaused(row.id)).map(toActiveItem),
+  )
+
+  const paused = detailsFirst(
+    enrolledRows
+      .filter((row) => isPaused(row.id))
+      .map((row) => toPausedItem(row, restrictions.get(row.id)?.pausedDate ?? null)),
+  )
 
   const cancelled = cancelledEntries
     .map((entry) => {
@@ -153,5 +211,5 @@ export async function getMyCourses(userId: number): Promise<MyCoursesData> {
     })
     .filter((item): item is CancelledCourseListItem => item !== undefined)
 
-  return { active, cancelled }
+  return { active, paused, cancelled }
 }

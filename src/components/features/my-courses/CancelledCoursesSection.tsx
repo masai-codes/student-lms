@@ -54,7 +54,7 @@ export function CancelledCoursesSection({ courses }: Props) {
 
       <ul
         data-testid="my-courses-cancelled-grid"
-        className="grid list-none grid-cols-1 gap-4 p-0 md:grid-cols-2 md:gap-6"
+        className="grid list-none auto-rows-fr grid-cols-1 gap-4 p-0 md:grid-cols-2 md:gap-6"
       >
         {visible.map((course) => (
           <li key={course.batchId} className="min-w-0">

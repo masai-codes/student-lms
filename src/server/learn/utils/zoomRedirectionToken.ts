@@ -9,7 +9,8 @@ const JWT_ALGORITHM = 'HS256'
 // Destination platforms for the ZEF join redirect.
 const ZOOM_MASAI_BASE_URL = 'https://zoom.masaischool.com'
 const ZOOM_IHUB_BASE_URL = 'https://zoom.ihubiitrcourses.org'
-const ZEF_IVS_BASE_URL = 'https://classroom.masaischool.com'
+const ZEF_IVS_MASAI_BASE_URL = 'https://classroom.masaischool.com'
+const ZEF_IVS_IHUB_BASE_URL = 'https://classroom.ihubiitrcourses.org'
 
 export type ZoomRedirectionUser = {
   id?: number | string | null
@@ -19,7 +20,8 @@ export type ZoomRedirectionUser = {
 }
 
 export type ZoomRedirectionUrlResult =
-  { ok: true; url: string } | { ok: false; status: number; message: string }
+  | { ok: true; url: string }
+  | { ok: false; status: number; message: string }
 
 type LectureRow = {
   zoomDetails: Record<string, unknown> | null
@@ -149,13 +151,22 @@ async function resolveZoomAdmin(
   }
 }
 
-/** ZEF with IVS goes to the IVS app; ZOOM splits masai / iHub by batch duration. */
+/**
+ * Both platforms split masai / iHub by `batches.duration === 'ihub'`:
+ *   ZEF with IVS  → classroom.ihubiitrcourses.org | classroom.masaischool.com
+ *   ZEF with ZOOM → zoom.ihubiitrcourses.org      | zoom.masaischool.com
+ * A lecture with no batch can't be an iHub lecture, so it falls back to masai.
+ */
 async function resolveBaseUrl(
   redirectionType: 'zoom' | 'ivs',
   batchId: number | null | undefined,
 ): Promise<string> {
-  if (redirectionType === 'ivs') return ZEF_IVS_BASE_URL
-  if (batchId == null) return ZOOM_MASAI_BASE_URL
+  const masaiBaseUrl =
+    redirectionType === 'ivs' ? ZEF_IVS_MASAI_BASE_URL : ZOOM_MASAI_BASE_URL
+  const ihubBaseUrl =
+    redirectionType === 'ivs' ? ZEF_IVS_IHUB_BASE_URL : ZOOM_IHUB_BASE_URL
+
+  if (batchId == null) return masaiBaseUrl
 
   const batchRows = await db
     .select({ duration: batches.duration })
@@ -163,9 +174,7 @@ async function resolveBaseUrl(
     .where(eq(batches.id, batchId))
     .limit(1)
 
-  return lower(batchRows[0]?.duration) === 'ihub'
-    ? ZOOM_IHUB_BASE_URL
-    : ZOOM_MASAI_BASE_URL
+  return lower(batchRows[0]?.duration) === 'ihub' ? ihubBaseUrl : masaiBaseUrl
 }
 
 /**

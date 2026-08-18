@@ -63,15 +63,22 @@ function CourseProgress({ course }: { course: MyCourseListItem }) {
   )
 }
 
+/**
+ * `h-full` + the grid's `auto-rows-fr` keep every card the same height regardless
+ * of title wrapping or a missing progress bar / CTA — the content stays
+ * top-aligned and the card grows into the row instead of shrink-wrapping.
+ */
 const CARD_CLASSES =
-  'flex flex-col rounded-2xl border border-border bg-surface p-4 animate-dash-row-in'
+  'flex h-full flex-col rounded-2xl border border-border bg-surface p-4 animate-dash-row-in'
 
 /**
  * One program on the "My Programs" listing.
  *
  * Programs without `showBatchDetails` have no detail page to open, so — matching
  * the legacy LMS — the card is a plain, non-interactive block: no progress bar,
- * no CTA, no hover affordance advertising a click that would go nowhere.
+ * no CTA, no hover affordance advertising a click that would go nowhere. The
+ * listing sorts these cards last so a dead end never sits above a program the
+ * student can open.
  */
 export function MyCourseCard({ course }: Props) {
   if (!course.showBatchDetails) {
@@ -105,7 +112,8 @@ export function MyCourseCard({ course }: Props) {
       <CardBody course={course} />
       <CourseProgress course={course} />
 
-      <div className="mt-5 flex justify-end">
+      {/* `mt-auto` pins the CTA to the bottom edge on cards taller than their content. */}
+      <div className="mt-auto pt-5 flex justify-end">
         {/* Nested inside the card link: a visual affordance, not a second anchor. */}
         <span
           data-testid={`my-courses-card-details-cta-${course.batchId}`}

@@ -2,6 +2,7 @@ import type {
   badgeConfigs,
   badges,
   batches,
+  batchUser,
   lectures,
   lecturesAi,
   profiles,
@@ -167,6 +168,16 @@ export type MultiProgramStudentEntities = LiveLecturePhasesEntities & {
   secondSection: typeof sections.$inferSelect
   secondEnrollment: typeof sectionUser.$inferSelect
   secondBatchLecture: typeof lectures.$inferSelect
+  /** Third batch, enrolment paused — the "Paused Programs" case on /my-courses. */
+  pausedBatch: typeof batches.$inferSelect
+  pausedSection: typeof sections.$inferSelect
+  pausedEnrollment: typeof sectionUser.$inferSelect
+  /** Carries `meta.batchPaused` / `meta.batchPausedDate` for `pausedBatch`. */
+  pausedBatchUser: typeof batchUser.$inferSelect
+  /** Scheduled before the pause cutoff — stays visible. */
+  prePauseLecture: typeof lectures.$inferSelect
+  /** Scheduled after the pause cutoff — hidden while the pause stands. */
+  postPauseLecture: typeof lectures.$inferSelect
 }
 
 export type DiscussionsCancelledEnrollmentEntities = {
@@ -200,7 +211,7 @@ export type DiscussionsCancelledEnrollmentEntities = {
   /** `student`'s public discussion on `secondLecture` (batch B), where their enrolment is healthy. */
   discussionByStudentOnSecondBatch: typeof import('@/db/schema').discussions.$inferSelect
   /** Batch-level cancellation for `student` on `batch` only. */
-  cancelledBatchUser: typeof import('@/db/schema').batchUser.$inferSelect
+  cancelledBatchUser: typeof batchUser.$inferSelect
 }
 
 export type SectionDropdownBatchEntities = {

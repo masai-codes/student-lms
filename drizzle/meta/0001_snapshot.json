@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "d5378069-d559-497c-aab9-0c1bdd257976",
-  "prevId": "8035d238-213b-417e-bc83-2e69d9fdcff8",
+  "id": "cc3a2ae1-d395-4bea-a45c-c3c19ab0941f",
+  "prevId": "b1c545e7-c982-4193-b3e3-1dc7fab23a90",
   "tables": {
     "ai_chat_practice_questions": {
       "name": "ai_chat_practice_questions",
@@ -74,7 +74,9 @@
       "indexes": {
         "ai_chat_practice_questions_created_at_idx": {
           "name": "ai_chat_practice_questions_created_at_idx",
-          "columns": ["created_at"],
+          "columns": [
+            "created_at"
+          ],
           "isUnique": false
         }
       },
@@ -83,8 +85,12 @@
           "name": "ai_chat_practice_questions_lectureId_lectures_id_fk",
           "tableFrom": "ai_chat_practice_questions",
           "tableTo": "lectures",
-          "columnsFrom": ["lectureId"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "lectureId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -92,8 +98,12 @@
           "name": "ai_chat_practice_questions_userId_users_id_fk",
           "tableFrom": "ai_chat_practice_questions",
           "tableTo": "users",
-          "columnsFrom": ["userId"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -101,7 +111,9 @@
       "compositePrimaryKeys": {
         "ai_chat_practice_questions_id": {
           "name": "ai_chat_practice_questions_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -233,22 +245,30 @@
       "indexes": {
         "ai_tutor_sessions_created_at_index": {
           "name": "ai_tutor_sessions_created_at_index",
-          "columns": ["created_at"],
+          "columns": [
+            "created_at"
+          ],
           "isUnique": false
         },
         "ai_tutor_sessions_lecture_id_index": {
           "name": "ai_tutor_sessions_lecture_id_index",
-          "columns": ["lecture_id"],
+          "columns": [
+            "lecture_id"
+          ],
           "isUnique": false
         },
         "ai_tutor_sessions_unique_id_index": {
           "name": "ai_tutor_sessions_unique_id_index",
-          "columns": ["unique_id"],
+          "columns": [
+            "unique_id"
+          ],
           "isUnique": false
         },
         "ai_tutor_sessions_user_id_index": {
           "name": "ai_tutor_sessions_user_id_index",
-          "columns": ["user_id"],
+          "columns": [
+            "user_id"
+          ],
           "isUnique": false
         }
       },
@@ -257,8 +277,12 @@
           "name": "ai_tutor_sessions_user_id_users_id_fk",
           "tableFrom": "ai_tutor_sessions",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -266,8 +290,12 @@
           "name": "ai_tutor_sessions_lecture_id_lectures_id_fk",
           "tableFrom": "ai_tutor_sessions",
           "tableTo": "lectures",
-          "columnsFrom": ["lecture_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "lecture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -275,7 +303,9 @@
       "compositePrimaryKeys": {
         "ai_tutor_sessions_id": {
           "name": "ai_tutor_sessions_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -352,7 +382,10 @@
       "indexes": {
         "announcement_reads_user_id_is_unread_index": {
           "name": "announcement_reads_user_id_is_unread_index",
-          "columns": ["user_id", "is_unread"],
+          "columns": [
+            "user_id",
+            "is_unread"
+          ],
           "isUnique": false
         }
       },
@@ -361,8 +394,12 @@
           "name": "announcement_reads_announcement_id_announcements_id_fk",
           "tableFrom": "announcement_reads",
           "tableTo": "announcements",
-          "columnsFrom": ["announcement_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "announcement_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -370,8 +407,12 @@
           "name": "announcement_reads_user_id_users_id_fk",
           "tableFrom": "announcement_reads",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -379,13 +420,18 @@
       "compositePrimaryKeys": {
         "announcement_reads_id": {
           "name": "announcement_reads_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "announcement_reads_announcement_id_user_id_unique": {
           "name": "announcement_reads_announcement_id_user_id_unique",
-          "columns": ["announcement_id", "user_id"]
+          "columns": [
+            "announcement_id",
+            "user_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -563,8 +609,12 @@
           "name": "announcements_batch_id_batches_id_fk",
           "tableFrom": "announcements",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -572,8 +622,12 @@
           "name": "announcements_section_id_sections_id_fk",
           "tableFrom": "announcements",
           "tableTo": "sections",
-          "columnsFrom": ["section_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -581,8 +635,12 @@
           "name": "announcements_user_id_users_id_fk",
           "tableFrom": "announcements",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -590,7 +648,9 @@
       "compositePrimaryKeys": {
         "announcements_id": {
           "name": "announcements_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -734,8 +794,12 @@
           "name": "assess_nps_form_user_id_users_id_fk",
           "tableFrom": "assess_nps_form",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -743,8 +807,12 @@
           "name": "assess_nps_form_batch_id_batches_id_fk",
           "tableFrom": "assess_nps_form",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -752,8 +820,12 @@
           "name": "assess_nps_form_section_id_sections_id_fk",
           "tableFrom": "assess_nps_form",
           "tableTo": "sections",
-          "columnsFrom": ["section_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -761,7 +833,9 @@
       "compositePrimaryKeys": {
         "assess_nps_form_id": {
           "name": "assess_nps_form_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -876,8 +950,12 @@
           "name": "assess_nps_submissions_nps_form_id_assess_nps_form_id_fk",
           "tableFrom": "assess_nps_submissions",
           "tableTo": "assess_nps_form",
-          "columnsFrom": ["nps_form_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "nps_form_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -885,8 +963,12 @@
           "name": "assess_nps_submissions_user_id_users_id_fk",
           "tableFrom": "assess_nps_submissions",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -894,8 +976,12 @@
           "name": "assess_nps_submissions_batch_id_batches_id_fk",
           "tableFrom": "assess_nps_submissions",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -903,8 +989,12 @@
           "name": "assess_nps_submissions_section_id_sections_id_fk",
           "tableFrom": "assess_nps_submissions",
           "tableTo": "sections",
-          "columnsFrom": ["section_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -912,13 +1002,18 @@
       "compositePrimaryKeys": {
         "assess_nps_submissions_id": {
           "name": "assess_nps_submissions_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "assess_nps_submissions_form_user_unique": {
           "name": "assess_nps_submissions_form_user_unique",
-          "columns": ["nps_form_id", "user_id"]
+          "columns": [
+            "nps_form_id",
+            "user_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -983,8 +1078,12 @@
           "name": "assignment_problem_assignment_id_assignments_id_fk",
           "tableFrom": "assignment_problem",
           "tableTo": "assignments",
-          "columnsFrom": ["assignment_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "assignment_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -992,8 +1091,12 @@
           "name": "assignment_problem_problem_id_problems_id_fk",
           "tableFrom": "assignment_problem",
           "tableTo": "problems",
-          "columnsFrom": ["problem_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "problem_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1001,7 +1104,9 @@
       "compositePrimaryKeys": {
         "assignment_problem_id": {
           "name": "assignment_problem_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -1263,8 +1368,12 @@
           "name": "assignments_batch_id_batches_id_fk",
           "tableFrom": "assignments",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1272,8 +1381,12 @@
           "name": "assignments_section_id_sections_id_fk",
           "tableFrom": "assignments",
           "tableTo": "sections",
-          "columnsFrom": ["section_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1281,8 +1394,12 @@
           "name": "assignments_user_id_users_id_fk",
           "tableFrom": "assignments",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1290,7 +1407,9 @@
       "compositePrimaryKeys": {
         "assignments_id": {
           "name": "assignments_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -1409,22 +1528,30 @@
       "indexes": {
         "attendances_batch_id_index": {
           "name": "attendances_batch_id_index",
-          "columns": ["batch_id"],
+          "columns": [
+            "batch_id"
+          ],
           "isUnique": false
         },
         "attendances_lecture_id_index": {
           "name": "attendances_lecture_id_index",
-          "columns": ["lecture_id"],
+          "columns": [
+            "lecture_id"
+          ],
           "isUnique": false
         },
         "attendances_section_id_index": {
           "name": "attendances_section_id_index",
-          "columns": ["section_id"],
+          "columns": [
+            "section_id"
+          ],
           "isUnique": false
         },
         "attendances_user_id_index": {
           "name": "attendances_user_id_index",
-          "columns": ["user_id"],
+          "columns": [
+            "user_id"
+          ],
           "isUnique": false
         }
       },
@@ -1433,8 +1560,12 @@
           "name": "attendances_lecture_id_lectures_id_fk",
           "tableFrom": "attendances",
           "tableTo": "lectures",
-          "columnsFrom": ["lecture_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "lecture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1442,8 +1573,12 @@
           "name": "attendances_user_id_users_id_fk",
           "tableFrom": "attendances",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1451,8 +1586,12 @@
           "name": "attendances_host_id_users_id_fk",
           "tableFrom": "attendances",
           "tableTo": "users",
-          "columnsFrom": ["host_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "host_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1460,8 +1599,12 @@
           "name": "attendances_batch_id_batches_id_fk",
           "tableFrom": "attendances",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1469,8 +1612,12 @@
           "name": "attendances_section_id_sections_id_fk",
           "tableFrom": "attendances",
           "tableTo": "sections",
-          "columnsFrom": ["section_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1478,13 +1625,18 @@
       "compositePrimaryKeys": {
         "attendances_id": {
           "name": "attendances_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "attendances_lecture_id_user_id_key": {
           "name": "attendances_lecture_id_user_id_key",
-          "columns": ["lecture_id", "user_id"]
+          "columns": [
+            "lecture_id",
+            "user_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -1585,8 +1737,12 @@
           "name": "badge_configs_badge_id_badges_id_fk",
           "tableFrom": "badge_configs",
           "tableTo": "badges",
-          "columnsFrom": ["badge_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "badge_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1594,8 +1750,12 @@
           "name": "badge_configs_batch_id_batches_id_fk",
           "tableFrom": "badge_configs",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1603,8 +1763,12 @@
           "name": "badge_configs_section_id_sections_id_fk",
           "tableFrom": "badge_configs",
           "tableTo": "sections",
-          "columnsFrom": ["section_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1612,13 +1776,18 @@
       "compositePrimaryKeys": {
         "badge_configs_id": {
           "name": "badge_configs_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "badge_configs_badge_id_section_id_unique": {
           "name": "badge_configs_badge_id_section_id_unique",
-          "columns": ["badge_id", "section_id"]
+          "columns": [
+            "badge_id",
+            "section_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -1695,7 +1864,9 @@
       "compositePrimaryKeys": {
         "badges_id": {
           "name": "badges_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -1828,22 +1999,30 @@
       "indexes": {
         "idx_banners_group_name": {
           "name": "idx_banners_group_name",
-          "columns": ["group_name"],
+          "columns": [
+            "group_name"
+          ],
           "isUnique": false
         },
         "idx_banners_is_active": {
           "name": "idx_banners_is_active",
-          "columns": ["is_active"],
+          "columns": [
+            "is_active"
+          ],
           "isUnique": false
         },
         "idx_banners_type": {
           "name": "idx_banners_type",
-          "columns": ["type"],
+          "columns": [
+            "type"
+          ],
           "isUnique": false
         },
         "idx_banners_variant": {
           "name": "idx_banners_variant",
-          "columns": ["variant"],
+          "columns": [
+            "variant"
+          ],
           "isUnique": false
         }
       },
@@ -1851,13 +2030,17 @@
       "compositePrimaryKeys": {
         "banners_id": {
           "name": "banners_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "banners_group_name_key": {
           "name": "banners_group_name_key",
-          "columns": ["group_name"]
+          "columns": [
+            "group_name"
+          ]
         }
       },
       "checkConstraint": {}
@@ -1974,14 +2157,14 @@
         },
         "enrolment_id": {
           "name": "enrolment_id",
-          "type": "bigint unsigned",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "batch_transfer_id": {
           "name": "batch_transfer_id",
-          "type": "bigint unsigned",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1994,14 +2177,26 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "batch_user_enrolment_id_index": {
+          "name": "batch_user_enrolment_id_index",
+          "columns": [
+            "enrolment_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "batch_user_user_id_users_id_fk": {
           "name": "batch_user_user_id_users_id_fk",
           "tableFrom": "batch_user",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2009,8 +2204,12 @@
           "name": "batch_user_batch_id_batches_id_fk",
           "tableFrom": "batch_user",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2018,7 +2217,9 @@
       "compositePrimaryKeys": {
         "batch_user_id": {
           "name": "batch_user_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -2174,42 +2375,65 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "calendar_token": {
+          "name": "calendar_token",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
         "idx_active": {
           "name": "idx_active",
-          "columns": ["active"],
+          "columns": [
+            "active"
+          ],
           "isUnique": false
         },
         "idx_active_starting": {
           "name": "idx_active_starting",
-          "columns": ["active", "starting"],
+          "columns": [
+            "active",
+            "starting"
+          ],
           "isUnique": false
         },
         "idx_duration": {
           "name": "idx_duration",
-          "columns": ["duration"],
+          "columns": [
+            "duration"
+          ],
           "isUnique": false
         },
         "idx_name": {
           "name": "idx_name",
-          "columns": ["name"],
+          "columns": [
+            "name"
+          ],
           "isUnique": false
         },
         "idx_program": {
           "name": "idx_program",
-          "columns": ["program"],
+          "columns": [
+            "program"
+          ],
           "isUnique": false
         },
         "idx_starting": {
           "name": "idx_starting",
-          "columns": ["starting"],
+          "columns": [
+            "starting"
+          ],
           "isUnique": false
         },
         "idx_starting_active": {
           "name": "idx_starting_active",
-          "columns": ["starting", "active"],
+          "columns": [
+            "starting",
+            "active"
+          ],
           "isUnique": false
         }
       },
@@ -2217,10 +2441,19 @@
       "compositePrimaryKeys": {
         "batches_id": {
           "name": "batches_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "batches_calendar_token_key": {
+          "name": "batches_calendar_token_key",
+          "columns": [
+            "calendar_token"
+          ]
+        }
+      },
       "checkConstraint": {}
     },
     "blocks": {
@@ -2317,7 +2550,9 @@
       "compositePrimaryKeys": {
         "blocks_id": {
           "name": "blocks_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -2378,9 +2613,19 @@
         }
       },
       "indexes": {
+        "bookmarks_created_at_idx": {
+          "name": "bookmarks_created_at_idx",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        },
         "bookmarks_entity_type_entity_id_index": {
           "name": "bookmarks_entity_type_entity_id_index",
-          "columns": ["entity_type", "entity_id"],
+          "columns": [
+            "entity_type",
+            "entity_id"
+          ],
           "isUnique": false
         }
       },
@@ -2389,8 +2634,12 @@
           "name": "bookmarks_user_id_users_id_fk",
           "tableFrom": "bookmarks",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2398,7 +2647,9 @@
       "compositePrimaryKeys": {
         "bookmarks_id": {
           "name": "bookmarks_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -2455,7 +2706,9 @@
       "indexes": {
         "club_members_club_id_index": {
           "name": "club_members_club_id_index",
-          "columns": ["club_id"],
+          "columns": [
+            "club_id"
+          ],
           "isUnique": false
         }
       },
@@ -2464,8 +2717,12 @@
           "name": "club_members_user_id_users_id_fk",
           "tableFrom": "club_members",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2473,8 +2730,12 @@
           "name": "club_members_club_id_clubs_id_fk",
           "tableFrom": "club_members",
           "tableTo": "clubs",
-          "columnsFrom": ["club_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "club_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2482,13 +2743,18 @@
       "compositePrimaryKeys": {
         "club_members_id": {
           "name": "club_members_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "club_members_user_id_club_id_unique": {
           "name": "club_members_user_id_club_id_unique",
-          "columns": ["user_id", "club_id"]
+          "columns": [
+            "user_id",
+            "club_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -2557,7 +2823,9 @@
       "indexes": {
         "clubs_created_by_index": {
           "name": "clubs_created_by_index",
-          "columns": ["created_by"],
+          "columns": [
+            "created_by"
+          ],
           "isUnique": false
         }
       },
@@ -2566,8 +2834,12 @@
           "name": "clubs_created_by_users_id_fk",
           "tableFrom": "clubs",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2575,7 +2847,9 @@
       "compositePrimaryKeys": {
         "clubs_id": {
           "name": "clubs_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -2659,12 +2933,16 @@
       "indexes": {
         "comments_created_at_index": {
           "name": "comments_created_at_index",
-          "columns": ["created_at"],
+          "columns": [
+            "created_at"
+          ],
           "isUnique": false
         },
         "comments_updated_at_index": {
           "name": "comments_updated_at_index",
-          "columns": ["updated_at"],
+          "columns": [
+            "updated_at"
+          ],
           "isUnique": false
         }
       },
@@ -2673,8 +2951,12 @@
           "name": "comments_ticket_id_tickets_id_fk",
           "tableFrom": "comments",
           "tableTo": "tickets",
-          "columnsFrom": ["ticket_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "ticket_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2682,8 +2964,12 @@
           "name": "comments_user_id_users_id_fk",
           "tableFrom": "comments",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2691,7 +2977,9 @@
       "compositePrimaryKeys": {
         "comments_id": {
           "name": "comments_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -2811,12 +3099,17 @@
       "indexes": {
         "discussions_created_at_idx": {
           "name": "discussions_created_at_idx",
-          "columns": ["created_at"],
+          "columns": [
+            "created_at"
+          ],
           "isUnique": false
         },
         "discussions_entity_type_entity_id_index": {
           "name": "discussions_entity_type_entity_id_index",
-          "columns": ["entity_type", "entity_id"],
+          "columns": [
+            "entity_type",
+            "entity_id"
+          ],
           "isUnique": false
         }
       },
@@ -2825,8 +3118,12 @@
           "name": "discussions_user_id_users_id_fk",
           "tableFrom": "discussions",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2834,8 +3131,12 @@
           "name": "discussions_assignee_id_users_id_fk",
           "tableFrom": "discussions",
           "tableTo": "users",
-          "columnsFrom": ["assignee_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "assignee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2843,7 +3144,9 @@
       "compositePrimaryKeys": {
         "discussions_id": {
           "name": "discussions_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -2892,7 +3195,9 @@
       "indexes": {
         "event_enrollments_event_id_index": {
           "name": "event_enrollments_event_id_index",
-          "columns": ["event_id"],
+          "columns": [
+            "event_id"
+          ],
           "isUnique": false
         }
       },
@@ -2901,8 +3206,12 @@
           "name": "event_enrollments_user_id_users_id_fk",
           "tableFrom": "event_enrollments",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2910,8 +3219,12 @@
           "name": "event_enrollments_event_id_events_id_fk",
           "tableFrom": "event_enrollments",
           "tableTo": "events",
-          "columnsFrom": ["event_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "event_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2919,13 +3232,18 @@
       "compositePrimaryKeys": {
         "event_enrollments_id": {
           "name": "event_enrollments_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "event_enrollments_user_id_event_id_unique": {
           "name": "event_enrollments_user_id_event_id_unique",
-          "columns": ["user_id", "event_id"]
+          "columns": [
+            "user_id",
+            "event_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -3057,12 +3375,16 @@
       "indexes": {
         "events_club_id_index": {
           "name": "events_club_id_index",
-          "columns": ["club_id"],
+          "columns": [
+            "club_id"
+          ],
           "isUnique": false
         },
         "events_created_by_index": {
           "name": "events_created_by_index",
-          "columns": ["created_by"],
+          "columns": [
+            "created_by"
+          ],
           "isUnique": false
         }
       },
@@ -3071,8 +3393,12 @@
           "name": "events_club_id_clubs_id_fk",
           "tableFrom": "events",
           "tableTo": "clubs",
-          "columnsFrom": ["club_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "club_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3080,8 +3406,12 @@
           "name": "events_created_by_users_id_fk",
           "tableFrom": "events",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3089,7 +3419,9 @@
       "compositePrimaryKeys": {
         "events_id": {
           "name": "events_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -3173,7 +3505,9 @@
       "indexes": {
         "idx_name": {
           "name": "idx_name",
-          "columns": ["name"],
+          "columns": [
+            "name"
+          ],
           "isUnique": false
         }
       },
@@ -3182,8 +3516,12 @@
           "name": "feedback_quiz_id_quizzes_id_fk",
           "tableFrom": "feedback",
           "tableTo": "quizzes",
-          "columnsFrom": ["quiz_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "quiz_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3191,8 +3529,12 @@
           "name": "feedback_feedback_blueprint_id_feedback_blueprints_id_fk",
           "tableFrom": "feedback",
           "tableTo": "feedback_blueprints",
-          "columnsFrom": ["feedback_blueprint_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "feedback_blueprint_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3200,7 +3542,9 @@
       "compositePrimaryKeys": {
         "feedback_id": {
           "name": "feedback_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -3258,7 +3602,9 @@
       "compositePrimaryKeys": {
         "feedback_blueprints_id": {
           "name": "feedback_blueprints_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -3357,22 +3703,31 @@
       "indexes": {
         "help_faqs_category_index": {
           "name": "help_faqs_category_index",
-          "columns": ["category"],
+          "columns": [
+            "category"
+          ],
           "isUnique": false
         },
         "help_faqs_category_sub_category_index": {
           "name": "help_faqs_category_sub_category_index",
-          "columns": ["category", "sub_category"],
+          "columns": [
+            "category",
+            "sub_category"
+          ],
           "isUnique": false
         },
         "help_faqs_is_hidden_index": {
           "name": "help_faqs_is_hidden_index",
-          "columns": ["is_hidden"],
+          "columns": [
+            "is_hidden"
+          ],
           "isUnique": false
         },
         "help_faqs_sub_category_index": {
           "name": "help_faqs_sub_category_index",
-          "columns": ["sub_category"],
+          "columns": [
+            "sub_category"
+          ],
           "isUnique": false
         }
       },
@@ -3381,8 +3736,12 @@
           "name": "help_faqs_batch_id_batches_id_fk",
           "tableFrom": "help_faqs",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3390,7 +3749,9 @@
       "compositePrimaryKeys": {
         "help_faqs_id": {
           "name": "help_faqs_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -3442,6 +3803,22 @@
           "autoincrement": false,
           "default": "'in_progress'"
         },
+        "num_questions": {
+          "name": "num_questions",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 5
+        },
+        "language": {
+          "name": "language",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'English'"
+        },
         "turns": {
           "name": "turns",
           "type": "json",
@@ -3481,7 +3858,9 @@
       "indexes": {
         "idx_interview_sessions_user_id": {
           "name": "idx_interview_sessions_user_id",
-          "columns": ["user_id"],
+          "columns": [
+            "user_id"
+          ],
           "isUnique": false
         }
       },
@@ -3490,8 +3869,12 @@
           "name": "interview_sessions_user_id_users_id_fk",
           "tableFrom": "interview_sessions",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -3499,7 +3882,9 @@
       "compositePrimaryKeys": {
         "interview_sessions_id": {
           "name": "interview_sessions_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -3569,7 +3954,9 @@
       "indexes": {
         "lecture_feedback_lecture_id_foreign": {
           "name": "lecture_feedback_lecture_id_foreign",
-          "columns": ["lecture_id"],
+          "columns": [
+            "lecture_id"
+          ],
           "isUnique": false
         }
       },
@@ -3578,8 +3965,12 @@
           "name": "lecture_feedback_lecture_id_lectures_id_fk",
           "tableFrom": "lecture_feedback",
           "tableTo": "lectures",
-          "columnsFrom": ["lecture_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "lecture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3587,8 +3978,12 @@
           "name": "lecture_feedback_user_id_users_id_fk",
           "tableFrom": "lecture_feedback",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3596,7 +3991,9 @@
       "compositePrimaryKeys": {
         "lecture_feedback_id": {
           "name": "lecture_feedback_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -3669,8 +4066,12 @@
           "name": "lecture_zoom_chat_lecture_id_lectures_id_fk",
           "tableFrom": "lecture_zoom_chat",
           "tableTo": "lectures",
-          "columnsFrom": ["lecture_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "lecture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3678,8 +4079,12 @@
           "name": "lecture_zoom_chat_last_edited_by_users_id_fk",
           "tableFrom": "lecture_zoom_chat",
           "tableTo": "users",
-          "columnsFrom": ["last_edited_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "last_edited_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3687,13 +4092,17 @@
       "compositePrimaryKeys": {
         "lecture_zoom_chat_id": {
           "name": "lecture_zoom_chat_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "lecture_zoom_chat_lecture_id_unique": {
           "name": "lecture_zoom_chat_lecture_id_unique",
-          "columns": ["lecture_id"]
+          "columns": [
+            "lecture_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -3980,32 +4389,44 @@
       "indexes": {
         "idx_category": {
           "name": "idx_category",
-          "columns": ["category"],
+          "columns": [
+            "category"
+          ],
           "isUnique": false
         },
         "idx_concludes": {
           "name": "idx_concludes",
-          "columns": ["concludes"],
+          "columns": [
+            "concludes"
+          ],
           "isUnique": false
         },
         "idx_schedule": {
           "name": "idx_schedule",
-          "columns": ["schedule"],
+          "columns": [
+            "schedule"
+          ],
           "isUnique": false
         },
         "idx_title": {
           "name": "idx_title",
-          "columns": ["title"],
+          "columns": [
+            "title"
+          ],
           "isUnique": false
         },
         "idx_type": {
           "name": "idx_type",
-          "columns": ["type"],
+          "columns": [
+            "type"
+          ],
           "isUnique": false
         },
         "idx_updated_at": {
           "name": "idx_updated_at",
-          "columns": ["updated_at"],
+          "columns": [
+            "updated_at"
+          ],
           "isUnique": false
         }
       },
@@ -4014,8 +4435,12 @@
           "name": "lectures_batch_id_batches_id_fk",
           "tableFrom": "lectures",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4023,8 +4448,12 @@
           "name": "lectures_section_id_sections_id_fk",
           "tableFrom": "lectures",
           "tableTo": "sections",
-          "columnsFrom": ["section_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4032,8 +4461,12 @@
           "name": "lectures_user_id_users_id_fk",
           "tableFrom": "lectures",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4041,8 +4474,12 @@
           "name": "lectures_feedback_id_feedback_id_fk",
           "tableFrom": "lectures",
           "tableTo": "feedback",
-          "columnsFrom": ["feedback_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "feedback_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4050,8 +4487,12 @@
           "name": "lectures_host_id_users_id_fk",
           "tableFrom": "lectures",
           "tableTo": "users",
-          "columnsFrom": ["host_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "host_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4059,7 +4500,9 @@
       "compositePrimaryKeys": {
         "lectures_id": {
           "name": "lectures_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -4145,9 +4588,16 @@
           "notNull": false,
           "autoincrement": false
         },
-        "transcriptID": {
-          "name": "transcriptID",
+        "transcriptId": {
+          "name": "transcriptId",
           "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "faqs": {
+          "name": "faqs",
+          "type": "json",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -4159,8 +4609,12 @@
           "name": "lectures_ai_lectureId_lectures_id_fk",
           "tableFrom": "lectures_ai",
           "tableTo": "lectures",
-          "columnsFrom": ["lectureId"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "lectureId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -4168,13 +4622,17 @@
       "compositePrimaryKeys": {
         "lectures_ai_id": {
           "name": "lectures_ai_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "lectures_ai_lectureId_key": {
           "name": "lectures_ai_lectureId_key",
-          "columns": ["lectureId"]
+          "columns": [
+            "lectureId"
+          ]
         }
       },
       "checkConstraint": {}
@@ -4222,17 +4680,23 @@
       "indexes": {
         "login_attempts_attempted_at_idx": {
           "name": "login_attempts_attempted_at_idx",
-          "columns": ["attempted_at"],
+          "columns": [
+            "attempted_at"
+          ],
           "isUnique": false
         },
         "login_attempts_identifier_idx": {
           "name": "login_attempts_identifier_idx",
-          "columns": ["identifier"],
+          "columns": [
+            "identifier"
+          ],
           "isUnique": false
         },
         "login_attempts_ip_address_idx": {
           "name": "login_attempts_ip_address_idx",
-          "columns": ["ip_address"],
+          "columns": [
+            "ip_address"
+          ],
           "isUnique": false
         }
       },
@@ -4240,7 +4704,9 @@
       "compositePrimaryKeys": {
         "login_attempts_id": {
           "name": "login_attempts_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -4338,12 +4804,16 @@
       "indexes": {
         "masaiverse_banners_created_by_index": {
           "name": "masaiverse_banners_created_by_index",
-          "columns": ["created_by"],
+          "columns": [
+            "created_by"
+          ],
           "isUnique": false
         },
         "masaiverse_banners_last_edited_by_index": {
           "name": "masaiverse_banners_last_edited_by_index",
-          "columns": ["last_edited_by"],
+          "columns": [
+            "last_edited_by"
+          ],
           "isUnique": false
         }
       },
@@ -4352,8 +4822,12 @@
           "name": "masaiverse_banners_created_by_users_id_fk",
           "tableFrom": "masaiverse_banners",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4361,8 +4835,12 @@
           "name": "masaiverse_banners_last_edited_by_users_id_fk",
           "tableFrom": "masaiverse_banners",
           "tableTo": "users",
-          "columnsFrom": ["last_edited_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "last_edited_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4370,7 +4848,9 @@
       "compositePrimaryKeys": {
         "masaiverse_banners_id": {
           "name": "masaiverse_banners_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -4461,37 +4941,51 @@
       "indexes": {
         "masaiverse_leaderboard_club_id_index": {
           "name": "masaiverse_leaderboard_club_id_index",
-          "columns": ["club_id"],
+          "columns": [
+            "club_id"
+          ],
           "isUnique": false
         },
         "masaiverse_leaderboard_created_by_index": {
           "name": "masaiverse_leaderboard_created_by_index",
-          "columns": ["created_by"],
+          "columns": [
+            "created_by"
+          ],
           "isUnique": false
         },
         "masaiverse_leaderboard_event_id_index": {
           "name": "masaiverse_leaderboard_event_id_index",
-          "columns": ["event_id"],
+          "columns": [
+            "event_id"
+          ],
           "isUnique": false
         },
         "masaiverse_leaderboard_post_id_index": {
           "name": "masaiverse_leaderboard_post_id_index",
-          "columns": ["post_id"],
+          "columns": [
+            "post_id"
+          ],
           "isUnique": false
         },
         "masaiverse_leaderboard_reason_index": {
           "name": "masaiverse_leaderboard_reason_index",
-          "columns": ["reason"],
+          "columns": [
+            "reason"
+          ],
           "isUnique": false
         },
         "masaiverse_leaderboard_reply_id_index": {
           "name": "masaiverse_leaderboard_reply_id_index",
-          "columns": ["reply_id"],
+          "columns": [
+            "reply_id"
+          ],
           "isUnique": false
         },
         "masaiverse_leaderboard_user_id_index": {
           "name": "masaiverse_leaderboard_user_id_index",
-          "columns": ["user_id"],
+          "columns": [
+            "user_id"
+          ],
           "isUnique": false
         }
       },
@@ -4500,8 +4994,12 @@
           "name": "masaiverse_leaderboard_user_id_users_id_fk",
           "tableFrom": "masaiverse_leaderboard",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4509,8 +5007,12 @@
           "name": "masaiverse_leaderboard_created_by_users_id_fk",
           "tableFrom": "masaiverse_leaderboard",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -4518,8 +5020,12 @@
           "name": "masaiverse_leaderboard_club_id_clubs_id_fk",
           "tableFrom": "masaiverse_leaderboard",
           "tableTo": "clubs",
-          "columnsFrom": ["club_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "club_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -4527,8 +5033,12 @@
           "name": "masaiverse_leaderboard_post_id_posts_id_fk",
           "tableFrom": "masaiverse_leaderboard",
           "tableTo": "posts",
-          "columnsFrom": ["post_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "post_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -4536,8 +5046,12 @@
           "name": "masaiverse_leaderboard_reply_id_replies_id_fk",
           "tableFrom": "masaiverse_leaderboard",
           "tableTo": "replies",
-          "columnsFrom": ["reply_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "reply_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -4545,8 +5059,12 @@
           "name": "masaiverse_leaderboard_event_id_events_id_fk",
           "tableFrom": "masaiverse_leaderboard",
           "tableTo": "events",
-          "columnsFrom": ["event_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "event_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -4554,7 +5072,9 @@
       "compositePrimaryKeys": {
         "masaiverse_leaderboard_id": {
           "name": "masaiverse_leaderboard_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -4626,7 +5146,9 @@
       "compositePrimaryKeys": {
         "menus_id": {
           "name": "menus_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -4759,7 +5281,9 @@
       "indexes": {
         "messages_created_at_idx": {
           "name": "messages_created_at_idx",
-          "columns": ["created_at"],
+          "columns": [
+            "created_at"
+          ],
           "isUnique": false
         }
       },
@@ -4768,8 +5292,12 @@
           "name": "messages_user_id_users_id_fk",
           "tableFrom": "messages",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4777,8 +5305,12 @@
           "name": "messages_author_id_users_id_fk",
           "tableFrom": "messages",
           "tableTo": "users",
-          "columnsFrom": ["author_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "author_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -4786,8 +5318,12 @@
           "name": "messages_message_id_foreign",
           "tableFrom": "messages",
           "tableTo": "messages",
-          "columnsFrom": ["message_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "message_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4795,7 +5331,9 @@
       "compositePrimaryKeys": {
         "messages_id": {
           "name": "messages_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -4900,27 +5438,38 @@
       "indexes": {
         "notification_logs_entity_index": {
           "name": "notification_logs_entity_index",
-          "columns": ["entity_type", "entity_id"],
+          "columns": [
+            "entity_type",
+            "entity_id"
+          ],
           "isUnique": false
         },
         "notification_logs_sent_at_index": {
           "name": "notification_logs_sent_at_index",
-          "columns": ["sent_at"],
+          "columns": [
+            "sent_at"
+          ],
           "isUnique": false
         },
         "notification_logs_status_index": {
           "name": "notification_logs_status_index",
-          "columns": ["status"],
+          "columns": [
+            "status"
+          ],
           "isUnique": false
         },
         "notification_logs_type_index": {
           "name": "notification_logs_type_index",
-          "columns": ["notification_type"],
+          "columns": [
+            "notification_type"
+          ],
           "isUnique": false
         },
         "notification_logs_user_id_index": {
           "name": "notification_logs_user_id_index",
-          "columns": ["user_id"],
+          "columns": [
+            "user_id"
+          ],
           "isUnique": false
         }
       },
@@ -4929,8 +5478,12 @@
           "name": "notification_logs_user_id_users_id_fk",
           "tableFrom": "notification_logs",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -4938,13 +5491,19 @@
       "compositePrimaryKeys": {
         "notification_logs_id": {
           "name": "notification_logs_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "notification_logs_unique_notification": {
           "name": "notification_logs_unique_notification",
-          "columns": ["user_id", "notification_type", "entity_id"]
+          "columns": [
+            "user_id",
+            "notification_type",
+            "entity_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -5001,8 +5560,12 @@
           "name": "opt_in_choices_section_id_sections_id_fk",
           "tableFrom": "opt_in_choices",
           "tableTo": "sections",
-          "columnsFrom": ["section_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5010,7 +5573,9 @@
       "compositePrimaryKeys": {
         "opt_in_choices_id": {
           "name": "opt_in_choices_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -5088,7 +5653,9 @@
       "indexes": {
         "otp_codes_identifier_idx": {
           "name": "otp_codes_identifier_idx",
-          "columns": ["identifier"],
+          "columns": [
+            "identifier"
+          ],
           "isUnique": false
         }
       },
@@ -5096,13 +5663,17 @@
       "compositePrimaryKeys": {
         "otp_codes_id": {
           "name": "otp_codes_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "otp_codes_session_id_key": {
           "name": "otp_codes_session_id_key",
-          "columns": ["session_id"]
+          "columns": [
+            "session_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -5193,17 +5764,23 @@
       "indexes": {
         "posts_banned_by_index": {
           "name": "posts_banned_by_index",
-          "columns": ["banned_by"],
+          "columns": [
+            "banned_by"
+          ],
           "isUnique": false
         },
         "posts_club_id_index": {
           "name": "posts_club_id_index",
-          "columns": ["club_id"],
+          "columns": [
+            "club_id"
+          ],
           "isUnique": false
         },
         "posts_user_id_index": {
           "name": "posts_user_id_index",
-          "columns": ["user_id"],
+          "columns": [
+            "user_id"
+          ],
           "isUnique": false
         }
       },
@@ -5212,8 +5789,12 @@
           "name": "posts_club_id_clubs_id_fk",
           "tableFrom": "posts",
           "tableTo": "clubs",
-          "columnsFrom": ["club_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "club_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5221,8 +5802,12 @@
           "name": "posts_user_id_users_id_fk",
           "tableFrom": "posts",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5230,8 +5815,12 @@
           "name": "posts_banned_by_users_id_fk",
           "tableFrom": "posts",
           "tableTo": "users",
-          "columnsFrom": ["banned_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "banned_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -5239,7 +5828,9 @@
       "compositePrimaryKeys": {
         "posts_id": {
           "name": "posts_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -5405,8 +5996,12 @@
           "name": "problems_user_id_users_id_fk",
           "tableFrom": "problems",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5414,7 +6009,9 @@
       "compositePrimaryKeys": {
         "problems_id": {
           "name": "problems_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -5682,6 +6279,29 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "ask_store_review": {
+          "name": "ask_store_review",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "ask_store_review_on_home": {
+          "name": "ask_store_review_on_home",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "store_review": {
+          "name": "store_review",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -5690,8 +6310,12 @@
           "name": "profiles_user_id_users_id_fk",
           "tableFrom": "profiles",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5699,7 +6323,9 @@
       "compositePrimaryKeys": {
         "profiles_id": {
           "name": "profiles_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -5916,8 +6542,12 @@
           "name": "quizzes_batch_id_batches_id_fk",
           "tableFrom": "quizzes",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5925,8 +6555,12 @@
           "name": "quizzes_section_id_sections_id_fk",
           "tableFrom": "quizzes",
           "tableTo": "sections",
-          "columnsFrom": ["section_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -5934,8 +6568,12 @@
           "name": "quizzes_user_id_users_id_fk",
           "tableFrom": "quizzes",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -5943,7 +6581,9 @@
       "compositePrimaryKeys": {
         "quizzes_id": {
           "name": "quizzes_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -5999,12 +6639,16 @@
       "indexes": {
         "replies_post_id_index": {
           "name": "replies_post_id_index",
-          "columns": ["post_id"],
+          "columns": [
+            "post_id"
+          ],
           "isUnique": false
         },
         "replies_user_id_index": {
           "name": "replies_user_id_index",
-          "columns": ["user_id"],
+          "columns": [
+            "user_id"
+          ],
           "isUnique": false
         }
       },
@@ -6013,8 +6657,12 @@
           "name": "replies_post_id_posts_id_fk",
           "tableFrom": "replies",
           "tableTo": "posts",
-          "columnsFrom": ["post_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "post_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -6022,8 +6670,12 @@
           "name": "replies_user_id_users_id_fk",
           "tableFrom": "replies",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6031,7 +6683,9 @@
       "compositePrimaryKeys": {
         "replies_id": {
           "name": "replies_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -6139,7 +6793,9 @@
       "indexes": {
         "idx_role": {
           "name": "idx_role",
-          "columns": ["role"],
+          "columns": [
+            "role"
+          ],
           "isUnique": false
         }
       },
@@ -6148,8 +6804,12 @@
           "name": "section_user_section_id_sections_id_fk",
           "tableFrom": "section_user",
           "tableTo": "sections",
-          "columnsFrom": ["section_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6157,8 +6817,12 @@
           "name": "section_user_user_id_users_id_fk",
           "tableFrom": "section_user",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6166,8 +6830,12 @@
           "name": "section_user_manager_id_users_id_fk",
           "tableFrom": "section_user",
           "tableTo": "users",
-          "columnsFrom": ["manager_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "manager_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6175,8 +6843,12 @@
           "name": "section_user_opt_in_choice_id_opt_in_choices_id_fk",
           "tableFrom": "section_user",
           "tableTo": "opt_in_choices",
-          "columnsFrom": ["opt_in_choice_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "opt_in_choice_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6184,7 +6856,9 @@
       "compositePrimaryKeys": {
         "section_user_id": {
           "name": "section_user_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -6353,7 +7027,9 @@
       "indexes": {
         "idx_name": {
           "name": "idx_name",
-          "columns": ["name"],
+          "columns": [
+            "name"
+          ],
           "isUnique": false
         }
       },
@@ -6362,8 +7038,12 @@
           "name": "sections_batch_id_batches_id_fk",
           "tableFrom": "sections",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6371,8 +7051,12 @@
           "name": "sections_block_id_blocks_id_fk",
           "tableFrom": "sections",
           "tableTo": "blocks",
-          "columnsFrom": ["block_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "block_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6380,7 +7064,9 @@
       "compositePrimaryKeys": {
         "sections_id": {
           "name": "sections_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -6435,12 +7121,16 @@
       "indexes": {
         "sessions_last_activity_index": {
           "name": "sessions_last_activity_index",
-          "columns": ["last_activity"],
+          "columns": [
+            "last_activity"
+          ],
           "isUnique": false
         },
         "sessions_user_id_index": {
           "name": "sessions_user_id_index",
-          "columns": ["user_id"],
+          "columns": [
+            "user_id"
+          ],
           "isUnique": false
         }
       },
@@ -6448,7 +7138,9 @@
       "compositePrimaryKeys": {
         "sessions_id": {
           "name": "sessions_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -6563,8 +7255,12 @@
           "name": "solutions_submission_id_submissions_id_fk",
           "tableFrom": "solutions",
           "tableTo": "submissions",
-          "columnsFrom": ["submission_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "submission_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6572,8 +7268,12 @@
           "name": "solutions_problem_id_problems_id_fk",
           "tableFrom": "solutions",
           "tableTo": "problems",
-          "columnsFrom": ["problem_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "problem_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6581,7 +7281,9 @@
       "compositePrimaryKeys": {
         "solutions_id": {
           "name": "solutions_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -6735,32 +7437,46 @@
       "indexes": {
         "student_attendances_batch_id_index": {
           "name": "student_attendances_batch_id_index",
-          "columns": ["batch_id"],
+          "columns": [
+            "batch_id"
+          ],
           "isUnique": false
         },
         "student_attendances_lecture_id_index": {
           "name": "student_attendances_lecture_id_index",
-          "columns": ["lecture_id"],
+          "columns": [
+            "lecture_id"
+          ],
           "isUnique": false
         },
         "student_attendances_schedule_index": {
           "name": "student_attendances_schedule_index",
-          "columns": ["schedule"],
+          "columns": [
+            "schedule"
+          ],
           "isUnique": false
         },
         "student_attendances_section_id_schedule_index": {
           "name": "student_attendances_section_id_schedule_index",
-          "columns": ["section_id", "schedule"],
+          "columns": [
+            "section_id",
+            "schedule"
+          ],
           "isUnique": false
         },
         "student_attendances_status_index": {
           "name": "student_attendances_status_index",
-          "columns": ["status"],
+          "columns": [
+            "status"
+          ],
           "isUnique": false
         },
         "student_attendances_user_id_schedule_index": {
           "name": "student_attendances_user_id_schedule_index",
-          "columns": ["user_id", "schedule"],
+          "columns": [
+            "user_id",
+            "schedule"
+          ],
           "isUnique": false
         }
       },
@@ -6769,8 +7485,12 @@
           "name": "student_attendances_user_id_users_id_fk",
           "tableFrom": "student_attendances",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6778,8 +7498,12 @@
           "name": "student_attendances_lecture_id_lectures_id_fk",
           "tableFrom": "student_attendances",
           "tableTo": "lectures",
-          "columnsFrom": ["lecture_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "lecture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6787,8 +7511,12 @@
           "name": "student_attendances_section_id_sections_id_fk",
           "tableFrom": "student_attendances",
           "tableTo": "sections",
-          "columnsFrom": ["section_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6796,8 +7524,12 @@
           "name": "student_attendances_batch_id_batches_id_fk",
           "tableFrom": "student_attendances",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6805,13 +7537,18 @@
       "compositePrimaryKeys": {
         "student_attendances_id": {
           "name": "student_attendances_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "student_attendances_lecture_id_user_id_unique": {
           "name": "student_attendances_lecture_id_user_id_unique",
-          "columns": ["lecture_id", "user_id"]
+          "columns": [
+            "lecture_id",
+            "user_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -6940,8 +7677,12 @@
           "name": "submissions_assignment_id_assignments_id_fk",
           "tableFrom": "submissions",
           "tableTo": "assignments",
-          "columnsFrom": ["assignment_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "assignment_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -6949,8 +7690,12 @@
           "name": "submissions_user_id_users_id_fk",
           "tableFrom": "submissions",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -6958,7 +7703,9 @@
       "compositePrimaryKeys": {
         "submissions_id": {
           "name": "submissions_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -7052,8 +7799,12 @@
           "name": "threads_discussion_id_discussions_id_fk",
           "tableFrom": "threads",
           "tableTo": "discussions",
-          "columnsFrom": ["discussion_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "discussion_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7061,8 +7812,12 @@
           "name": "threads_user_id_users_id_fk",
           "tableFrom": "threads",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7070,7 +7825,9 @@
       "compositePrimaryKeys": {
         "threads_id": {
           "name": "threads_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -7225,17 +7982,23 @@
       "indexes": {
         "tickets_closed_at_index": {
           "name": "tickets_closed_at_index",
-          "columns": ["closed_at"],
+          "columns": [
+            "closed_at"
+          ],
           "isUnique": false
         },
         "tickets_created_at_index": {
           "name": "tickets_created_at_index",
-          "columns": ["created_at"],
+          "columns": [
+            "created_at"
+          ],
           "isUnique": false
         },
         "tickets_updated_at_index": {
           "name": "tickets_updated_at_index",
-          "columns": ["updated_at"],
+          "columns": [
+            "updated_at"
+          ],
           "isUnique": false
         }
       },
@@ -7244,8 +8007,12 @@
           "name": "tickets_user_id_users_id_fk",
           "tableFrom": "tickets",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7253,8 +8020,12 @@
           "name": "tickets_assignee_id_users_id_fk",
           "tableFrom": "tickets",
           "tableTo": "users",
-          "columnsFrom": ["assignee_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "assignee_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7262,8 +8033,12 @@
           "name": "tickets_agent_id_users_id_fk",
           "tableFrom": "tickets",
           "tableTo": "users",
-          "columnsFrom": ["agent_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "agent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7271,7 +8046,9 @@
       "compositePrimaryKeys": {
         "tickets_id": {
           "name": "tickets_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -7350,8 +8127,12 @@
           "name": "user_badges_badge_id_badges_id_fk",
           "tableFrom": "user_badges",
           "tableTo": "badges",
-          "columnsFrom": ["badge_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "badge_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7359,8 +8140,12 @@
           "name": "user_badges_user_id_users_id_fk",
           "tableFrom": "user_badges",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7368,8 +8153,12 @@
           "name": "user_badges_badge_config_id_badge_configs_id_fk",
           "tableFrom": "user_badges",
           "tableTo": "badge_configs",
-          "columnsFrom": ["badge_config_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "badge_config_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7377,8 +8166,12 @@
           "name": "user_badges_created_by_users_id_fk",
           "tableFrom": "user_badges",
           "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7386,13 +8179,19 @@
       "compositePrimaryKeys": {
         "user_badges_id": {
           "name": "user_badges_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "user_badges_user_badge_config_unique": {
           "name": "user_badges_user_badge_config_unique",
-          "columns": ["user_id", "badge_id", "badge_config_id"]
+          "columns": [
+            "user_id",
+            "badge_id",
+            "badge_config_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -7556,12 +8355,16 @@
       "indexes": {
         "user_batch_admission_data_batch_id_index": {
           "name": "user_batch_admission_data_batch_id_index",
-          "columns": ["batch_id"],
+          "columns": [
+            "batch_id"
+          ],
           "isUnique": false
         },
         "user_batch_admission_data_user_id_index": {
           "name": "user_batch_admission_data_user_id_index",
-          "columns": ["user_id"],
+          "columns": [
+            "user_id"
+          ],
           "isUnique": false
         }
       },
@@ -7570,8 +8373,12 @@
           "name": "user_batch_admission_data_user_id_users_id_fk",
           "tableFrom": "user_batch_admission_data",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -7579,8 +8386,12 @@
           "name": "user_batch_admission_data_batch_id_batches_id_fk",
           "tableFrom": "user_batch_admission_data",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -7588,13 +8399,18 @@
       "compositePrimaryKeys": {
         "user_batch_admission_data_id": {
           "name": "user_batch_admission_data_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "user_batch_admission_data_user_id_batch_id_unique": {
           "name": "user_batch_admission_data_user_id_batch_id_unique",
-          "columns": ["user_id", "batch_id"]
+          "columns": [
+            "user_id",
+            "batch_id"
+          ]
         }
       },
       "checkConstraint": {}
@@ -7712,7 +8528,9 @@
       "indexes": {
         "user_callback_tickets_status_index": {
           "name": "user_callback_tickets_status_index",
-          "columns": ["status"],
+          "columns": [
+            "status"
+          ],
           "isUnique": false
         }
       },
@@ -7721,8 +8539,12 @@
           "name": "user_callback_tickets_user_id_users_id_fk",
           "tableFrom": "user_callback_tickets",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7730,8 +8552,12 @@
           "name": "user_callback_tickets_resolved_by_users_id_fk",
           "tableFrom": "user_callback_tickets",
           "tableTo": "users",
-          "columnsFrom": ["resolved_by"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "resolved_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7739,8 +8565,12 @@
           "name": "user_callback_tickets_batch_id_batches_id_fk",
           "tableFrom": "user_callback_tickets",
           "tableTo": "batches",
-          "columnsFrom": ["batch_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -7748,8 +8578,12 @@
           "name": "user_callback_tickets_assigned_to_users_id_fk",
           "tableFrom": "user_callback_tickets",
           "tableTo": "users",
-          "columnsFrom": ["assigned_to"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "assigned_to"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -7757,7 +8591,9 @@
       "compositePrimaryKeys": {
         "user_callback_tickets_id": {
           "name": "user_callback_tickets_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -7835,17 +8671,23 @@
       "indexes": {
         "user_device_tokens_active_index": {
           "name": "user_device_tokens_active_index",
-          "columns": ["active"],
+          "columns": [
+            "active"
+          ],
           "isUnique": false
         },
         "user_device_tokens_token_index": {
           "name": "user_device_tokens_token_index",
-          "columns": ["token"],
+          "columns": [
+            "token"
+          ],
           "isUnique": false
         },
         "user_device_tokens_user_id_index": {
           "name": "user_device_tokens_user_id_index",
-          "columns": ["user_id"],
+          "columns": [
+            "user_id"
+          ],
           "isUnique": false
         }
       },
@@ -7854,8 +8696,12 @@
           "name": "user_device_tokens_user_id_users_id_fk",
           "tableFrom": "user_device_tokens",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -7863,13 +8709,18 @@
       "compositePrimaryKeys": {
         "user_device_tokens_id": {
           "name": "user_device_tokens_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "user_device_tokens_user_id_token_unique": {
           "name": "user_device_tokens_user_id_token_unique",
-          "columns": ["user_id", "token"]
+          "columns": [
+            "user_id",
+            "token"
+          ]
         }
       },
       "checkConstraint": {}
@@ -7987,7 +8838,8 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "'active'"
         },
         "username": {
           "name": "username",
@@ -8029,7 +8881,9 @@
       "indexes": {
         "idx_name": {
           "name": "idx_name",
-          "columns": ["name"],
+          "columns": [
+            "name"
+          ],
           "isUnique": false
         }
       },
@@ -8037,17 +8891,24 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "users_email_client_unique": {
           "name": "users_email_client_unique",
-          "columns": ["email", "client"]
+          "columns": [
+            "email",
+            "client"
+          ]
         },
         "users_username_unique": {
           "name": "users_username_unique",
-          "columns": ["username"]
+          "columns": [
+            "username"
+          ]
         }
       },
       "checkConstraint": {}
@@ -8178,17 +9039,25 @@
       "indexes": {
         "idx_video_att_batch_lecture": {
           "name": "idx_video_att_batch_lecture",
-          "columns": ["batch_id", "lecture_id"],
+          "columns": [
+            "batch_id",
+            "lecture_id"
+          ],
           "isUnique": false
         },
         "idx_video_att_created": {
           "name": "idx_video_att_created",
-          "columns": ["created_at"],
+          "columns": [
+            "created_at"
+          ],
           "isUnique": false
         },
         "idx_video_att_user_lecture": {
           "name": "idx_video_att_user_lecture",
-          "columns": ["user_id", "lecture_id"],
+          "columns": [
+            "user_id",
+            "lecture_id"
+          ],
           "isUnique": false
         }
       },
@@ -8197,8 +9066,12 @@
           "name": "video_attendances_lecture_id_lectures_id_fk",
           "tableFrom": "video_attendances",
           "tableTo": "lectures",
-          "columnsFrom": ["lecture_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "lecture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8206,8 +9079,12 @@
           "name": "video_attendances_user_id_users_id_fk",
           "tableFrom": "video_attendances",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -8215,8 +9092,12 @@
           "name": "video_attendances_host_id_users_id_fk",
           "tableFrom": "video_attendances",
           "tableTo": "users",
-          "columnsFrom": ["host_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "host_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -8224,7 +9105,9 @@
       "compositePrimaryKeys": {
         "video_attendances_id": {
           "name": "video_attendances_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -8288,12 +9171,16 @@
       "indexes": {
         "votes_post_id_index": {
           "name": "votes_post_id_index",
-          "columns": ["post_id"],
+          "columns": [
+            "post_id"
+          ],
           "isUnique": false
         },
         "votes_reply_id_index": {
           "name": "votes_reply_id_index",
-          "columns": ["reply_id"],
+          "columns": [
+            "reply_id"
+          ],
           "isUnique": false
         }
       },
@@ -8302,8 +9189,12 @@
           "name": "votes_user_id_users_id_fk",
           "tableFrom": "votes",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -8311,8 +9202,12 @@
           "name": "votes_post_id_posts_id_fk",
           "tableFrom": "votes",
           "tableTo": "posts",
-          "columnsFrom": ["post_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "post_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -8320,8 +9215,12 @@
           "name": "votes_reply_id_replies_id_fk",
           "tableFrom": "votes",
           "tableTo": "replies",
-          "columnsFrom": ["reply_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "reply_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -8329,13 +9228,18 @@
       "compositePrimaryKeys": {
         "votes_id": {
           "name": "votes_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "votes_user_id_vote_target_unique": {
           "name": "votes_user_id_vote_target_unique",
-          "columns": ["user_id", "vote_target"]
+          "columns": [
+            "user_id",
+            "vote_target"
+          ]
         }
       },
       "checkConstraint": {}
@@ -8391,7 +9295,917 @@
       "compositePrimaryKeys": {
         "whatsnew_id": {
           "name": "whatsnew_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "zef_lms_feedback_submissions": {
+      "name": "zef_lms_feedback_submissions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "zef_lms_meta_data_id": {
+          "name": "zef_lms_meta_data_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rating": {
+          "name": "rating",
+          "type": "tinyint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "followup_tags": {
+          "name": "followup_tags",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "source": {
+          "name": "source",
+          "type": "enum('zef','lms')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'zef'"
+        },
+        "submitted_at": {
+          "name": "submitted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "zef_lms_feedback_submissions_meta_index": {
+          "name": "zef_lms_feedback_submissions_meta_index",
+          "columns": [
+            "zef_lms_meta_data_id"
+          ],
+          "isUnique": false
+        },
+        "zef_lms_feedback_submissions_user_id_index": {
+          "name": "zef_lms_feedback_submissions_user_id_index",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "zef_lms_feedback_submissions_zef_lms_meta_data_id_zef_lms_meta_data_id_fk": {
+          "name": "zef_lms_feedback_submissions_zef_lms_meta_data_id_zef_lms_meta_data_id_fk",
+          "tableFrom": "zef_lms_feedback_submissions",
+          "tableTo": "zef_lms_meta_data",
+          "columnsFrom": [
+            "zef_lms_meta_data_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "zef_lms_feedback_submissions_user_id_users_id_fk": {
+          "name": "zef_lms_feedback_submissions_user_id_users_id_fk",
+          "tableFrom": "zef_lms_feedback_submissions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "zef_lms_feedback_submissions_id": {
+          "name": "zef_lms_feedback_submissions_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "zef_lms_feedback_submissions_meta_user_unique": {
+          "name": "zef_lms_feedback_submissions_meta_user_unique",
+          "columns": [
+            "zef_lms_meta_data_id",
+            "user_id"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "zef_lms_lo": {
+      "name": "zef_lms_lo",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "zef_lms_meta_data_id": {
+          "name": "zef_lms_meta_data_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lms_lo_id": {
+          "name": "lms_lo_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "display_order": {
+          "name": "display_order",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "is_completed": {
+          "name": "is_completed",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "marked_completed_at": {
+          "name": "marked_completed_at",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "zef_lms_lo_zef_lms_meta_data_id_index": {
+          "name": "zef_lms_lo_zef_lms_meta_data_id_index",
+          "columns": [
+            "zef_lms_meta_data_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "zef_lms_lo_zef_lms_meta_data_id_zef_lms_meta_data_id_fk": {
+          "name": "zef_lms_lo_zef_lms_meta_data_id_zef_lms_meta_data_id_fk",
+          "tableFrom": "zef_lms_lo",
+          "tableTo": "zef_lms_meta_data",
+          "columnsFrom": [
+            "zef_lms_meta_data_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "zef_lms_lo_id": {
+          "name": "zef_lms_lo_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "zef_lms_meta_data": {
+      "name": "zef_lms_meta_data",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "lecture_id": {
+          "name": "lecture_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "scheduled_at": {
+          "name": "scheduled_at",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "meta": {
+          "name": "meta",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "source": {
+          "name": "source",
+          "type": "enum('zef','lms')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'zef'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "zef_lms_meta_data_lecture_id_index": {
+          "name": "zef_lms_meta_data_lecture_id_index",
+          "columns": [
+            "lecture_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "zef_lms_meta_data_lecture_id_lectures_id_fk": {
+          "name": "zef_lms_meta_data_lecture_id_lectures_id_fk",
+          "tableFrom": "zef_lms_meta_data",
+          "tableTo": "lectures",
+          "columnsFrom": [
+            "lecture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "zef_lms_meta_data_id": {
+          "name": "zef_lms_meta_data_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "zef_lms_meta_data_lecture_id_unique": {
+          "name": "zef_lms_meta_data_lecture_id_unique",
+          "columns": [
+            "lecture_id"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "zef_lms_polls_questions": {
+      "name": "zef_lms_polls_questions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "zef_lms_meta_data_id": {
+          "name": "zef_lms_meta_data_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "question": {
+          "name": "question",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "options": {
+          "name": "options",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('active','inactive')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "duration_seconds": {
+          "name": "duration_seconds",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "start_timestamp": {
+          "name": "start_timestamp",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "end_timestamp": {
+          "name": "end_timestamp",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "zef_lms_polls_questions_meta_index": {
+          "name": "zef_lms_polls_questions_meta_index",
+          "columns": [
+            "zef_lms_meta_data_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "zef_lms_polls_questions_zef_lms_meta_data_id_zef_lms_meta_data_id_fk": {
+          "name": "zef_lms_polls_questions_zef_lms_meta_data_id_zef_lms_meta_data_id_fk",
+          "tableFrom": "zef_lms_polls_questions",
+          "tableTo": "zef_lms_meta_data",
+          "columnsFrom": [
+            "zef_lms_meta_data_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "zef_lms_polls_questions_id": {
+          "name": "zef_lms_polls_questions_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "zef_lms_polls_submissions": {
+      "name": "zef_lms_polls_submissions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "zef_lms_polls_questions_id": {
+          "name": "zef_lms_polls_questions_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "selected_option_index": {
+          "name": "selected_option_index",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "submitted_at": {
+          "name": "submitted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "zef_lms_polls_submissions_question_index": {
+          "name": "zef_lms_polls_submissions_question_index",
+          "columns": [
+            "zef_lms_polls_questions_id"
+          ],
+          "isUnique": false
+        },
+        "zef_lms_polls_submissions_user_id_index": {
+          "name": "zef_lms_polls_submissions_user_id_index",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "zef_lms_polls_submissions_zef_lms_polls_questions_id_zef_lms_polls_questions_id_fk": {
+          "name": "zef_lms_polls_submissions_zef_lms_polls_questions_id_zef_lms_polls_questions_id_fk",
+          "tableFrom": "zef_lms_polls_submissions",
+          "tableTo": "zef_lms_polls_questions",
+          "columnsFrom": [
+            "zef_lms_polls_questions_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "zef_lms_polls_submissions_user_id_users_id_fk": {
+          "name": "zef_lms_polls_submissions_user_id_users_id_fk",
+          "tableFrom": "zef_lms_polls_submissions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "zef_lms_polls_submissions_id": {
+          "name": "zef_lms_polls_submissions_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "zef_lms_polls_submissions_question_user_unique": {
+          "name": "zef_lms_polls_submissions_question_user_unique",
+          "columns": [
+            "zef_lms_polls_questions_id",
+            "user_id"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "zef_lms_quiz": {
+      "name": "zef_lms_quiz",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "zef_lms_meta_data_id": {
+          "name": "zef_lms_meta_data_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "assessment_id": {
+          "name": "assessment_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('active','inactive')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "duration_seconds": {
+          "name": "duration_seconds",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "start_timestamp": {
+          "name": "start_timestamp",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "end_timestamp": {
+          "name": "end_timestamp",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "zef_lms_quiz_assessment_id_index": {
+          "name": "zef_lms_quiz_assessment_id_index",
+          "columns": [
+            "assessment_id"
+          ],
+          "isUnique": false
+        },
+        "zef_lms_quiz_meta_index": {
+          "name": "zef_lms_quiz_meta_index",
+          "columns": [
+            "zef_lms_meta_data_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "zef_lms_quiz_zef_lms_meta_data_id_zef_lms_meta_data_id_fk": {
+          "name": "zef_lms_quiz_zef_lms_meta_data_id_zef_lms_meta_data_id_fk",
+          "tableFrom": "zef_lms_quiz",
+          "tableTo": "zef_lms_meta_data",
+          "columnsFrom": [
+            "zef_lms_meta_data_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "zef_lms_quiz_id": {
+          "name": "zef_lms_quiz_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "zef_lms_quiz_submission": {
+      "name": "zef_lms_quiz_submission",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "zef_lms_quiz_id": {
+          "name": "zef_lms_quiz_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "is_correct": {
+          "name": "is_correct",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "score": {
+          "name": "score",
+          "type": "decimal(10,2)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "html_report": {
+          "name": "html_report",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "evaluated_at": {
+          "name": "evaluated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "zef_lms_quiz_submission_quiz_index": {
+          "name": "zef_lms_quiz_submission_quiz_index",
+          "columns": [
+            "zef_lms_quiz_id"
+          ],
+          "isUnique": false
+        },
+        "zef_lms_quiz_submission_user_id_index": {
+          "name": "zef_lms_quiz_submission_user_id_index",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "zef_lms_quiz_submission_zef_lms_quiz_id_zef_lms_quiz_id_fk": {
+          "name": "zef_lms_quiz_submission_zef_lms_quiz_id_zef_lms_quiz_id_fk",
+          "tableFrom": "zef_lms_quiz_submission",
+          "tableTo": "zef_lms_quiz",
+          "columnsFrom": [
+            "zef_lms_quiz_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "zef_lms_quiz_submission_user_id_users_id_fk": {
+          "name": "zef_lms_quiz_submission_user_id_users_id_fk",
+          "tableFrom": "zef_lms_quiz_submission",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "zef_lms_quiz_submission_id": {
+          "name": "zef_lms_quiz_submission_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "zef_lms_quiz_submission_quiz_user_unique": {
+          "name": "zef_lms_quiz_submission_quiz_user_unique",
+          "columns": [
+            "zef_lms_quiz_id",
+            "user_id"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "zef_lms_sql_sandbox": {
+      "name": "zef_lms_sql_sandbox",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "zef_lms_meta_data_id": {
+          "name": "zef_lms_meta_data_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "query": {
+          "name": "query",
+          "type": "longtext",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('pending','success','error')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'pending'"
+        },
+        "error": {
+          "name": "error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "executed_at": {
+          "name": "executed_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "zef_lms_sql_sandbox_meta_index": {
+          "name": "zef_lms_sql_sandbox_meta_index",
+          "columns": [
+            "zef_lms_meta_data_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "zef_lms_sql_sandbox_zef_lms_meta_data_id_zef_lms_meta_data_id_fk": {
+          "name": "zef_lms_sql_sandbox_zef_lms_meta_data_id_zef_lms_meta_data_id_fk",
+          "tableFrom": "zef_lms_sql_sandbox",
+          "tableTo": "zef_lms_meta_data",
+          "columnsFrom": [
+            "zef_lms_meta_data_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "zef_lms_sql_sandbox_id": {
+          "name": "zef_lms_sql_sandbox_id",
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},

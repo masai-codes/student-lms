@@ -72,6 +72,7 @@ import { Route as ApiAnnouncementPopupsRouteImport } from './routes/api/announce
 import { Route as ApiAnnouncementFilterOptionsRouteImport } from './routes/api/announcement/filter-options'
 import { Route as ApiAdmissionsEnrolmentPaymentRedirectRouteImport } from './routes/api/admissions/enrolment-payment-redirect'
 import { Route as protectedLayoutThemeLabRouteImport } from './routes/(protected)/_layout/theme-lab'
+import { Route as protectedLayoutProfileSettingsRouteImport } from './routes/(protected)/_layout/profile-settings'
 import { Route as protectedLayoutMyProgramsRouteImport } from './routes/(protected)/_layout/my-programs'
 import { Route as protectedLayoutMyLecturesRouteImport } from './routes/(protected)/_layout/my-lectures'
 import { Route as protectedLayoutMyCoursesRouteImport } from './routes/(protected)/_layout/my-courses'
@@ -571,6 +572,12 @@ const protectedLayoutThemeLabRoute = protectedLayoutThemeLabRouteImport.update({
   path: '/theme-lab',
   getParentRoute: () => protectedLayoutRouteRoute,
 } as any)
+const protectedLayoutProfileSettingsRoute =
+  protectedLayoutProfileSettingsRouteImport.update({
+    id: '/profile-settings',
+    path: '/profile-settings',
+    getParentRoute: () => protectedLayoutRouteRoute,
+  } as any)
 const protectedLayoutMyProgramsRoute =
   protectedLayoutMyProgramsRouteImport.update({
     id: '/my-programs',
@@ -1550,6 +1557,7 @@ export interface FileRoutesByFullPath {
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/my-lectures': typeof protectedLayoutMyLecturesRoute
   '/my-programs': typeof protectedLayoutMyProgramsRoute
+  '/profile-settings': typeof protectedLayoutProfileSettingsRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
@@ -1777,6 +1785,7 @@ export interface FileRoutesByTo {
   '/my-courses': typeof protectedLayoutMyCoursesRoute
   '/my-lectures': typeof protectedLayoutMyLecturesRoute
   '/my-programs': typeof protectedLayoutMyProgramsRoute
+  '/profile-settings': typeof protectedLayoutProfileSettingsRoute
   '/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
@@ -2007,6 +2016,7 @@ export interface FileRoutesById {
   '/(protected)/_layout/my-courses': typeof protectedLayoutMyCoursesRoute
   '/(protected)/_layout/my-lectures': typeof protectedLayoutMyLecturesRoute
   '/(protected)/_layout/my-programs': typeof protectedLayoutMyProgramsRoute
+  '/(protected)/_layout/profile-settings': typeof protectedLayoutProfileSettingsRoute
   '/(protected)/_layout/theme-lab': typeof protectedLayoutThemeLabRoute
   '/api/admissions/enrolment-payment-redirect': typeof ApiAdmissionsEnrolmentPaymentRedirectRoute
   '/api/announcement/filter-options': typeof ApiAnnouncementFilterOptionsRoute
@@ -2237,6 +2247,7 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/my-lectures'
     | '/my-programs'
+    | '/profile-settings'
     | '/theme-lab'
     | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
@@ -2464,6 +2475,7 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/my-lectures'
     | '/my-programs'
+    | '/profile-settings'
     | '/theme-lab'
     | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
@@ -2693,6 +2705,7 @@ export interface FileRouteTypes {
     | '/(protected)/_layout/my-courses'
     | '/(protected)/_layout/my-lectures'
     | '/(protected)/_layout/my-programs'
+    | '/(protected)/_layout/profile-settings'
     | '/(protected)/_layout/theme-lab'
     | '/api/admissions/enrolment-payment-redirect'
     | '/api/announcement/filter-options'
@@ -3502,6 +3515,13 @@ declare module '@tanstack/react-router' {
       path: '/theme-lab'
       fullPath: '/theme-lab'
       preLoaderRoute: typeof protectedLayoutThemeLabRouteImport
+      parentRoute: typeof protectedLayoutRouteRoute
+    }
+    '/(protected)/_layout/profile-settings': {
+      id: '/(protected)/_layout/profile-settings'
+      path: '/profile-settings'
+      fullPath: '/profile-settings'
+      preLoaderRoute: typeof protectedLayoutProfileSettingsRouteImport
       parentRoute: typeof protectedLayoutRouteRoute
     }
     '/(protected)/_layout/my-programs': {
@@ -4725,6 +4745,7 @@ interface protectedLayoutRouteRouteChildren {
   protectedLayoutMyCoursesRoute: typeof protectedLayoutMyCoursesRoute
   protectedLayoutMyLecturesRoute: typeof protectedLayoutMyLecturesRoute
   protectedLayoutMyProgramsRoute: typeof protectedLayoutMyProgramsRoute
+  protectedLayoutProfileSettingsRoute: typeof protectedLayoutProfileSettingsRoute
   protectedLayoutThemeLabRoute: typeof protectedLayoutThemeLabRoute
   protectedLayoutIndexRoute: typeof protectedLayoutIndexRoute
   protectedLayoutAnnouncementsIdRouteRoute: typeof protectedLayoutAnnouncementsIdRouteRoute
@@ -4758,6 +4779,7 @@ const protectedLayoutRouteRouteChildren: protectedLayoutRouteRouteChildren = {
   protectedLayoutMyCoursesRoute: protectedLayoutMyCoursesRoute,
   protectedLayoutMyLecturesRoute: protectedLayoutMyLecturesRoute,
   protectedLayoutMyProgramsRoute: protectedLayoutMyProgramsRoute,
+  protectedLayoutProfileSettingsRoute: protectedLayoutProfileSettingsRoute,
   protectedLayoutThemeLabRoute: protectedLayoutThemeLabRoute,
   protectedLayoutIndexRoute: protectedLayoutIndexRoute,
   protectedLayoutAnnouncementsIdRouteRoute:

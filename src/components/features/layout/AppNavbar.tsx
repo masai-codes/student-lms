@@ -41,7 +41,7 @@ function navbarLogoSrc(): string {
 }
 
 function navbarLogoDarkSrc(): string | undefined {
-  return isMasaiPortal() ? MASAI_LOGO_DARK : undefined
+  return isMasaiPortal() ? MASAI_LOGO_DARK : getAuthBranding().logoDarkSrc
 }
 
 /** Renders a `NavItem` as a Tier-1 nav link (icon + label always shown). */
