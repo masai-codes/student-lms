@@ -42,6 +42,17 @@ function toEmbeddableQuizUrl(url: string): string {
   }
 }
 
+/** Hides per-question subjective scores on the Assess Platform's submission-review page. */
+function toSubmissionViewUrl(url: string): string {
+  try {
+    const parsed = new URL(url)
+    parsed.searchParams.set('hideSubjectiveScores', '1')
+    return parsed.toString()
+  } catch {
+    return url
+  }
+}
+
 /**
  * Non-blocking, in-player quiz panel (see {@link FloatingPopupPanel} for the
  * draggable/resizable chrome). Submission is handled by the iframe's own
@@ -76,7 +87,7 @@ export function InLectureQuizModal({
       .then((result) => {
         if (cancelled) return
         const url = result.alreadySubmitted
-          ? result.url
+          ? toSubmissionViewUrl(result.url)
           : toEmbeddableQuizUrl(result.url)
         setState({
           status: 'ready',
