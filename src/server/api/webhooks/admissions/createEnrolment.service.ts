@@ -25,7 +25,7 @@ const FN = 'createEnrolmentFromAdmissions'
  *   1. batch must be active + non-deleted
  *   2. keep only valid sections (invalid ones are reported, not fatal)
  *   3. find-or-create the student (by email + client)
- *   4. (iitj only) default the student's new-LMS-only meta flags
+ *   4. put the student on the new LMS (`new_lms_pages_enabled` + `hide_switch_option`)
  *   5. revive-or-create the batch_user
  *   6. revive-or-create a section_user per valid section
  *   7. (new-user-journey only) record admission data
