@@ -1,0 +1,15 @@
+# Local-only override: builds `app` from Dockerfile.local instead of
+# Dockerfile, so the client bundle uses .env.local's VITE_* values (see
+# Dockerfile.local's header). Never use this compose file for anything
+# resembling a real deploy.
+#
+# Usage:
+#   cp .env.local docker-build-vite.local
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml \
+#     --profile app up -d --build app
+services:
+  app:
+    build:
+      dockerfile: Dockerfile.local
+    environment:
+      SECRET_LOGIN_TOKEN: ${SECRET_LOGIN_TOKEN}
