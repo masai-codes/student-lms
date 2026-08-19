@@ -1,17 +1,23 @@
 import { describe, expect, it } from 'vitest'
 import {
+  ATTENDANCE_DISCLAIMER_BANNER_PORTALS,
+  CATCH_UP_COUNTDOWN_PORTALS,
   CHAT_PORTALS,
   ID_CARD_PORTALS,
   MASAI_LIVE_PROMO_PORTALS,
   MOBILE_APP_PORTALS,
   SECTION_ON_LEARN_CARD_PORTALS,
   SUPPORT_PORTALS,
+  WATCHED_ATTENDANCE_WORDING_PORTALS,
   portalHasChat,
   portalHasIdCard,
   portalHasMasaiLivePromo,
   portalHasMobileApp,
   portalHasSupport,
+  portalShowsAttendanceDisclaimerBanner,
+  portalShowsCatchUpCountdown,
   portalShowsSectionOnLearnCard,
+  portalUsesWatchedAttendanceWording,
 } from './portalCapabilities'
 
 describe('portalHasMobileApp', () => {
@@ -85,5 +91,41 @@ describe('portalShowsSectionOnLearnCard', () => {
 
   it('stays in sync with the allowlist', () => {
     expect([...SECTION_ON_LEARN_CARD_PORTALS]).toEqual(['iitj'])
+  })
+})
+
+describe('portalUsesWatchedAttendanceWording', () => {
+  it('allows only IIT Jodhpur', () => {
+    expect(portalUsesWatchedAttendanceWording('iitj')).toBe(true)
+    expect(portalUsesWatchedAttendanceWording('masai')).toBe(false)
+    expect(portalUsesWatchedAttendanceWording('ihub')).toBe(false)
+  })
+
+  it('stays in sync with the allowlist', () => {
+    expect([...WATCHED_ATTENDANCE_WORDING_PORTALS]).toEqual(['iitj'])
+  })
+})
+
+describe('portalShowsCatchUpCountdown', () => {
+  it('hides the countdown for IIT Jodhpur only', () => {
+    expect(portalShowsCatchUpCountdown('iitj')).toBe(false)
+    expect(portalShowsCatchUpCountdown('masai')).toBe(true)
+    expect(portalShowsCatchUpCountdown('ihub')).toBe(true)
+  })
+
+  it('stays in sync with the allowlist', () => {
+    expect([...CATCH_UP_COUNTDOWN_PORTALS]).toEqual(['masai', 'ihub'])
+  })
+})
+
+describe('portalShowsAttendanceDisclaimerBanner', () => {
+  it('hides the disclaimer strip for IIT Jodhpur only', () => {
+    expect(portalShowsAttendanceDisclaimerBanner('iitj')).toBe(false)
+    expect(portalShowsAttendanceDisclaimerBanner('masai')).toBe(true)
+    expect(portalShowsAttendanceDisclaimerBanner('ihub')).toBe(true)
+  })
+
+  it('stays in sync with the allowlist', () => {
+    expect([...ATTENDANCE_DISCLAIMER_BANNER_PORTALS]).toEqual(['masai', 'ihub'])
   })
 })

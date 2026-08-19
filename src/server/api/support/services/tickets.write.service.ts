@@ -235,6 +235,10 @@ export async function rateTicket(input: {
   userId: number
   ticketId: number
   rating: TicketRating
+  /** Pill reasons selected on the post-resolve feedback form. */
+  reasons?: string[]
+  /** Free-text comment from the feedback form. */
+  comment?: string
 }): Promise<{ rating: number }> {
   // Defensive runtime guard (handler already validates the 1|5 union).
   const ratingValue: number = input.rating
@@ -249,9 +253,32 @@ export async function rateTicket(input: {
   )
   if (!caps.canRate) throw new Error('SUPPORT_RATE_NOT_ALLOWED')
 
+  const now = supportNow()
+  const reasons = (input.reasons ?? [])
+    .map((r) => r.trim())
+    .filter((r) => r.length > 0)
+  const comment = (input.comment ?? '').trim()
+  const existingMeta =
+    ticket.meta &&
+    typeof ticket.meta === 'object' &&
+    !Array.isArray(ticket.meta)
+      ? { ...(ticket.meta as Record<string, unknown>) }
+      : {}
+
   await db
     .update(tickets)
-    .set({ rating: input.rating, updatedAt: supportNow() })
+    .set({
+      rating: input.rating,
+      updatedAt: now,
+      meta: {
+        ...existingMeta,
+        student_feedback: {
+          reasons,
+          comment,
+          submittedAt: now,
+        },
+      },
+    })
     .where(eq(tickets.id, input.ticketId))
 
   return { rating: input.rating }

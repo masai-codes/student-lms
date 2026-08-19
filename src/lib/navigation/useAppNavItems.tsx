@@ -250,23 +250,16 @@ export function useAppNavItems() {
       })
     }
 
-    // Calendar still lives on the legacy student app — every portal gets it,
-    // but only when a legacy base URL is configured for this origin (otherwise
-    // the icon would point nowhere).
-    const calendarHref = getOldStudentUiUrlForPath(
-      OLD_STUDENT_UI_NAV_PATHS.calendar,
-    )
-    if (calendarHref) {
-      items.push({
-        id: 'calendar',
-        type: 'external-link',
-        href: calendarHref,
-        label: 'Calendar',
-        icon: CalendarDays,
-        tooltip: 'Calendar',
-        uiType: 'secondary',
-      })
-    }
+    items.push({
+      id: 'calendar',
+      type: 'internal-link',
+      to: '/my-calendar',
+      label: 'Calendar',
+      icon: CalendarDays,
+      tooltip: 'Calendar',
+      uiType: 'secondary',
+      isActive: pathname.startsWith('/my-calendar'),
+    })
 
     items.push({
       id: 'announcements',
@@ -318,7 +311,7 @@ export function useAppNavItems() {
       {
         id: 'courses',
         type: 'internal-link',
-        to: '/my-courses',
+        to: '/my-programs',
         label: 'My Programs',
         icon: GraduationCap,
         uiType: 'tertiary',

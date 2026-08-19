@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { Headset, Sparkle } from '@phosphor-icons/react'
+import { Headset, MagicWand, Sparkle } from '@phosphor-icons/react'
 import { SupportMarkdown } from '@/components/features/support/SupportMarkdown'
 import {
   SmartLink,
@@ -11,6 +11,7 @@ import type {
   TicketStatus,
 } from '@/server/api/support/support.types'
 import type { Message, Category } from './types'
+import { ENABLE_SUPPORT_AI_REPLY_CARD } from './supportAiFlags'
 
 interface ChatThreadProps {
   messages: Message[]
@@ -58,7 +59,9 @@ export function assigneeDividerPlacements(
   if (!assigneeName) return placements
 
   const firstAgentIdx = messages.findIndex(
-    (m) => m.role === 'agent' || m.role === 'bot',
+    (m) =>
+      (m.role === 'agent' && !(ENABLE_SUPPORT_AI_REPLY_CARD && m.isAi)) ||
+      m.role === 'bot',
   )
   if (firstAgentIdx >= 0) placements.set(firstAgentIdx, assigneeName)
 
@@ -163,8 +166,10 @@ export function ChatThread({
         const dividerName = dividerPlacements.get(i)
         const isUser = m.role === 'user'
         const isAgent = m.role === 'agent'
-        const senderLabel =
-          isAgent && m.name
+        const isAi = ENABLE_SUPPORT_AI_REPLY_CARD && isAgent && m.isAi === true
+        const senderLabel = isAi
+          ? 'Sahay - AI Resolver Agent'
+          : isAgent && m.name
             ? m.name
             : m.isAutoReply
               ? 'Student Experience Team'
@@ -184,15 +189,17 @@ export function ChatThread({
               {!isUser && (
                 <div
                   className={cn(
-                    'flex items-center justify-center shrink-0 size-[26px] rounded-full text-white',
-                    // Agent's dark-ink avatar would vanish on near-black
-                    // surfaces, so it inverts in dark (bot avatar goes brand).
-                    isAgent
-                      ? 'bg-[#15162c] dark:bg-foreground dark:text-background'
-                      : 'bg-[#4b4396] dark:bg-brand',
+                    'flex items-center justify-center shrink-0 size-[26px] rounded-full',
+                    isAi
+                      ? 'bg-info text-info-foreground'
+                      : isAgent
+                        ? 'bg-foreground text-background'
+                        : 'bg-[#4b4396] text-white dark:bg-brand',
                   )}
                 >
-                  {isAgent ? (
+                  {isAi ? (
+                    <MagicWand weight="fill" className="size-[13px]" />
+                  ) : isAgent ? (
                     <Headset weight="fill" className="size-[13px]" />
                   ) : (
                     <Sparkle weight="fill" className="size-[13px]" />
@@ -214,23 +221,36 @@ export function ChatThread({
                 {cleanText && (
                   <div
                     className={cn(
-                      'p-[10px_13px]',
+                      'overflow-hidden',
                       isUser
-                        ? 'bg-[#4b4396] dark:bg-brand rounded-[14px_14px_4px_14px]'
-                        : 'bg-[#f1f1f7] dark:bg-muted rounded-[14px_14px_14px_4px]',
+                        ? 'bg-[#4b4396] dark:bg-brand/80 rounded-[14px_14px_4px_14px]'
+                        : isAi
+                          ? 'bg-info-subtle dark:ring-1 dark:ring-info/35 rounded-[14px_14px_14px_4px]'
+                          : 'bg-[#f1f1f7] dark:bg-muted rounded-[14px_14px_14px_4px]',
                     )}
                   >
-                    <SupportMarkdown
-                      variant={isUser ? 'user' : 'agent'}
-                      className={cn(
-                        'text-[13.6px] leading-[1.45] prose-p:my-0 prose-p:leading-[1.45]',
-                        isUser
-                          ? 'text-white prose-headings:text-white prose-p:text-white prose-strong:text-white prose-a:text-white'
-                          : 'text-[#15162c] dark:text-foreground',
-                      )}
-                    >
-                      {cleanText}
-                    </SupportMarkdown>
+                    <div className="p-[10px_13px]">
+                      <SupportMarkdown
+                        variant={isUser ? 'user' : 'agent'}
+                        className={cn(
+                          'text-[13.6px] leading-[1.45] prose-p:my-0 prose-p:leading-[1.45]',
+                          isUser
+                            ? 'text-white prose-headings:text-white prose-p:text-white prose-strong:text-white prose-a:text-white'
+                            : isAi
+                              ? 'text-info-subtle-foreground dark:text-foreground'
+                              : 'text-[#15162c] dark:text-foreground',
+                        )}
+                      >
+                        {cleanText}
+                      </SupportMarkdown>
+                    </div>
+                    {isAi ? (
+                      <div className="flex items-center border-t border-info/20 bg-info/10 px-[15px] py-[10px] dark:border-info/35 dark:bg-info/20">
+                        <span className="text-[10.5px] italic leading-[1.2] text-info-subtle-foreground/80 dark:text-info-subtle-foreground">
+                          This is an AI and can make mistakes.
+                        </span>
+                      </div>
+                    ) : null}
                   </div>
                 )}
 

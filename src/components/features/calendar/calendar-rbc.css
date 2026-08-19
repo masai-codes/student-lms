@@ -1,0 +1,180 @@
+/*
+ * Semantic-token skin for react-big-calendar. RBC ships hardcoded light-theme
+ * colors in an unlayered stylesheet (which beats Tailwind's layered
+ * utilities), so this file re-points every surface it paints at the theme
+ * tokens (`--color-*` from styles.css) — the calendar re-themes with the app,
+ * including dark themes. Scoped under `.my-calendar` so nothing leaks.
+ */
+
+.my-calendar .rbc-month-view,
+.my-calendar .rbc-time-view {
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.my-calendar .rbc-header,
+.my-calendar .rbc-month-row + .rbc-month-row,
+.my-calendar .rbc-day-bg + .rbc-day-bg,
+.my-calendar .rbc-time-content,
+.my-calendar .rbc-time-content > * + * > *,
+.my-calendar .rbc-time-header-content,
+.my-calendar .rbc-time-header.rbc-overflowing,
+.my-calendar .rbc-timeslot-group,
+.my-calendar .rbc-day-slot .rbc-time-slot,
+.my-calendar .rbc-agenda-view table.rbc-agenda-table {
+  border-color: var(--color-border);
+}
+
+.my-calendar .rbc-header {
+  padding: 8px 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-foreground-muted);
+}
+
+.my-calendar .rbc-label {
+  font-size: 0.7rem;
+  color: var(--color-foreground-subtle);
+}
+
+.my-calendar .rbc-date-cell {
+  padding: 4px 6px;
+  font-size: 0.75rem;
+  color: var(--color-foreground-muted);
+}
+
+.my-calendar .rbc-off-range-bg {
+  background: var(--color-surface-muted);
+}
+
+.my-calendar .rbc-off-range .rbc-button-link {
+  color: var(--color-foreground-subtle);
+}
+
+/* Today: a soft brand wash + a filled date bubble (uses the theme brand). */
+.my-calendar .rbc-today {
+  background: color-mix(in srgb, var(--color-brand) 7%, transparent);
+}
+
+.my-calendar .rbc-date-cell.rbc-now .rbc-button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  background: var(--color-brand);
+  color: var(--color-brand-foreground);
+  font-weight: 700;
+}
+
+.my-calendar .rbc-current-time-indicator {
+  background-color: var(--color-danger);
+  height: 2px;
+}
+
+/* Events: one token family per type (legend matches). RBC's default blue is
+ * fully replaced; the inner chip content comes from CalendarEventChip. */
+.my-calendar .rbc-event,
+.my-calendar .rbc-day-slot .rbc-background-event {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 2px 6px;
+  background: var(--color-surface-muted);
+  color: var(--color-foreground);
+  transition:
+    transform 150ms ease-out,
+    border-color 150ms ease-out;
+}
+
+.my-calendar .rbc-event:hover {
+  transform: translateY(-1px);
+}
+
+.my-calendar .rbc-event.rbc-selected,
+.my-calendar .rbc-event:focus {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 1px;
+}
+
+.my-calendar .rbc-event.my-cal-lecture {
+  background: var(--color-brand-subtle);
+  color: var(--color-brand-subtle-foreground);
+  border-color: color-mix(in srgb, var(--color-brand) 40%, transparent);
+}
+
+.my-calendar .rbc-event.my-cal-assignment {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning-subtle-foreground);
+  border-color: color-mix(in srgb, var(--color-warning) 40%, transparent);
+}
+
+.my-calendar .rbc-event.my-cal-quiz {
+  background: var(--color-success-subtle);
+  color: var(--color-success-subtle-foreground);
+  border-color: color-mix(in srgb, var(--color-success) 40%, transparent);
+}
+
+.my-calendar .rbc-event-label {
+  display: none; /* CalendarEventChip renders its own time label */
+}
+
+/* "+N more" and its popup overlay. */
+.my-calendar .rbc-show-more {
+  background: transparent;
+  color: var(--color-brand);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0 6px;
+}
+
+.rbc-overlay {
+  background: var(--color-popover);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+  color: var(--color-foreground);
+  padding: 8px;
+  z-index: 200; /* above the fixed mobile tab bar */
+}
+
+.rbc-overlay .rbc-overlay-header {
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-foreground-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin: -8px -8px 8px;
+  padding: 8px 12px;
+}
+
+.rbc-overlay .rbc-event {
+  border-radius: 8px;
+  padding: 2px 6px;
+  margin-bottom: 2px;
+}
+
+.rbc-overlay .rbc-event.my-cal-lecture {
+  background: var(--color-brand-subtle);
+  color: var(--color-brand-subtle-foreground);
+}
+
+.rbc-overlay .rbc-event.my-cal-assignment {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning-subtle-foreground);
+}
+
+.rbc-overlay .rbc-event.my-cal-quiz {
+  background: var(--color-success-subtle);
+  color: var(--color-success-subtle-foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .my-calendar .rbc-event {
+    transition: none;
+  }
+  .my-calendar .rbc-event:hover {
+    transform: none;
+  }
+}

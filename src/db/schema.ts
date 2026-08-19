@@ -1974,6 +1974,8 @@ export const zefLmsFeedbackSubmissions = mysqlTable(
       .references(() => users.id),
     rating: tinyint({ unsigned: true }).notNull(),
     message: text(),
+    classroomRating: tinyint('classroom_rating', { unsigned: true }),
+    classroomMessage: text('classroom_message'),
     followupTags: json('followup_tags').$type<Record<string, any>>(),
     source: mysqlEnum(['zef', 'lms']).default('zef').notNull(),
     submittedAt: timestamp('submitted_at', { mode: 'string' }),

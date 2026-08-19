@@ -36,10 +36,19 @@ export interface AdmissionsIdCard {
   url?: string | null
 }
 
+/** One settled fee payment, with its downloadable invoice when generated. */
+export interface AdmissionsInvoice {
+  paymentType?: string | null
+  amount?: number | string | null
+  paidOn?: string | null
+  invoiceUrl?: string | null
+}
+
 export interface AdmissionsStudentStatus {
   documents?: AdmissionsDocumentsStatus
   kit?: AdmissionsKitStatus
   idCard?: AdmissionsIdCard
+  invoices?: Array<AdmissionsInvoice>
   [key: string]: unknown
 }
 
