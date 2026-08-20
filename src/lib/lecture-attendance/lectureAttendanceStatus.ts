@@ -30,7 +30,11 @@
  * the "Optional session" chip + info tooltip instead.
  */
 export const LECTURE_ATTENDANCE_STATUS = {
-  /** Attendance earned — attended live or completed the recording in time. */
+  /**
+   * Attendance earned — via live attendance, watching the recording in time,
+   * or a combination of the two whose summed percentage meets the section's
+   * threshold (e.g. 20% live + 40% recording against a 60% threshold).
+   */
   PRESENT: 'present',
   /** Marked (or defaulting to) absent; catch-up window may still be open. */
   ABSENT: 'absent',
