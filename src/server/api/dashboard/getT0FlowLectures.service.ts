@@ -32,6 +32,11 @@ export interface T0FlowLecturesResult {
    * Jodhpur, which hides the capstone entirely (locked *and* unlocked states).
    */
   idCardApplicable: boolean
+  /**
+   * Whether admissions has an ID card configured for this program. False means
+   * the capstone is hidden — no card is coming, so "being generated" would lie.
+   */
+  idCardConfigured: boolean
   idCardUrl: string | null
 }
 
@@ -122,6 +127,7 @@ export async function getT0FlowLectures(
     documentsUploaded: false,
     studentKit: emptyKit,
     idCardApplicable: false,
+    idCardConfigured: false,
     idCardUrl: null,
   }
 
@@ -166,6 +172,7 @@ export async function getT0FlowLectures(
   // Clients without an LMS ID card (IITJ) never get a URL either — nothing
   // downstream can render a card it shouldn't have.
   const idCardUrl = idCardApplicable ? admissionsStatus.idCardUrl : null
+  const idCardConfigured = idCardApplicable && admissionsStatus.idCardConfigured
   console.log('[student-status] getT0FlowLectures applied admissions status', {
     userId,
     batchId,
@@ -173,6 +180,7 @@ export async function getT0FlowLectures(
     documentsUploaded,
     kitApplicable: studentKit.applicable,
     idCardApplicable,
+    idCardConfigured,
     idCardUrl,
   })
 
@@ -213,6 +221,7 @@ export async function getT0FlowLectures(
     documentsUploaded,
     studentKit,
     idCardApplicable,
+    idCardConfigured,
     idCardUrl,
   }
 }
