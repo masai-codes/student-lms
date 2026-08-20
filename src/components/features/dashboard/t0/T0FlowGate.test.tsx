@@ -52,6 +52,7 @@ const lectures: T0FlowLecturesResult = {
     admissionsFormUrl: null,
   },
   idCardApplicable: true,
+  idCardConfigured: true,
   idCardUrl: null,
 }
 

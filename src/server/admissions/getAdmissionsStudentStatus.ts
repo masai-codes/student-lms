@@ -34,6 +34,12 @@ export interface AdmissionsKitStatus {
 
 export interface AdmissionsIdCard {
   url?: string | null
+  /**
+   * Whether an ID card is configured for this program at all. `false` means the
+   * card will never arrive (no template on the admissions side), as opposed to
+   * `url: null` alone, which can also mean "generated shortly".
+   */
+  idCardConfigured?: boolean
 }
 
 /** One settled fee payment, with its downloadable invoice when generated. */

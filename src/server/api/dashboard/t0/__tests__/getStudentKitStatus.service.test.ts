@@ -20,6 +20,7 @@ const status = (
   trackingUrl: null,
   trackingId: null,
   idCardUrl: null,
+  idCardConfigured: false,
   admissionsFormUrl: 'https://sso/kit-form',
   ...over,
 })

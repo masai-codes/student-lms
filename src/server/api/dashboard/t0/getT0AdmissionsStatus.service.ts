@@ -30,6 +30,12 @@ export interface T0AdmissionsStatus {
   trackingUrl: string | null
   trackingId: string | null
   idCardUrl: string | null
+  /**
+   * Whether admissions issues an ID card for this program. `false` (the default
+   * when the API says so, or when we couldn't reach it) means the card should be
+   * hidden rather than shown as "being generated".
+   */
+  idCardConfigured: boolean
   /** SSO deep-link to the admissions portal (serves both doc upload + kit form). */
   admissionsFormUrl: string | null
 }
@@ -43,6 +49,7 @@ export const EMPTY_T0_ADMISSIONS_STATUS: T0AdmissionsStatus = {
   trackingUrl: null,
   trackingId: null,
   idCardUrl: null,
+  idCardConfigured: false,
   admissionsFormUrl: null,
 }
 
@@ -162,6 +169,7 @@ export async function getT0AdmissionsStatus(
     documentsUploaded: status.documents?.documentsUploaded === true,
     kitApplicable: status.kit?.showKit === true,
     idCardUrl: status.idCard?.url ?? null,
+    idCardConfigured: status.idCard?.idCardConfigured === true,
   })
 
   const documentsRequired = status.documents?.required === true
@@ -172,6 +180,7 @@ export async function getT0AdmissionsStatus(
   const trackingUrl = status.kit?.tracking?.trackingUrl?.trim() || null
   const trackingId = status.kit?.tracking?.trackingId?.trim() || null
   const idCardUrl = httpUrlOrNull(status.idCard?.url)
+  const idCardConfigured = status.idCard?.idCardConfigured === true
 
   // Mirror the latest raw response into our DB; the API remains the source of truth.
   await dumpAdmissionResponse(userId, batchId, status)
@@ -185,6 +194,7 @@ export async function getT0AdmissionsStatus(
     trackingUrl,
     trackingId,
     idCardUrl,
+    idCardConfigured,
     admissionsFormUrl,
   }
 }
