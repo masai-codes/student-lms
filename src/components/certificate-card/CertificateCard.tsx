@@ -203,9 +203,7 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
             size="sm"
             disabled={!canView}
             data-testid="certificate-card-view"
-            title={
-              canView ? undefined : 'Verification link not published yet'
-            }
+            title={canView ? undefined : 'Verification link not published yet'}
             onClick={() => setViewOpen(true)}
           />
           <MasaiButton

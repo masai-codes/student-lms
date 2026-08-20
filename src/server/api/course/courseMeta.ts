@@ -37,7 +37,9 @@ export function resolveInstituteName(meta: Record<string, unknown>): string {
   )
 }
 
-export function resolveCourseLogo(meta: Record<string, unknown>): string | null {
+export function resolveCourseLogo(
+  meta: Record<string, unknown>,
+): string | null {
   return str(meta.courseLogo).trim() || null
 }
 

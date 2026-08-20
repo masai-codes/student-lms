@@ -23,7 +23,9 @@ function formatDayMonthYear(date: Date, timeZone: string): string {
  * Returns `null` for empty or unparseable input so callers can omit the date
  * rather than render "Invalid Date".
  */
-export function formatRestrictionDate(value: string | null | undefined): string | null {
+export function formatRestrictionDate(
+  value: string | null | undefined,
+): string | null {
   const raw = value?.trim()
   if (!raw) return null
 

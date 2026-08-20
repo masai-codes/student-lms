@@ -2,16 +2,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as GetCurriculumInterviewTopicsService from '../getCurriculumInterviewTopics.service'
 
 const hoisted = vi.hoisted(() => ({
-  domain: 'software-development' as const,
+  domains: ['backend'] as Array<string>,
   curriculumTopics: [] as Array<{
     id: string
     label: string
+    domain: string
     rubricFocus: Array<string>
+    subtopics: Array<string>
   }>,
 }))
 
 vi.mock('@/server/api/interviews/services/resolveInterviewDomain', () => ({
-  resolveInterviewDomain: vi.fn(async () => hoisted.domain),
+  resolveInterviewDomains: vi.fn(async () => hoisted.domains),
 }))
 
 vi.mock(
@@ -33,10 +35,44 @@ describe('resolveInterviewTopicSelection', () => {
   it('resolves a valid catalog topic id', async () => {
     const { resolveInterviewTopicSelection } =
       await import('../resolveInterviewTopicSelection')
-    const result = await resolveInterviewTopicSelection(1, 'dsa')
-    expect(result.topicId).toBe('dsa')
-    expect(result.domain).toBe('software-development')
+    const result = await resolveInterviewTopicSelection(1, 'backend-dsa')
+    expect(result.topicId).toBe('backend-dsa')
+    expect(result.domain).toBe('backend')
     expect(result.rubricFocus.length).toBeGreaterThan(0)
+    expect(result.subtopics.length).toBeGreaterThan(0)
+  })
+
+  it('narrows subtopics to the requested subset when valid', async () => {
+    const { resolveInterviewTopicSelection } =
+      await import('../resolveInterviewTopicSelection')
+    const result = await resolveInterviewTopicSelection(1, 'backend-dsa', [
+      'Big-O time & space intuition',
+      'Linear search',
+    ])
+    expect(result.subtopics).toEqual([
+      'Big-O time & space intuition',
+      'Linear search',
+    ])
+  })
+
+  it("drops requested subtopics that are not actually the topic's own", async () => {
+    const { resolveInterviewTopicSelection } =
+      await import('../resolveInterviewTopicSelection')
+    const result = await resolveInterviewTopicSelection(1, 'backend-dsa', [
+      'Linear search',
+      'Not a real subtopic',
+    ])
+    expect(result.subtopics).toEqual(['Linear search'])
+  })
+
+  it('falls back to the full subtopic list when the request matches nothing', async () => {
+    const { resolveInterviewTopicSelection } =
+      await import('../resolveInterviewTopicSelection')
+    const full = await resolveInterviewTopicSelection(1, 'backend-dsa')
+    const result = await resolveInterviewTopicSelection(1, 'backend-dsa', [
+      'Not a real subtopic',
+    ])
+    expect(result.subtopics).toEqual(full.subtopics)
   })
 
   it('throws INTERVIEW_TOPIC_INVALID for an unknown catalog id', async () => {
@@ -52,7 +88,9 @@ describe('resolveInterviewTopicSelection', () => {
       {
         id: 'curriculum:pandas',
         label: 'Pandas',
+        domain: 'data-science',
         rubricFocus: ['Pandas fundamentals'],
+        subtopics: [],
       },
     ]
     const { resolveInterviewTopicSelection } =

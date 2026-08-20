@@ -52,9 +52,9 @@ describe('MyCourseCard', () => {
       'AI & Machine Learning',
     )
     expect(screen.getByText('IIT Patna')).toBeTruthy()
-    expect(screen.getByTestId('my-courses-card-logo-10').getAttribute('src')).toBe(
-      'https://cdn/aiml.png',
-    )
+    expect(
+      screen.getByTestId('my-courses-card-logo-10').getAttribute('src'),
+    ).toBe('https://cdn/aiml.png')
   })
 
   it('links the whole card to the program detail page', () => {

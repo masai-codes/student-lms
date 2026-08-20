@@ -85,7 +85,9 @@ describe('ProfileDetailsTab', () => {
       screen.getByTestId('profile-field-phone').getAttribute('aria-disabled'),
     ).toBe('true')
     expect(
-      screen.getByTestId('profile-field-password').getAttribute('aria-disabled'),
+      screen
+        .getByTestId('profile-field-password')
+        .getAttribute('aria-disabled'),
     ).toBe('true')
     expect(
       screen.getByTestId('profile-field-name').getAttribute('aria-disabled'),
@@ -153,11 +155,12 @@ describe('ProfileDetailsTab', () => {
     })
 
     expect(
-      screen.getByTestId<HTMLButtonElement>('profile-field-phone-save').disabled,
+      screen.getByTestId<HTMLButtonElement>('profile-field-phone-save')
+        .disabled,
     ).toBe(true)
-    expect(screen.getByTestId('profile-field-phone-error').textContent).toContain(
-      'exactly 10 digits',
-    )
+    expect(
+      screen.getByTestId('profile-field-phone-error').textContent,
+    ).toContain('exactly 10 digits')
   })
 
   it('saves a valid phone number and confirms it', async () => {

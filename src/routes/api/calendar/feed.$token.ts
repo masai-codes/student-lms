@@ -4,7 +4,8 @@ import { handleGetCalendarFeed } from '@/server/api/calendar/handlers/getCalenda
 export const Route = createFileRoute('/api/calendar/feed/$token')({
   server: {
     handlers: {
-      GET: ({ params, request }) => handleGetCalendarFeed(params.token, request),
+      GET: ({ params, request }) =>
+        handleGetCalendarFeed(params.token, request),
     },
   },
 })

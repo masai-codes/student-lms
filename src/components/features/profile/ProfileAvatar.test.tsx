@@ -111,9 +111,7 @@ describe('ProfileAvatar', () => {
     renderAvatar(null)
     selectFile(imageFile({ type: 'application/pdf' }))
 
-    await waitFor(() =>
-      expect(status()).toBe('Please choose an image file.'),
-    )
+    await waitFor(() => expect(status()).toBe('Please choose an image file.'))
     expect(hoisted.uploadProfilePhoto).not.toHaveBeenCalled()
   })
 

@@ -21,11 +21,12 @@ export async function fetchInterviewSessions(): Promise<
 export async function createInterviewSession(
   topicId: string,
   language: string,
+  subtopics?: Array<string>,
 ): Promise<CreateInterviewSessionResult> {
   return fetchJson<CreateInterviewSessionResult>(INTERVIEWS_API.createSession, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topicId, language }),
+    body: JSON.stringify({ topicId, language, subtopics }),
   })
 }
 
@@ -36,7 +37,8 @@ export async function fetchInterviewSession(
 }
 
 export type SubmitInterviewAnswerInput =
-  { kind: 'typed'; text: string } | { kind: 'transcribed'; text: string }
+  | { kind: 'typed'; text: string }
+  | { kind: 'transcribed'; text: string }
 
 export async function submitInterviewTurn(
   sessionId: number | string,

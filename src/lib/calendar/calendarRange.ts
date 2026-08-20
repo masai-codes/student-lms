@@ -56,7 +56,10 @@ export function shiftAnchor(
 }
 
 /** Toolbar heading, e.g. "August 2026", "11 – 17 Aug 2026", "Thu, 14 Aug 2026". */
-export function rangeTitle(view: CalendarView, date: string | undefined): string {
+export function rangeTitle(
+  view: CalendarView,
+  date: string | undefined,
+): string {
   const anchor = anchorDay(date)
   if (view === 'month') return anchor.format('MMMM YYYY')
   if (view === 'day') return anchor.format('ddd, D MMM YYYY')

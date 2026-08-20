@@ -31,6 +31,12 @@ type LectureAiChatLanguagePickerProps = {
    * the menu — not the whole chat drawer.
    */
   onOpenChange?: (open: boolean) => void
+  /**
+   * Restricts the menu to a subset of {@link AI_LECTURE_CHAT_LANGUAGES} —
+   * e.g. practice interviews only offer languages the STT model can hint.
+   * Defaults to the full list.
+   */
+  languages?: ReadonlyArray<AiLectureChatLanguage>
 }
 
 /**
@@ -45,6 +51,7 @@ export function LectureAiChatLanguagePicker({
   disabled = false,
   container,
   onOpenChange,
+  languages = AI_LECTURE_CHAT_LANGUAGES,
 }: LectureAiChatLanguagePickerProps) {
   return (
     <DropdownMenu onOpenChange={onOpenChange}>
@@ -70,7 +77,7 @@ export function LectureAiChatLanguagePicker({
         sideOffset={8}
         className="max-h-64 w-52 overflow-y-auto"
       >
-        {AI_LECTURE_CHAT_LANGUAGES.map((language) => {
+        {languages.map((language) => {
           const isSelected = language === value
           return (
             <DropdownMenuItem

@@ -24,9 +24,7 @@ afterEach(() => {
 
 describe('ProfileTabs', () => {
   it('renders every available tab inside a tablist', () => {
-    render(
-      <ProfileTabs tabs={TABS} activeTab="details" onSelect={vi.fn()} />,
-    )
+    render(<ProfileTabs tabs={TABS} activeTab="details" onSelect={vi.fn()} />)
 
     const tablist = screen.getByTestId('profile-tablist')
     expect(tablist.getAttribute('role')).toBe('tablist')
@@ -36,9 +34,7 @@ describe('ProfileTabs', () => {
   })
 
   it('marks only the active tab as selected', () => {
-    render(
-      <ProfileTabs tabs={TABS} activeTab="activity" onSelect={vi.fn()} />,
-    )
+    render(<ProfileTabs tabs={TABS} activeTab="activity" onSelect={vi.fn()} />)
 
     expect(
       screen.getByTestId('profile-tab-activity').getAttribute('aria-selected'),
@@ -50,16 +46,13 @@ describe('ProfileTabs', () => {
 
   it('selects a tab and records the click', () => {
     const onSelect = vi.fn()
-    render(
-      <ProfileTabs tabs={TABS} activeTab="details" onSelect={onSelect} />,
-    )
+    render(<ProfileTabs tabs={TABS} activeTab="details" onSelect={onSelect} />)
 
     fireEvent.click(screen.getByTestId('profile-tab-certificates'))
     expect(onSelect).toHaveBeenCalledWith('certificates')
-    expect(hoisted.pushGtmEvent).toHaveBeenCalledWith(
-      'l_profile_tab_click',
-      { tab: 'certificates' },
-    )
+    expect(hoisted.pushGtmEvent).toHaveBeenCalledWith('l_profile_tab_click', {
+      tab: 'certificates',
+    })
   })
 
   it('uses the renamed Acknowledgements label', () => {

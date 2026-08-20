@@ -1,7 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import type { CalendarEventDto } from '@/server/api/calendar/calendarTypes'
 import type { MyCalendarEvent } from '@/lib/calendar/calendarEventMapping'
 
@@ -21,7 +27,7 @@ vi.mock('@/lib/api/calendar/calendarApi', () => ({
 vi.mock('@/utils/gtm', () => ({ pushGtmEvent: hoisted.pushGtmEvent }))
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ to, children, ...props }: Record<string, unknown>) => (
-    <a href={String(to)} {...(props)}>
+    <a href={String(to)} {...props}>
       {children as React.ReactNode}
     </a>
   ),
@@ -65,7 +71,13 @@ const dto = (over: Partial<CalendarEventDto> = {}): CalendarEventDto => ({
   ...over,
 })
 
-function renderPage(search: { view?: 'month' | 'week' | 'day'; date?: string; batchId?: number } = {}) {
+function renderPage(
+  search: {
+    view?: 'month' | 'week' | 'day'
+    date?: string
+    batchId?: number
+  } = {},
+) {
   const onSearchChange = vi.fn()
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },

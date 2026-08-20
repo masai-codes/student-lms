@@ -28,10 +28,7 @@ describe('mapToLegacyPath', () => {
     // Already the old LMS's own path for the programs listing.
     '/my-lectures',
     '/my-calendar',
-  ])(
-    'leaves %s untouched (same route on both apps)',
-    (pathname) => {
-      expect(mapToLegacyPath(pathname)).toBe(pathname)
-    },
-  )
+  ])('leaves %s untouched (same route on both apps)', (pathname) => {
+    expect(mapToLegacyPath(pathname)).toBe(pathname)
+  })
 })

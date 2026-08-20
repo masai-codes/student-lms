@@ -10,11 +10,11 @@ at `/my-programs`. The **course detail** page is already rebuilt
 
 The old LMS has **three** things that look like a course listing. Only one is live.
 
-| Route | Component | Status | Verdict |
-| --- | --- | --- | --- |
-| `/my-lectures` | `pages/lectures/Learn.tsx` (exported as `MyLectures`, imported as `Try`) | **LIVE** — target of the "My Programs" profile-menu item (`profileMenuOptions.ts` → `Routes.lectures.main()`) | ✅ **This is the page to rebuild** |
-| `/new-courses` | `pages/NewMyCourses/Courses.tsx` | Reachable by URL only. Nothing links to it. Its header is commented out and the grid is `absolute top-[165px]` under a header that no longer renders — visually broken. | ❌ Dead. Do not rebuild. |
-| `/my-courses` | `pages/MyCourses/index.tsx` | A **sections** listing (search + active/inactive + pagination), not a program listing. Not linked from nav. Uses `getCurrentUserSections`. | ❌ Out of scope. Different entity (sections, not batches). |
+| Route          | Component                                                                | Status                                                                                                                                                                  | Verdict                                                    |
+| -------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `/my-lectures` | `pages/lectures/Learn.tsx` (exported as `MyLectures`, imported as `Try`) | **LIVE** — target of the "My Programs" profile-menu item (`profileMenuOptions.ts` → `Routes.lectures.main()`)                                                           | ✅ **This is the page to rebuild**                         |
+| `/new-courses` | `pages/NewMyCourses/Courses.tsx`                                         | Reachable by URL only. Nothing links to it. Its header is commented out and the grid is `absolute top-[165px]` under a header that no longer renders — visually broken. | ❌ Dead. Do not rebuild.                                   |
+| `/my-courses`  | `pages/MyCourses/index.tsx`                                              | A **sections** listing (search + active/inactive + pagination), not a program listing. Not linked from nav. Uses `getCurrentUserSections`.                              | ❌ Out of scope. Different entity (sections, not batches). |
 
 Confirmation from the new LMS side: `src/utils/legacyPathMap.ts` already maps
 `/my-courses → /my-lectures`, i.e. the new listing route is the declared
@@ -80,7 +80,7 @@ Elapsed-time between the first and last `meta.courseTimeline[].timeLine` date:
 progress = clamp(0, 100, round((now - firstDate) / (lastDate - firstDate) * 100))
 ```
 
-Note this is **not** the formula the new LMS course *detail* page uses.
+Note this is **not** the formula the new LMS course _detail_ page uses.
 `getCourseBatchData.service.ts` uses `completedMilestones / totalMilestones`.
 Showing two different numbers for the same program on two adjacent screens is a
 bug in waiting — see §5.
@@ -89,16 +89,16 @@ bug in waiting — see §5.
 
 ## 3. Dead / stale code in the old page — explicitly NOT being rebuilt
 
-| Thing | Why it's dead |
-| --- | --- |
-| `useGetCurrentUserSectionsQuery` in `Learn.tsx` (`per_page: 500`) | Result assigned to `data`/`isLoading` and **never read**. A wasted 500-row query on every page load. |
-| `import { courseData } from '../NewMyCourses/data'` | Mock fixture (hardcoded "Udit Bhatia", fake evaluations, fake admit cards). Imported, never used. Same import is dead in `NewMyCourses/Courses.tsx`. |
-| `HeaderCard` ("Learn" hero with a peach→violet gradient) | Imported, entirely commented out. |
-| ~120 lines of card markup inside `<div className="... hidden">` in `Learn.tsx` | Literally `hidden`. Superseded by `MyCourseCard`. Includes an older purple-gradient progress bar and a desktop/mobile split layout. |
-| `handleCourseClick` / `/my-lectures/batchId/:id` | Passed into `MyCourseCard` as a prop and never invoked there. The "Start Learning" button that used it is commented out. |
-| `hasDetailsInRow(index)` | Passed in, called with a hardcoded `index = 0`, and both branches return `''`. No-op. |
-| `NewMyCourses/data.ts` | Pure mock data for the whole NewMyCourses tree. |
-| `/new-courses` listing, `/my-courses` sections listing | See §1. |
+| Thing                                                                          | Why it's dead                                                                                                                                        |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useGetCurrentUserSectionsQuery` in `Learn.tsx` (`per_page: 500`)              | Result assigned to `data`/`isLoading` and **never read**. A wasted 500-row query on every page load.                                                 |
+| `import { courseData } from '../NewMyCourses/data'`                            | Mock fixture (hardcoded "Udit Bhatia", fake evaluations, fake admit cards). Imported, never used. Same import is dead in `NewMyCourses/Courses.tsx`. |
+| `HeaderCard` ("Learn" hero with a peach→violet gradient)                       | Imported, entirely commented out.                                                                                                                    |
+| ~120 lines of card markup inside `<div className="... hidden">` in `Learn.tsx` | Literally `hidden`. Superseded by `MyCourseCard`. Includes an older purple-gradient progress bar and a desktop/mobile split layout.                  |
+| `handleCourseClick` / `/my-lectures/batchId/:id`                               | Passed into `MyCourseCard` as a prop and never invoked there. The "Start Learning" button that used it is commented out.                             |
+| `hasDetailsInRow(index)`                                                       | Passed in, called with a hardcoded `index = 0`, and both branches return `''`. No-op.                                                                |
+| `NewMyCourses/data.ts`                                                         | Pure mock data for the whole NewMyCourses tree.                                                                                                      |
+| `/new-courses` listing, `/my-courses` sections listing                         | See §1.                                                                                                                                              |
 
 **Net live surface: one heading, one card type, one cancelled card type, one
 progress number, one CTA.** Everything else is scaffolding.
@@ -107,18 +107,18 @@ progress number, one CTA.** Everything else is scaffolding.
 
 ## 4. What already exists in the new LMS (reuse, don't rebuild)
 
-| Need | Already there |
-| --- | --- |
-| Route shell | `src/routes/(protected)/_layout/my-courses.tsx` — currently `return null` ("blank slate — being rebuilt"); the rebuilt page lives at `/my-programs`, with `/my-courses` and `/my-lectures` redirecting to it |
-| Nav entry | `useAppNavItems.tsx` → `{ id: 'courses', to: '/my-programs', label: 'My Programs' }` |
-| Detail page | `/course/$batchId` → `CoursePage` (already migrated) |
-| Enrolled batch IDs, portal-scoped, cancelled-excluded, Redis-cached | `getBatchIdsForEnrolledUser()` |
-| Batch row → `{ batchId, courseTitle, courseLogo, showBatchDetails, … }` | `mapEnrolledBatchRow()` / `getEnrolledBatchesForUser()` |
-| Cancellation flags + dates | `getUserBatchRestrictions()` → `BatchRestrictionFlags.enrolmentCancelled` / `enrolmentCancelledDate` |
-| Progress from `courseTimeline` | `getCourseBatchData.service.ts` (milestone-based) |
-| REST plumbing | `jsonOk` / `mapThrownErrorToResponse` / `requireSessionUserId` / `fetchJson` |
-| Page gutters | `<main class="layout-page">` in the protected layout — the page must **not** add its own `px-*`/`mx-*` |
-| Motion kit, theme tokens, skeletons, GTM helper | `styles.css` `dash-*`, semantic tokens, `dash-skeleton`, `pushGtmEvent` |
+| Need                                                                    | Already there                                                                                                                                                                                                |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Route shell                                                             | `src/routes/(protected)/_layout/my-courses.tsx` — currently `return null` ("blank slate — being rebuilt"); the rebuilt page lives at `/my-programs`, with `/my-courses` and `/my-lectures` redirecting to it |
+| Nav entry                                                               | `useAppNavItems.tsx` → `{ id: 'courses', to: '/my-programs', label: 'My Programs' }`                                                                                                                         |
+| Detail page                                                             | `/course/$batchId` → `CoursePage` (already migrated)                                                                                                                                                         |
+| Enrolled batch IDs, portal-scoped, cancelled-excluded, Redis-cached     | `getBatchIdsForEnrolledUser()`                                                                                                                                                                               |
+| Batch row → `{ batchId, courseTitle, courseLogo, showBatchDetails, … }` | `mapEnrolledBatchRow()` / `getEnrolledBatchesForUser()`                                                                                                                                                      |
+| Cancellation flags + dates                                              | `getUserBatchRestrictions()` → `BatchRestrictionFlags.enrolmentCancelled` / `enrolmentCancelledDate`                                                                                                         |
+| Progress from `courseTimeline`                                          | `getCourseBatchData.service.ts` (milestone-based)                                                                                                                                                            |
+| REST plumbing                                                           | `jsonOk` / `mapThrownErrorToResponse` / `requireSessionUserId` / `fetchJson`                                                                                                                                 |
+| Page gutters                                                            | `<main class="layout-page">` in the protected layout — the page must **not** add its own `px-*`/`mx-*`                                                                                                       |
+| Motion kit, theme tokens, skeletons, GTM helper                         | `styles.css` `dash-*`, semantic tokens, `dash-skeleton`, `pushGtmEvent`                                                                                                                                      |
 
 **Gap:** `mapEnrolledBatchRow` does not expose `instituteName`, `courseImage`, or
 progress — the listing needs those. And there is no listing REST endpoint yet.
@@ -134,15 +134,15 @@ Same visual language, better behaviour. Each is a fix for a concrete defect abov
    New: when `showBatchDetails` is true the whole card is an `<a>` to
    `/course/{batchId}`, with `dash-lift` + `hover:border-brand/35`, and the
    "Program Details" CTA stays as an explicit affordance.
-2. **Inert cards stay inert** *(decided)*. When `showBatchDetails` is false the
+2. **Inert cards stay inert** _(decided)_. When `showBatchDetails` is false the
    card renders logo + title + institute only, with no progress bar, no CTA and
    no click target — exact old-LMS parity. It is rendered as a plain `<div>`, not
    a disabled link, so nothing advertises an interaction that doesn't exist.
-3. **One progress number across the product** *(decided: elapsed-time)*. Both
+3. **One progress number across the product** _(decided: elapsed-time)_. Both
    surfaces use the old listing's formula —
    `clamp(0, 100, round((now − firstDate) / (lastDate − firstDate) × 100))` over
    `meta.courseTimeline[].timeLine`. It is computed **server-side** in one shared
-   helper. This means changing the already-shipped course *detail* page, which
+   helper. This means changing the already-shipped course _detail_ page, which
    currently uses `completed / total`, so the listing and `CourseHeroCard` agree.
 4. **A real empty state.** `animate-dash-float` icon + "No programs yet" +
    a line pointing at support. Old page rendered a bare heading.
@@ -171,10 +171,10 @@ Same visual language, better behaviour. Each is a fix for a concrete defect abov
 ```ts
 export interface MyCourseListItem {
   batchId: number
-  courseTitle: string      // meta.courseTitle || batches.name
-  instituteName: string    // meta.instituteName ?? meta.institute ?? meta.collegeName, default 'Masai'
+  courseTitle: string // meta.courseTitle || batches.name
+  instituteName: string // meta.instituteName ?? meta.institute ?? meta.collegeName, default 'Masai'
   courseLogo: string | null
-  courseProgress: number   // milestone-based, 0 when no timeline
+  courseProgress: number // milestone-based, 0 when no timeline
   showBatchDetails: boolean
 }
 
@@ -183,7 +183,7 @@ export interface CancelledCourseListItem {
   courseTitle: string
   instituteName: string
   courseLogo: string | null
-  cancelledOn: string | null   // ISO or IST wall-clock, formatted client-side
+  cancelledOn: string | null // ISO or IST wall-clock, formatted client-side
 }
 
 export interface MyCoursesData {
@@ -284,7 +284,7 @@ apps ping-pong).
 ## 7. Decisions taken
 
 1. **Progress formula → elapsed-time**, matching the old LMS listing. The course
-   *detail* page's milestone-based calculation is changed to match, via the
+   _detail_ page's milestone-based calculation is changed to match, via the
    shared `computeCourseProgress` helper.
 2. **`showBatchDetails === false` cards stay inert**, exactly as in the old LMS.
 3. **No cut-over in this change.** `/my-programs` is fully built and reachable,

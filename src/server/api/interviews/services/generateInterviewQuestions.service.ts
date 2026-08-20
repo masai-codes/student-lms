@@ -13,11 +13,17 @@ function buildQuestionsSystemPrompt(input: {
   topicLabel: string
   domain: string
   rubricFocus: Array<string>
+  subtopics: Array<string>
   numQuestions: number
 }): string {
+  const subtopicsLine =
+    input.subtopics.length > 0
+      ? `\nDraw questions from these specific subtopics (spread across as many as make sense, don't force all of them in): ${input.subtopics.join(', ')}.\n`
+      : ''
+
   return `You are designing questions for a mock interview on "${input.topicLabel}" for a candidate in the ${input.domain} track.
 Focus areas: ${input.rubricFocus.join(', ')}.
-
+${subtopicsLine}
 Write exactly ${input.numQuestions} interview questions, ordered from foundational to more challenging. Each should:
 - Stand alone (no "as discussed before", no referencing other questions).
 - Be answerable out loud in a few minutes.
@@ -42,12 +48,16 @@ export async function generateAllInterviewQuestions(input: {
   topicLabel: string
   domain: string
   rubricFocus: Array<string>
+  subtopics: Array<string>
   numQuestions: number
+  /** Overrides `getInterviewReportModel()` — lets evals compare model
+   * variants against the exact same prompt/parsing logic production uses. */
+  model?: string
 }): Promise<Array<string>> {
   let raw: string
   try {
     raw = await requestOpenRouterChatCompletion({
-      model: getInterviewReportModel(),
+      model: input.model ?? getInterviewReportModel(),
       messages: [
         { role: 'system', content: buildQuestionsSystemPrompt(input) },
         { role: 'user', content: 'Generate the questions now.' },

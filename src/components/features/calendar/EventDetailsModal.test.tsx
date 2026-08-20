@@ -12,7 +12,7 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('@/utils/gtm', () => ({ pushGtmEvent: hoisted.pushGtmEvent }))
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ to, children, ...props }: Record<string, unknown>) => (
-    <a href={String(to)} {...(props)}>
+    <a href={String(to)} {...props}>
       {children as React.ReactNode}
     </a>
   ),

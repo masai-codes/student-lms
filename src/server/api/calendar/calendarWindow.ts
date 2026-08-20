@@ -67,7 +67,11 @@ export function parseCalendarWindow(
 
 /** 400 whose message keeps the stable code (the detail travels separately). */
 function invalidRange(detail: string): ApiError {
-  return new ApiError(400, 'INVALID_CALENDAR_RANGE', `INVALID_CALENDAR_RANGE: ${detail}`)
+  return new ApiError(
+    400,
+    'INVALID_CALENDAR_RANGE',
+    `INVALID_CALENDAR_RANGE: ${detail}`,
+  )
 }
 
 /**

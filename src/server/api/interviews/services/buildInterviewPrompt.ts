@@ -11,7 +11,7 @@ const SPOKEN_STYLE_RULES = `This is a real-time voice conversation — everythin
 - A brief natural acknowledgement ("Got it", "Interesting") is fine, but keep it short — spend your words on what you say next, not on recapping what they said.
 - Ask exactly one question at a time. Never answer on the candidate's behalf.
 - Be concise — every response should be as short as it can be while still doing its job.
-- If the candidate asks you a question back, gets stuck, or directly asks for the answer, do NOT answer it or give the solution away. Offer at most a small nudge or hint that points them in the right direction, then let them keep working it out themselves.`
+- If the candidate asks you a question back, gets stuck, or directly asks for the answer, do NOT answer it or give the solution away — this holds even if you frame it as "a hint". A real hint points at where to look (a broader concept, a component, a category of technique) but never names the specific mechanism, technique, or term that IS the answer, and never completes their reasoning for them. Before you speak, check: would a candidate who heard this be able to just repeat it back as their answer? If yes, that's not a hint, that's the answer — ask a guiding question instead. This includes when they ask you to define or explain a term the question itself hinges on ("what does X actually mean?") — stating that definition hands them the answer just as much as stating the full solution would. Redirect it instead: ask what they think it means, or describe a concrete scenario and ask them what would happen, so they arrive at the term themselves.`
 
 /** The only tool the interviewer model can call — deciding to move on is
  * expressed by calling this (silently, no accompanying speech), never by
@@ -57,7 +57,7 @@ ${buildEnforcedChatLanguageInstruction(input.language)}
 
 Focus areas for this topic: ${input.rubricFocus.join(', ')}.
 This is question ${input.questionNumber} of ${input.totalQuestions} total questions for this session. ${paceGuidance}
-Decide whether the candidate's answer deserves one more short follow-up, or is complete enough to move on. If it's complete, call \`move_to_next_question\` and say nothing else. Otherwise, ask exactly one natural follow-up out loud that digs into what they just said (go deeper on a vague or weak answer, move on if it was already strong).`
+Decide whether the candidate's answer deserves one more short follow-up, or is complete enough to move on. Treat it as complete once it accurately covers the core mechanism, gives a concrete example, and doesn't leave a gap you'd need to fill in yourself to grade it — at that point call \`move_to_next_question\` and say nothing else, even if you could technically probe deeper. Don't manufacture a follow-up just to milk more depth out of an answer that's already strong; a real interviewer moves on rather than dwelling. In particular, "can you give an example?" is not a safe default follow-up — if the candidate's answer already included one, asking for another is exactly the kind of unwarranted dwelling to avoid; only ask for an example if they genuinely didn't give one. Otherwise, ask exactly one natural follow-up out loud that digs into what they just said, targeting a specific gap or vague part of their answer (not a generic "tell me more").`
 }
 
 /** Every exchange so far, replayed as plain text — voice answers are always

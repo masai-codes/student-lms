@@ -65,6 +65,7 @@ export async function seedMultiProgramStudent(): Promise<SeedFlowResult> {
     program: SECOND_PROGRAM_NAME,
     duration: '24 weeks',
     starting: formatMysqlDate(secondBatchStarting),
+    meta: { interviews: ['data-science'] },
   })
 
   const secondSection = await createSection({
@@ -136,7 +137,9 @@ export async function seedMultiProgramStudent(): Promise<SeedFlowResult> {
 
   // One lecture on each side of the pause cutoff, so the pause has a visible
   // effect on /learn as well as on the /my-courses listing.
-  const preePauseLectureSchedule = offsetFromNow({ daysAgo: PAUSED_DAYS_AGO + 7 })
+  const preePauseLectureSchedule = offsetFromNow({
+    daysAgo: PAUSED_DAYS_AGO + 7,
+  })
 
   const prePauseLecture = await createLecture({
     batchId: pausedBatch.id,
@@ -146,7 +149,8 @@ export async function seedMultiProgramStudent(): Promise<SeedFlowResult> {
     category: 'course',
     module: 'Design Foundations',
     type: 'video',
-    description: 'Scheduled before the pause cutoff — stays visible to the student.',
+    description:
+      'Scheduled before the pause cutoff — stays visible to the student.',
     optional: 0,
     week: 1,
     day: 1,
@@ -165,7 +169,8 @@ export async function seedMultiProgramStudent(): Promise<SeedFlowResult> {
     category: 'course',
     module: 'Design Foundations',
     type: 'video',
-    description: 'Scheduled after the pause cutoff — hidden while the pause stands.',
+    description:
+      'Scheduled after the pause cutoff — hidden while the pause stands.',
     optional: 0,
     week: 3,
     day: 1,
