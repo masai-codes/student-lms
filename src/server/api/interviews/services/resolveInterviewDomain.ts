@@ -47,9 +47,9 @@ export function parseInterviewDomainsFromMeta(
 
 /**
  * Resolves the interview domain(s) enabled for the student as the union of
- * `batches.meta.interviews` across all of their active batch enrollments.
- * No enrollment, or no domains configured on any of those batches ->
- * `['general']` (catalog-only fallback, never an empty topic list).
+ * `batches.meta.interviews` across all of their active batch enrollments,
+ * plus `general` — always included so every student sees the general-topic
+ * catalog regardless of what their batches have configured.
  *
  * Rows are ordered most-recently-enrolled first so `domains[0]` (used by
  * callers as the "primary" domain) stays deterministic rather than

@@ -61,18 +61,25 @@ describe('resolveInterviewDomains', () => {
     expect(await resolveInterviewDomains(1)).toEqual(['general'])
   })
 
-  it('returns the batch meta.interviews domains', async () => {
+  it('returns the batch meta.interviews domains plus general', async () => {
     hoisted.rows = [{ meta: { interviews: ['data-analytics'] } }]
     const { resolveInterviewDomains } =
       await import('../resolveInterviewDomain')
-    expect(await resolveInterviewDomains(1)).toEqual(['data-analytics'])
+    expect(await resolveInterviewDomains(1)).toEqual([
+      'data-analytics',
+      'general',
+    ])
   })
 
-  it('supports multiple enabled domains on one batch', async () => {
+  it('supports multiple enabled domains on one batch, plus general', async () => {
     hoisted.rows = [{ meta: { interviews: ['frontend', 'backend'] } }]
     const { resolveInterviewDomains } =
       await import('../resolveInterviewDomain')
-    expect(await resolveInterviewDomains(1)).toEqual(['frontend', 'backend'])
+    expect(await resolveInterviewDomains(1)).toEqual([
+      'frontend',
+      'backend',
+      'general',
+    ])
   })
 
   it('falls back to [general] when meta.interviews is missing or empty', async () => {
@@ -82,7 +89,7 @@ describe('resolveInterviewDomains', () => {
     expect(await resolveInterviewDomains(1)).toEqual(['general'])
   })
 
-  it('unions domains across all active batches, deduped, most-recent first', async () => {
+  it('unions domains across all active batches, deduped, most-recent first, plus general', async () => {
     hoisted.rows = [
       { meta: { interviews: ['frontend', 'backend'] } },
       { meta: { interviews: ['backend', 'data-analytics'] } },
@@ -93,6 +100,7 @@ describe('resolveInterviewDomains', () => {
       'frontend',
       'backend',
       'data-analytics',
+      'general',
     ])
   })
 })
