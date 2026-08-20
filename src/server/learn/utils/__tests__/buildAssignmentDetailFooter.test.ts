@@ -105,10 +105,10 @@ describe('buildAssignmentDetailFooter', () => {
     expect(footer.actions[0]?.label).toBe('Start Evaluation')
   })
 
-  it('shows score policy notice for evaluation without problems', () => {
+  it('shows score policy notice for graded evaluation without problems', () => {
     const footer = buildAssignmentDetailFooter({
       assignmentKind: 'evaluation',
-      category: 'module',
+      category: 'graded-evaluation',
       platform: 'Assessment Platform',
       showScores: false,
       showSubmission: false,
@@ -123,5 +123,25 @@ describe('buildAssignmentDetailFooter', () => {
     expect(
       footer.notices.find((n) => n.variant === 'score-policy')?.message,
     ).toBe('Evaluation Score will be considered')
+  })
+
+  it('hides score policy notice for evaluation outside the graded category', () => {
+    const footer = buildAssignmentDetailFooter({
+      assignmentKind: 'evaluation',
+      category: 'module',
+      platform: 'Assessment Platform',
+      showScores: false,
+      showSubmission: false,
+      settings: null,
+      schedule,
+      concludes,
+      nowMs: new Date(schedule).getTime() + 60_000,
+      problemCount: 0,
+      submission: null,
+    })
+
+    expect(footer.notices.find((n) => n.variant === 'score-policy')).toBe(
+      undefined,
+    )
   })
 })

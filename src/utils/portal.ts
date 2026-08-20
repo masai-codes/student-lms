@@ -8,7 +8,6 @@ import {
   portalShowsAttendanceDisclaimerBanner,
   portalShowsCatchUpCountdown,
   portalShowsSectionOnLearnCard,
-  portalUsesWatchedAttendanceWording,
 } from '@/utils/portalCapabilities'
 
 /**
@@ -99,16 +98,6 @@ export function isMobileAppPortal(): boolean {
  */
 export function showsSectionOnLearnCard(): boolean {
   return portalShowsSectionOnLearnCard(getAppOrigin())
-}
-
-/**
- * Whether lecture attendance reads as watch progress ("Watched" / "Not
- * Watched") instead of presence ("Present" / "Absent") on the portal we're
- * running on — IIT Jodhpur only. The allowlist lives in
- * `WATCHED_ATTENDANCE_WORDING_PORTALS` (`@/utils/portalCapabilities`).
- */
-export function usesWatchedAttendanceWording(): boolean {
-  return portalUsesWatchedAttendanceWording(getAppOrigin())
 }
 
 /**

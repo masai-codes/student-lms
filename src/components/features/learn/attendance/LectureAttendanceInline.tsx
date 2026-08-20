@@ -1,18 +1,28 @@
 import type { ReactNode } from 'react'
 
+import { LectureAttendanceHoverContent } from './LectureAttendanceHoverContent'
 import { LectureAttendanceStatusBadge } from './LectureAttendanceStatusBadge'
 
 import { formatCatchUpRemainingLabel } from '@/lib/lecture-attendance/formatCatchUpRemainingLabel'
-import type { ListingAttendanceRender } from '@/lib/lecture-attendance/types'
+import type { LectureAttendanceRender } from '@/lib/lecture-attendance/types'
+import type { LectureAttendanceSummary } from '@/server/attendance/types'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { showsCatchUpCountdown } from '@/utils/portal'
 
-type LectureAttendanceInlineProps = ListingAttendanceRender & {
+type LectureAttendanceInlineProps = LectureAttendanceRender & {
   /**
-   * Optional wrapper around the rendered badge — used by the lecture-detail
-   * variant to add hover tooltips without duplicating this layout/label logic.
+   * Enables the hover tooltip (catch-up message / Live+Video breakdown — see
+   * `LectureAttendanceHoverContent`). Pass the summary the render was built
+   * from; omit only where no hover surface makes sense.
    */
-  renderBadge?: (badge: ReactNode) => ReactNode
+  attendance?: LectureAttendanceSummary | null
+  /** `live`/`scrum` lecture — shows the "Live:" line in the hover breakdown. */
+  isLiveLecture?: boolean
   /**
    * Keep the days label + badge on one row regardless of viewport. Used by the
    * associated-content card, which renders in a narrow drawer where the default
@@ -25,7 +35,9 @@ export function LectureAttendanceInline({
   uiState,
   daysRemaining,
   showBadge = true,
-  renderBadge,
+  iconOnly = false,
+  attendance,
+  isLiveLecture = false,
   forceRow = false,
 }: LectureAttendanceInlineProps) {
   if (uiState == null) {
@@ -38,10 +50,36 @@ export function LectureAttendanceInline({
     daysRemaining != null && daysRemaining >= 0 && showsCatchUpCountdown()
   const remainingText = formatCatchUpRemainingLabel(daysRemaining)
 
+  const withHover = (trigger: ReactNode): ReactNode => {
+    if (attendance == null) {
+      return trigger
+    }
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+        <TooltipContent className="max-w-xs">
+          <LectureAttendanceHoverContent
+            attendance={attendance}
+            isLiveLecture={isLiveLecture}
+            uiState={uiState}
+            daysRemaining={daysRemaining}
+            iconOnly={iconOnly}
+          />
+        </TooltipContent>
+      </Tooltip>
+    )
+  }
+
   const badge = showBadge ? (
     <div className="min-w-0 shrink">
-      <LectureAttendanceStatusBadge state={uiState} />
+      <LectureAttendanceStatusBadge state={uiState} iconOnly={iconOnly} />
     </div>
+  ) : null
+
+  const daysLabel = showDays ? (
+    <span className="type-t1 whitespace-nowrap text-foreground-muted">
+      {remainingText}
+    </span>
   ) : null
 
   return (
@@ -53,12 +91,10 @@ export function LectureAttendanceInline({
           : 'flex-col items-end md:flex-row md:items-center md:gap-2',
       )}
     >
-      {showDays ? (
-        <span className="type-t1 whitespace-nowrap text-foreground-muted">
-          {remainingText}
-        </span>
-      ) : null}
-      {badge ? (renderBadge ? renderBadge(badge) : badge) : null}
+      {/* When only the countdown is visible (no badge yet — no attendance row,
+          window open) the hover moves onto the countdown text itself. */}
+      {daysLabel ? (badge ? daysLabel : withHover(daysLabel)) : null}
+      {badge ? withHover(badge) : null}
     </div>
   )
 }

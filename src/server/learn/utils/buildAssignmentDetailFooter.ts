@@ -79,6 +79,20 @@ function readAssessPlatformLink(
   return typeof link === 'string' && link.trim() !== '' ? link : null
 }
 
+/**
+ * Assignments store the graded-evaluation category as `graded-evaluation`, but
+ * `category` is a free-form varchar, so normalize separators before matching.
+ */
+function isGradedEvaluationCategory(category: string): boolean {
+  return (
+    category
+      .trim()
+      .toLowerCase()
+      .replace(/[_-]+/g, ' ')
+      .replace(/\s+/g, ' ') === 'graded evaluation'
+  )
+}
+
 function shouldShowStatusChip(
   status: AssignmentProgressStatus,
   assignmentKind: AssignmentKind,
@@ -126,7 +140,12 @@ function buildNotices(
         message: 'Practice assignment score will not be considered.',
       })
     }
-    if (context.assignmentKind === 'evaluation') {
+    // Only graded evaluations count toward final grading, so the notice is
+    // limited to `type = evaluation` + `category = graded evaluation`.
+    if (
+      context.assignmentKind === 'evaluation' &&
+      isGradedEvaluationCategory(context.category)
+    ) {
       notices.push({
         variant: 'score-policy',
         message: 'Evaluation Score will be considered',

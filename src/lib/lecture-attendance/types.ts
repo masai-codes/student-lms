@@ -1,5 +1,9 @@
-export type LectureAttendanceUiState =
-  'hidden' | 'present' | 'absent' | 'continue_watching' | 'att_window_over'
+import type {
+  LectureAttendanceStatus,
+  VisibleLectureAttendanceStatus,
+} from '@/lib/lecture-attendance/lectureAttendanceStatus'
+
+export type LectureAttendanceUiState = LectureAttendanceStatus
 
 export type LectureAttendanceUiInput = {
   overallStatus: number | null | undefined
@@ -11,13 +15,20 @@ export type LectureAttendanceUiInput = {
   daysRemaining?: number | null
 }
 
-export type ListingAttendanceVisibleState = Exclude<
-  LectureAttendanceUiState,
-  'hidden'
->
+export type ListingAttendanceVisibleState = VisibleLectureAttendanceStatus
 
-export type ListingAttendanceRender = {
-  uiState: ListingAttendanceVisibleState | null
+/**
+ * What the lecture card / detail header actually renders — produced only by
+ * `getLectureAttendanceRender`, the single resolver both surfaces share.
+ */
+export type LectureAttendanceRender = {
+  uiState: VisibleLectureAttendanceStatus | null
   daysRemaining: number | null
   showBadge: boolean
+  /**
+   * `batches.is_attendance_mandatory = 0`: the worded Present/Absent badges
+   * collapse to a bare green tick / red cross (see
+   * `LECTURE_ATTENDANCE_STATUS_META.iconOnlyWhenAttendanceOptional`).
+   */
+  iconOnly: boolean
 }

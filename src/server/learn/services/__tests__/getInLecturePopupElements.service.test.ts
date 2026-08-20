@@ -67,11 +67,14 @@ const quizRow = (overrides: Partial<ElementRow> = {}) => ({
   id: 538,
   assessmentId: '6a7f065e1caa074f350b12f5',
   status: 'active' as const,
-  startTimestamp: '2026-08-14T12:13:48+05:30',
-  endTimestamp: '2026-08-14T12:15:02+05:30',
+  // ZEF stores quiz windows 5h30m ahead of everything else, so 17:43:48 here is
+  // the 12:13:48 the panel shows once it is pulled back onto the shared clock.
+  startTimestamp: '2026-08-14T17:43:48+05:30',
+  endTimestamp: '2026-08-14T17:45:02+05:30',
   ...overrides,
 })
 
+// Polls are stored on the same clock as the reference and need no correction.
 const pollRow = (overrides: Partial<ElementRow> = {}) => ({
   id: 66,
   question: 'Did you understand the concept we just covered?',
@@ -299,6 +302,87 @@ describe('getInLecturePopupElements', () => {
 
     expect(result.quiz).toEqual([])
     expect(result.polls).toEqual([])
+  })
+
+  // ── Storage conventions ────────────────────────────────────────────────────
+  // The correction is keyed on the meta row's `source`, matching the admin
+  // panel's `zefQuizTimestampTz`. Both apps must agree, or the same lecture
+  // reads differently in the panel and in the player.
+
+  it('drops a zef quiz that was not stored ahead of the shared clock', async () => {
+    const { getInLecturePopupElements } =
+      await import('../getInLecturePopupElements.service')
+
+    // A `zef` row whose quiz was stored on the shared clock rather than 5h30m
+    // ahead of it. Keying on `source` corrects it anyway and lands it 5h30m low,
+    // so it fails the client's `startSec < 0` check and never shows. This is the
+    // known cost of deciding the convention from `source`; only normalising at
+    // ingest fixes it.
+    mockSelects({
+      metaRow: {
+        ...META_DEFAULTS,
+        scheduledAt: '2026-08-14T11:55:00+05:30',
+        meta: {
+          effectiveScheduledAt: { value: '2026-08-14T12:11:16.006Z' },
+        },
+      },
+      quizRows: [
+        quizRow({
+          startTimestamp: '2026-08-14T12:13:48+05:30',
+          endTimestamp: '2026-08-14T12:15:02+05:30',
+        }),
+      ],
+      pollRows: [pollRow()],
+    })
+
+    const result = await getInLecturePopupElements(156972)
+
+    expect(result.quiz[0]?.startSec).toBe(-19648)
+    // The poll on the same row is untouched and lands correctly.
+    expect(result.polls[0]).toMatchObject({ startSec: 8, endSec: 48 })
+  })
+
+  it('places a quiz on IST and a poll on UTC in the same lecture', async () => {
+    const { getInLecturePopupElements } =
+      await import('../getInLecturePopupElements.service')
+
+    // lecture 156981 / meta 101: a 70s recording from 12:16:43.984. Quiz 564 is
+    // stored 5h30m ahead at 17:47:23; poll 72 is on the reference's clock. These
+    // are the verbatim prod rows, and the offsets below are what the admin
+    // panel shows for the same lecture.
+    mockSelects({
+      metaRow: {
+        ...META_DEFAULTS,
+        id: 101,
+        lectureId: 156981,
+        scheduledAt: '2026-08-18T12:20:00+05:30',
+        meta: {
+          effectiveScheduledAt: {
+            value: '2026-08-18T12:16:43.984Z',
+            source: 'recording',
+            leadingTrimSeconds: 0,
+          },
+        },
+      },
+      quizRows: [
+        quizRow({
+          startTimestamp: '2026-08-18T17:47:23+05:30',
+          endTimestamp: '2026-08-18T17:47:40+05:30',
+        }),
+      ],
+      pollRows: [
+        pollRow({
+          startTimestamp: '2026-08-18T12:16:52+05:30',
+          endTimestamp: '2026-08-18T12:17:47+05:30',
+        }),
+      ],
+    })
+
+    const result = await getInLecturePopupElements(156981)
+
+    // Matches the admin panel: quiz 39/56, poll 8/63.
+    expect(result.quiz[0]).toMatchObject({ startSec: 39, endSec: 56 })
+    expect(result.polls[0]).toMatchObject({ startSec: 8, endSec: 63 })
   })
 
   it('returns empties when the lecture has no meta row', async () => {

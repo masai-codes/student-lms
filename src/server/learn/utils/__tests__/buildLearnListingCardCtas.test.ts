@@ -183,6 +183,7 @@ describe('buildLearnListingCardCtas', () => {
         videoAttendanceStatus: 0,
         includeVideoAttendance: false,
         videoCountsForAttendance: false,
+        isAttendanceMandatory: true,
         markAbsentIfLate: false,
       },
       assignmentProgressStatus: null,

@@ -69,5 +69,6 @@ export function buildLectureAttendanceSummary(
     videoCountsForAttendance:
       sectionSettings.considerVideoAttendanceForActualAttendance,
     markAbsentIfLate: sectionSettings.markAbsentIfLate,
+    isAttendanceMandatory: context.isAttendanceMandatory ?? true,
   }
 }

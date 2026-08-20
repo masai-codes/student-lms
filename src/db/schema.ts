@@ -500,6 +500,9 @@ export const batches = mysqlTable(
     programDomain: varchar('program_domain', { length: 255 }),
     programType: varchar('program_type', { length: 255 }),
     calendarToken: varchar('calendar_token', { length: 64 }),
+    isAttendanceMandatory: tinyint('is_attendance_mandatory')
+      .default(0)
+      .notNull(),
   },
   (table) => [
     index('idx_name').on(table.name),
@@ -1974,6 +1977,8 @@ export const zefLmsFeedbackSubmissions = mysqlTable(
       .references(() => users.id),
     rating: tinyint({ unsigned: true }).notNull(),
     message: text(),
+    classroomRating: tinyint('classroom_rating', { unsigned: true }),
+    classroomMessage: text('classroom_message'),
     followupTags: json('followup_tags').$type<Record<string, any>>(),
     source: mysqlEnum(['zef', 'lms']).default('zef').notNull(),
     submittedAt: timestamp('submitted_at', { mode: 'string' }),
