@@ -286,8 +286,11 @@ export function InterviewsPage() {
       {data ? (
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
           <div className="min-w-0 flex-1">
+            {/**
+              TODO: show continue your coursework
+            */}
             {data.curriculumTopics.length > 0 ? (
-              <div className="mb-8">
+              <div className="mb-8 hidden">
                 <h2 className="type-b2-md mb-2 font-semibold text-foreground-muted">
                   Continue your coursework
                 </h2>
@@ -306,7 +309,7 @@ export function InterviewsPage() {
 
             {data.catalogTopics.length > 0 ? (
               <div>
-                <h2 className="type-b2-md mb-2 font-semibold text-foreground-muted">
+                <h2 className="type-b2-md mb-2 font-semibold text-foreground-muted hidden">
                   Topics for your program
                 </h2>
                 <div

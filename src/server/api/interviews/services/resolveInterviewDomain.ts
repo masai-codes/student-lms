@@ -77,12 +77,41 @@ export async function resolveInterviewDomains(
     // for "inserted later" regardless of timestamp granularity.
     .orderBy(desc(sectionUser.createdAt), desc(sectionUser.id))
 
-  const domains = new Set<InterviewDomain>(['general'])
+  const domains = new Set<InterviewDomain>()
   for (const row of rows) {
     for (const domain of parseInterviewDomainsFromMeta(row.meta)) {
       domains.add(domain)
     }
   }
+  domains.add('general')
 
   return Array.from(domains)
+}
+
+/**
+ * Whether the student's enrolled batches have opted into the interviews
+ * feature at all (`batches.meta.interviews` configured with at least one
+ * domain on any batch). Unlike {@link resolveInterviewDomains}, which always
+ * falls back to `['general']`, this returns `false` when nothing is
+ * configured — used to gate nav-level visibility of the Interviews tab.
+ */
+export async function hasConfiguredInterviewDomains(
+  userId: number,
+): Promise<boolean> {
+  const rows = await db
+    .select({ meta: batches.meta })
+    .from(sectionUser)
+    .innerJoin(sections, eq(sectionUser.sectionId, sections.id))
+    .innerJoin(batches, eq(sections.batchId, batches.id))
+    .where(
+      and(
+        eq(sectionUser.userId, userId),
+        isNull(sectionUser.deletedAt),
+        isNull(sections.deletedAt),
+        eq(batches.active, 1),
+        batchScopeForPortal(),
+      ),
+    )
+
+  return rows.some((row) => parseInterviewDomainsFromMeta(row.meta).length > 0)
 }

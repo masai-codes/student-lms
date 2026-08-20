@@ -11,6 +11,8 @@ vi.mock('@/db', () => {
     innerJoin: () => chain,
     where: () => chain,
     orderBy: () => Promise.resolve(hoisted.rows),
+    then: (resolve: (rows: Array<{ meta: unknown }>) => unknown) =>
+      resolve(hoisted.rows),
   }
   return { db: chain }
 })
@@ -92,5 +94,30 @@ describe('resolveInterviewDomains', () => {
       'backend',
       'data-analytics',
     ])
+  })
+})
+
+describe('hasConfiguredInterviewDomains', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns false when the user has no active enrollment', async () => {
+    hoisted.rows = []
+    const { hasConfiguredInterviewDomains } =
+      await import('../resolveInterviewDomain')
+    expect(await hasConfiguredInterviewDomains(1)).toBe(false)
+  })
+
+  it('returns false when no enrolled batch has meta.interviews configured', async () => {
+    hoisted.rows = [{ meta: {} }, { meta: { interviews: [] } }]
+    const { hasConfiguredInterviewDomains } =
+      await import('../resolveInterviewDomain')
+    expect(await hasConfiguredInterviewDomains(1)).toBe(false)
+  })
+
+  it('returns true when at least one enrolled batch has meta.interviews configured', async () => {
+    hoisted.rows = [{ meta: {} }, { meta: { interviews: ['frontend'] } }]
+    const { hasConfiguredInterviewDomains } =
+      await import('../resolveInterviewDomain')
+    expect(await hasConfiguredInterviewDomains(1)).toBe(true)
   })
 })
