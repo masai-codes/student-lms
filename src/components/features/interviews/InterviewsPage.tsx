@@ -145,7 +145,7 @@ function SessionsRail() {
   const { data, isPending, isError } = useQuery(interviewSessionsQuery())
 
   return (
-    <aside className="w-full shrink-0 lg:sticky lg:top-4 lg:w-72">
+    <aside className="w-full shrink-0 lg:sticky lg:top-16 lg:w-72">
       <h2 className="type-b2-md mb-2 font-semibold text-foreground-muted">
         Your sessions
       </h2>
