@@ -28,7 +28,9 @@ describe('ResolvedTicketFeedback', () => {
     const { onSubmitRating } = renderFeedback()
 
     fireEvent.click(screen.getByTestId('support-feedback-rating-up'))
-    const submit = screen.getByTestId('support-feedback-submit')
+    const submit = screen.getByTestId(
+      'support-feedback-submit',
+    ) as HTMLButtonElement
     expect(submit.disabled).toBe(true)
 
     fireEvent.change(screen.getByTestId('support-feedback-comment'), {
@@ -50,9 +52,16 @@ describe('ResolvedTicketFeedback', () => {
     const { onSubmitRating, onReopenEscalate } = renderFeedback()
 
     fireEvent.click(screen.getByTestId('support-feedback-rating-down'))
-    expect(screen.getByTestId('support-feedback-submit').disabled).toBe(true)
     expect(
-      screen.getByTestId('support-feedback-reopen-escalate').disabled,
+      (screen.getByTestId('support-feedback-submit') as HTMLButtonElement)
+        .disabled,
+    ).toBe(true)
+    expect(
+      (
+        screen.getByTestId(
+          'support-feedback-reopen-escalate',
+        ) as HTMLButtonElement
+      ).disabled,
     ).toBe(true)
 
     fireEvent.click(screen.getByRole('button', { name: 'Issue not solved' }))

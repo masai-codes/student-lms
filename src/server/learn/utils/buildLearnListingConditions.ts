@@ -210,7 +210,11 @@ export function buildLectureListingConditions(
     filters?.priorities?.length
       ? inArray(lectures.optional, priorityToOptional(filters.priorities))
       : undefined,
-    ...attendanceConditions(filters?.attendanceStatus, input.userId, input.nowMs),
+    ...attendanceConditions(
+      filters?.attendanceStatus,
+      input.userId,
+      input.nowMs,
+    ),
   ]
 
   return conditions.filter(

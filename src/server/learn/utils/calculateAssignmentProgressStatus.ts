@@ -1,7 +1,10 @@
 import { parseIstToMs } from '@/server/time/istClock'
 
 export type AssignmentProgressStatus =
-  'new' | 'in-progress' | 'overdue' | 'completed'
+  | 'new'
+  | 'in-progress'
+  | 'overdue'
+  | 'completed'
 
 export type AssignmentSubmissionProgress = {
   completed: boolean

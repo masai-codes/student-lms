@@ -14,10 +14,13 @@ function getRequest(
   lectureId: string,
   secret: string | null = 'sekret',
 ): Request {
-  return new Request(`http://localhost/api/ai-tutor/lectures/${lectureId}/ingest`, {
-    method: 'GET',
-    headers: secret ? { 'x-ai-tutor-rag-ingest-secret': secret } : {},
-  })
+  return new Request(
+    `http://localhost/api/ai-tutor/lectures/${lectureId}/ingest`,
+    {
+      method: 'GET',
+      headers: secret ? { 'x-ai-tutor-rag-ingest-secret': secret } : {},
+    },
+  )
 }
 
 beforeEach(() => {
@@ -33,9 +36,8 @@ afterEach(() => {
 describe('handleIngestLectureRag', () => {
   it('returns 503 when ingest secret env is missing', async () => {
     delete process.env.AI_TUTOR_RAG_INGEST_SECRET
-    const { handleIngestLectureRag } = await import(
-      '../handlers/ingestLectureRag.handler'
-    )
+    const { handleIngestLectureRag } =
+      await import('../handlers/ingestLectureRag.handler')
 
     const res = await handleIngestLectureRag(getRequest('12'), '12')
 
@@ -46,9 +48,8 @@ describe('handleIngestLectureRag', () => {
   })
 
   it('returns 401 when the secret header is missing or wrong', async () => {
-    const { handleIngestLectureRag } = await import(
-      '../handlers/ingestLectureRag.handler'
-    )
+    const { handleIngestLectureRag } =
+      await import('../handlers/ingestLectureRag.handler')
 
     const missing = await handleIngestLectureRag(getRequest('12', null), '12')
     expect(missing.status).toBe(401)
@@ -61,9 +62,8 @@ describe('handleIngestLectureRag', () => {
   })
 
   it('returns 400 for an invalid lecture id', async () => {
-    const { handleIngestLectureRag } = await import(
-      '../handlers/ingestLectureRag.handler'
-    )
+    const { handleIngestLectureRag } =
+      await import('../handlers/ingestLectureRag.handler')
 
     const res = await handleIngestLectureRag(getRequest('0'), '0')
 
@@ -74,9 +74,8 @@ describe('handleIngestLectureRag', () => {
   })
 
   it('returns ingestion jobs for a valid request', async () => {
-    const { handleIngestLectureRag } = await import(
-      '../handlers/ingestLectureRag.handler'
-    )
+    const { handleIngestLectureRag } =
+      await import('../handlers/ingestLectureRag.handler')
     hoisted.ingestLectureRag.mockResolvedValueOnce({
       lectureId: 12,
       notesRagged: true,
@@ -107,9 +106,8 @@ describe('handleIngestLectureRag', () => {
   })
 
   it('maps unexpected service failures to 500', async () => {
-    const { handleIngestLectureRag } = await import(
-      '../handlers/ingestLectureRag.handler'
-    )
+    const { handleIngestLectureRag } =
+      await import('../handlers/ingestLectureRag.handler')
     hoisted.ingestLectureRag.mockRejectedValueOnce(new Error('boom'))
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

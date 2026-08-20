@@ -28,9 +28,9 @@ describe('isIndependenceDayUiEnabled', () => {
   })
 
   it('window bounds are timezone-independent (same instant in UTC)', () => {
-    expect(
-      isIndependenceDayUiEnabled(Date.parse('2026-08-16T05:29:59Z')),
-    ).toBe(true)
+    expect(isIndependenceDayUiEnabled(Date.parse('2026-08-16T05:29:59Z'))).toBe(
+      true,
+    )
     expect(isIndependenceDayUiEnabled(Date.parse('2026-08-16T05:30:00Z'))).toBe(
       false,
     )

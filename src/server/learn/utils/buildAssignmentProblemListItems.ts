@@ -1,7 +1,9 @@
 import type { AssignmentProblemRow } from '@/server/learn/queries/fetchAssignmentProblems'
 
 export type AssignmentProblemStatusTone =
-  'completed' | 'in-progress' | 'pending'
+  | 'completed'
+  | 'in-progress'
+  | 'pending'
 
 export type AssignmentProblemStatusChip = {
   tone: AssignmentProblemStatusTone

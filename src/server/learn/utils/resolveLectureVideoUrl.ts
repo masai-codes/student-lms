@@ -79,20 +79,6 @@ export function readLectureVideosMp4Url(videos: unknown): string | null {
   return null
 }
 
-/**
- * Recording URL resolution — same gumlet → `videos` priority as
- * {@link resolveLectureVideoUrl}, without the Vimeo embed fallback.
- * S3 bucket URLs are rewritten through CloudFront when configured.
- */
-function resolveLectureRecordingVideoUrl(input: {
-  vimeoDownloadLinks: unknown
-  videos: unknown
-}): string | null {
-  return (
-    readGumletHlsUrl(input.vimeoDownloadLinks) ?? readVideosUrl(input.videos)
-  )
-}
-
 export function resolveLectureVideoUrl(input: {
   videos: unknown
   vimeoDownloadLinks: unknown

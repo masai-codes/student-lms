@@ -1,8 +1,5 @@
 import type { MouseEventHandler, ReactNode } from 'react'
 
-/** Hover + active text/icon color for primary nav and profile menu (keep Tailwind `text-[#6962AC]` in sync). */
-const NAVBAR_ACCENT_HEX = '#6962AC' as const
-
 type NavbarHref = string
 
 /**

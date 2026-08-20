@@ -1,4 +1,3 @@
-import { createServerFn } from '@tanstack/react-start'
 import { inArray } from 'drizzle-orm'
 import { db } from '@/db'
 import { batches } from '@/db/schema'
@@ -20,10 +19,6 @@ function normalizeMeta(meta: unknown): BatchMeta {
   }
   return {}
 }
-
-const showMasaiversePage = createServerFn({ method: 'GET' })
-  .inputValidator((data: { userId: number }) => data)
-  .handler(showMasaiversePageHandler)
 
 export type MasaiverseAccessDebug = {
   canShowMasaiverse: boolean

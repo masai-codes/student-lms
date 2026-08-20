@@ -9,7 +9,6 @@ import { createAssignmentSubmission } from '@/server/assignments/services/create
 import { getAssessPlatformSubmissionViewUrlForUser } from '@/server/assignments/services/getAssessPlatformSubmissionViewUrl'
 import { markSubmissionCompletedWithToken } from '@/server/assignments/services/markSubmissionCompletedWithToken'
 import { updateSubmissionCompletionForUser } from '@/server/assignments/services/updateSubmissionCompletion'
-import { isAssessmentPlatform } from '@/server/learn/utils/assignmentPlatform'
 
 const AI_INTERVIEW_PLATFORM = 'assessment platform - ai interview'
 
@@ -136,8 +135,4 @@ export async function handleViewSubmissionOnAssessPlatform(
   } catch (error) {
     return mapThrownErrorToResponse(error)
   }
-}
-
-function assignmentUsesAssessmentPlatform(platform: string | null): boolean {
-  return isAssessmentPlatform(platform)
 }

@@ -18,27 +18,8 @@ export interface RouterContext {
   logout: () => void
 }
 
-type Course = {
-  id: string
-  title: string
-  org: string
-  progress: number
-  cta: 'resume' | 'start'
-  image: string
-}
-
-type Lecture = {
-  id: number
-  title: string
-  author: string
-  dateRange: string
-  completionStatus: 'completed' | 'in-progress' | 'warning'
-}
-
 export type AppPaginationProps = {
   currentPage: number
   totalPages: number
   onPageChange: (page: number) => void
 }
-
-type CardStatus = 'completed' | 'in-progress' | 'warning'

@@ -1,11 +1,13 @@
 //  @ts-check
 
 import { tanstackConfig } from '@tanstack/eslint-config'
+import unusedImports from 'eslint-plugin-unused-imports'
 import localRules from './eslint-rules/index.js'
 
 export default [
   ...tanstackConfig,
   {
+    plugins: { 'unused-imports': unusedImports },
     rules: {
       'sort-imports': 'off',
       'import-x/consistent-type-specifier-style': 'off',
@@ -13,6 +15,18 @@ export default [
       'import/order': 'off',
       '@typescript-eslint/array-type': 'off',
       '@typescript-eslint/no-unnecessary-condition': 'off',
+      // typescript-eslint's `typescript` is pinned to @typescript/typescript6
+      // (see package.json overrides) while the app/typecheck run on
+      // typescript@7, so this rule's type info can disagree with tsc's and
+      // "fix" away assertions tsc genuinely requires (e.g. casting
+      // testing-library's HTMLElement results to HTMLButtonElement for
+      // `.disabled`).
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      // tsconfig has noUnusedLocals/noUnusedParameters on, so tsc is the
+      // source of truth for unused vars; this only adds the autofix
+      // (removing dead imports) that tsc itself can't do.
+      '@typescript-eslint/no-unused-vars': 'off',
+      'unused-imports/no-unused-imports': 'error',
     },
   },
   // Project-specific rules — encode the conventions documented in

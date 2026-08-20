@@ -45,22 +45,3 @@ export async function checkInLectureQuizGraded(input: {
     `${LEARN_API.lectureQuizStatus(input.lectureId)}?${params.toString()}`,
   )
 }
-
-/**
- * Submits (ends) the user's in-lecture quiz attempt on the Assess Platform.
- * `token` is the fresh test token returned by {@link generateInLectureQuizUrl}.
- */
-async function endInLectureQuizAssessment(input: {
-  lectureId: number
-  assessmentTemplateId: string
-  token: string
-}): Promise<{ ok: true }> {
-  return fetchJson<{ ok: true }>(LEARN_API.lectureQuizSubmit(input.lectureId), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      assessmentTemplateId: input.assessmentTemplateId,
-      token: input.token,
-    }),
-  })
-}

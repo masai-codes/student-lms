@@ -25,9 +25,8 @@ afterEach(() => {
 describe('retrieveLectureRagChunksByQuery', () => {
   it('skips retrieval when the RAG platform is not configured', async () => {
     hoisted.isRagPlatformConfigured.mockReturnValueOnce(false)
-    const { retrieveLectureRagChunksByQuery } = await import(
-      '../services/retrieveLectureRagChunks.service'
-    )
+    const { retrieveLectureRagChunksByQuery } =
+      await import('../services/retrieveLectureRagChunks.service')
 
     await expect(
       retrieveLectureRagChunksByQuery({
@@ -53,9 +52,8 @@ describe('retrieveLectureRagChunksByQuery', () => {
       ],
     })
 
-    const { retrieveLectureRagChunksByQuery } = await import(
-      '../services/retrieveLectureRagChunks.service'
-    )
+    const { retrieveLectureRagChunksByQuery } =
+      await import('../services/retrieveLectureRagChunks.service')
     const chunks = await retrieveLectureRagChunksByQuery({
       lectureId: 12,
       query: 'heap sort',
@@ -95,9 +93,8 @@ describe('retrieveLectureRagChunksForTool', () => {
       ],
     })
 
-    const { retrieveLectureRagChunksForTool } = await import(
-      '../services/retrieveLectureRagChunks.service'
-    )
+    const { retrieveLectureRagChunksForTool } =
+      await import('../services/retrieveLectureRagChunks.service')
 
     await expect(
       retrieveLectureRagChunksForTool({

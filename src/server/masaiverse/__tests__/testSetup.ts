@@ -79,17 +79,6 @@ vi.mock('@/db/schema', () => ({
   },
 }))
 
-function mockSelectChain(result: unknown) {
-  return {
-    from: () => ({
-      where: () => ({
-        limit: () => Promise.resolve(result),
-        then: undefined,
-      }),
-    }),
-  }
-}
-
 export function mockSelectWhereChain(result: unknown) {
   return {
     from: () => ({
@@ -112,17 +101,6 @@ export function mockSelectInnerJoinWhereChain(result: unknown) {
   const withJoins = { innerJoin: () => withJoins, ...tail }
   return {
     from: () => withJoins,
-  }
-}
-
-function mockSelectOrderByChain(result: unknown) {
-  return {
-    from: () => ({
-      where: () => ({
-        orderBy: () => Promise.resolve(result),
-      }),
-      orderBy: () => Promise.resolve(result),
-    }),
   }
 }
 

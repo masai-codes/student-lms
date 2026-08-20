@@ -71,8 +71,3 @@ function createClient(): Redis | null {
 
 export const redis: Redis | null = globalForRedis.__lmsRedis ?? createClient()
 globalForRedis.__lmsRedis = redis
-
-/** Whether a live, connected Redis client is available right now. */
-function isRedisReady(): boolean {
-  return redis != null && redis.status === 'ready'
-}

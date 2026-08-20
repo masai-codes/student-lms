@@ -20,10 +20,13 @@ describe('lectureNotesTocData', () => {
 
   it('merges ragged notes with a table of contents', () => {
     expect(
-      mergeLectureNotesRagData({ existing: true }, {
-        notesRagged: true,
-        notesToc: '- Topic A',
-      }),
+      mergeLectureNotesRagData(
+        { existing: true },
+        {
+          notesRagged: true,
+          notesToc: '- Topic A',
+        },
+      ),
     ).toEqual({
       existing: true,
       notesRagged: true,

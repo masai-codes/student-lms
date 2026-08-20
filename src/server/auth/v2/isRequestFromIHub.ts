@@ -91,12 +91,3 @@ export function getEmailPortal(request: Request): EmailPortal {
 
   return 'masai'
 }
-
-/**
- * Whether a request is on the iHub portal specifically. Prefer `getEmailPortal`
- * for three-way logic; this stays for the iHub-only branches (e.g. grandfathered
- * mobile-app access) that don't care about IIT Jodhpur.
- */
-function isRequestFromIHub(request: Request): boolean {
-  return getEmailPortal(request) === 'ihub'
-}

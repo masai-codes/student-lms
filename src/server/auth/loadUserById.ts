@@ -138,5 +138,3 @@ export async function loadUserById(userId: number) {
   const { status: _status, ...publicUser } = user
   return publicUser
 }
-
-type MeUser = NonNullable<Awaited<ReturnType<typeof loadUserById>>>

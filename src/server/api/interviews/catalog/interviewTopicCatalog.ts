@@ -2514,12 +2514,6 @@ const INTERVIEW_TOPIC_CATALOG: Record<InterviewDomain, Array<CatalogTopic>> = {
   ],
 }
 
-function getCatalogTopicsForDomain(
-  domain: InterviewDomain,
-): Array<InterviewTopic> {
-  return INTERVIEW_TOPIC_CATALOG[domain].map((topic) => ({ ...topic, domain }))
-}
-
 export function getCatalogTopicsForDomains(
   domains: Array<InterviewDomain>,
 ): Array<InterviewTopic> {

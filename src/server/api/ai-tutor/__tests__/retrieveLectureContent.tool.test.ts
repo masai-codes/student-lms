@@ -9,9 +9,12 @@ vi.mock('ai', () => ({
   tool: hoisted.tool,
 }))
 
-vi.mock('@/server/api/ai-tutor/services/retrieveLectureRagChunks.service', () => ({
-  retrieveLectureRagChunksForTool: hoisted.retrieveLectureRagChunksForTool,
-}))
+vi.mock(
+  '@/server/api/ai-tutor/services/retrieveLectureRagChunks.service',
+  () => ({
+    retrieveLectureRagChunksForTool: hoisted.retrieveLectureRagChunksForTool,
+  }),
+)
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -20,9 +23,8 @@ beforeEach(() => {
 
 describe('createRetrieveLectureContentTool', () => {
   it('creates a tool that forwards query and top_k to retrieval', async () => {
-    const { createRetrieveLectureContentTool } = await import(
-      '../tools/retrieveLectureContent.tool'
-    )
+    const { createRetrieveLectureContentTool } =
+      await import('../tools/retrieveLectureContent.tool')
     const tools = createRetrieveLectureContentTool(42)
     const retrieveTool = tools.retrieveLectureContent as unknown as {
       execute: (input: { query: string; top_k: number }) => Promise<string>

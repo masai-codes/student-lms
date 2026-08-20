@@ -19,9 +19,6 @@ import {
   fetchLectureSupportSnapshot,
   fetchSupportEntityContext,
   fetchSubcategoriesByCategory,
-  fetchSupportFaqs,
-  fetchSupportOverview,
-  fetchSupportTickets,
   fetchTicketThread,
 } from '@/lib/api/support/supportApi'
 
@@ -47,14 +44,6 @@ export const SUPPORT_KEYS = {
 }
 
 const REFETCH_ON_NAV = { refetchOnMount: 'always' } as const
-
-/** The single aggregated landing payload. */
-const supportOverviewQuery = (batchId?: number) => ({
-  queryKey: SUPPORT_KEYS.overview(batchId),
-  queryFn: () => fetchSupportOverview(batchId),
-  staleTime: 60 * 1000,
-  ...REFETCH_ON_NAV,
-})
 
 /**
  * Floating support modal — fetched once on first open, cached until page reload.
@@ -91,30 +80,6 @@ export const assignmentSupportSnapshotQuery = (assignmentId: number) => ({
   queryKey: SUPPORT_KEYS.assignmentSnapshot(assignmentId),
   queryFn: () => fetchAssignmentSupportSnapshot(assignmentId),
   staleTime: 2 * 60 * 1000,
-})
-
-/** Live FAQ search for a batch (enabled by the caller while searching). */
-const supportFaqsQuery = (input: {
-  batchId: number
-  search: string
-  category?: string
-}) => ({
-  queryKey: SUPPORT_KEYS.faqs(input.batchId, input.search, input.category),
-  queryFn: () =>
-    fetchSupportFaqs({
-      batchId: input.batchId,
-      search: input.search || undefined,
-      category: input.category,
-    }),
-  staleTime: 60 * 1000,
-})
-
-/** A page of the student's tickets for a tab. */
-const supportTicketsQuery = (tab: TicketTab, page = 1) => ({
-  queryKey: SUPPORT_KEYS.tickets(tab, page),
-  queryFn: () => fetchSupportTickets({ tab, page }),
-  staleTime: 30 * 1000,
-  ...REFETCH_ON_NAV,
 })
 
 /** Subcategories for a single context category (lecture / resource / assignment). */

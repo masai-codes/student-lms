@@ -1,4 +1,4 @@
-import { cacheGetJson, cacheSetJson } from '@/server/redis/cache'
+import { cacheSetJson } from '@/server/redis/cache'
 
 /**
  * Tracks which in-lecture popup quiz attempts (`uniqueID`s) have been graded,
@@ -14,13 +14,6 @@ const GRADED_TTL_SECONDS = 6 * 60 * 60 // 6 hours — comfortably covers a rewat
 
 const localGraded = new Map<string, number>() // uniqueId -> expiry epoch ms
 
-function pruneLocal(): void {
-  const now = Date.now()
-  for (const [key, expiresAt] of localGraded) {
-    if (expiresAt <= now) localGraded.delete(key)
-  }
-}
-
 function gradedCacheKey(uniqueId: string): string {
   return `in-lecture-quiz:graded:${uniqueId}`
 }
@@ -28,10 +21,4 @@ function gradedCacheKey(uniqueId: string): string {
 export async function markInLectureQuizGraded(uniqueId: string): Promise<void> {
   localGraded.set(uniqueId, Date.now() + GRADED_TTL_SECONDS * 1000)
   await cacheSetJson(gradedCacheKey(uniqueId), true, GRADED_TTL_SECONDS)
-}
-
-async function isInLectureQuizGraded(uniqueId: string): Promise<boolean> {
-  pruneLocal()
-  if (localGraded.has(uniqueId)) return true
-  return (await cacheGetJson<boolean>(gradedCacheKey(uniqueId))) === true
 }

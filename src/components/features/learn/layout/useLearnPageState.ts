@@ -14,7 +14,6 @@ import {
   learnModalFiltersFromSearch,
   mergeLearnSearch,
   modalFiltersToApiFilters,
-  parseLearnPageSearch,
   pickLearnTabSnapshotFilters,
 } from '@/lib/learn/learnPageSearch'
 
@@ -231,8 +230,4 @@ export function useLearnPageState() {
       )
     },
   }
-}
-
-function parseLearnRouteSearch(search: Record<string, unknown>) {
-  return parseLearnPageSearch(search)
 }
