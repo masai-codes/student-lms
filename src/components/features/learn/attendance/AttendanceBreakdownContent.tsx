@@ -1,4 +1,4 @@
-import { ATTENDANCE_STATUS_LABELS } from '@/lib/lecture-attendance/attendanceStatusLabels'
+import { LECTURE_ATTENDANCE_STATUS_META } from '@/lib/lecture-attendance/lectureAttendanceStatus'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 
 /**
@@ -17,7 +17,6 @@ export function AttendanceBreakdownContent({
    */
   isLiveLecture: boolean
 }) {
-  const labels = ATTENDANCE_STATUS_LABELS
   const isPresent = attendance.overallStatus === 1
   const liveStatus =
     attendance.liveAttendanceStatus === 1 ? 'Attended' : 'Not Attended'
@@ -40,7 +39,10 @@ export function AttendanceBreakdownContent({
               : 'inline-flex items-center rounded-full bg-danger-subtle px-2 py-0.5 type-t1 font-medium text-danger-subtle-foreground'
           }
         >
-          Overall - {isPresent ? labels.present : labels.absent}
+          Overall -{' '}
+          {isPresent
+            ? LECTURE_ATTENDANCE_STATUS_META.present.label
+            : LECTURE_ATTENDANCE_STATUS_META.absent.label}
         </span>
       </div>
     </div>

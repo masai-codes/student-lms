@@ -15,7 +15,12 @@ describe('lecture attendance catch-up countdown', () => {
 
   it('hides the days-remaining label on portals without the countdown', () => {
     render(
-      <LectureAttendanceInline uiState="absent" daysRemaining={4} showBadge />,
+      <LectureAttendanceInline
+        uiState="absent"
+        daysRemaining={4}
+        showBadge
+        iconOnly={false}
+      />,
     )
     expect(screen.queryByText('4 days remaining')).toBeNull()
     expect(screen.getByText('Absent')).toBeTruthy()

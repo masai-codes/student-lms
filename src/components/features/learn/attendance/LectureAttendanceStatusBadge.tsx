@@ -1,11 +1,18 @@
 import { CheckCircle, PlayCircle, Timer, XCircle } from '@phosphor-icons/react'
 
-import { ATTENDANCE_STATUS_LABELS } from '@/lib/lecture-attendance/attendanceStatusLabels'
+import { LECTURE_ATTENDANCE_STATUS_META } from '@/lib/lecture-attendance/lectureAttendanceStatus'
 import type { ListingAttendanceVisibleState } from '@/lib/lecture-attendance/types'
 import { cn } from '@/lib/utils'
 
 type LectureAttendanceStatusBadgeProps = {
   state: ListingAttendanceVisibleState
+  /**
+   * `batches.is_attendance_mandatory = 0`: worded Present/Absent badges render
+   * as a bare green tick / red cross instead (Continue Watching keeps its
+   * wording — see `LECTURE_ATTENDANCE_STATUS_META`). Screen readers still get
+   * the full label.
+   */
+  iconOnly?: boolean
   className?: string
 }
 
@@ -14,9 +21,31 @@ const badgeBase =
 
 export function LectureAttendanceStatusBadge({
   state,
+  iconOnly = false,
   className,
 }: LectureAttendanceStatusBadgeProps) {
-  const labels = ATTENDANCE_STATUS_LABELS
+  const meta = LECTURE_ATTENDANCE_STATUS_META[state]
+
+  if (iconOnly && meta.iconOnlyWhenAttendanceOptional) {
+    const isPresent = state === 'present'
+    const Icon = isPresent ? CheckCircle : XCircle
+    return (
+      <span
+        data-testid="lecture-attendance-icon-badge"
+        className={cn(
+          'inline-flex items-center rounded-full p-1',
+          isPresent
+            ? 'bg-success-subtle text-success-subtle-foreground'
+            : 'bg-danger-subtle text-danger-subtle-foreground',
+          className,
+        )}
+        aria-label={meta.label}
+        title={meta.label}
+      >
+        <Icon weight="fill" className="size-[18px] shrink-0" aria-hidden />
+      </span>
+    )
+  }
 
   if (state === 'present') {
     return (
@@ -26,14 +55,14 @@ export function LectureAttendanceStatusBadge({
           'bg-success-subtle text-success-subtle-foreground',
           className,
         )}
-        aria-label={labels.present}
+        aria-label={meta.label}
       >
         <CheckCircle
           weight="fill"
           className="size-[18px] shrink-0"
           aria-hidden
         />
-        <span className="capitalize">{labels.present}</span>
+        <span className="capitalize">{meta.label}</span>
       </span>
     )
   }
@@ -46,10 +75,10 @@ export function LectureAttendanceStatusBadge({
           'bg-danger-subtle text-danger-subtle-foreground',
           className,
         )}
-        aria-label={labels.absent}
+        aria-label={meta.label}
       >
         <XCircle weight="fill" className="size-[18px] shrink-0" aria-hidden />
-        <span className="capitalize">{labels.absent}</span>
+        <span className="capitalize">{meta.label}</span>
       </span>
     )
   }
@@ -64,7 +93,7 @@ export function LectureAttendanceStatusBadge({
           'gap-2 bg-brand-subtle pr-2.5 text-primary-600 dark:text-brand-subtle-foreground',
           className,
         )}
-        aria-label="Continue watching"
+        aria-label={meta.label}
       >
         <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand">
           <PlayCircle
@@ -74,7 +103,7 @@ export function LectureAttendanceStatusBadge({
           />
         </span>
         {/* Wraps below `sm` so the badge can't force 320px viewports to scroll. */}
-        <span className="sm:whitespace-nowrap">Continue Watching</span>
+        <span className="sm:whitespace-nowrap">{meta.label}</span>
       </span>
     )
   }
@@ -86,7 +115,7 @@ export function LectureAttendanceStatusBadge({
         'gap-1.5 bg-danger-subtle pr-2.5 text-danger-subtle-foreground',
         className,
       )}
-      aria-label={labels.attWindowOver}
+      aria-label={meta.label}
     >
       <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-danger">
         <Timer
@@ -96,7 +125,7 @@ export function LectureAttendanceStatusBadge({
         />
       </span>
       {/* Wraps below `sm` so the badge can't force 320px viewports to scroll. */}
-      <span className="sm:whitespace-nowrap">{labels.attWindowOver}</span>
+      <span className="sm:whitespace-nowrap">{meta.label}</span>
     </span>
   )
 }

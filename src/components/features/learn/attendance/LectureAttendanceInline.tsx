@@ -3,11 +3,11 @@ import type { ReactNode } from 'react'
 import { LectureAttendanceStatusBadge } from './LectureAttendanceStatusBadge'
 
 import { formatCatchUpRemainingLabel } from '@/lib/lecture-attendance/formatCatchUpRemainingLabel'
-import type { ListingAttendanceRender } from '@/lib/lecture-attendance/types'
+import type { LectureAttendanceRender } from '@/lib/lecture-attendance/types'
 import { cn } from '@/lib/utils'
 import { showsCatchUpCountdown } from '@/utils/portal'
 
-type LectureAttendanceInlineProps = ListingAttendanceRender & {
+type LectureAttendanceInlineProps = LectureAttendanceRender & {
   /**
    * Optional wrapper around the rendered badge — used by the lecture-detail
    * variant to add hover tooltips without duplicating this layout/label logic.
@@ -25,6 +25,7 @@ export function LectureAttendanceInline({
   uiState,
   daysRemaining,
   showBadge = true,
+  iconOnly = false,
   renderBadge,
   forceRow = false,
 }: LectureAttendanceInlineProps) {
@@ -40,7 +41,7 @@ export function LectureAttendanceInline({
 
   const badge = showBadge ? (
     <div className="min-w-0 shrink">
-      <LectureAttendanceStatusBadge state={uiState} />
+      <LectureAttendanceStatusBadge state={uiState} iconOnly={iconOnly} />
     </div>
   ) : null
 

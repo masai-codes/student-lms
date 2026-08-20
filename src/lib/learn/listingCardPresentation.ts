@@ -4,8 +4,8 @@ import type {
   LearnListingCardCtas,
   LearnListingJoinLiveState,
 } from '@/server/learn/types'
-import { getListingAttendanceRender } from '@/lib/lecture-attendance/getListingAttendanceRender'
-import type { ListingAttendanceRender } from '@/lib/lecture-attendance/types'
+import { getLectureAttendanceRender } from '@/lib/lecture-attendance/getLectureAttendanceRender'
+import type { LectureAttendanceRender } from '@/lib/lecture-attendance/types'
 
 /**
  * Frontend presentation for learn listing card CTAs.
@@ -14,12 +14,12 @@ import type { ListingAttendanceRender } from '@/lib/lecture-attendance/types'
 export function getLearnListingAttendancePresentation(
   listingCtas: LearnListingCardCtas,
   attendance: LectureAttendanceSummary | null | undefined,
-): ListingAttendanceRender | null {
+): LectureAttendanceRender | null {
   if (!listingCtas.showAttendance) {
     return null
   }
 
-  const render = getListingAttendanceRender(attendance)
+  const render = getLectureAttendanceRender(attendance)
   if (render.uiState == null) {
     return null
   }

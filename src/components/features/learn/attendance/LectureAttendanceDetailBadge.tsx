@@ -5,7 +5,7 @@ import { LectureAttendanceInline } from './LectureAttendanceInline'
 
 import { formatCatchUpRemainingLabel } from '@/lib/lecture-attendance/formatCatchUpRemainingLabel'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
-import type { ListingAttendanceRender } from '@/lib/lecture-attendance/types'
+import type { LectureAttendanceRender } from '@/lib/lecture-attendance/types'
 import { showsCatchUpCountdown } from '@/utils/portal'
 import {
   Tooltip,
@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-type LectureAttendanceDetailBadgeProps = ListingAttendanceRender & {
+type LectureAttendanceDetailBadgeProps = LectureAttendanceRender & {
   attendance: LectureAttendanceSummary
   /** `live`/`scrum` lectures show the Live line in the breakdown; video omits it. */
   isLiveLecture: boolean

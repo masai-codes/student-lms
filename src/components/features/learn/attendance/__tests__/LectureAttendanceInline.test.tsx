@@ -8,6 +8,7 @@ const attendanceRender = {
   uiState: 'absent' as const,
   daysRemaining: 4,
   showBadge: true,
+  iconOnly: false,
 }
 
 describe('LectureAttendanceInline', () => {

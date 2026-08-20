@@ -1,25 +1,43 @@
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import { resolveLectureAttendanceUiState } from '@/lib/lecture-attendance/resolveLectureAttendanceUiState'
 import type {
-  ListingAttendanceRender,
+  LectureAttendanceRender,
   ListingAttendanceVisibleState,
 } from '@/lib/lecture-attendance/types'
 
-export type ListingVideoProgressHint = {
+export type LectureVideoProgressHint = {
   watchPercentage?: number | null
 }
 
-export function getListingAttendanceRender(
+const HIDDEN_RENDER: LectureAttendanceRender = {
+  uiState: null,
+  daysRemaining: null,
+  showBadge: false,
+  iconOnly: false,
+}
+
+/**
+ * THE single decision point for what attendance UI a lecture shows — used by
+ * the /learn listing card, the lecture detail header, dashboard cards and the
+ * support-chat snapshot, so every surface always agrees.
+ *
+ * The status itself comes from `resolveLectureAttendanceUiState` (see the
+ * decision table in `lectureAttendanceStatus.ts`); this adds the surface
+ * concerns: whether a badge shows at all, the catch-up countdown, and the
+ * icon-only variant for non-mandatory-attendance batches.
+ */
+export function getLectureAttendanceRender(
   attendance: LectureAttendanceSummary | null | undefined,
-  videoProgressHint?: ListingVideoProgressHint | null,
-): ListingAttendanceRender {
+  videoProgressHint?: LectureVideoProgressHint | null,
+): LectureAttendanceRender {
   if (attendance == null) {
-    return {
-      uiState: null,
-      daysRemaining: null,
-      showBadge: false,
-    }
+    return HIDDEN_RENDER
   }
+
+  // `batches.is_attendance_mandatory = 0` → worded Present/Absent badges
+  // collapse to a bare tick/cross. Pure presentation; the status logic below
+  // is identical either way.
+  const iconOnly = !attendance.isAttendanceMandatory
 
   if (attendance.overallStatus == null) {
     if (attendance.hasStudentAttendanceEntry === false) {
@@ -28,6 +46,7 @@ export function getListingAttendanceRender(
           uiState: 'att_window_over',
           daysRemaining: null,
           showBadge: true,
+          iconOnly,
         }
       }
       if (attendance.daysRemaining != null && attendance.daysRemaining > 0) {
@@ -35,14 +54,11 @@ export function getListingAttendanceRender(
           uiState: 'absent',
           daysRemaining: attendance.daysRemaining,
           showBadge: false,
+          iconOnly,
         }
       }
     }
-    return {
-      uiState: null,
-      daysRemaining: null,
-      showBadge: false,
-    }
+    return HIDDEN_RENDER
   }
 
   const resolved = resolveLectureAttendanceUiState({
@@ -62,11 +78,7 @@ export function getListingAttendanceRender(
   })
 
   if (resolved === null || resolved === 'hidden') {
-    return {
-      uiState: null,
-      daysRemaining: null,
-      showBadge: false,
-    }
+    return HIDDEN_RENDER
   }
 
   const uiState: ListingAttendanceVisibleState = resolved
@@ -76,5 +88,5 @@ export function getListingAttendanceRender(
     (uiState === 'absent' || uiState === 'continue_watching')
   const daysRemaining = showRemaining ? attendance.daysRemaining : null
 
-  return { uiState, daysRemaining, showBadge: true }
+  return { uiState, daysRemaining, showBadge: true, iconOnly }
 }

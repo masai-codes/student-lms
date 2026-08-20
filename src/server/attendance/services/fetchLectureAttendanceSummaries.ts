@@ -2,6 +2,7 @@ import { and, eq, inArray } from 'drizzle-orm'
 
 import { db } from '@/db'
 import {
+  batches,
   lectures,
   sections,
   studentAttendances,
@@ -51,9 +52,13 @@ export async function fetchLectureAttendanceSummaries(
         concludes: lectures.concludes,
         sectionId: lectures.sectionId,
         sectionSettings: sections.settings,
+        // Presentation flag: non-mandatory batches show tick/cross icons
+        // instead of the worded Present/Absent badges.
+        isAttendanceMandatory: batches.isAttendanceMandatory,
       })
       .from(lectures)
       .innerJoin(sections, eq(lectures.sectionId, sections.id))
+      .innerJoin(batches, eq(sections.batchId, batches.id))
       .where(inArray(lectures.id, lectureIds)),
     db
       .select({
@@ -116,6 +121,7 @@ export async function fetchLectureAttendanceSummaries(
           schedule: lecture.schedule,
           concludes: lecture.concludes,
           sectionSettings: lecture.sectionSettings,
+          isAttendanceMandatory: lecture.isAttendanceMandatory === 1,
         },
         record,
         nowMs,
