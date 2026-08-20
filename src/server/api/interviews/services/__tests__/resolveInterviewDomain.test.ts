@@ -10,8 +10,7 @@ vi.mock('@/db', () => {
     from: () => chain,
     innerJoin: () => chain,
     where: () => chain,
-    orderBy: () => chain,
-    limit: () => Promise.resolve(hoisted.rows),
+    orderBy: () => Promise.resolve(hoisted.rows),
   }
   return { db: chain }
 })
@@ -79,5 +78,19 @@ describe('resolveInterviewDomains', () => {
     const { resolveInterviewDomains } =
       await import('../resolveInterviewDomain')
     expect(await resolveInterviewDomains(1)).toEqual(['general'])
+  })
+
+  it('unions domains across all active batches, deduped, most-recent first', async () => {
+    hoisted.rows = [
+      { meta: { interviews: ['frontend', 'backend'] } },
+      { meta: { interviews: ['backend', 'data-analytics'] } },
+    ]
+    const { resolveInterviewDomains } =
+      await import('../resolveInterviewDomain')
+    expect(await resolveInterviewDomains(1)).toEqual([
+      'frontend',
+      'backend',
+      'data-analytics',
+    ])
   })
 })

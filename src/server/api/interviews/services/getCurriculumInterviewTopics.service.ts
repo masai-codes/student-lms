@@ -33,6 +33,7 @@ export function buildCurriculumRubricFocus(label: string): Array<string> {
   return [`${label} fundamentals`, 'Applied problem solving', 'Communication']
 }
 
+// TODO: Fetch topics from lectures
 /**
  * Derives interview topics from what the student has actually been taught —
  * distinct `lectures.module` values across their enrolled sections. `module`

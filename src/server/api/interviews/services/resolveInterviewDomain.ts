@@ -46,10 +46,14 @@ export function parseInterviewDomainsFromMeta(
 }
 
 /**
- * Resolves the interview domain(s) enabled for the student from
- * `batches.meta.interviews` on their most recently enrolled active batch.
- * No enrollment, or no domains configured on that batch -> `['general']`
- * (catalog-only fallback, never an empty topic list).
+ * Resolves the interview domain(s) enabled for the student as the union of
+ * `batches.meta.interviews` across all of their active batch enrollments.
+ * No enrollment, or no domains configured on any of those batches ->
+ * `['general']` (catalog-only fallback, never an empty topic list).
+ *
+ * Rows are ordered most-recently-enrolled first so `domains[0]` (used by
+ * callers as the "primary" domain) stays deterministic rather than
+ * depending on arbitrary DB row order.
  */
 export async function resolveInterviewDomains(
   userId: number,
@@ -72,11 +76,13 @@ export async function resolveInterviewDomains(
     // in fast seed scripts) needs a tiebreaker — higher id is a reliable proxy
     // for "inserted later" regardless of timestamp granularity.
     .orderBy(desc(sectionUser.createdAt), desc(sectionUser.id))
-    .limit(1)
 
-  const row = rows.at(0)
-  if (!row) return ['general']
+  const domains = new Set<InterviewDomain>(['general'])
+  for (const row of rows) {
+    for (const domain of parseInterviewDomainsFromMeta(row.meta)) {
+      domains.add(domain)
+    }
+  }
 
-  const domains = parseInterviewDomainsFromMeta(row.meta)
-  return domains.length > 0 ? domains : ['general']
+  return Array.from(domains)
 }
