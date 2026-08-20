@@ -1,6 +1,6 @@
-export type LectureChatRole = 'user' | 'assistant'
+type LectureChatRole = 'user' | 'assistant'
 
-export type LectureChatMessageSource = 'history' | 'live-text' | 'live-voice'
+type LectureChatMessageSource = 'history' | 'live-text' | 'live-voice'
 
 export type LectureChatMessage = {
   id: string
@@ -11,5 +11,10 @@ export type LectureChatMessage = {
   source: LectureChatMessageSource
 }
 
-export type AiTutorSessionState =
-  'idle' | 'creating' | 'connecting' | 'connected' | 'ending' | 'error'
+type AiTutorSessionState =
+  | 'idle'
+  | 'creating'
+  | 'connecting'
+  | 'connected'
+  | 'ending'
+  | 'error'

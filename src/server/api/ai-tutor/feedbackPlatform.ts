@@ -21,7 +21,7 @@ const PLATFORMS: ReadonlyArray<AiTutorFeedbackPlatform> = [
   'web-new',
 ]
 
-export const AI_TUTOR_FEEDBACK_PLATFORMS = PLATFORMS
+const AI_TUTOR_FEEDBACK_PLATFORMS = PLATFORMS
 
 function isWebLikePlatform(platform: AiTutorFeedbackPlatform): boolean {
   return (

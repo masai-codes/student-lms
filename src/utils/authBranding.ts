@@ -6,9 +6,9 @@ import { getAppOrigin } from '@/utils/appOrigin'
  * a navy/black wordmark, the dark one a white wordmark (the crest keeps its
  * brand colours in both, so it must not be recoloured with `dark:invert`).
  */
-export const IITJ_LOGO_LIGHT_URL =
+const IITJ_LOGO_LIGHT_URL =
   'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iitj_masai_light.png'
-export const IITJ_LOGO_DARK_URL =
+const IITJ_LOGO_DARK_URL =
   'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iitj_masai_dark.png'
 
 export type AuthBranding = {

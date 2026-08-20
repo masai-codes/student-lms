@@ -4,9 +4,9 @@ import type {
 } from '@/server/learn/queries/fetchProblemDetail'
 import { formatSqlDate } from '@/utils/generics'
 
-export type ProblemSubmissionType = 'LINK' | 'FILE' | 'BUTTON'
+type ProblemSubmissionType = 'LINK' | 'FILE' | 'BUTTON'
 
-export type ProblemSolutionState = {
+type ProblemSolutionState = {
   id: number
   submissionLink: string | null
   submittedAtLabel: string | null

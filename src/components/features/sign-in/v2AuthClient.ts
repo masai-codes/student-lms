@@ -5,7 +5,7 @@
 
 import { resolveTrueStatus } from '@/lib/api/cloudFrontSafeStatus'
 
-export type AuthenticatedUser = {
+type AuthenticatedUser = {
   id: number
   name: string
   email: string

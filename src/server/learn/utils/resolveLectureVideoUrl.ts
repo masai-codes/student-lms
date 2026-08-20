@@ -84,7 +84,7 @@ export function readLectureVideosMp4Url(videos: unknown): string | null {
  * {@link resolveLectureVideoUrl}, without the Vimeo embed fallback.
  * S3 bucket URLs are rewritten through CloudFront when configured.
  */
-export function resolveLectureRecordingVideoUrl(input: {
+function resolveLectureRecordingVideoUrl(input: {
   vimeoDownloadLinks: unknown
   videos: unknown
 }): string | null {

@@ -14,7 +14,7 @@ function readViteEnv(
   return fromImport?.trim() ? fromImport : undefined
 }
 
-export function isLegacyStudentRedirectEnabled(): boolean {
+function isLegacyStudentRedirectEnabled(): boolean {
   return (
     readViteEnv('VITE_ENABLE_LEGACY_STUDENT_REDIRECT')?.toLowerCase() === 'true'
   )
@@ -24,7 +24,7 @@ export function isLegacyStudentRedirectEnabled(): boolean {
  * This (v2) app's canonical base URL. On the client it's simply the current
  * origin; on the server it's resolved per request origin (see `getAppOrigin`).
  */
-export function getNewStudentUiUrl(): string | undefined {
+function getNewStudentUiUrl(): string | undefined {
   if (typeof window !== 'undefined') {
     return window.location.origin
   }

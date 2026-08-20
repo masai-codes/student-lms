@@ -10,12 +10,7 @@ import { generateText } from 'ai'
 import { getAiTutorChatModel } from '@/server/api/ai-tutor/clients/anthropicModel'
 import { plainTextFromHtml } from '@/lib/plainTextFromHtml'
 
-export type TicketTitleSource =
-  | 'ai'
-  | 'entity'
-  | 'message'
-  | 'category'
-  | 'default'
+type TicketTitleSource = 'ai' | 'entity' | 'message' | 'category' | 'default'
 
 export type TicketTitleResult = {
   title: string

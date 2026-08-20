@@ -38,7 +38,7 @@ export async function saveLectureNotesRagStatus(input: {
     .where(eq(lectures.id, input.lectureId))
 }
 
-export async function getStoredLectureNotesToc(
+async function getStoredLectureNotesToc(
   lectureId: number,
 ): Promise<string | null> {
   const rows = await db
@@ -51,7 +51,7 @@ export async function getStoredLectureNotesToc(
   return readNotesTocFromLectureData(rows[0].data)
 }
 
-export async function getLectureNotesForRag(lectureId: number): Promise<{
+async function getLectureNotesForRag(lectureId: number): Promise<{
   notes: string
   notesToc: string | null
 }> {

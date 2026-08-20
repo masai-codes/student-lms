@@ -29,7 +29,7 @@ function getLmsUploadRoot(): string {
 }
 
 /** Resolve a logical upload scope to an S3 key prefix. */
-export function resolveS3UploadScope(scope: S3UploadScope): string {
+function resolveS3UploadScope(scope: S3UploadScope): string {
   switch (scope) {
     case 'tickets':
       return `${getLmsUploadRoot()}/tickets`
@@ -40,7 +40,7 @@ export function resolveS3UploadScope(scope: S3UploadScope): string {
 }
 
 /** Max direct-upload size (10 MB), shared by presigned POST and multipart handlers. */
-export const S3_UPLOAD_MAX_BYTES = 10 * 1024 * 1024
+const S3_UPLOAD_MAX_BYTES = 10 * 1024 * 1024
 
 let cachedClient: S3Client | null = null
 function getClient(): S3Client {
@@ -156,7 +156,7 @@ export async function generatePresignedPostPolicy(input: {
   return { url, bucketPath, fields }
 }
 
-export interface PresignedUploadResult {
+interface PresignedUploadResult {
   uploadUrl: string
   s3Url: string
   key: string
@@ -167,7 +167,7 @@ export interface PresignedUploadResult {
  * The file lands under lms/dev/tickets/<uuid>.<ext>.
  * Expires in 5 minutes.
  */
-export async function generatePresignedUploadUrl(
+async function generatePresignedUploadUrl(
   ext: string,
   contentType: string,
 ): Promise<PresignedUploadResult> {
@@ -193,7 +193,7 @@ export async function generatePresignedUploadUrl(
  * Generates a presigned GET URL for reading a private S3 object (e.g. a certificate PDF).
  * Expires in 1 hour by default.
  */
-export async function getSignedDownloadUrl(
+async function getSignedDownloadUrl(
   key: string,
   expiresIn = 3600,
 ): Promise<string> {
@@ -211,7 +211,7 @@ export async function getSignedDownloadUrl(
  * Key: legal-agreement/{userId}/{sectionId}/TC-{userId}-section_{sectionId}_{timestamp}.pdf
  * Expires in 10 minutes.
  */
-export async function generateLegalAgreementPresignedUrl(
+async function generateLegalAgreementPresignedUrl(
   userId: number,
   sectionId: number,
   timestamp: number,

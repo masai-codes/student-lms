@@ -5,7 +5,7 @@ export function getExperienceApiBaseUrl(): string | null {
   return base || null
 }
 
-export async function experienceApiFetch(
+async function experienceApiFetch(
   path: string,
   init?: RequestInit,
 ): Promise<Response> {

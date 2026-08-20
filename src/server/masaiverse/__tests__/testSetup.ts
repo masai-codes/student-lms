@@ -79,7 +79,7 @@ vi.mock('@/db/schema', () => ({
   },
 }))
 
-export function mockSelectChain(result: unknown) {
+function mockSelectChain(result: unknown) {
   return {
     from: () => ({
       where: () => ({
@@ -115,7 +115,7 @@ export function mockSelectInnerJoinWhereChain(result: unknown) {
   }
 }
 
-export function mockSelectOrderByChain(result: unknown) {
+function mockSelectOrderByChain(result: unknown) {
   return {
     from: () => ({
       where: () => ({

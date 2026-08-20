@@ -100,7 +100,7 @@ export async function fetchSubcategoriesByCategory(
 }
 
 /** POST an FAQ vote; returns the new aggregate counts. */
-export async function voteSupportFaq(input: {
+async function voteSupportFaq(input: {
   faqId: number
   vote: FaqVote
 }): Promise<{ faqId: number; upvotes: number; downvotes: number }> {

@@ -15,7 +15,7 @@ import { parseMysqlDatetimeIST } from '@/utils/timeZoneHandler'
 export const EVALUATION_TICK_MS = 1_000
 export const LECTURE_TICK_MS = 30_000
 
-export type NextActionCta = 'Start' | 'View'
+type NextActionCta = 'Start' | 'View'
 
 export interface NextActionBannerView {
   event: NavbarPillEvent

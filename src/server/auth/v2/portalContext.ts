@@ -24,7 +24,7 @@ export function getRequestPortal(): EmailPortal {
 }
 
 /** Whether the current request is on the iHub portal. */
-export function isIHubPortalRequest(): boolean {
+function isIHubPortalRequest(): boolean {
   return getRequestPortal() === 'ihub'
 }
 

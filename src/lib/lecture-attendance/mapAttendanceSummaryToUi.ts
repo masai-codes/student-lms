@@ -1,10 +1,12 @@
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import { getListingAttendanceRender } from '@/lib/lecture-attendance/getListingAttendanceRender'
-import type { ListingAttendanceRender } from '@/lib/lecture-attendance/types'
+import type {
+  ListingAttendanceRender,
+  LectureAttendanceUiState,
+} from '@/lib/lecture-attendance/types'
 import { resolveLectureAttendanceUiState } from '@/lib/lecture-attendance/resolveLectureAttendanceUiState'
-import type { LectureAttendanceUiState } from '@/lib/lecture-attendance/types'
 
-export function mapAttendanceSummaryToListingRender(
+function mapAttendanceSummaryToListingRender(
   attendance: LectureAttendanceSummary | null | undefined,
   watchPercentage?: number | null,
 ): ListingAttendanceRender {

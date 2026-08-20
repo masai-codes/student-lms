@@ -45,8 +45,7 @@ export const ENROLMENT_EVENT = {
   CANCELLED: 'cancelled',
 } as const
 
-export type EnrolmentEvent =
-  (typeof ENROLMENT_EVENT)[keyof typeof ENROLMENT_EVENT]
+type EnrolmentEvent = (typeof ENROLMENT_EVENT)[keyof typeof ENROLMENT_EVENT]
 
 /**
  * Event names the unified `/events` webhook accepts (the envelope `type` field).

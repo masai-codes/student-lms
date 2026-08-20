@@ -21,11 +21,11 @@ export async function fetchDashboardOverview(): Promise<DashboardOverview> {
 }
 
 /** Slim overview for the mobile app (pending tasks + transfer/start banners). */
-export async function fetchDashboardOverviewApp(): Promise<DashboardOverviewApp> {
+async function fetchDashboardOverviewApp(): Promise<DashboardOverviewApp> {
   return fetchJson<DashboardOverviewApp>(DASHBOARD_API.overviewApp)
 }
 
-export async function fetchDashboardPendingTasks(): Promise<{
+async function fetchDashboardPendingTasks(): Promise<{
   pendingTasks: Array<DashboardScheduleItem>
 }> {
   return fetchJson<{ pendingTasks: Array<DashboardScheduleItem> }>(

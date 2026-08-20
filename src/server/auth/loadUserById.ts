@@ -14,7 +14,7 @@ function normalizeRows<T>(result: unknown): Array<T> {
     result &&
     typeof result === 'object' &&
     'rows' in result &&
-    Array.isArray((result as { rows: unknown }).rows)
+    Array.isArray(result.rows)
   ) {
     return (result as { rows: Array<T> }).rows
   }
@@ -139,4 +139,4 @@ export async function loadUserById(userId: number) {
   return publicUser
 }
 
-export type MeUser = NonNullable<Awaited<ReturnType<typeof loadUserById>>>
+type MeUser = NonNullable<Awaited<ReturnType<typeof loadUserById>>>

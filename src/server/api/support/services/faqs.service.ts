@@ -180,7 +180,7 @@ export async function voteFaq(input: {
 
   if (rows.length === 0) throw new Error('SUPPORT_FAQ_NOT_FOUND')
 
-  const meta = (rows[0].meta ?? {}) as Record<string, any>
+  const meta = rows[0].meta ?? {}
   const votes = (meta.votes ?? {}) as { upvotes?: number; downvotes?: number }
   const upvotes = (votes.upvotes ?? 0) + (input.vote === 'upvote' ? 1 : 0)
   const downvotes = (votes.downvotes ?? 0) + (input.vote === 'downvote' ? 1 : 0)
@@ -194,7 +194,7 @@ export async function voteFaq(input: {
 }
 
 /** A tiny helper used by the overview to count FAQs without fetching them. */
-export async function countFaqsForBatch(batchId: number): Promise<number> {
+async function countFaqsForBatch(batchId: number): Promise<number> {
   const rows = await db
     .select({ count: sql<number>`count(*)` })
     .from(helpFaqs)

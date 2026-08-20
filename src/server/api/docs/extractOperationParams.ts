@@ -5,8 +5,6 @@ import {
   type OpenApiSchema,
 } from '@/server/api/docs/schemaFromText'
 
-export type { OpenApiSchema }
-
 export type ScannedQueryParam = {
   name: string
   schema: OpenApiSchema

@@ -97,7 +97,7 @@ export function useLearnPageState() {
       if (tab === activeTab) return
 
       tabSearchSnapshots.current[activeTab] = {
-        ...pickLearnTabSnapshotFilters(search as Record<string, unknown>),
+        ...pickLearnTabSnapshotFilters(search),
         page: currentPage,
         ...(searchValue ? { search: searchValue } : {}),
       }
@@ -233,6 +233,6 @@ export function useLearnPageState() {
   }
 }
 
-export function parseLearnRouteSearch(search: Record<string, unknown>) {
+function parseLearnRouteSearch(search: Record<string, unknown>) {
   return parseLearnPageSearch(search)
 }

@@ -50,10 +50,7 @@ describe('ConfirmActionModal', () => {
   it('keeps confirm disabled while a request is pending even when acknowledged', () => {
     renderModal({ isPending: true })
     fireEvent.click(screen.getByRole('checkbox'))
-    expect(
-      (screen.getByRole('button', { name: 'Confirm' }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(true)
+    expect(screen.getByRole('button', { name: 'Confirm' }).disabled).toBe(true)
   })
 
   it('requests close when Cancel is clicked', () => {

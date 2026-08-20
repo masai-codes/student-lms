@@ -155,7 +155,7 @@ export function AgreementStep({ section, onCompleted }: AgreementStepProps) {
           ? document.getElementById(`agreement-${first.key}`)
           : document.getElementById('agreement-location-consent')
         el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
-        window.setTimeout(() => (el as HTMLElement | null)?.focus?.(), 150)
+        window.setTimeout(() => el?.focus?.(), 150)
         return
       }
       saveMutation.mutate() // autosave in the background

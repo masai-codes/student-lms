@@ -54,7 +54,7 @@ function stubFetchJson(
           ? input.href
           : input.url
     return handler(url, init)
-  }) as typeof fetch
+  })
 }
 
 /**

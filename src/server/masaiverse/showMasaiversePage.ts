@@ -10,7 +10,7 @@ type BatchMeta = {
 
 function normalizeMeta(meta: unknown): BatchMeta {
   if (!meta) return {}
-  if (typeof meta === 'object') return meta as BatchMeta
+  if (typeof meta === 'object') return meta
   if (typeof meta === 'string') {
     try {
       return JSON.parse(meta) as BatchMeta
@@ -21,7 +21,7 @@ function normalizeMeta(meta: unknown): BatchMeta {
   return {}
 }
 
-export const showMasaiversePage = createServerFn({ method: 'GET' })
+const showMasaiversePage = createServerFn({ method: 'GET' })
   .inputValidator((data: { userId: number }) => data)
   .handler(showMasaiversePageHandler)
 

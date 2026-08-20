@@ -48,7 +48,7 @@ function formatDate(iso: string | null): string {
  * The previous implementation silently wrote a URL to the clipboard with no
  * feedback and never opened LinkedIn, so "Share" looked like it did nothing.
  */
-export async function shareCertificate(
+async function shareCertificate(
   certificate: CertificateCardData,
 ): Promise<void> {
   const text = buildCertificateShareText(certificate)

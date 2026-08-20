@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
+
 const hoisted = vi.hoisted(() => ({
   rows: [] as Array<{
     batchId: number
@@ -17,8 +19,6 @@ vi.mock('@/db', () => ({
     }),
   },
 }))
-
-import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 
 describe('getUserBatchRestrictions', () => {
   beforeEach(() => {

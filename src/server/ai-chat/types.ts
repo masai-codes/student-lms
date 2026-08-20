@@ -1,6 +1,6 @@
 export type AiChatRole = 'user' | 'assistant'
 
-export type AiChatMessageSource = 'text' | 'voice'
+type AiChatMessageSource = 'text' | 'voice'
 
 export type AiChatMessage = {
   id: string
@@ -23,9 +23,11 @@ export type SendAiChatMessageResult = {
  * cleanly even if the session ends mid-conversation.
  */
 export type AiChatHistoryEntry =
-  AiChatTextTurnEntry | AiChatAudioStudentEntry | AiChatAudioAssistantEntry
+  | AiChatTextTurnEntry
+  | AiChatAudioStudentEntry
+  | AiChatAudioAssistantEntry
 
-export type AiChatTextTurnEntry = {
+type AiChatTextTurnEntry = {
   type: 'text'
   userMessage: string
   aiMessage: string

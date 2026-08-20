@@ -134,7 +134,7 @@ export async function getLectureEligibility(
 }
 
 /** Invalidate one lecture (both keys). */
-export async function invalidateLectureEligibility(
+async function invalidateLectureEligibility(
   lectureId: number,
   sectionId: number,
 ): Promise<void> {
@@ -142,9 +142,7 @@ export async function invalidateLectureEligibility(
 }
 
 /** Invalidate every cached lecture in a section (e.g. after a settings change). */
-export async function invalidateSectionEligibility(
-  sectionId: number,
-): Promise<void> {
+async function invalidateSectionEligibility(sectionId: number): Promise<void> {
   const keys = await cacheScanKeys(`${KEY_PREFIX}:${sectionId}:*`)
   const toDelete = keys.flatMap((key) => {
     const lectureId = Number(key.split(':').pop())

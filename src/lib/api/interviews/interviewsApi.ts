@@ -18,7 +18,7 @@ export async function fetchInterviewSessions(): Promise<
   return fetchJson<Array<InterviewSessionSummary>>(INTERVIEWS_API.sessions)
 }
 
-export async function createInterviewSession(
+async function createInterviewSession(
   topicId: string,
   language: string,
   subtopics?: Array<string>,
@@ -40,7 +40,7 @@ export type SubmitInterviewAnswerInput =
   | { kind: 'typed'; text: string }
   | { kind: 'transcribed'; text: string }
 
-export async function submitInterviewTurn(
+async function submitInterviewTurn(
   sessionId: number | string,
   answer: SubmitInterviewAnswerInput,
 ): Promise<SubmitInterviewTurnResult> {

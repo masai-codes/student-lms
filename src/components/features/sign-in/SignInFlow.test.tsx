@@ -75,7 +75,7 @@ function stubFetchJson(
           ? input.href
           : input.url
     return handler(url, init)
-  }) as typeof fetch
+  })
 }
 
 describe('SignInFlow', () => {
@@ -402,7 +402,7 @@ describe('SignInFlow', () => {
     await waitFor(() => {
       const resendButton = screen.getByRole('button', {
         name: /resend otp/i,
-      }) as HTMLButtonElement
+      })
       expect(resendButton.disabled).toBe(true)
       expect(resendButton.textContent).toMatch(/resend otp \(\d+s\)/i)
     })

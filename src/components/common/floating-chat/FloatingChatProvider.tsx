@@ -23,7 +23,7 @@ interface FloatingChatContextValue {
 
 const FloatingChatContext = createContext<FloatingChatContextValue | null>(null)
 
-export function useFloatingChat(): FloatingChatContextValue {
+function useFloatingChat(): FloatingChatContextValue {
   const value = useContext(FloatingChatContext)
   if (!value) {
     throw new Error('useFloatingChat must be used within FloatingChatProvider')

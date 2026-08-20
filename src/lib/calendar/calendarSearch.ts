@@ -16,7 +16,7 @@ export const DEFAULT_CALENDAR_VIEW: CalendarView = 'week'
 const VIEWS = new Set<CalendarView>(['month', 'week', 'day'])
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
-export function parseCalendarView(value: unknown): CalendarView | undefined {
+function parseCalendarView(value: unknown): CalendarView | undefined {
   if (typeof value !== 'string' || !VIEWS.has(value as CalendarView)) {
     return undefined
   }
@@ -24,7 +24,7 @@ export function parseCalendarView(value: unknown): CalendarView | undefined {
   return view === DEFAULT_CALENDAR_VIEW ? undefined : view
 }
 
-export function parseCalendarDate(value: unknown): string | undefined {
+function parseCalendarDate(value: unknown): string | undefined {
   if (typeof value !== 'string' || !DATE_RE.test(value)) return undefined
   const ms = Date.parse(`${value}T00:00:00Z`)
   if (!Number.isFinite(ms)) return undefined

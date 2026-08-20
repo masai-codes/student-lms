@@ -6,6 +6,6 @@ export function resolveLectureLearningType(lectureType: string): LearningType {
   return lectureType === LECTURE_RESOURCE_TYPE ? 'resource' : 'lecture'
 }
 
-export function isResourceLectureType(lectureType: string): boolean {
+function isResourceLectureType(lectureType: string): boolean {
   return resolveLectureLearningType(lectureType) === 'resource'
 }

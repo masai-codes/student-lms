@@ -21,11 +21,11 @@ export function getAnthropicApiKey(): string {
  * choose between the Anthropic and OpenRouter-fallback paths without
  * triggering `getAnthropicApiKey`'s throw.
  */
-export function hasAnthropicApiKey(): boolean {
+function hasAnthropicApiKey(): boolean {
   return Boolean(process.env.ANTHROPIC_API_KEY?.trim())
 }
 
-export function getOpenRouterApiKey(): string | undefined {
+function getOpenRouterApiKey(): string | undefined {
   return process.env.OPENROUTER_API_KEY?.trim() || undefined
 }
 

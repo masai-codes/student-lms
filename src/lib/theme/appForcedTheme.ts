@@ -80,6 +80,6 @@ export function forceLightTheme({ persist }: { persist: boolean }): void {
 }
 
 /** App-shell flavour: pins light and persists it. */
-export function forceLightThemeForApp(): void {
+function forceLightThemeForApp(): void {
   forceLightTheme({ persist: true })
 }

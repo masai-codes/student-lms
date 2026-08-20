@@ -3,7 +3,7 @@
  * Ratings 1–4 surface the "what went wrong" set; a 5 surfaces the "what went
  * right" set — the two never mix, so switching rating resets any selection.
  */
-export const LECTURE_FEEDBACK_LOW_RATING_TAGS = [
+const LECTURE_FEEDBACK_LOW_RATING_TAGS = [
   'Too fast',
   'Too slow',
   'Hard to follow',
@@ -11,7 +11,7 @@ export const LECTURE_FEEDBACK_LOW_RATING_TAGS = [
   'Audio issues',
 ] as const
 
-export const LECTURE_FEEDBACK_HIGH_RATING_TAGS = [
+const LECTURE_FEEDBACK_HIGH_RATING_TAGS = [
   'Clear & concise',
   'Great examples',
   'Easy to follow',

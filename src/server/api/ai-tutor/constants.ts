@@ -112,7 +112,7 @@ Patient, supportive, encouraging. After a good explanation, briefly check: "Does
 Always prioritize answering what the student actually asked over describing what the lecture contained.`
 
 /** @deprecated Use buildLectureChatSystemPrompt instead. */
-export const AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT = `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
+const AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT = `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
 
 ${buildEnforcedChatLanguageInstruction('English')}
 

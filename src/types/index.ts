@@ -1,6 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query'
 
-export interface User {
+interface User {
   id: number
   name: string
   email?: string | null
@@ -18,7 +18,7 @@ export interface RouterContext {
   logout: () => void
 }
 
-export type Course = {
+type Course = {
   id: string
   title: string
   org: string
@@ -27,7 +27,7 @@ export type Course = {
   image: string
 }
 
-export type Lecture = {
+type Lecture = {
   id: number
   title: string
   author: string
@@ -41,4 +41,4 @@ export type AppPaginationProps = {
   onPageChange: (page: number) => void
 }
 
-export type CardStatus = 'completed' | 'in-progress' | 'warning'
+type CardStatus = 'completed' | 'in-progress' | 'warning'

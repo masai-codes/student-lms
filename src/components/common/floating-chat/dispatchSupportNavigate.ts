@@ -1,5 +1,8 @@
 export type SupportNavigateCategory =
-  'lecture' | 'assignment' | 'resource' | 'evaluation'
+  | 'lecture'
+  | 'assignment'
+  | 'resource'
+  | 'evaluation'
 
 const SUPPORT_NAVIGATE_CATEGORIES = new Set<SupportNavigateCategory>([
   'lecture',
@@ -16,7 +19,7 @@ const SUPPORT_NAVIGATE_CATEGORIES = new Set<SupportNavigateCategory>([
  */
 export const SUPPORT_IFRAME_MESSAGE_SOURCE = 'masai-support-iframe'
 
-export interface SupportNavigateMessage {
+interface SupportNavigateMessage {
   source: typeof SUPPORT_IFRAME_MESSAGE_SOURCE
   type: 'support-navigate'
   category: SupportNavigateCategory

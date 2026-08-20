@@ -125,7 +125,7 @@ export const VideoPlayerContent = ({
   className,
   ...props
 }: VideoPlayerContentProps) => (
-  <video className={cn('mt-0 mb-0', className)} {...(props as any)} />
+  <video className={cn('mt-0 mb-0', className)} {...props} />
 )
 
 // Demo
