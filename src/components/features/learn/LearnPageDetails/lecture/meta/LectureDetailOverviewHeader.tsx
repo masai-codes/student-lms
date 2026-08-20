@@ -7,7 +7,7 @@ import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
 import type { LectureAttendanceBannerDescriptor } from '@/lib/lecture-attendance/resolveLectureAttendanceBanner'
 import { LectureAttendanceBanner } from '@/components/features/learn/attendance/LectureAttendanceBanner'
-import { LectureAttendanceDetailBadge } from '@/components/features/learn/attendance/LectureAttendanceDetailBadge'
+import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
 import { LectureOptionalAttendanceInfo } from '@/components/features/learn/attendance/LectureOptionalAttendanceInfo'
 import { useLectureAttendancePresentation } from '@/components/features/learn/attendance/useLectureAttendancePresentation'
 import { formatLearnDetailPriorityLabel } from '@/server/learn/utils/formatLearnDetailDisplay'
@@ -123,7 +123,7 @@ export function LectureDetailOverviewHeader({
                   />
                 ) : null}
                 {showAttendance && attendance ? (
-                  <LectureAttendanceDetailBadge
+                  <LectureAttendanceInline
                     {...attendancePresentation}
                     attendance={attendance}
                     isLiveLecture={isLiveLecture}
