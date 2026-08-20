@@ -3,7 +3,7 @@ import type {
   LectureRecordingStatus,
   LectureSupportSnapshot,
 } from '@/server/api/support/support.types'
-import { getAttendanceStatusLabels } from '@/lib/lecture-attendance/attendanceStatusLabels'
+import { ATTENDANCE_STATUS_LABELS } from '@/lib/lecture-attendance/attendanceStatusLabels'
 import { formatCatchUpRemainingLabel } from '@/lib/lecture-attendance/formatCatchUpRemainingLabel'
 import { getListingAttendanceRender } from '@/lib/lecture-attendance/getListingAttendanceRender'
 import type { ListingAttendanceVisibleState } from '@/lib/lecture-attendance/types'
@@ -85,10 +85,7 @@ export function getSupportAttendancePresentation(
   colorClass: string
   showAbsentReason: boolean
   absentReason: string | null
-  /**
-   * Whether this is a hard "absent" (vs pending / N/A). Callers style off this
-   * instead of comparing `label`, which is portal-dependent wording.
-   */
+  /** Whether this is a hard "absent" (vs pending / N/A). */
   isAbsent: boolean
 } {
   if (!snapshot.showAttendance) {
@@ -101,7 +98,7 @@ export function getSupportAttendancePresentation(
     }
   }
 
-  const labels = getAttendanceStatusLabels()
+  const labels = ATTENDANCE_STATUS_LABELS
   const render = getListingAttendanceRender(snapshot.attendance)
   if (render.uiState === 'present') {
     return {

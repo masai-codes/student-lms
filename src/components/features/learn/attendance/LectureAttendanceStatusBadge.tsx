@@ -1,6 +1,6 @@
 import { CheckCircle, PlayCircle, Timer, XCircle } from '@phosphor-icons/react'
 
-import { getAttendanceStatusLabels } from '@/lib/lecture-attendance/attendanceStatusLabels'
+import { ATTENDANCE_STATUS_LABELS } from '@/lib/lecture-attendance/attendanceStatusLabels'
 import type { ListingAttendanceVisibleState } from '@/lib/lecture-attendance/types'
 import { cn } from '@/lib/utils'
 
@@ -16,9 +16,7 @@ export function LectureAttendanceStatusBadge({
   state,
   className,
 }: LectureAttendanceStatusBadgeProps) {
-  // Portal-dependent wording (Present/Absent vs Watched/Not Watched) — the
-  // states, icons and colours below are identical across portals.
-  const labels = getAttendanceStatusLabels()
+  const labels = ATTENDANCE_STATUS_LABELS
 
   if (state === 'present') {
     return (

@@ -1,4 +1,4 @@
-import { getAttendanceStatusLabels } from '@/lib/lecture-attendance/attendanceStatusLabels'
+import { ATTENDANCE_STATUS_LABELS } from '@/lib/lecture-attendance/attendanceStatusLabels'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 
 /**
@@ -17,7 +17,7 @@ export function AttendanceBreakdownContent({
    */
   isLiveLecture: boolean
 }) {
-  const labels = getAttendanceStatusLabels()
+  const labels = ATTENDANCE_STATUS_LABELS
   const isPresent = attendance.overallStatus === 1
   const liveStatus =
     attendance.liveAttendanceStatus === 1 ? 'Attended' : 'Not Attended'

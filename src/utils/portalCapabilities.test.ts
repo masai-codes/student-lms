@@ -8,7 +8,6 @@ import {
   MOBILE_APP_PORTALS,
   SECTION_ON_LEARN_CARD_PORTALS,
   SUPPORT_PORTALS,
-  WATCHED_ATTENDANCE_WORDING_PORTALS,
   portalHasChat,
   portalHasIdCard,
   portalHasMasaiLivePromo,
@@ -17,7 +16,6 @@ import {
   portalShowsAttendanceDisclaimerBanner,
   portalShowsCatchUpCountdown,
   portalShowsSectionOnLearnCard,
-  portalUsesWatchedAttendanceWording,
 } from './portalCapabilities'
 
 describe('portalHasMobileApp', () => {
@@ -91,18 +89,6 @@ describe('portalShowsSectionOnLearnCard', () => {
 
   it('stays in sync with the allowlist', () => {
     expect([...SECTION_ON_LEARN_CARD_PORTALS]).toEqual(['iitj'])
-  })
-})
-
-describe('portalUsesWatchedAttendanceWording', () => {
-  it('allows only IIT Jodhpur', () => {
-    expect(portalUsesWatchedAttendanceWording('iitj')).toBe(true)
-    expect(portalUsesWatchedAttendanceWording('masai')).toBe(false)
-    expect(portalUsesWatchedAttendanceWording('ihub')).toBe(false)
-  })
-
-  it('stays in sync with the allowlist', () => {
-    expect([...WATCHED_ATTENDANCE_WORDING_PORTALS]).toEqual(['iitj'])
   })
 })
 
