@@ -101,13 +101,27 @@ describe('getCalendarEvents', () => {
 
   it('merges the three sources sorted soonest-first with type tags', async () => {
     hoisted.fetchLectures.mockResolvedValue([
-      row({ id: 1, schedule: '2026-08-13 10:00:00', concludes: '2026-08-13 11:00:00' }),
+      row({
+        id: 1,
+        schedule: '2026-08-13 10:00:00',
+        concludes: '2026-08-13 11:00:00',
+      }),
     ])
     hoisted.fetchAssignments.mockResolvedValue([
-      row({ id: 2, type: 'evaluation', schedule: '2026-08-11 09:00:00', concludes: null }),
+      row({
+        id: 2,
+        type: 'evaluation',
+        schedule: '2026-08-11 09:00:00',
+        concludes: null,
+      }),
     ])
     hoisted.fetchQuizzes.mockResolvedValue([
-      row({ id: 3, type: 'quiz', schedule: '2026-08-12 09:00:00', concludes: null }),
+      row({
+        id: 3,
+        type: 'quiz',
+        schedule: '2026-08-12 09:00:00',
+        concludes: null,
+      }),
     ])
     const result = await getCalendarEvents(9, WINDOW, null, NOW)
     expect(result.events.map((e) => `${e.type}-${e.id}`)).toEqual([

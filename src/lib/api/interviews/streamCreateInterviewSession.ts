@@ -3,7 +3,7 @@ import { createSseFrameBuffer } from '@/lib/api/sse/sseFrameBuffer'
 import type { CreateInterviewSessionResult } from '@/server/api/interviews/services/interviewSession.service'
 
 /** Wire events emitted by `POST /api/interviews/sessions/stream`. */
-export type CreateInterviewSessionStreamEvent =
+type CreateInterviewSessionStreamEvent =
   | { type: 'audio-delta'; data: string }
   | { type: 'done'; result: CreateInterviewSessionResult }
   | { type: 'error'; code: string }
@@ -77,15 +77,17 @@ export function streamCreateInterviewSession(
   topicId: string,
   language: string,
   handlers: StreamCreateInterviewSessionHandlers,
+  subtopics?: Array<string>,
 ): () => void {
   const controller = new AbortController()
-  void runStream(topicId, language, handlers, controller.signal)
+  void runStream(topicId, language, subtopics, handlers, controller.signal)
   return () => controller.abort()
 }
 
 async function runStream(
   topicId: string,
   language: string,
+  subtopics: Array<string> | undefined,
   handlers: StreamCreateInterviewSessionHandlers,
   signal: AbortSignal,
 ): Promise<void> {
@@ -98,7 +100,7 @@ async function runStream(
         Accept: 'text/event-stream',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ topicId, language }),
+      body: JSON.stringify({ topicId, language, subtopics }),
       signal,
     })
   } catch {

@@ -24,17 +24,27 @@ const INTERVIEW_STT_TRANSCRIBE_MODEL = 'gpt-4o-mini-transcribe'
  * chosen reply language measurably improves transcription accuracy for
  * non-English speech instead of leaving the model to guess. Only a subset of
  * `AiTutorChatLanguage` is listed here: the transcription API rejects
- * `language` values outside its own fixed support list, which excludes
- * several Indian languages we otherwise offer (Telugu, Malayalam, Bengali,
- * Gujarati, Punjabi, Odia, Assamese) — those fall through to no hint
- * (auto-detect) instead of a 400.
+ * `language` values outside its own fixed support list. Verified live against
+ * `POST /v1/realtime/client_secrets` — Punjabi, Odia, and Assamese are the
+ * only offered languages actually rejected (400 `invalid_value`); everything
+ * else below is confirmed accepted. Punjabi/Odia/Assamese are excluded from
+ * the interview language picker entirely (see `interviewLanguages.ts`) rather
+ * than sent with no hint. Hinglish has no ISO code of its own, so it's hinted
+ * as Hindi — the model isn't forced to only output Hindi, just biased toward
+ * it, which still helps for the Hindi-majority speech typical of Hinglish
+ * answers.
  */
 const STT_LANGUAGE_HINTS: Partial<Record<AiTutorChatLanguage, string>> = {
   English: 'en',
   Hindi: 'hi',
+  Hinglish: 'hi',
   Tamil: 'ta',
+  Telugu: 'te',
   Kannada: 'kn',
+  Malayalam: 'ml',
+  Bengali: 'bn',
   Marathi: 'mr',
+  Gujarati: 'gu',
 }
 
 export type InterviewSttSession = {
@@ -72,6 +82,13 @@ export async function requestInterviewSttClientSecret(
                 model: INTERVIEW_STT_TRANSCRIBE_MODEL,
                 language: STT_LANGUAGE_HINTS[language],
               },
+              // Silence and non-speech sounds (background noise, "mmm") are
+              // the main trigger for the model hallucinating into an
+              // unrelated language/script — gate transcription to detected
+              // speech instead of transcribing continuously, and tell it
+              // this is a close-talking mic (laptop/headset), not a room mic.
+              turn_detection: { type: 'server_vad' },
+              noise_reduction: { type: 'near_field' },
             },
           },
         },

@@ -1,4 +1,3 @@
-export { LectureDetailTabsSection } from './LectureDetailTabsSection'
 export { LectureTabBar } from './LectureTabBar'
 export { LectureTabContentSection } from './LectureTabContentSection'
 export { LectureTabPanel } from './LectureTabPanel'

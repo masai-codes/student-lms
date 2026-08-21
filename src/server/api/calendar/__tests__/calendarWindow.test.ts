@@ -58,8 +58,8 @@ describe('parseCalendarWindow', () => {
 
 describe('padCalendarWindow', () => {
   it('widens by one day on each side, across month edges', () => {
-    expect(padCalendarWindow({ start: '2026-08-01', end: '2026-08-31' })).toEqual(
-      { start: '2026-07-31', end: '2026-09-01' },
-    )
+    expect(
+      padCalendarWindow({ start: '2026-08-01', end: '2026-08-31' }),
+    ).toEqual({ start: '2026-07-31', end: '2026-09-01' })
   })
 })

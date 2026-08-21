@@ -4,7 +4,10 @@ import {
   formatSupportItemScheduleDate,
   mapLearningItemToSupportItem,
   supportCategoryToLearnFilters,
+  supportCategoryToLearningType,
+  supportCategoryUsesLearnApi,
 } from '@/components/common/floating-chat/supportCategoryLearning'
+import { IITJ_ASSIGNMENT_PRACTICE_ID } from '@/components/common/floating-chat/mockData'
 import type { LearningItem } from '@/server/learn/types'
 
 function buildLearningItem(
@@ -210,5 +213,20 @@ describe('supportCategoryToLearnFilters', () => {
     ).toEqual({
       types: ['assignment', 'practice'],
     })
+  })
+
+  it("treats iitj's practice-exercise chip identically to assignment", () => {
+    expect(supportCategoryToLearnFilters(IITJ_ASSIGNMENT_PRACTICE_ID)).toEqual(
+      supportCategoryToLearnFilters('assignment'),
+    )
+  })
+})
+
+describe('supportCategoryUsesLearnApi / supportCategoryToLearningType', () => {
+  it("treats iitj's practice-exercise chip as the assignment learning type", () => {
+    expect(supportCategoryUsesLearnApi(IITJ_ASSIGNMENT_PRACTICE_ID)).toBe(true)
+    expect(supportCategoryToLearningType(IITJ_ASSIGNMENT_PRACTICE_ID)).toBe(
+      'assignment',
+    )
   })
 })

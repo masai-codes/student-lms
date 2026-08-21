@@ -64,7 +64,9 @@ describe('EmailPreferencesTab', () => {
     hoisted.fetchEmailPreferences.mockRejectedValue(new Error('boom'))
     renderTab()
     await waitFor(() =>
-      expect(screen.getByTestId('profile-email-preferences-error')).toBeTruthy(),
+      expect(
+        screen.getByTestId('profile-email-preferences-error'),
+      ).toBeTruthy(),
     )
   })
 
@@ -143,9 +145,13 @@ describe('EmailPreferencesTab', () => {
     await waitFor(() => expect(toggle('lectures')).toBeTruthy())
     fireEvent.click(toggle('lectures'))
     await waitFor(() =>
-      expect(screen.getByTestId('profile-email-preference-dialog')).toBeTruthy(),
+      expect(
+        screen.getByTestId('profile-email-preference-dialog'),
+      ).toBeTruthy(),
     )
-    fireEvent.click(screen.getByTestId('profile-email-preference-dialog-cancel'))
+    fireEvent.click(
+      screen.getByTestId('profile-email-preference-dialog-cancel'),
+    )
 
     await waitFor(() =>
       expect(

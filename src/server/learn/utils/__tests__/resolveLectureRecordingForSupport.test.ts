@@ -2,11 +2,11 @@ import { afterEach, describe, expect, it, vi, beforeEach } from 'vitest'
 
 import { resolveLectureRecordingForSupport } from '../resolveLectureRecordingForSupport'
 
+import { verifyUrlReachable } from '@/server/learn/utils/verifyUrlReachable'
+
 vi.mock('@/server/learn/utils/verifyUrlReachable', () => ({
   verifyUrlReachable: vi.fn(),
 }))
-
-import { verifyUrlReachable } from '@/server/learn/utils/verifyUrlReachable'
 
 const gumletLinks = {
   gumlet: { hls_url: 'https://cdn.example/hls/master.m3u8' },

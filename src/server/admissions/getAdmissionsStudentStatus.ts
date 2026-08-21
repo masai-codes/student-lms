@@ -9,7 +9,7 @@
  * unreachable, or errors, so callers degrade gracefully.
  */
 
-export interface AdmissionsDocumentsStatus {
+interface AdmissionsDocumentsStatus {
   /** Whether this cohort requires document upload at all (drives step visibility). */
   required?: boolean
   instituteSideUpload?: boolean
@@ -18,13 +18,13 @@ export interface AdmissionsDocumentsStatus {
   documentsPendingVerification?: boolean
 }
 
-export interface AdmissionsKitTracking {
+interface AdmissionsKitTracking {
   trackingId?: string | null
   trackingUrl?: string | null
   serviceProvider?: string | null
 }
 
-export interface AdmissionsKitStatus {
+interface AdmissionsKitStatus {
   /** Whether this student is due a welcome kit (drives step visibility). */
   showKit?: boolean
   welcomeKitUrl?: string | null
@@ -32,8 +32,14 @@ export interface AdmissionsKitStatus {
   tracking?: AdmissionsKitTracking | null
 }
 
-export interface AdmissionsIdCard {
+interface AdmissionsIdCard {
   url?: string | null
+  /**
+   * Whether an ID card is configured for this program at all. `false` means the
+   * card will never arrive (no template on the admissions side), as opposed to
+   * `url: null` alone, which can also mean "generated shortly".
+   */
+  idCardConfigured?: boolean
 }
 
 /** One settled fee payment, with its downloadable invoice when generated. */

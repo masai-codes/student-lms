@@ -71,7 +71,8 @@ export function MyCoursesErrorState() {
           Couldn&apos;t load your programs
         </p>
         <p className="mt-1 text-sm text-foreground-subtle">
-          Something went wrong on our side. Please refresh the page to try again.
+          Something went wrong on our side. Please refresh the page to try
+          again.
         </p>
       </div>
     </div>

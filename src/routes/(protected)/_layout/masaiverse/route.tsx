@@ -35,9 +35,7 @@ export const Route = createFileRoute('/(protected)/_layout/masaiverse')({
       }
     }
 
-    const masaiverseAccessDebug = await getMasaiverseAccessDebugServer({
-      data: { userId: context.user.id },
-    })
+    const masaiverseAccessDebug = await getMasaiverseAccessDebugServer()
     return {
       canShowMasaiverse: masaiverseAccessDebug.canShowMasaiverse,
       redirectReason: masaiverseAccessDebug.reason,

@@ -1,5 +1,4 @@
-import { and, eq, isNull } from 'drizzle-orm'
-import { sql } from 'drizzle-orm'
+import { and, eq, isNull, sql } from 'drizzle-orm'
 import { db } from '@/db'
 import { announcements, sectionUser } from '@/db/schema'
 import { getAnnouncementBookmarkState } from './announcementBookmark.service'

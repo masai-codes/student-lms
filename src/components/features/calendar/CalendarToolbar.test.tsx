@@ -12,7 +12,9 @@ const BATCHES = [
   { id: 2, name: 'DA Batch' },
 ]
 
-function renderToolbar(over: Partial<Parameters<typeof CalendarToolbar>[0]> = {}) {
+function renderToolbar(
+  over: Partial<Parameters<typeof CalendarToolbar>[0]> = {},
+) {
   const props = {
     title: 'August 2026',
     view: 'week' as const,

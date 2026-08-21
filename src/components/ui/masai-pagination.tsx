@@ -7,7 +7,8 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 type PageItem =
-  { kind: 'page'; page: number } | { kind: 'ellipsis'; key: string }
+  | { kind: 'page'; page: number }
+  | { kind: 'ellipsis'; key: string }
 
 /** Build a compact list of page tokens around `currentPage`.
  *  Always shows boundaries and a configurable window of siblings. */

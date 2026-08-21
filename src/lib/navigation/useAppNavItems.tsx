@@ -16,6 +16,7 @@ import {
   LogOutIcon,
   Megaphone,
   MessagesSquare,
+  Mic,
   Smartphone,
   UserCircle,
 } from 'lucide-react'
@@ -188,6 +189,18 @@ export function useAppNavItems() {
       })
     }
 
+    if (gating.showInterviews) {
+      items.push({
+        id: 'interviews',
+        type: 'internal-link',
+        to: '/interviews',
+        label: 'Interviews',
+        icon: Mic,
+        uiType: 'primary',
+        isActive: pathname.startsWith('/interviews'),
+      })
+    }
+
     // Support opens the floating chat (same surface as the bottom-right
     // sphere) rather than routing. On surfaces where the provider isn't
     // mounted (support page itself, floater disabled) it falls back to the
@@ -203,7 +216,13 @@ export function useAppNavItems() {
     })
 
     return items
-  }, [gating.showChat, gating.showMasaiVerse, handleSupportClick, pathname])
+  }, [
+    gating.showChat,
+    gating.showMasaiVerse,
+    gating.showInterviews,
+    handleSupportClick,
+    pathname,
+  ])
 
   // Right side — fed through `resolveNavItemPriority` by the caller. "Get the
   // app" is primary only when the app isn't installed; Refer & Earn is

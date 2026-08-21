@@ -105,6 +105,10 @@ describe('MyCalendarPage', () => {
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(new Date(2026, 0, 15))
     vi.clearAllMocks()
+    // Pin "today" away from the fixture dates so the "defaults stay out of
+    // the URL" collapsing in patchSearch doesn't collide with the real date.
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.setSystemTime(new Date('2026-01-15T00:00:00+05:30'))
     hoisted.fetchBatches.mockResolvedValue({ batches: [] })
     hoisted.fetchEvents.mockResolvedValue({
       range: { start: '2026-08-09', end: '2026-08-15' },

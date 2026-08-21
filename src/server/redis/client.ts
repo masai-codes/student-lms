@@ -57,7 +57,9 @@ function createClient(): Redis | null {
     // unref lets Node exit when nothing else is pending — a no-op at runtime,
     // where the HTTP server keeps the process up on its own. Re-applied on every
     // (re)connect because ioredis makes a fresh socket each time.
-    ;(client as unknown as { stream?: { unref?: () => void } }).stream?.unref?.()
+    ;(
+      client as unknown as { stream?: { unref?: () => void } }
+    ).stream?.unref?.()
   })
 
   void client.connect().catch(() => {
@@ -69,8 +71,3 @@ function createClient(): Redis | null {
 
 export const redis: Redis | null = globalForRedis.__lmsRedis ?? createClient()
 globalForRedis.__lmsRedis = redis
-
-/** Whether a live, connected Redis client is available right now. */
-export function isRedisReady(): boolean {
-  return redis != null && redis.status === 'ready'
-}

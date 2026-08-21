@@ -7,9 +7,9 @@ import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
 import type { LectureAttendanceBannerDescriptor } from '@/lib/lecture-attendance/resolveLectureAttendanceBanner'
 import { LectureAttendanceBanner } from '@/components/features/learn/attendance/LectureAttendanceBanner'
-import { LectureAttendanceDetailBadge } from '@/components/features/learn/attendance/LectureAttendanceDetailBadge'
+import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
 import { LectureOptionalAttendanceInfo } from '@/components/features/learn/attendance/LectureOptionalAttendanceInfo'
-import { useListingAttendancePresentation } from '@/components/features/learn/attendance/useLectureAttendancePresentation'
+import { useLectureAttendancePresentation } from '@/components/features/learn/attendance/useLectureAttendancePresentation'
 import { formatLearnDetailPriorityLabel } from '@/server/learn/utils/formatLearnDetailDisplay'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { LocalTimeWithIstTooltip } from '@/components/shared/local-time-with-ist-tooltip'
@@ -67,7 +67,7 @@ export function LectureDetailOverviewHeader({
   attendanceBanner,
   className,
 }: LectureDetailOverviewHeaderProps) {
-  const attendancePresentation = useListingAttendancePresentation(
+  const attendancePresentation = useLectureAttendancePresentation(
     attendance,
     watchPercentage,
   )
@@ -123,7 +123,7 @@ export function LectureDetailOverviewHeader({
                   />
                 ) : null}
                 {showAttendance && attendance ? (
-                  <LectureAttendanceDetailBadge
+                  <LectureAttendanceInline
                     {...attendancePresentation}
                     attendance={attendance}
                     isLiveLecture={isLiveLecture}

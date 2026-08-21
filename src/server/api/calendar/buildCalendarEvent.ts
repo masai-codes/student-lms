@@ -76,10 +76,7 @@ export function buildCalendarEvent(input: {
   }
 }
 
-function resolveDetailPath(
-  type: CalendarEventType,
-  id: number,
-): string | null {
+function resolveDetailPath(type: CalendarEventType, id: number): string | null {
   if (type === 'lecture') return `/lectures/${id}`
   if (type === 'assignment') return `/assignments/${id}`
   // No quiz detail route exists in the new LMS yet.

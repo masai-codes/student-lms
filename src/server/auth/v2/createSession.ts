@@ -16,7 +16,7 @@ type CreateSessionsInput = {
   source: string
 }
 
-export type CreatedSessionRecord = {
+type CreatedSessionRecord = {
   userId: number
   sessionId: string
 }

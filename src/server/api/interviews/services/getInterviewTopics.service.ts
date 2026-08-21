@@ -1,6 +1,6 @@
-import { getCatalogTopicsForDomain } from '@/server/api/interviews/catalog/interviewTopicCatalog'
+import { getCatalogTopicsForDomains } from '@/server/api/interviews/catalog/interviewTopicCatalog'
 import { getCurriculumInterviewTopics } from '@/server/api/interviews/services/getCurriculumInterviewTopics.service'
-import { resolveInterviewDomain } from '@/server/api/interviews/services/resolveInterviewDomain'
+import { resolveInterviewDomains } from '@/server/api/interviews/services/resolveInterviewDomain'
 import type { InterviewTopicsForUser } from '@/server/api/interviews/types/interviewSession'
 
 /**
@@ -12,12 +12,13 @@ import type { InterviewTopicsForUser } from '@/server/api/interviews/types/inter
 export async function getInterviewTopicsForUser(
   userId: number,
 ): Promise<InterviewTopicsForUser> {
-  const domain = await resolveInterviewDomain(userId)
-  const catalogTopics = getCatalogTopicsForDomain(domain)
+  const domains = await resolveInterviewDomains(userId)
+  const catalogTopics = getCatalogTopicsForDomains(domains)
   const curriculumTopics = await getCurriculumInterviewTopics(
     userId,
+    domains[0] ?? 'general',
     catalogTopics,
   )
 
-  return { domain, catalogTopics, curriculumTopics }
+  return { domains, catalogTopics, curriculumTopics }
 }

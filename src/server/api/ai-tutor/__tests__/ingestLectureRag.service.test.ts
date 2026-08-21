@@ -23,13 +23,20 @@ vi.mock('@/server/api/ai-tutor/services/lectureRagContent.service', () => ({
   getLectureRagContent: hoisted.getLectureRagContent,
 }))
 
-vi.mock('@/server/api/ai-tutor/services/generateLectureNotesTocFromMarkdown', () => ({
-  generateLectureNotesTocFromMarkdown: hoisted.generateLectureNotesTocFromMarkdown,
-}))
+vi.mock(
+  '@/server/api/ai-tutor/services/generateLectureNotesTocFromMarkdown',
+  () => ({
+    generateLectureNotesTocFromMarkdown:
+      hoisted.generateLectureNotesTocFromMarkdown,
+  }),
+)
 
-vi.mock('@/server/api/ai-tutor/services/lectureNotesTocStorage.service', () => ({
-  saveLectureNotesRagStatus: hoisted.saveLectureNotesRagStatus,
-}))
+vi.mock(
+  '@/server/api/ai-tutor/services/lectureNotesTocStorage.service',
+  () => ({
+    saveLectureNotesRagStatus: hoisted.saveLectureNotesRagStatus,
+  }),
+)
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -79,7 +86,9 @@ describe('ingestLectureRag', () => {
       batchId: 4,
       sectionId: 5,
     })
-    hoisted.generateLectureNotesTocFromMarkdown.mockResolvedValueOnce('- Topic A')
+    hoisted.generateLectureNotesTocFromMarkdown.mockResolvedValueOnce(
+      '- Topic A',
+    )
     hoisted.ingestRagText.mockResolvedValueOnce({
       job_id: 'job-notes',
       status: 'PENDING',
@@ -88,13 +97,17 @@ describe('ingestLectureRag', () => {
     const { ingestLectureRag } = await import('../ingestLectureRag.service')
     const result = await ingestLectureRag(12)
 
-    expect(hoisted.generateLectureNotesTocFromMarkdown).toHaveBeenCalledWith(notes)
+    expect(hoisted.generateLectureNotesTocFromMarkdown).toHaveBeenCalledWith(
+      notes,
+    )
     expect(hoisted.saveLectureNotesRagStatus).toHaveBeenCalledWith({
       lectureId: 12,
       notesRagged: true,
       notesToc: '- Topic A',
     })
-    expect(hoisted.ensureRagCollection).toHaveBeenCalledWith('student-lms-ai-tutor')
+    expect(hoisted.ensureRagCollection).toHaveBeenCalledWith(
+      'student-lms-ai-tutor',
+    )
     expect(result).toEqual({
       lectureId: 12,
       notesRagged: true,

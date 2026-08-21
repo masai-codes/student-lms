@@ -13,7 +13,7 @@ import {
  * LMS and experience-api read and write, so the two systems stay in sync. There
  * is no dedicated table.
  */
-export const EMAIL_NOTIFICATIONS_META_KEY = 'email_notifications'
+const EMAIL_NOTIFICATIONS_META_KEY = 'email_notifications'
 
 /** Everything is opt-out: an absent key means the student gets that email. */
 function defaultPreferences(): EmailPreferences {

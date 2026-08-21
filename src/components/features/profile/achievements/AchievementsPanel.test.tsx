@@ -94,16 +94,20 @@ describe('AchievementsPanel', () => {
     renderPanel()
 
     await waitFor(() =>
-      expect(
-        screen.getByTestId('profile-achievements-total').textContent,
-      ).toBe('2'),
+      expect(screen.getByTestId('profile-achievements-total').textContent).toBe(
+        '2',
+      ),
     )
   })
 
   it('groups by programme and switches module lists on programme change', async () => {
     hoisted.fetchAchievements.mockResolvedValue({
       achievements: [
-        badge({ badgeConfigId: 100, courseTitle: 'A', sectionModuleName: 'M1' }),
+        badge({
+          badgeConfigId: 100,
+          courseTitle: 'A',
+          sectionModuleName: 'M1',
+        }),
         badge({
           badgeConfigId: 101,
           courseTitle: 'B',
@@ -155,7 +159,12 @@ describe('AchievementsPanel', () => {
   it('sorts locked badges last and marks them as locked', async () => {
     hoisted.fetchAchievements.mockResolvedValue({
       achievements: [
-        badge({ badgeConfigId: 100, isLocked: true, count: 0, releaseDate: null }),
+        badge({
+          badgeConfigId: 100,
+          isLocked: true,
+          count: 0,
+          releaseDate: null,
+        }),
         badge({ badgeConfigId: 101 }),
       ],
       shareBaseUrl: null,
@@ -163,7 +172,9 @@ describe('AchievementsPanel', () => {
     renderPanel()
 
     await waitFor(() =>
-      expect(screen.getAllByTestId('profile-achievement-badge')).toHaveLength(2),
+      expect(screen.getAllByTestId('profile-achievement-badge')).toHaveLength(
+        2,
+      ),
     )
     const tiles = screen.getAllByTestId('profile-achievement-badge')
     expect(tiles[0].getAttribute('data-locked')).toBe('false')
@@ -178,9 +189,9 @@ describe('AchievementsPanel', () => {
     renderPanel()
 
     await waitFor(() =>
-      expect(
-        screen.getByTestId('profile-achievement-count').textContent,
-      ).toBe('x3'),
+      expect(screen.getByTestId('profile-achievement-count').textContent).toBe(
+        'x3',
+      ),
     )
   })
 

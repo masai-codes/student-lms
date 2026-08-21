@@ -119,6 +119,7 @@ export async function seedDiscussionsCancelledEnrollment(): Promise<SeedFlowResu
     program: 'Data Science',
     duration: '24 weeks',
     starting: formatMysqlDate(offsetFromNow({ daysAgo: 7 })),
+    meta: { interviews: ['data-science'] },
   })
 
   const secondSection = await createSection({

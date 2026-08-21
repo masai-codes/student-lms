@@ -7,6 +7,9 @@ import {
 export type CreateSessionRequest = {
   topicId: string
   language: AiTutorChatLanguage
+  /** Client-chosen subtopic subset from the "customize" drawer — optional,
+   * absent/empty means "use the topic's full subtopic list". */
+  subtopics?: Array<string>
 }
 
 /**
@@ -20,6 +23,7 @@ export async function parseCreateSessionRequest(
   const body = (await request.json().catch(() => null)) as {
     topicId?: unknown
     language?: unknown
+    subtopics?: unknown
   } | null
 
   const topicId = typeof body?.topicId === 'string' ? body.topicId.trim() : ''
@@ -27,5 +31,11 @@ export async function parseCreateSessionRequest(
 
   const language = parseChatLanguage(body?.language)
 
-  return { topicId, language }
+  const subtopics = Array.isArray(body?.subtopics)
+    ? body.subtopics.filter(
+        (subtopic): subtopic is string => typeof subtopic === 'string',
+      )
+    : undefined
+
+  return { topicId, language, subtopics }
 }

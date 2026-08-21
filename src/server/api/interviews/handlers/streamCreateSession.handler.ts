@@ -11,8 +11,9 @@ import {
   type CreateInterviewSessionStreamEvent,
 } from '@/server/api/interviews/services/interviewSession.service'
 
-export type CreateInterviewSessionSseEvent =
-  CreateInterviewSessionStreamEvent | { type: 'error'; code: string }
+type CreateInterviewSessionSseEvent =
+  | CreateInterviewSessionStreamEvent
+  | { type: 'error'; code: string }
 
 /**
  * Turns any error the generator throws — including ones discovered deep
@@ -40,9 +41,15 @@ export async function handleStreamCreateInterviewSession(
 ): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
-    const { topicId, language } = await parseCreateSessionRequest(request)
+    const { topicId, language, subtopics } =
+      await parseCreateSessionRequest(request)
 
-    const generator = createInterviewSessionStream(userId, topicId, language)
+    const generator = createInterviewSessionStream(
+      userId,
+      topicId,
+      language,
+      subtopics,
+    )
 
     // Pull the first value before committing to the SSE response: the
     // generator's daily-limit/topic validation runs before its first `yield`,

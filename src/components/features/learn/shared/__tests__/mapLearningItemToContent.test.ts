@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { mapLearningItemToContent } from '../mapLearningItemToContent'
+import type { LearningItem } from '@/server/learn/types'
+
 vi.mock('@/utils/timeZoneHandler', () => ({
   formatScheduleRangeLocal: (start: string | null) =>
     start ? `local:${start}` : '',
   formatScheduleRangeIST: (start: string | null) =>
     start ? `ist:${start}` : '',
 }))
-
-import { mapLearningItemToContent } from '../mapLearningItemToContent'
-import type { LearningItem } from '@/server/learn/types'
 
 function learningItem(overrides: Partial<LearningItem> = {}): LearningItem {
   return {

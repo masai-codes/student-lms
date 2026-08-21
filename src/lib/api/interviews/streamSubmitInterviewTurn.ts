@@ -4,7 +4,7 @@ import { createSseFrameBuffer } from '@/lib/api/sse/sseFrameBuffer'
 import type { SubmitInterviewTurnResult } from '@/server/api/interviews/services/submitInterviewTurn.service'
 
 /** Wire events emitted by `POST /api/interviews/sessions/$sessionId/turns/stream`. */
-export type InterviewTurnStreamEvent =
+type InterviewTurnStreamEvent =
   | { type: 'audio-delta'; data: string }
   | { type: 'question-text'; text: string; kind: 'advance' | 'follow_up' }
   | { type: 'done'; result: SubmitInterviewTurnResult }

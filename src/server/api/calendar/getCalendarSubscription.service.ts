@@ -26,7 +26,8 @@ export async function getCalendarSubscriptionLink(
     .limit(1)
 
   const existing = rows.at(0)
-  if (!existing) throw new Error('SERVER_ERROR_FETCHING_CALENDAR_SUBSCRIPTION_LINK')
+  if (!existing)
+    throw new Error('SERVER_ERROR_FETCHING_CALENDAR_SUBSCRIPTION_LINK')
 
   const meta = (existing.meta ?? {}) as Record<string, unknown>
   let token = meta[CALENDAR_TOKEN_META_KEY]

@@ -12,7 +12,7 @@ import { IST_OFFSET_MS } from '@/server/learn/utils/learnListingConstants'
  * `att_window_over` badge when its section counts recording watch-time toward
  * attendance AND the catch-up window has already closed. That decision is
  * normally made in JS (`computeCatchUpWindow` → `buildLectureAttendanceSummary`
- * → `getListingAttendanceRender`), reading the section's JSON settings. The
+ * → `getLectureAttendanceRender`), reading the section's JSON settings. The
  * `absent` listing filter has to reproduce it in SQL so these cards are matched
  * and paginated correctly instead of being dropped.
  *

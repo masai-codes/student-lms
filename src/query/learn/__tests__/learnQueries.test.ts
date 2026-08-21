@@ -39,4 +39,15 @@ describe('LEARN_KEYS.page', () => {
     expect(unfiltered).not.toEqual(liveOnly)
     expect(liveOnly).not.toEqual(livePresent)
   })
+
+  it('produces different keys when the section filter changes', () => {
+    const base = { batchId: 1, learningType: 'lecture' as const, page: 1 }
+
+    const anySection = LEARN_KEYS.page(base)
+    const oneSection = LEARN_KEYS.page({ ...base, sectionId: 5 })
+    const otherSection = LEARN_KEYS.page({ ...base, sectionId: 6 })
+
+    expect(anySection).not.toEqual(oneSection)
+    expect(oneSection).not.toEqual(otherSection)
+  })
 })

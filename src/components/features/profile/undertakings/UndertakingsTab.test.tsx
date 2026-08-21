@@ -162,7 +162,10 @@ describe('UndertakingsTab', () => {
   it('offers a retry with the real reason when location is denied', async () => {
     hoisted.fetchUndertakings.mockResolvedValue([undertaking()])
     hoisted.captureSigningContext.mockRejectedValue(
-      new SigningContextError('PERMISSION_DENIED', 'Location access was blocked.'),
+      new SigningContextError(
+        'PERMISSION_DENIED',
+        'Location access was blocked.',
+      ),
     )
     renderTab()
     await openFirstUndertaking()

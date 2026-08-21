@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { CertificateCard, CertificateViewModal } from './CertificateCard'
 import type { CertificateCardData } from './CertificateCard'
@@ -17,7 +23,8 @@ function certificate(
     certificateObjectId: 'obj-1',
     code: null,
     pdfUrl: null,
-    verificationUrl: 'https://verification.masaischool.com/certificate/tvCdrL9pXW',
+    verificationUrl:
+      'https://verification.masaischool.com/certificate/tvCdrL9pXW',
     certificateTitle: 'Certificate for Event Participation',
     certificateType: 'Course Completion',
     issuedDateIso: '2026-02-01T00:00:00.000Z',
@@ -121,7 +128,8 @@ describe('CertificateCard', () => {
   it('never iframes a non-URL verification value', () => {
     // The legacy pipeline used to supply `share_text` here.
     renderCard({
-      verificationUrl: "Excited to share that I've completed my certification 🎓",
+      verificationUrl:
+        "Excited to share that I've completed my certification 🎓",
       pdfUrl: null,
     })
     expect(viewBtn().disabled).toBe(true)

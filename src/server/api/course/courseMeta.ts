@@ -21,7 +21,7 @@ export function asRecord(v: unknown): Record<string, unknown> {
 }
 
 /** Programs with no `meta.instituteName` are Masai's own. */
-export const DEFAULT_INSTITUTE_NAME = 'Masai'
+const DEFAULT_INSTITUTE_NAME = 'Masai'
 
 export function resolveCourseTitle(
   meta: Record<string, unknown>,
@@ -37,7 +37,9 @@ export function resolveInstituteName(meta: Record<string, unknown>): string {
   )
 }
 
-export function resolveCourseLogo(meta: Record<string, unknown>): string | null {
+export function resolveCourseLogo(
+  meta: Record<string, unknown>,
+): string | null {
   return str(meta.courseLogo).trim() || null
 }
 

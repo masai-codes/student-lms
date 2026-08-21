@@ -45,18 +45,17 @@ function mountTarget(left: number, top = 20) {
 }
 
 function moveTarget(el: HTMLElement, left: number, top: number) {
-  el.getBoundingClientRect = () =>
-    ({
-      top,
-      left,
-      width: TOGGLE.width,
-      height: TOGGLE.height,
-      right: left + TOGGLE.width,
-      bottom: top + TOGGLE.height,
-      x: left,
-      y: top,
-      toJSON: () => ({}),
-    }) as DOMRect
+  el.getBoundingClientRect = () => ({
+    top,
+    left,
+    width: TOGGLE.width,
+    height: TOGGLE.height,
+    right: left + TOGGLE.width,
+    bottom: top + TOGGLE.height,
+    x: left,
+    y: top,
+    toJSON: () => ({}),
+  })
 }
 
 /** Runs the tour's rAF tracking loop for a few frames. */
@@ -69,7 +68,9 @@ async function flushFrames(count = 3) {
 }
 
 function popover() {
-  return screen.getByTestId('try-new-tour').querySelector<HTMLElement>('div + div')!
+  return screen
+    .getByTestId('try-new-tour')
+    .querySelector<HTMLElement>('div + div')!
 }
 
 function spotlight() {
@@ -78,8 +79,7 @@ function spotlight() {
 
 const px = (value: string) => Number.parseFloat(value)
 /** Centre of the popover, in viewport px. */
-const centreOf = (el: HTMLElement) =>
-  px(el.style.left) + px(el.style.width) / 2
+const centreOf = (el: HTMLElement) => px(el.style.left) + px(el.style.width) / 2
 
 beforeEach(() => {
   window.innerWidth = VIEWPORT_WIDTH
@@ -129,7 +129,10 @@ describe('TryNewTour', () => {
     expect(spotlight().className).toContain('dark:[--tour-scrim:')
 
     // Popover sits below the spotlight.
-    expect(px(popover().style.top)).toBeCloseTo(20 - 8 + TOGGLE.height + 16 + 12, 0)
+    expect(px(popover().style.top)).toBeCloseTo(
+      20 - 8 + TOGGLE.height + 16 + 12,
+      0,
+    )
 
     // The navbar reflows around the toggle after mount (lecture banner, async
     // nav icons) — the highlight has to follow instead of staying where the

@@ -3,9 +3,9 @@ import type {
   LectureRecordingStatus,
   LectureSupportSnapshot,
 } from '@/server/api/support/support.types'
-import { getAttendanceStatusLabels } from '@/lib/lecture-attendance/attendanceStatusLabels'
 import { formatCatchUpRemainingLabel } from '@/lib/lecture-attendance/formatCatchUpRemainingLabel'
-import { getListingAttendanceRender } from '@/lib/lecture-attendance/getListingAttendanceRender'
+import { getLectureAttendanceRender } from '@/lib/lecture-attendance/getLectureAttendanceRender'
+import { LECTURE_ATTENDANCE_STATUS_META } from '@/lib/lecture-attendance/lectureAttendanceStatus'
 import type { ListingAttendanceVisibleState } from '@/lib/lecture-attendance/types'
 
 export function formatRecordingStatusLabel(
@@ -85,10 +85,7 @@ export function getSupportAttendancePresentation(
   colorClass: string
   showAbsentReason: boolean
   absentReason: string | null
-  /**
-   * Whether this is a hard "absent" (vs pending / N/A). Callers style off this
-   * instead of comparing `label`, which is portal-dependent wording.
-   */
+  /** Whether this is a hard "absent" (vs pending / N/A). */
   isAbsent: boolean
 } {
   if (!snapshot.showAttendance) {
@@ -101,11 +98,10 @@ export function getSupportAttendancePresentation(
     }
   }
 
-  const labels = getAttendanceStatusLabels()
-  const render = getListingAttendanceRender(snapshot.attendance)
+  const render = getLectureAttendanceRender(snapshot.attendance)
   if (render.uiState === 'present') {
     return {
-      label: labels.present,
+      label: LECTURE_ATTENDANCE_STATUS_META.present.label,
       colorClass: 'text-[#0E9F6E] dark:text-success',
       showAbsentReason: false,
       absentReason: null,
@@ -120,7 +116,9 @@ export function getSupportAttendancePresentation(
   ) {
     const isPending = render.uiState === 'continue_watching'
     return {
-      label: isPending ? 'Pending' : labels.absent,
+      label: isPending
+        ? 'Pending'
+        : LECTURE_ATTENDANCE_STATUS_META.absent.label,
       colorClass: isPending
         ? 'text-[#62647d] dark:text-foreground-muted'
         : 'text-[#ef4444] dark:text-danger',
@@ -141,7 +139,7 @@ export function getSupportAttendancePresentation(
 
 /**
  * Catch-up countdown for the support snapshot — mirrors the lecture detail header
- * (`getListingAttendanceRender` + `formatCatchUpRemainingLabel`).
+ * (`getLectureAttendanceRender` + `formatCatchUpRemainingLabel`).
  */
 export function getSupportCatchUpPresentation(
   snapshot: LectureSupportSnapshot,
@@ -152,7 +150,7 @@ export function getSupportCatchUpPresentation(
     return { label: 'N/A' }
   }
 
-  const render = getListingAttendanceRender(snapshot.attendance)
+  const render = getLectureAttendanceRender(snapshot.attendance)
 
   if (render.uiState === 'att_window_over') {
     return { label: 'Closed' }

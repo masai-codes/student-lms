@@ -13,7 +13,7 @@ import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrol
 import { hasCompletedAppDownload } from '@/server/devices/hasCompletedAppDownload'
 import type { T0FlowLecturesResult } from './getT0FlowLectures.service'
 
-export interface GuidedTourTabProgress {
+interface GuidedTourTabProgress {
   completed: number
   total: number
   /** Complete on any platform (live web progress combined with stored app fraction). */

@@ -171,7 +171,7 @@ export interface TicketMessage {
 }
 
 /** The status banner shown at the top of a conversation. */
-export interface TicketStatusResponse {
+interface TicketStatusResponse {
   heading: string
   message: string
   createdAt?: string | null
@@ -260,6 +260,8 @@ export interface FloatingChatInbox {
   batchContacts: Record<number, { text: string | null; phone: string | null }>
   /** 1:1 booking grouped by batch (empty when none — hides the 1:1 tab). */
   oneOnOne: Array<OneOnOneBatchGroup>
+  /** `users.client === 'iitj'` — drives iitj-specific category chip copy. */
+  isIitj: boolean
 }
 
 export type LectureRecordingStatus = 'available' | 'not_available'

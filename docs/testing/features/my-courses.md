@@ -15,10 +15,10 @@ are dead — is in `docs/my-courses-listing-migration.md`.
 Two aliases redirect to it (`replace`, search params preserved) so no stale link
 404s:
 
-| Path | Why it exists |
-| --- | --- |
-| `/my-programs` | The page. |
-| `/my-courses` | The working name during the rebuild; still what `legacyPathMap` and any early bookmark use. |
+| Path           | Why it exists                                                                                                                                                                                                                                                   |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/my-programs` | The page.                                                                                                                                                                                                                                                       |
+| `/my-courses`  | The working name during the rebuild; still what `legacyPathMap` and any early bookmark use.                                                                                                                                                                     |
 | `/my-lectures` | The OLD LMS's path for this page. Only reached here if someone swaps the domain on a legacy link — the outbound hand-off for opted-out students happens earlier, in the protected layout's `beforeLoad`, and targets the old app's origin, so there is no loop. |
 
 Deep links under the aliases (`/my-lectures/batchId/123`) are **not** caught —
@@ -59,18 +59,18 @@ and the cancelled list collapsing past 3 entries so it can't bury active program
 
 ## Test files
 
-| File | Covers |
-| --- | --- |
-| `src/server/api/course/__tests__/courseMeta.test.ts` | Shared meta readers + `computeCourseProgress`: ordering-independence, 0/100 clamps and boundaries, no-timeline / single-milestone / zero-span / unparseable-date → 0, title & institute fallbacks, timeline key aliases |
-| `src/server/api/courses/__tests__/getMyCourses.service.test.ts` | Newest-first ordering, meta fallbacks, cancelled list + date, batch in both lists shown only under cancelled, restriction rows for never-enrolled batches ignored, paused/agreement-banned not treated as cancelled, missing/soft-deleted batch rows dropped, no-programs short-circuit |
-| `src/server/api/courses/__tests__/getMyCourses.handler.test.ts` | 200 shape, 401 passthrough, unexpected failure → `SERVER_ERROR_FETCHING_MY_COURSES` (500) |
-| `src/lib/api/courses/coursesApi.test.ts` | `fetchMyCourses` hits `/api/courses` |
-| `src/utils/formatRestrictionDate.test.ts` | IST wall-clock (no drift), wall-clock with time, UTC instant on the IST calendar incl. the day-rollover case, blank/null/undefined/unparseable → `null` |
-| `src/components/features/my-courses/MyCourseCard.test.tsx` | Content render, whole-card link to `/course/$batchId`, accessible progressbar, GTM payload, inert card when `showBatchDetails` is false (and no event fired), logo fallback for null src **and** `onError`, 0% bar |
-| `src/components/features/my-courses/CancelledCoursesSection.test.tsx` | Hidden when empty, uncollapsed below threshold, collapse + expand + re-collapse with GTM on each transition, date omitted when missing/unparseable, greyed logo, fallback tile |
-| `src/components/features/my-courses/MyCoursesPage.test.tsx` | Skeleton → grid, mixed linked/inert cards, empty state, cancelled-only (no empty state), cancelled section hidden when none, error state |
-| `src/routes/(protected)/_layout/__tests__/programListingAliases.test.ts` | `/my-courses` and `/my-lectures` each redirect to `/my-programs` with `replace` and preserved search params; `/my-programs` itself serves the page with no loader |
-| `src/utils/legacyPathMap.test.ts`, `src/utils/__tests__/legacyPathMap.test.ts` | `/my-programs[/…]` and the `/my-courses[/…]` alias both hand off to the old LMS's `/my-lectures[/…]`; near-miss paths (`/my-programs-archive`, `/my-coursesx`) are left alone |
+| File                                                                           | Covers                                                                                                                                                                                                                                                                                  |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/server/api/course/__tests__/courseMeta.test.ts`                           | Shared meta readers + `computeCourseProgress`: ordering-independence, 0/100 clamps and boundaries, no-timeline / single-milestone / zero-span / unparseable-date → 0, title & institute fallbacks, timeline key aliases                                                                 |
+| `src/server/api/courses/__tests__/getMyCourses.service.test.ts`                | Newest-first ordering, meta fallbacks, cancelled list + date, batch in both lists shown only under cancelled, restriction rows for never-enrolled batches ignored, paused/agreement-banned not treated as cancelled, missing/soft-deleted batch rows dropped, no-programs short-circuit |
+| `src/server/api/courses/__tests__/getMyCourses.handler.test.ts`                | 200 shape, 401 passthrough, unexpected failure → `SERVER_ERROR_FETCHING_MY_COURSES` (500)                                                                                                                                                                                               |
+| `src/lib/api/courses/coursesApi.test.ts`                                       | `fetchMyCourses` hits `/api/courses`                                                                                                                                                                                                                                                    |
+| `src/utils/formatRestrictionDate.test.ts`                                      | IST wall-clock (no drift), wall-clock with time, UTC instant on the IST calendar incl. the day-rollover case, blank/null/undefined/unparseable → `null`                                                                                                                                 |
+| `src/components/features/my-courses/MyCourseCard.test.tsx`                     | Content render, whole-card link to `/course/$batchId`, accessible progressbar, GTM payload, inert card when `showBatchDetails` is false (and no event fired), logo fallback for null src **and** `onError`, 0% bar                                                                      |
+| `src/components/features/my-courses/CancelledCoursesSection.test.tsx`          | Hidden when empty, uncollapsed below threshold, collapse + expand + re-collapse with GTM on each transition, date omitted when missing/unparseable, greyed logo, fallback tile                                                                                                          |
+| `src/components/features/my-courses/MyCoursesPage.test.tsx`                    | Skeleton → grid, mixed linked/inert cards, empty state, cancelled-only (no empty state), cancelled section hidden when none, error state                                                                                                                                                |
+| `src/routes/(protected)/_layout/__tests__/programListingAliases.test.ts`       | `/my-courses` and `/my-lectures` each redirect to `/my-programs` with `replace` and preserved search params; `/my-programs` itself serves the page with no loader                                                                                                                       |
+| `src/utils/legacyPathMap.test.ts`, `src/utils/__tests__/legacyPathMap.test.ts` | `/my-programs[/…]` and the `/my-courses[/…]` alias both hand off to the old LMS's `/my-lectures[/…]`; near-miss paths (`/my-programs-archive`, `/my-coursesx`) are left alone                                                                                                           |
 
 ## Commands
 

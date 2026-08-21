@@ -4,11 +4,9 @@ import {
   portalHasChat,
   portalHasMasaiLivePromo,
   portalHasMobileApp,
-  portalHasSupport,
   portalShowsAttendanceDisclaimerBanner,
   portalShowsCatchUpCountdown,
   portalShowsSectionOnLearnCard,
-  portalUsesWatchedAttendanceWording,
 } from '@/utils/portalCapabilities'
 
 /**
@@ -35,11 +33,6 @@ export function isMasaiPortal(): boolean {
   return getAppOrigin() === 'masai'
 }
 
-/** Whether the app is currently running on the IIT Jodhpur portal. */
-export function isIITJPortal(): boolean {
-  return getAppOrigin() === 'iitj'
-}
-
 /**
  * Whether the current portal hides the Masai-only surfaces (MasaiVerse, Refer &
  * Earn, guided-tour icon, LevelUp, Practice Interviews, LMS support, Download
@@ -60,17 +53,6 @@ export function hidesMasaiOnlyFeatures(): boolean {
  */
 export function isChatPortal(): boolean {
   return portalHasChat(getAppOrigin())
-}
-
-/**
- * Whether the Support surface is available on the portal we're running on —
- * gates the navbar "Support" tab and the mobile tab bar's Support entry. IIT
- * Jodhpur runs its own support channel and hides it. The allowlist lives in
- * `SUPPORT_PORTALS` (`@/utils/portalCapabilities`) — add or remove portals
- * there, not here.
- */
-export function isSupportPortal(): boolean {
-  return portalHasSupport(getAppOrigin())
 }
 
 /**
@@ -99,16 +81,6 @@ export function isMobileAppPortal(): boolean {
  */
 export function showsSectionOnLearnCard(): boolean {
   return portalShowsSectionOnLearnCard(getAppOrigin())
-}
-
-/**
- * Whether lecture attendance reads as watch progress ("Watched" / "Not
- * Watched") instead of presence ("Present" / "Absent") on the portal we're
- * running on — IIT Jodhpur only. The allowlist lives in
- * `WATCHED_ATTENDANCE_WORDING_PORTALS` (`@/utils/portalCapabilities`).
- */
-export function usesWatchedAttendanceWording(): boolean {
-  return portalUsesWatchedAttendanceWording(getAppOrigin())
 }
 
 /**

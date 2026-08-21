@@ -100,14 +100,18 @@ describe('MyCoursesPage', () => {
 
     await screen.findByTestId('my-courses-card-10')
 
-    expect(screen.getByTestId('my-courses-card-10').getAttribute('data-to')).toBe(
-      '/course/$batchId',
-    )
+    expect(
+      screen.getByTestId('my-courses-card-10').getAttribute('data-to'),
+    ).toBe('/course/$batchId')
     expect(screen.getByTestId('my-courses-card-20').tagName).toBe('DIV')
   })
 
   it('shows the empty state when there are no programs at all', async () => {
-    hoisted.fetchMyCourses.mockResolvedValue({ active: [], paused: [], cancelled: [] })
+    hoisted.fetchMyCourses.mockResolvedValue({
+      active: [],
+      paused: [],
+      cancelled: [],
+    })
     renderPage()
 
     await screen.findByTestId('my-courses-empty-state')

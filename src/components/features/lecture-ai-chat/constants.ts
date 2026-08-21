@@ -5,15 +5,7 @@
  */
 export const LECTURE_AI_CHAT_MAX_MESSAGE_LENGTH = 4_000
 
-export type LectureAiChatSuggestionKind = 'summary' | 'explain' | 'quiz'
-
-export type LectureAiChatSuggestion = {
-  kind: LectureAiChatSuggestionKind
-  label: string
-}
-
-export const LECTURE_AI_CHAT_SUGGESTIONS: Array<LectureAiChatSuggestion> = [
-  { kind: 'summary', label: 'Summarize the key points of this lecture' },
-  { kind: 'explain', label: 'What are the core concepts I should understand?' },
-  { kind: 'quiz', label: 'Quiz me on this lecture' },
-]
+export type {
+  LectureAiChatSuggestion,
+  LectureAiChatSuggestionKind,
+} from '@/server/learn/utils/buildLectureAiChatSuggestions'

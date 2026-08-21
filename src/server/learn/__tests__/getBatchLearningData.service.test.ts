@@ -335,7 +335,7 @@ describe('getBatchLearningData service (section label)', () => {
     })
 
     const result = await getBatchLearningData(
-      { batchId: 4, learningType: 'lecture' } as GetBatchLearningDataInput,
+      { batchId: 4, learningType: 'lecture' },
       7,
     )
 
@@ -354,7 +354,7 @@ describe('getBatchLearningData service (section label)', () => {
     })
 
     const result = await getBatchLearningData(
-      { batchId: 4, learningType: 'lecture' } as GetBatchLearningDataInput,
+      { batchId: 4, learningType: 'lecture' },
       7,
     )
 

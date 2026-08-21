@@ -1,5 +1,3 @@
-import type { CreateInterviewSessionResult } from '@/server/api/interviews/services/interviewSession.service'
-import type { SubmitInterviewTurnResult } from '@/server/api/interviews/services/submitInterviewTurn.service'
 import type {
   InterviewSession,
   InterviewSessionSummary,
@@ -18,17 +16,6 @@ export async function fetchInterviewSessions(): Promise<
   return fetchJson<Array<InterviewSessionSummary>>(INTERVIEWS_API.sessions)
 }
 
-export async function createInterviewSession(
-  topicId: string,
-  language: string,
-): Promise<CreateInterviewSessionResult> {
-  return fetchJson<CreateInterviewSessionResult>(INTERVIEWS_API.createSession, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topicId, language }),
-  })
-}
-
 export async function fetchInterviewSession(
   sessionId: number | string,
 ): Promise<InterviewSession> {
@@ -36,24 +23,8 @@ export async function fetchInterviewSession(
 }
 
 export type SubmitInterviewAnswerInput =
-  { kind: 'typed'; text: string } | { kind: 'transcribed'; text: string }
-
-export async function submitInterviewTurn(
-  sessionId: number | string,
-  answer: SubmitInterviewAnswerInput,
-): Promise<SubmitInterviewTurnResult> {
-  const form = new FormData()
-  if (answer.kind === 'transcribed') {
-    form.append('transcribedAnswer', answer.text)
-  } else {
-    form.append('typedAnswer', answer.text)
-  }
-
-  return fetchJson<SubmitInterviewTurnResult>(
-    INTERVIEWS_API.submitTurn(sessionId),
-    { method: 'POST', body: form },
-  )
-}
+  | { kind: 'typed'; text: string }
+  | { kind: 'transcribed'; text: string }
 
 export type InterviewSttToken = {
   clientSecret: string

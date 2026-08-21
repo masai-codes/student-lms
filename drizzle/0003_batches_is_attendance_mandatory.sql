@@ -1,0 +1,1 @@
+ALTER TABLE `batches` ADD `is_attendance_mandatory` tinyint DEFAULT 0 NOT NULL;

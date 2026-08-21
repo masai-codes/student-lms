@@ -8,9 +8,9 @@ import {
 
 describe('asHttpUrl', () => {
   it('accepts absolute http(s) URLs', () => {
-    expect(asHttpUrl('https://verification.masaischool.com/certificate/abc')).toBe(
-      'https://verification.masaischool.com/certificate/abc',
-    )
+    expect(
+      asHttpUrl('https://verification.masaischool.com/certificate/abc'),
+    ).toBe('https://verification.masaischool.com/certificate/abc')
     expect(asHttpUrl('http://example.com/x')).toBe('http://example.com/x')
   })
 

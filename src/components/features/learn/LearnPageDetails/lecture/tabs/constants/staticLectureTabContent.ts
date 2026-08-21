@@ -42,7 +42,7 @@ export function resolveVisibleLectureDetailTabs(
   })
 }
 
-export const DEFAULT_LECTURE_TAB_ID: LectureDetailTabId = 'description'
+const DEFAULT_LECTURE_TAB_ID: LectureDetailTabId = 'description'
 
 /** First visible tab for the current visibility rules (avoids defaulting to a hidden tab). */
 export function resolveDefaultLectureTabId(

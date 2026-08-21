@@ -12,7 +12,7 @@ import {
   str,
 } from '@/server/api/course/courseMeta'
 
-export interface CoursePerson {
+interface CoursePerson {
   name: string
   designation: string
   avatarUrl: string | null

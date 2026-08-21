@@ -22,6 +22,13 @@
       "when": 1787134606613,
       "tag": "0002_feedback_classroom_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1787210052988,
+      "tag": "0003_batches_is_attendance_mandatory",
+      "breakpoints": true
     }
   ]
 }

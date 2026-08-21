@@ -12,9 +12,13 @@ describe('formatRestrictionDate', () => {
 
   it('renders a UTC instant on the IST calendar', () => {
     // 25 Jul 13:38 UTC is still 25 Jul in IST (+5:30).
-    expect(formatRestrictionDate('2026-07-25T13:38:18.991Z')).toBe('25 Jul 2026')
+    expect(formatRestrictionDate('2026-07-25T13:38:18.991Z')).toBe(
+      '25 Jul 2026',
+    )
     // 25 Jul 19:00 UTC is already 26 Jul in IST.
-    expect(formatRestrictionDate('2026-07-25T19:00:00.000Z')).toBe('26 Jul 2026')
+    expect(formatRestrictionDate('2026-07-25T19:00:00.000Z')).toBe(
+      '26 Jul 2026',
+    )
   })
 
   it('trims surrounding whitespace', () => {

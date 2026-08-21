@@ -23,6 +23,11 @@ interface ItemSelectorPagination {
   onPageChange: (page: number) => void
 }
 
+interface ItemSelectorSection {
+  sectionId: number
+  name: string
+}
+
 interface ItemSelectorProps {
   categoryObj: Category
   items: Item[]
@@ -34,6 +39,12 @@ interface ItemSelectorProps {
   isError?: boolean
   onRetry?: () => void
   pagination?: ItemSelectorPagination
+  /** Section (aka "Course") filter — opt-in per batch (`batches.meta.showSectionDropdown`). */
+  showSectionDropdown?: boolean
+  sections?: Array<ItemSelectorSection>
+  /** `null` when "All Courses" is active. */
+  selectedSectionId?: number | null
+  onSectionChange?: (sectionId: number | null) => void
   lectureTypeFilter?: string
   onLectureTypeChange?: (value: string) => void
   attendanceStatusFilter?: string
@@ -64,6 +75,10 @@ export function ItemSelector({
   isError = false,
   onRetry,
   pagination,
+  showSectionDropdown = false,
+  sections = [],
+  selectedSectionId = null,
+  onSectionChange,
   lectureTypeFilter,
   onLectureTypeChange,
   attendanceStatusFilter,
@@ -85,6 +100,13 @@ export function ItemSelector({
   const listRef = useRef<HTMLDivElement>(null)
   const showPagination =
     pagination != null && (pagination.hasPreviousPage || pagination.hasNextPage)
+  // Falls back to "All Courses" for a stale/unknown section id (e.g. right
+  // after a batch switch, before the caller clears it).
+  const sectionValue =
+    selectedSectionId != null &&
+    sections.some((section) => section.sectionId === selectedSectionId)
+      ? selectedSectionId.toString()
+      : 'any'
 
   useEffect(() => {
     if (pagination == null) return
@@ -106,6 +128,33 @@ export function ItemSelector({
           className="flex-1 bg-transparent outline-none border-none text-[13.6px] text-[#15162c] dark:text-foreground placeholder:text-[#9496ab] dark:placeholder:text-foreground-subtle font-[inherit]"
         />
       </div>
+
+      {showSectionDropdown && onSectionChange && (
+        <div className="shrink-0 mb-1">
+          <Select
+            value={sectionValue}
+            onValueChange={(value) =>
+              onSectionChange(value === 'any' ? null : Number(value))
+            }
+            disabled={sections.length === 0}
+          >
+            <SelectTrigger className="h-[34px] w-full text-[13px] bg-[#f1f1f7] dark:bg-muted border-transparent hover:bg-[#e3e3fb] dark:hover:bg-brand/15 transition-colors rounded-[10px]">
+              <SelectValue placeholder="Course" />
+            </SelectTrigger>
+            <SelectContent className="z-[300]">
+              <SelectItem value="any">All Courses</SelectItem>
+              {sections.map((section) => (
+                <SelectItem
+                  key={section.sectionId}
+                  value={section.sectionId.toString()}
+                >
+                  {section.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {categoryObj.id === 'lecture' &&
         onLectureTypeChange &&

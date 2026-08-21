@@ -96,25 +96,6 @@ export function portalShowsSectionOnLearnCard(portal: AppOrigin): boolean {
 }
 
 /**
- * Portals that word lecture attendance as watch progress instead of presence:
- * Present → "Watched", and both Absent states ("Absent" / "Absent and Att.
- * Window Over") → "Not Watched". IIT Jodhpur students consume lectures as
- * recordings, so presence language misreads there; Masai and iHub keep the
- * Present/Absent wording.
- *
- * Only the wording changes — the underlying attendance state, colours and
- * icons are identical across portals.
- */
-export const WATCHED_ATTENDANCE_WORDING_PORTALS: ReadonlyArray<AppOrigin> = [
-  'iitj',
-]
-
-/** Whether attendance badges read "Watched"/"Not Watched" for `portal`. */
-export function portalUsesWatchedAttendanceWording(portal: AppOrigin): boolean {
-  return WATCHED_ATTENDANCE_WORDING_PORTALS.includes(portal)
-}
-
-/**
  * Portals that surface the catch-up countdown ("N days remaining") next to
  * lecture attendance badges, in the absent hover tooltip, and in the support
  * chat snapshot. IIT Jodhpur hides the countdown entirely — the window still

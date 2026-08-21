@@ -35,6 +35,7 @@ export const LEARN_KEYS = {
       input.search ?? '',
       input.page ?? 1,
       input.pageSize ?? null,
+      input.sectionId ?? null,
       serializeLearnPageFiltersKey(input.filters),
     ] as const,
 }
