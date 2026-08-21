@@ -1,10 +1,7 @@
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
-import type { InLecturePopupQuiz } from '@/server/learn/utils/parseLectureSettings'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
-
-export type { InLecturePopupQuiz }
 
 /**
  * A single in-lecture popup quiz element, sourced from `zef_lms_quiz`.
@@ -32,13 +29,23 @@ export type InLecturePopupPollElement = {
 
 /**
  * The lecture's `zef_lms_meta_data` row — the parent of its quiz/poll elements.
- * `scheduledAt` is the reference point for converting the elements' absolute
- * `startTimestamp` / `endTimestamp` into the video-relative show window.
+ * `effectiveScheduledAt`, falling back to `scheduledAt`, is the reference point
+ * for converting the elements' absolute `startTimestamp` / `endTimestamp` into
+ * the video-relative show window.
  */
-export type InLecturePopupMetaData = {
+type InLecturePopupMetaData = {
   id: number
   lectureId: number
+  /** The session's nominal start — when it was *meant* to begin. */
   scheduledAt: string | null
+  /**
+   * `meta.effectiveScheduledAt.value`: the recording-aware video t=0 ZEF syncs
+   * once the recording exists, already accounting for a late start and any
+   * leading trim. Null for lectures ZEF hasn't synced, where `scheduledAt` is
+   * the origin instead. Exposed so a consumer can tell which origin the
+   * `startSec` / `endSec` windows were measured from.
+   */
+  effectiveScheduledAt: string | null
   source: 'zef' | 'lms'
   createdAt: string | null
   updatedAt: string | null

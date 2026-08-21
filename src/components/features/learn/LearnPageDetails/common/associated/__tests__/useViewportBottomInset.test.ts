@@ -6,19 +6,18 @@ import { measureViewportBottomInset } from '../useViewportBottomInset'
 function mountWithRect(tag: string, rect: Partial<DOMRect>) {
   const element = document.createElement(tag)
   element.dataset.testid = 'chrome'
-  element.getBoundingClientRect = () =>
-    ({
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      width: 0,
-      height: 0,
-      x: 0,
-      y: 0,
-      toJSON: () => ({}),
-      ...rect,
-    }) as DOMRect
+  element.getBoundingClientRect = () => ({
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+    toJSON: () => ({}),
+    ...rect,
+  })
   document.body.appendChild(element)
   return element
 }

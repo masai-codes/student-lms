@@ -50,6 +50,7 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_FETCHING_ANNOUNCEMENTS':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_ENROLLED_BATCHES':
+      case 'SERVER_ERROR_FETCHING_MY_COURSES':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_BATCH_LEARNING_DATA':
         return jsonError(500, error.message)
@@ -60,6 +61,10 @@ export function mapThrownErrorToResponse(error: unknown): Response {
       case 'SERVER_ERROR_FETCHING_PRODUCT_UPDATES':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_DASHBOARD_SCHEDULE':
+        return jsonError(500, error.message)
+      case 'SERVER_ERROR_FETCHING_CALENDAR_EVENTS':
+      case 'SERVER_ERROR_FETCHING_CALENDAR_BATCHES':
+      case 'SERVER_ERROR_FETCHING_CALENDAR_SUBSCRIPTION_LINK':
         return jsonError(500, error.message)
       case 'SERVER_ERROR_FETCHING_DASHBOARD_BANNERS':
         return jsonError(500, error.message)

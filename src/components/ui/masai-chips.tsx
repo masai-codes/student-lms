@@ -3,6 +3,12 @@
 import * as React from 'react'
 import { cva } from 'class-variance-authority'
 import type { VariantProps } from 'class-variance-authority'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { useIsTextTruncated } from '@/hooks/useIsTextTruncated'
 import { cn } from '@/lib/utils'
 
 type MasaiChipsType = 'default' | 'left-icon' | 'right-icon' | 'icon-only'
@@ -17,7 +23,7 @@ const chipCustomPaletteBaseClassName =
   'focus-visible:ring-gray-400 disabled:border-border disabled:bg-surface-muted disabled:!text-foreground-subtle'
 
 const masaiChipsVariants = cva(
-  'inline-flex items-center justify-center rounded-[100px] border border-transparent outline-none transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none',
+  'inline-flex max-w-full items-center justify-center whitespace-nowrap rounded-[100px] border border-transparent outline-none transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none',
   {
     variants: {
       size: {
@@ -86,7 +92,14 @@ export function MasaiChips({
     !forceBrandPalette &&
     !!(backgroundClassName?.trim() || textClassName?.trim())
 
-  return (
+  // The chip sizes to its label and only ellipsizes when the row runs out of
+  // room, so the full text is revealed on hover exactly when it is hidden.
+  const showsLabel = type !== 'icon-only'
+  const [labelRef, isLabelTruncated] = useIsTextTruncated<HTMLSpanElement>(
+    showsLabel ? label : undefined,
+  )
+
+  const chip = (
     <button
       type={htmlType}
       className={cn(
@@ -101,11 +114,26 @@ export function MasaiChips({
       {...props}
     >
       {type === 'left-icon' ? <span className="shrink-0">{icon}</span> : null}
-      {type !== 'icon-only' ? label : null}
+      {showsLabel ? (
+        <span ref={labelRef} className="min-w-0 truncate">
+          {label}
+        </span>
+      ) : null}
       {type === 'right-icon' ? <span className="shrink-0">{icon}</span> : null}
       {type === 'icon-only' ? (
         <span className="size-4 shrink-0 [&_svg]:size-4">{icon}</span>
       ) : null}
     </button>
+  )
+
+  if (!showsLabel || !isLabelTruncated || !label) {
+    return chip
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{chip}</TooltipTrigger>
+      <TooltipContent className="max-w-xs">{label}</TooltipContent>
+    </Tooltip>
   )
 }

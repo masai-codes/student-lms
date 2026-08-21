@@ -64,6 +64,9 @@ export default function AppMobileTabBar() {
           className="size-6 shrink-0 text-current"
         />
       ),
+      // Both `/profile-settings` and `/profile` light the tab: the hub is the
+      // only way into the profile page on mobile, so they are one destination
+      // from the student's point of view.
       isActive:
         pathname.startsWith('/profile-settings') ||
         pathname.startsWith('/profile'),

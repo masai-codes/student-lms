@@ -106,7 +106,7 @@ export function installAppOriginFetchHeader(): void {
 
   const originalFetch = window.fetch.bind(window)
 
-  window.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+  window.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
     if (!isSameOriginRequest(input)) {
       return originalFetch(input, init)
     }
@@ -123,7 +123,7 @@ export function installAppOriginFetchHeader(): void {
       ...init,
       headers: withClientContextHeaders(init?.headers),
     })
-  }) as typeof fetch
+  }
 
   window.__masaiPatchedFetchForAppOrigin = true
 }

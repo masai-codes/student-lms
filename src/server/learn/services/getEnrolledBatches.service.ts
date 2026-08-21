@@ -10,7 +10,7 @@ import { mapEnrolledBatchRow } from '@/server/learn/utils/mapEnrolledBatchRow'
  * ENROLMENT FIRST.
  *
  * `getBatchIdsForEnrolledUser` returns oldest-enrolment-first and is shared with
- * surfaces that depend on that order (support directory, my-courses), so the
+ * surfaces that depend on that order (support directory, my-programs), so the
  * reversal lives here rather than in the shared query. Because the newest enrolment
  * is now index 0, the `[0]` fallbacks in `resolveSelectedBatchId` and the `/learn`
  * route also default to the student's latest course.

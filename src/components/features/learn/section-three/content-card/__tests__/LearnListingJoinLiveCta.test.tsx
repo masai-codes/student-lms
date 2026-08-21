@@ -36,7 +36,9 @@ vi.mock('../../../shared/learnAnalytics', () => ({
 const ZOOM = 'https://zoom.us/j/123'
 const CTA = 'learn-listing-join-live-cta'
 
-function setup(props: Partial<Parameters<typeof LearnListingJoinLiveCta>[0]> = {}) {
+function setup(
+  props: Partial<Parameters<typeof LearnListingJoinLiveCta>[0]> = {},
+) {
   return render(
     <LearnListingJoinLiveCta
       joinLive="active"
@@ -70,9 +72,16 @@ describe('LearnListingJoinLiveCta', () => {
     fireEvent.click(screen.getByTestId(CTA))
     expect(hoisted.pushLearnEvent).toHaveBeenCalledWith(
       'lecture_join_live_click_572',
-      expect.objectContaining({ join_method: 'zoom_link', source: 'learn_listing' }),
+      expect.objectContaining({
+        join_method: 'zoom_link',
+        source: 'learn_listing',
+      }),
     )
-    expect(hoisted.open).toHaveBeenCalledWith(ZOOM, '_blank', 'noopener,noreferrer')
+    expect(hoisted.open).toHaveBeenCalledWith(
+      ZOOM,
+      '_blank',
+      'noopener,noreferrer',
+    )
   })
 
   it('opens the old LMS embed when enableZoomWebView is on', () => {
@@ -96,11 +105,17 @@ describe('LearnListingJoinLiveCta', () => {
     hoisted.buildZoomWebViewUrl.mockReturnValue(null)
     setup({ enableZoomWebView: true })
     fireEvent.click(screen.getByTestId(CTA))
-    expect(hoisted.open).toHaveBeenCalledWith(ZOOM, '_blank', 'noopener,noreferrer')
+    expect(hoisted.open).toHaveBeenCalledWith(
+      ZOOM,
+      '_blank',
+      'noopener,noreferrer',
+    )
   })
 
   it('mints and opens the ZEF url, falling back to the raw link on failure', async () => {
-    hoisted.fetchUrl.mockResolvedValueOnce('https://zoom.masaischool.com/?token=x')
+    hoisted.fetchUrl.mockResolvedValueOnce(
+      'https://zoom.masaischool.com/?token=x',
+    )
     setup({ isNewZoomRedirection: true })
     fireEvent.click(screen.getByTestId(CTA))
     await waitFor(() =>
@@ -114,7 +129,11 @@ describe('LearnListingJoinLiveCta', () => {
     hoisted.fetchUrl.mockRejectedValueOnce(new Error('fail'))
     fireEvent.click(screen.getByTestId(CTA))
     await waitFor(() =>
-      expect(hoisted.open).toHaveBeenCalledWith(ZOOM, '_blank', 'noopener,noreferrer'),
+      expect(hoisted.open).toHaveBeenCalledWith(
+        ZOOM,
+        '_blank',
+        'noopener,noreferrer',
+      ),
     )
     expect(hoisted.toastError).toHaveBeenCalled()
   })
@@ -130,6 +149,10 @@ describe('LearnListingJoinLiveCta', () => {
     setup({ lectureId: undefined })
     fireEvent.click(screen.getByTestId(CTA))
     expect(hoisted.pushLearnEvent).not.toHaveBeenCalled()
-    expect(hoisted.open).toHaveBeenCalledWith(ZOOM, '_blank', 'noopener,noreferrer')
+    expect(hoisted.open).toHaveBeenCalledWith(
+      ZOOM,
+      '_blank',
+      'noopener,noreferrer',
+    )
   })
 })

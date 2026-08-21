@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
+import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
+import { getSupportEntityContext } from '@/server/api/support/services/getSupportEntityContext.service'
+import type { LectureSupportSnapshot } from '@/server/api/support/support.types'
+
 const hoisted = vi.hoisted(() => ({
   getLectureSupportSnapshot: vi.fn(),
 }))
@@ -22,11 +27,6 @@ vi.mock('@/server/batches/getBatchIdsForSections', () => ({
 vi.mock('@/server/learn/utils/ensureLearnEntityAccess', () => ({
   ensureUserCanAccessLearnHubEntity: vi.fn(),
 }))
-
-import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
-import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
-import { getSupportEntityContext } from '@/server/api/support/services/getSupportEntityContext.service'
-import type { LectureSupportSnapshot } from '@/server/api/support/support.types'
 
 function makeLectureSnapshot(
   overrides: Partial<LectureSupportSnapshot> = {},

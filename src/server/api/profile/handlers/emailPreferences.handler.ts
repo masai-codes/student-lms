@@ -3,6 +3,7 @@ import { jsonOk, mapThrownErrorToResponse } from '@/server/api/http/responses'
 import { requireSessionUserId } from '@/server/api/http/requireSessionUser'
 import {
   getEmailPreferences,
+  parsePreferencePatch,
   updateEmailPreferences,
 } from '@/server/api/profile/emailPreferences.service'
 
@@ -27,22 +28,11 @@ export async function handleUpdateEmailPreferences(
 ): Promise<Response> {
   try {
     const userId = await requireSessionUserId()
-    const body = (await request.json()) as Record<string, unknown>
-
-    const updates: Record<string, boolean> = {}
-    const keys = [
-      'lectures',
-      'assignments',
-      'evaluations',
-      'announcements',
-      'tickets',
-      'discussions',
-    ]
-    for (const key of keys) {
-      if (typeof body[key] === 'boolean') updates[key] = body[key] as boolean
-    }
-
-    const preferences = await updateEmailPreferences(userId, updates)
+    const body = (await request.json()) as unknown
+    const preferences = await updateEmailPreferences(
+      userId,
+      parsePreferencePatch(body),
+    )
     return jsonOk({ preferences })
   } catch (error) {
     if (!isApiError(error)) {

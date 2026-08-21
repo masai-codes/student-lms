@@ -20,13 +20,15 @@ vi.mock('@tanstack/react-router', () => ({
 }))
 
 vi.mock('@/lib/api/profile/profileApi', () => ({
-  fetchProfile: vi.fn(() =>
+  fetchProfileOverview: vi.fn(() =>
     Promise.resolve({
-      id: 1,
       name: 'Asha Rao',
       email: 'asha@example.com',
-      mobile: '9876543210',
-      profileImageUrl: null,
+      phone: '9876543210',
+      avatarUrl: null,
+      studentCodes: [],
+      isNewUserJourney: false,
+      hasFullFees: false,
     }),
   ),
 }))
@@ -133,7 +135,7 @@ describe('ProfileSettingsPage', () => {
     })
     expect(navigate).toHaveBeenCalledWith({
       to: '/profile',
-      search: { tab: 'profile-details' },
+      search: { tab: 'details' },
     })
 
     act(() => {

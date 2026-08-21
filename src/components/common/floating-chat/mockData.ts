@@ -9,12 +9,6 @@ import type { Category } from './types'
 
 export const CATEGORIES: Category[] = [
   {
-    id: 'general',
-    label: 'General Query',
-    desc: "Anything that doesn't fit below",
-    icon: ChatCircle,
-  },
-  {
     id: 'lecture',
     label: 'Lecture',
     desc: 'A doubt about a class or recording',
@@ -37,5 +31,11 @@ export const CATEGORIES: Category[] = [
     label: 'Evaluation',
     desc: 'Quiz, test or interview related',
     icon: CheckCircle,
+  },
+  {
+    id: 'general',
+    label: 'General Query',
+    desc: "Anything that doesn't fit below",
+    icon: ChatCircle,
   },
 ]

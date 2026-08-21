@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouterState } from '@tanstack/react-router'
-import { markTryNewTourSeen } from '@/lib/api/profile/profileApi'
+import { markTryNewTourSeen } from '@/lib/api/newLmsPreferenceApi'
 import { invalidateMeQuery } from '@/query/me/meCache'
 
 /** Padding around the highlighted target, in px. */

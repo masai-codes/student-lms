@@ -30,6 +30,7 @@ function lectures(
       admissionsFormUrl: null,
     },
     idCardApplicable: true,
+    idCardConfigured: true,
     idCardUrl: null,
     ...over,
   }
@@ -345,5 +346,53 @@ describe('getIdCardState', () => {
         'full',
       ),
     ).toEqual({ show: false, url: null, unlocked: false })
+  })
+
+  // Batch 389 (IITREICT-DAAI) is the real-world case: admissions has no admit-card
+  // template for the program, so a URL never arrives. Showing the unlocked card
+  // would promise "being generated within 30 minutes" forever.
+  it('is hidden when admissions has no ID card configured for the program', () => {
+    expect(
+      getIdCardState(
+        lectures({
+          idCardConfigured: false,
+          programLectures: [
+            {
+              id: 'p',
+              lectureId: 9,
+              title: 'Intro',
+              videoUrl: 'v',
+              lectureType: 'video',
+            },
+          ],
+          completedLectureIds: [9],
+        }),
+        'full',
+      ),
+    ).toEqual({ show: false, url: null, unlocked: false })
+  })
+
+  // Configured but not yet issued — this is the genuine "being generated" case,
+  // and it must still render (url null, unlocked true).
+  it('still shows the card when configured but the URL has not arrived yet', () => {
+    expect(
+      getIdCardState(
+        lectures({
+          idCardConfigured: true,
+          idCardUrl: null,
+          programLectures: [
+            {
+              id: 'p',
+              lectureId: 9,
+              title: 'Intro',
+              videoUrl: 'v',
+              lectureType: 'video',
+            },
+          ],
+          completedLectureIds: [9],
+        }),
+        'full',
+      ),
+    ).toEqual({ show: true, url: null, unlocked: true })
   })
 })

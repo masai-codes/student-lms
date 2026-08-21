@@ -102,6 +102,7 @@ describe('video lecture snapshot matrix — section settings × student state', 
 
     expect(result).toEqual({
       label: 'Present',
+      isAbsent: false,
       colorClass: 'text-[#0E9F6E] dark:text-success',
       showAbsentReason: false,
       absentReason: null,

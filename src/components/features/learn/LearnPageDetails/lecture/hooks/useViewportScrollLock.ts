@@ -6,7 +6,7 @@ import { useEffect } from 'react'
  * Attribute set on `<html>` while the lock is active. The rules that act on it
  * live in `styles.css` (search for "Viewport lock"), gated to `lg`+.
  */
-export const VIEWPORT_LOCK_ATTRIBUTE = 'data-viewport-locked'
+const VIEWPORT_LOCK_ATTRIBUTE = 'data-viewport-locked'
 
 /**
  * Pins the app shell to the viewport and takes scrolling away from the document,

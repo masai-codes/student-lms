@@ -72,7 +72,7 @@ export function parseChatLanguage(value: unknown): AiTutorChatLanguage {
   }
 
   const language = LANGUAGE_ALIASES[value.trim().toLowerCase()]
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (!language) {
     throw new ApiError(400, 'AI_TUTOR_LANGUAGE_INVALID')
   }

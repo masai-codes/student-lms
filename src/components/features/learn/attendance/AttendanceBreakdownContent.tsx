@@ -1,3 +1,4 @@
+import { getAttendanceStatusLabels } from '@/lib/lecture-attendance/attendanceStatusLabels'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 
 /**
@@ -16,6 +17,7 @@ export function AttendanceBreakdownContent({
    */
   isLiveLecture: boolean
 }) {
+  const labels = getAttendanceStatusLabels()
   const isPresent = attendance.overallStatus === 1
   const liveStatus =
     attendance.liveAttendanceStatus === 1 ? 'Attended' : 'Not Attended'
@@ -38,7 +40,7 @@ export function AttendanceBreakdownContent({
               : 'inline-flex items-center rounded-full bg-danger-subtle px-2 py-0.5 type-t1 font-medium text-danger-subtle-foreground'
           }
         >
-          Overall - {isPresent ? 'Present' : 'Absent'}
+          Overall - {isPresent ? labels.present : labels.absent}
         </span>
       </div>
     </div>

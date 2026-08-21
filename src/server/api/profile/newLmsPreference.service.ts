@@ -22,9 +22,9 @@ export const HIDE_SWITCH_OPTION_META_KEY = 'hide_switch_option'
  * Key on `users.meta` holding the history of "switched back to old LMS" events.
  * An array so every switch-back (with its optional feedback) is preserved.
  */
-export const NEW_LMS_SWITCH_FEEDBACK_META_KEY = 'new_lms_switch_feedback'
+const NEW_LMS_SWITCH_FEEDBACK_META_KEY = 'new_lms_switch_feedback'
 
-export interface NewLmsSwitchFeedbackEntry {
+interface NewLmsSwitchFeedbackEntry {
   feedback: string
   createdAt: string
 }
@@ -33,7 +33,7 @@ export interface NewLmsSwitchFeedbackEntry {
  * Key on `users.meta` recording that the user has seen the one-time "Try New"
  * guided tour. Once true the tour never shows again (lifetime, per user).
  */
-export const NEW_LMS_TRY_NEW_TOUR_META_KEY = 'new_lms_try_new_tour_seen'
+const NEW_LMS_TRY_NEW_TOUR_META_KEY = 'new_lms_try_new_tour_seen'
 
 function readFlag(meta: unknown): boolean {
   if (!meta || typeof meta !== 'object') return false
@@ -69,7 +69,7 @@ export async function getNewLmsPagesPreference(
 
 /**
  * Sets the flag, preserving every other key already on users.meta.
- * Read-modify-write, mirroring emailPreferences.service.ts.
+ * Read-modify-write against users.meta.
  *
  * When the user switches back (true → false), appends an entry to the
  * `new_lms_switch_feedback` array with the optional feedback text, so all

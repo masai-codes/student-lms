@@ -16,6 +16,7 @@ import {
   LogOutIcon,
   Megaphone,
   MessagesSquare,
+  Mic,
   Smartphone,
   UserCircle,
 } from 'lucide-react'
@@ -188,6 +189,18 @@ export function useAppNavItems() {
       })
     }
 
+    if (gating.showInterviews) {
+      items.push({
+        id: 'interviews',
+        type: 'internal-link',
+        to: '/interviews',
+        label: 'Interviews',
+        icon: Mic,
+        uiType: 'primary',
+        isActive: pathname.startsWith('/interviews'),
+      })
+    }
+
     // Support opens the floating chat (same surface as the bottom-right
     // sphere) rather than routing. On surfaces where the provider isn't
     // mounted (support page itself, floater disabled) it falls back to the
@@ -203,7 +216,13 @@ export function useAppNavItems() {
     })
 
     return items
-  }, [gating.showChat, gating.showMasaiVerse, handleSupportClick, pathname])
+  }, [
+    gating.showChat,
+    gating.showMasaiVerse,
+    gating.showInterviews,
+    handleSupportClick,
+    pathname,
+  ])
 
   // Right side — fed through `resolveNavItemPriority` by the caller. "Get the
   // app" is primary only when the app isn't installed; Refer & Earn is
@@ -250,23 +269,16 @@ export function useAppNavItems() {
       })
     }
 
-    // Calendar still lives on the legacy student app — every portal gets it,
-    // but only when a legacy base URL is configured for this origin (otherwise
-    // the icon would point nowhere).
-    const calendarHref = getOldStudentUiUrlForPath(
-      OLD_STUDENT_UI_NAV_PATHS.calendar,
-    )
-    if (calendarHref) {
-      items.push({
-        id: 'calendar',
-        type: 'external-link',
-        href: calendarHref,
-        label: 'Calendar',
-        icon: CalendarDays,
-        tooltip: 'Calendar',
-        uiType: 'secondary',
-      })
-    }
+    items.push({
+      id: 'calendar',
+      type: 'internal-link',
+      to: '/my-calendar',
+      label: 'Calendar',
+      icon: CalendarDays,
+      tooltip: 'Calendar',
+      uiType: 'secondary',
+      isActive: pathname.startsWith('/my-calendar'),
+    })
 
     items.push({
       id: 'announcements',
@@ -318,7 +330,7 @@ export function useAppNavItems() {
       {
         id: 'courses',
         type: 'internal-link',
-        to: '/my-courses',
+        to: '/my-programs',
         label: 'My Programs',
         icon: GraduationCap,
         uiType: 'tertiary',

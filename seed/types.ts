@@ -1,10 +1,15 @@
 import type {
+  badgeConfigs,
+  badges,
   batches,
+  batchUser,
   lectures,
   lecturesAi,
   profiles,
   sectionUser,
   sections,
+  sessions,
+  userBadges,
   userBatchAdmissionData,
   userDeviceTokens,
   users,
@@ -163,6 +168,16 @@ export type MultiProgramStudentEntities = LiveLecturePhasesEntities & {
   secondSection: typeof sections.$inferSelect
   secondEnrollment: typeof sectionUser.$inferSelect
   secondBatchLecture: typeof lectures.$inferSelect
+  /** Third batch, enrolment paused — the "Paused Programs" case on /my-courses. */
+  pausedBatch: typeof batches.$inferSelect
+  pausedSection: typeof sections.$inferSelect
+  pausedEnrollment: typeof sectionUser.$inferSelect
+  /** Carries `meta.batchPaused` / `meta.batchPausedDate` for `pausedBatch`. */
+  pausedBatchUser: typeof batchUser.$inferSelect
+  /** Scheduled before the pause cutoff — stays visible. */
+  prePauseLecture: typeof lectures.$inferSelect
+  /** Scheduled after the pause cutoff — hidden while the pause stands. */
+  postPauseLecture: typeof lectures.$inferSelect
 }
 
 export type DiscussionsCancelledEnrollmentEntities = {
@@ -196,7 +211,7 @@ export type DiscussionsCancelledEnrollmentEntities = {
   /** `student`'s public discussion on `secondLecture` (batch B), where their enrolment is healthy. */
   discussionByStudentOnSecondBatch: typeof import('@/db/schema').discussions.$inferSelect
   /** Batch-level cancellation for `student` on `batch` only. */
-  cancelledBatchUser: typeof import('@/db/schema').batchUser.$inferSelect
+  cancelledBatchUser: typeof batchUser.$inferSelect
 }
 
 export type SectionDropdownBatchEntities = {
@@ -209,6 +224,27 @@ export type SectionDropdownBatchEntities = {
   assignments: Array<typeof import('@/db/schema').assignments.$inferSelect>
 }
 
+export type ProfilePageEntities = {
+  admin: typeof users.$inferSelect
+  /** Enrolled in both batches, with a student code in each. */
+  student: typeof users.$inferSelect
+  /** The primary (first) batch — also present in `batches`. Shared tooling reads this. */
+  batch: typeof batches.$inferSelect
+  batches: Array<typeof batches.$inferSelect>
+  /** Two modules per batch, so achievements group two levels deep. */
+  sections: Array<typeof sections.$inferSelect>
+  enrollments: Array<typeof sectionUser.$inferSelect>
+  /** `batch_user.username` per batch — what the profile header renders. */
+  studentCodes: Array<string>
+  badges: Array<typeof badges.$inferSelect>
+  badgeConfigs: Array<typeof badgeConfigs.$inferSelect>
+  /** Only the earned badges get a `user_badges` row; the rest render locked. */
+  awards: Array<typeof userBadges.$inferSelect>
+  devices: Array<typeof sessions.$inferSelect>
+  /** The section whose settings carry the pending acknowledgement. */
+  pendingUndertakingSectionId: number
+}
+
 export type SeedFlowEntities =
   | LoginAndJoinLectureEntities
   | LiveLecturePhasesEntities
@@ -219,6 +255,7 @@ export type SeedFlowEntities =
   | AppInstalledEntities
   | SectionDropdownBatchEntities
   | DiscussionsCancelledEnrollmentEntities
+  | ProfilePageEntities
 
 export type SeedFlowResult = {
   flowId: string

@@ -8,7 +8,7 @@ import type { LearnDetailRestriction } from '@/server/restrictions/types'
 import { cn } from '@/lib/utils'
 
 /** Secondary CTA — redirects the learner to /support. */
-export function ContactSupportButton({ className }: { className?: string }) {
+function ContactSupportButton({ className }: { className?: string }) {
   return (
     <Link
       to="/support"
@@ -27,7 +27,7 @@ export function ContactSupportButton({ className }: { className?: string }) {
  * Opens the onboarding guided tour on the agreement step for a specific batch.
  * The dashboard route reads these search params and preselects the batch + step.
  */
-export function SignAgreementButton({
+function SignAgreementButton({
   batchId,
   className,
 }: {

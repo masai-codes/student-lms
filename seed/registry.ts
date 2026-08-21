@@ -6,6 +6,7 @@ import { multiProgramStudentConfig } from './flows/multi-program-student/config'
 import { appInstalledConfig } from './flows/app-installed/config'
 import { sectionDropdownBatchConfig } from './flows/section-dropdown-batch/config'
 import { discussionsCancelledEnrollmentConfig } from './flows/discussions-cancelled-enrollment/config'
+import { profilePageConfig } from './flows/profile-page/config'
 import {
   createOnboardingFlowMeta,
   ONBOARDING_FLOW_IDS,
@@ -26,6 +27,7 @@ const flowConfigs: SeedFlowMeta[] = [
   appInstalledConfig,
   sectionDropdownBatchConfig,
   discussionsCancelledEnrollmentConfig,
+  profilePageConfig,
   ...onboardingConfigs,
 ]
 
@@ -90,6 +92,10 @@ async function loadFlowModule(id: string): Promise<SeedFlowModule> {
         meta: discussionsCancelledEnrollmentConfig,
         seed: seedDiscussionsCancelledEnrollment,
       }
+    }
+    case profilePageConfig.id: {
+      const { seedProfilePage } = await import('./flows/profile-page/seed')
+      return { meta: profilePageConfig, seed: seedProfilePage }
     }
     default: {
       const known = flowConfigs.map((flow) => flow.id).join(', ')

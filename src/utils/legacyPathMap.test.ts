@@ -24,9 +24,17 @@ describe('mapToLegacyPath', () => {
   })
 
   it('keeps the existing course translations', () => {
+    expect(mapToLegacyPath('/my-programs')).toBe('/my-lectures')
+    expect(mapToLegacyPath('/my-programs/12')).toBe('/my-lectures/12')
+    // Pre-rename alias.
     expect(mapToLegacyPath('/my-courses')).toBe('/my-lectures')
     expect(mapToLegacyPath('/my-courses/12')).toBe('/my-lectures/12')
     expect(mapToLegacyPath('/course/12')).toBe('/new-courses/12')
+  })
+
+  it('does not rewrite paths that merely start with the same characters', () => {
+    expect(mapToLegacyPath('/my-programs-archive')).toBe('/my-programs-archive')
+    expect(mapToLegacyPath('/my-coursesx')).toBe('/my-coursesx')
   })
 
   it('leaves unrelated paths untouched', () => {

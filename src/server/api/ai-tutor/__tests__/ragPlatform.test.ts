@@ -15,7 +15,8 @@ afterEach(() => {
 describe('ragPlatform', () => {
   it('throws when RAG platform env is missing', async () => {
     delete process.env.RAG_PLATFORM_BASE_URL
-    const { ensureRagPlatformConfigured } = await import('../clients/ragPlatform')
+    const { ensureRagPlatformConfigured } =
+      await import('../clients/ragPlatform')
     expect(() => ensureRagPlatformConfigured()).toThrowError(
       expect.objectContaining({ code: 'AI_TUTOR_RAG_PLATFORM_NOT_CONFIGURED' }),
     )
@@ -23,12 +24,15 @@ describe('ragPlatform', () => {
 
   it('uses the default collection name when env is unset', async () => {
     delete process.env.RAG_PLATFORM_COLLECTION_NAME
-    const { getRagPlatformCollectionName } = await import('../clients/ragPlatform')
+    const { getRagPlatformCollectionName } =
+      await import('../clients/ragPlatform')
     expect(getRagPlatformCollectionName()).toBe('student-lms-ai-tutor')
   })
 
   it('creates a collection', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) })
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({}) })
     vi.stubGlobal('fetch', fetchMock)
 
     const { ensureRagCollection } = await import('../clients/ragPlatform')
@@ -36,7 +40,9 @@ describe('ragPlatform', () => {
 
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect(url).toBe('http://rag.local/collections')
-    expect((init.headers as Record<string, string>)['X-API-KEY']).toBe('rag-key')
+    expect((init.headers as Record<string, string>)['X-API-KEY']).toBe(
+      'rag-key',
+    )
     expect(JSON.parse(String(init.body))).toEqual({
       collection_name: 'student-lms-ai-tutor',
     })
@@ -91,9 +97,11 @@ describe('ragPlatform', () => {
   })
 
   it('throws when ingest request fails', async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue({ ok: false, status: 422, text: async () => 'invalid' })
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 422,
+      text: async () => 'invalid',
+    })
     vi.stubGlobal('fetch', fetchMock)
 
     const { ingestRagText } = await import('../clients/ragPlatform')

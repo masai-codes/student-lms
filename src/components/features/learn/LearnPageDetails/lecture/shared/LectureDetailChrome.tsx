@@ -6,6 +6,7 @@ import type { ReactNode } from 'react'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearningPriority } from '@/server/learn/types'
 import { resolveLectureAttendanceBanner } from '@/lib/lecture-attendance/resolveLectureAttendanceBanner'
+import { showsAttendanceDisclaimerBanner } from '@/utils/portal'
 import { cn } from '@/lib/utils'
 
 /**
@@ -71,9 +72,12 @@ export function LectureDetailChrome({
   // (`videoCountsForAttendance`). It does not depend on watch progress, so it
   // never disappears mid-watch. `optionalAttendance` covers recommended lectures
   // (which have a recording but null `attendance`) so they show it too.
-  const attendanceBanner = showAttendanceBanner
-    ? resolveLectureAttendanceBanner(attendance ?? optionalAttendance)
-    : null
+  // Portals that opt out of the disclaimer never render it, whatever the
+  // section settings say (see `showsAttendanceDisclaimerBanner`).
+  const attendanceBanner =
+    showAttendanceBanner && showsAttendanceDisclaimerBanner()
+      ? resolveLectureAttendanceBanner(attendance ?? optionalAttendance)
+      : null
   return (
     // `bg-surface` + `flex-1` on the wrapper, not just on the inner sections:
     // otherwise the `pb-12` tail (and any slack when the page is shorter than

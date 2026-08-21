@@ -1,7 +1,19 @@
 import { useState } from 'react'
-import { Share2, X } from 'lucide-react'
+import { LinkedinLogo } from '@phosphor-icons/react'
+import { X } from 'lucide-react'
 import { ConfettiOverlay } from '@/components/ui/confetti-overlay'
-import { Modal, ModalContent } from '@/components/ui/modal'
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalTitle,
+} from '@/components/ui/modal'
+import { MasaiButton } from '@/components/ui/masai-button'
+import {
+  buildCertificateShareText,
+  buildLinkedInShareUrl,
+  resolveViewableCertificateUrl,
+} from '@/lib/certificates/certificateShare'
 
 export interface CertificateCardData {
   certificateObjectId: string
@@ -31,6 +43,23 @@ function formatDate(iso: string | null): string {
   }
 }
 
+/**
+ * Copies the post text and opens LinkedIn's composer — the old LMS's behaviour.
+ * The previous implementation silently wrote a URL to the clipboard with no
+ * feedback and never opened LinkedIn, so "Share" looked like it did nothing.
+ */
+async function shareCertificate(
+  certificate: CertificateCardData,
+): Promise<void> {
+  const text = buildCertificateShareText(certificate)
+  try {
+    await navigator.clipboard?.writeText(text)
+  } catch {
+    // Clipboard permission is optional — still open the composer.
+  }
+  window.open(buildLinkedInShareUrl(text), '_blank', 'noopener,noreferrer')
+}
+
 export function CertificateViewModal({
   open,
   onClose,
@@ -40,6 +69,9 @@ export function CertificateViewModal({
   onClose: () => void
   certificate: CertificateCardData
 }) {
+  // Only ever hand an iframe a validated http(s) URL.
+  const viewUrl = resolveViewableCertificateUrl(certificate)
+
   return (
     <Modal
       open={open}
@@ -50,6 +82,7 @@ export function CertificateViewModal({
       <ModalContent
         className="max-w-[1000px] w-full rounded-[20px] p-6 shadow-xl overflow-hidden"
         showCloseButton={false}
+        data-testid="certificate-view-modal"
       >
         {/* Confetti canvas — covers the entire modal */}
         <ConfettiOverlay active={open} />
@@ -58,17 +91,20 @@ export function CertificateViewModal({
           {/* Header */}
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold text-foreground">
+              {/* ModalTitle/Description (not a bare h2/p) so Radix can wire
+                  aria-labelledby / aria-describedby on the dialog. */}
+              <ModalTitle className="text-lg font-bold text-foreground">
                 {certificate.certificateTitle ?? 'Certificate'}
-              </h2>
-              <p className="text-sm text-foreground-muted mt-0.5">
+              </ModalTitle>
+              <ModalDescription className="text-sm text-foreground-muted mt-0.5">
                 Congratulations on earning this certification! Share your
                 achievement or open it in a new tab.
-              </p>
+              </ModalDescription>
             </div>
             <button
               type="button"
               onClick={onClose}
+              data-testid="certificate-view-close"
               className="shrink-0 text-foreground-subtle hover:text-foreground-muted transition-colors focus-visible:outline-none"
               aria-label="Close"
             >
@@ -76,64 +112,55 @@ export function CertificateViewModal({
             </button>
           </div>
 
-          {/* Certificate iframe */}
-          {certificate.verificationUrl ? (
+          {viewUrl ? (
             <div
               className="rounded-[12px] overflow-hidden border border-border bg-surface-muted"
               style={{ height: '480px' }}
             >
               <iframe
-                src={certificate.verificationUrl}
+                src={viewUrl}
                 title={certificate.certificateTitle ?? 'Certificate'}
+                data-testid="certificate-view-frame"
                 className="w-full h-full border-0"
                 allow="fullscreen"
               />
             </div>
-          ) : certificate.pdfUrl ? (
-            <div
-              className="rounded-[12px] overflow-hidden border border-border bg-surface-muted"
-              style={{ height: '480px' }}
-            >
-              <iframe
-                src={certificate.pdfUrl}
-                title={certificate.certificateTitle ?? 'Certificate'}
-                className="w-full h-full border-0"
-              />
-            </div>
           ) : (
-            <div className="flex items-center justify-center h-40 rounded-[12px] bg-surface-muted border border-border">
+            <div
+              data-testid="certificate-view-unavailable"
+              className="flex flex-col items-center justify-center gap-1 h-40 rounded-[12px] bg-surface-muted border border-border text-center px-6"
+            >
+              <p className="text-sm font-medium text-foreground">
+                This certificate can&apos;t be previewed yet
+              </p>
               <p className="text-sm text-foreground-subtle">
-                Certificate not available
+                Its verification link hasn&apos;t been published. You can still
+                share your achievement.
               </p>
             </div>
           )}
 
           {/* Footer actions */}
-          <div className="flex items-center justify-center gap-3 pt-1">
-            {certificate.verificationUrl && (
-              <button
-                type="button"
-                onClick={() => {
-                  void navigator.clipboard?.writeText(
-                    certificate.verificationUrl!,
-                  )
-                }}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
-              >
-                <Share2 size={15} />
-                Share
-              </button>
-            )}
-            {(certificate.verificationUrl || certificate.pdfUrl) && (
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+            <MasaiButton
+              type="secondary"
+              ctaText="Share on LinkedIn"
+              icon={<LinkedinLogo size={16} weight="fill" aria-hidden />}
+              iconDirection="left"
+              data-testid="certificate-view-share"
+              onClick={() => void shareCertificate(certificate)}
+            />
+            {viewUrl ? (
               <a
-                href={certificate.verificationUrl ?? certificate.pdfUrl ?? ''}
+                href={viewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-5 py-2.5 rounded-[10px] bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 transition-colors"
+                data-testid="certificate-view-open-new-tab"
+                className="inline-flex items-center rounded-[10px] bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground transition-transform duration-150 ease-out hover:-translate-y-px active:scale-95"
               >
                 Open in new tab
               </a>
-            )}
+            ) : null}
           </div>
         </div>
       </ModalContent>
@@ -143,6 +170,10 @@ export function CertificateViewModal({
 
 export function CertificateCard({ certificate }: CertificateCardProps) {
   const [viewOpen, setViewOpen] = useState(false)
+  // View needs something displayable; Share never does — the post text stands
+  // on its own. This mirrors the old LMS, where Share always rendered and only
+  // View was disabled.
+  const canView = resolveViewableCertificateUrl(certificate) !== null
 
   return (
     <>
@@ -162,32 +193,28 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
           </p>
           <p>
             <span className="font-medium text-foreground">Batch:</span>{' '}
-            {certificate.batchName}
+            {certificate.batchName || '-'}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 pt-1">
-          <button
-            type="button"
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <MasaiButton
+            ctaText="View"
+            size="sm"
+            disabled={!canView}
+            data-testid="certificate-card-view"
+            title={canView ? undefined : 'Verification link not published yet'}
             onClick={() => setViewOpen(true)}
-            className="px-4 py-2 rounded-[8px] bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 transition-colors"
-          >
-            View
-          </button>
-          {certificate.verificationUrl && (
-            <button
-              type="button"
-              onClick={() => {
-                void navigator.clipboard?.writeText(
-                  certificate.verificationUrl!,
-                )
-              }}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-[8px] bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
-            >
-              <Share2 size={14} />
-              Share
-            </button>
-          )}
+          />
+          <MasaiButton
+            type="secondary"
+            size="sm"
+            ctaText="Share"
+            icon={<LinkedinLogo size={14} weight="fill" aria-hidden />}
+            iconDirection="left"
+            data-testid="certificate-card-share"
+            onClick={() => void shareCertificate(certificate)}
+          />
         </div>
       </div>
 

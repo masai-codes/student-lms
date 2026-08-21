@@ -10,7 +10,7 @@ import { fetchLectureTranscriptFromCache } from '@/lib/api/cache/lectureTranscri
 
 const EMPTY_SEGMENTS: Array<LectureTranscriptSegment> = []
 
-export function lectureTranscriptQueryKey(url: string): Array<string> {
+function lectureTranscriptQueryKey(url: string): Array<string> {
   return ['lecture-transcript', url]
 }
 

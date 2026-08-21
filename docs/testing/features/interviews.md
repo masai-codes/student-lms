@@ -1,17 +1,30 @@
 # Mock interview practice (`/interviews`)
 
-Last updated: 2026-08-02
+Last updated: 2026-08-16
 
 ## Scope
 
 - `GET /api/interviews/topics` — personalized topic list: catalog topics for the
   student's resolved program domain + topics derived from their coursework.
+  Every `InterviewTopic` (catalog or coursework-derived) carries its own
+  `domain` field now — catalog topics get it from whichever
+  `INTERVIEW_TOPIC_CATALOG` domain bucket they live in
+  (`getCatalogTopicsForDomain(s)` attaches it), coursework topics get the
+  student's first resolved domain (`getCurriculumInterviewTopics`). Rendered
+  on `/interviews` as a full-width "Continue your coursework" highlight band
+  (coursework topics) above a "Topics for your program" grid (catalog
+  topics) — each topic card cycles through the app's semantic accent tokens
+  (`getTopicAccentClassName`) rather than one flat color, and shows a
+  subtopic preview + "Customize" affordance (`SubtopicDrawer`) when the topic
+  has subtopics, letting a student narrow question-gen to a subset before
+  starting — see the `subtopics` request field below.
 - `GET /api/interviews/sessions` — lightweight summaries (`id`, `topicLabel`,
   `status`, `createdAt`, `completedAt`) of every session the current user has
-  started, newest first. Rendered on `/interviews` as "Your sessions" above the
-  topic picker — completed sessions show a check icon, `in_progress`/`abandoned`
-  a dashed-circle icon, and each row's relative start time comes from
-  `dayjs(...).fromNow()`. Clicking a row navigates to `/interviews/:sessionId`.
+  started, newest first. Rendered on `/interviews` as a sticky "Your sessions"
+  rail alongside the topic picker — completed sessions show a check icon,
+  `in_progress`/`abandoned` a dashed-circle icon, and each row's relative
+  start time comes from `dayjs(...).fromNow()`. Clicking a row navigates to
+  `/interviews/:sessionId`.
 - `POST /api/interviews/sessions/stream` (SSE, what the UI uses) /
   `POST /api/interviews/sessions` (blocking, kept for API completeness) —
   starts a session for a topic. One audio-out call to the audio-capable model
@@ -56,9 +69,15 @@ Last updated: 2026-08-02
 ## Request/response shapes
 
 `POST /api/interviews/sessions` / `.../sessions/stream` body: `{ "topicId":
-"dsa" }` (catalog id, or `curriculum:<slug>` for a coursework-derived topic —
-validated against the user's own resolved topics, never trusted from the
-client label). The stream route emits `audio-delta` (`{ data: base64 pcm16
+"dsa", "subtopics": ["Big-O time & space intuition"] }` (catalog id, or
+`curriculum:<slug>` for a coursework-derived topic — validated against the
+user's own resolved topics, never trusted from the client label). `subtopics`
+is optional — the "customize" drawer on `/interviews` lets a student narrow a
+topic down to a subset of its own subtopics before starting; absent/empty, or
+any requested entry that isn't actually one of the topic's own subtopics, is
+ignored (`resolveInterviewTopicSelection`'s `narrowSubtopics` falls back to
+the topic's FULL subtopic list rather than ever sending zero guidance into
+question-gen). The stream route emits `audio-delta` (`{ data: base64 pcm16
 }`) events as the greeting/question is spoken, then a terminal `done` event
 with `{ "result": { "sessionId": 42, "question": "..." } }` — `question` here
 is the full spoken text (greeting included), not just the question sentence.
@@ -152,3 +171,8 @@ npm run test -- src/server/api/interviews src/lib/audio src/hooks/__tests__/useI
 
 - `interview-session-list` — container for the "Your sessions" rows on `/interviews`.
 - `interview-session-item` (`data-session-id`, `data-status`) — one row per past/in-progress session.
+- `interview-topic-item` (`data-topic-id`) — one topic card/row (coursework highlight or catalog grid); clicking it starts an interview immediately with the topic's full subtopic list.
+- `interview-topic-grid` — container for the "Topics for your program" catalog cards.
+- `interview-topic-customize` — the per-card "Customize" affordance that opens `SubtopicDrawer` instead of starting immediately; only rendered when the topic has subtopics (never for coursework-derived topics).
+- `interview-subtopic-drawer` — the subtopic-picker sheet (bottom sheet on mobile, right-side drawer from `sm:` up).
+- `interview-subtopic-drawer-start` — the drawer's "Start interview" button; starts with whatever subset of subtopics is currently selected (falls back to the full list server-side if none are selected).

@@ -2,7 +2,7 @@ import { createRouter, Link } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import { routeTree } from './routeTree.gen'
-import { AppLoading } from '@/components/common'
+import { AppError, AppLoading } from '@/components/common'
 import { Button } from './components/ui/button'
 
 export const getRouter = () => {
@@ -26,6 +26,11 @@ export const getRouter = () => {
     defaultPendingMs: 120,
     defaultPendingMinMs: 300,
     defaultPendingComponent: () => <AppLoading fullPage label="Loading..." />,
+    // Without this, Router falls back to its built-in `ErrorComponent`, which
+    // prints the raw `error.message` + stack on the page — so a DB outage would
+    // show students MySQL internals. Routes with their own `errorComponent`
+    // (e.g. the learn detail pages) still take precedence over this default.
+    defaultErrorComponent: AppError,
     defaultNotFoundComponent: () => (
       <div className="m-4 text-center">
         <div className="mb-2">Page Not Found!</div>

@@ -82,7 +82,7 @@ function LearnSectionChip({
       size="regular"
       label={sectionName}
       tabIndex={-1}
-      className="pointer-events-none max-w-[24ch] truncate"
+      className="pointer-events-none"
       {...learnContentTagChipPalette}
     />
   )
@@ -206,7 +206,7 @@ export function LearnContentCard({
                 {item.tags.length > 0 || item.assignmentWeightage != null ? (
                   <div
                     data-testid="learn-card-dashboard-tags"
-                    className="flex flex-wrap items-center gap-2"
+                    className="flex min-w-0 flex-wrap items-center gap-2"
                   >
                     {item.tags.map((tag, index) => (
                       <MasaiChips
@@ -249,7 +249,7 @@ export function LearnContentCard({
                       ist={item.dateTooltip}
                     />
                   </p>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
                     {item.tags.map((tag, index) => (
                       <MasaiChips
                         key={`${tag}-${index}`}

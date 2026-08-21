@@ -92,25 +92,3 @@ export function encodePcmToWavBlob(mono16kHz: Float32Array): Blob {
     type: 'audio/wav',
   })
 }
-
-export async function encodeWavFromBlob(blob: Blob): Promise<Blob> {
-  const arrayBuffer = await blob.arrayBuffer()
-  const AudioContextCtor =
-    window.AudioContext ||
-    (window as unknown as { webkitAudioContext: typeof AudioContext })
-      .webkitAudioContext
-  const audioContext = new AudioContextCtor()
-
-  try {
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
-    const mono = downmixToMono(audioBuffer)
-    const resampled = resampleLinear(
-      mono,
-      audioBuffer.sampleRate,
-      WAV_SAMPLE_RATE,
-    )
-    return encodePcmToWavBlob(resampled)
-  } finally {
-    void audioContext.close()
-  }
-}

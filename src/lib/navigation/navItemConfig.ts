@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 
-export type NavItemUiType = 'primary' | 'secondary' | 'tertiary'
+type NavItemUiType = 'primary' | 'secondary' | 'tertiary'
 
 type NavItemBase = {
   id: string
