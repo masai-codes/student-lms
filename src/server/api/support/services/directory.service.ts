@@ -6,6 +6,7 @@
  *   2. {@link getSupportGate}         — is ticket creation blocked, and why?
  *   3. {@link getCoordinators}        — IA / EC / PC for 1:1 help.
  *   4. {@link getBatchContact}        — batch support line + phone.
+ *   5. {@link getUserClient}          — 'masai' | 'ihub' | 'iitj', for client-specific copy.
  *
  * These are intentionally small and independent so the overview orchestrator can
  * fan them out in parallel.
@@ -51,6 +52,16 @@ export async function getUserSupportBatches(
       name: b.name,
       oneOnOneEnabled: Boolean(b.settings?.show_pp),
     }))
+}
+
+/** The student's client/portal (`users.client`) — drives client-specific copy. */
+export async function getUserClient(userId: number): Promise<string> {
+  const rows = await db
+    .select({ client: users.client })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
+  return rows[0]?.client ?? 'masai'
 }
 
 /** True if a configured agreement sub-key (heading + pdfUrl, not hidden) exists. */
