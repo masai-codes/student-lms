@@ -132,6 +132,7 @@ export function mapLearningItemToSupportItem(item: LearningItem): Item {
         ? categoryMeta || 'Uncategorized'
         : moduleMeta,
     moduleName: isAssignmentLike && moduleMeta ? moduleMeta : undefined,
+    sectionName: item.sectionName?.trim() || undefined,
     date: formatSupportItemScheduleDate(item.scheduleDate),
     type: isLecture ? toSupportLectureDisplayType(item.type) : undefined,
     startTime: item.scheduleDate ?? undefined,

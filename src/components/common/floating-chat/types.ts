@@ -19,6 +19,8 @@ export interface Item {
   isMandatory?: boolean
   /** Module label for assignment/evaluation cards. */
   moduleName?: string
+  /** Section ("Course") label — only populated when `showSectionDropdown` is on for the batch. */
+  sectionName?: string
 }
 
 export interface Message {

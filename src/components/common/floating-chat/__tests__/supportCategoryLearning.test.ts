@@ -81,6 +81,24 @@ describe('mapLearningItemToSupportItem', () => {
     })
   })
 
+  it('passes through a trimmed sectionName when present', () => {
+    expect(
+      mapLearningItemToSupportItem(
+        buildLearningItem({ sectionName: '  Section A  ' }),
+      ),
+    ).toMatchObject({ sectionName: 'Section A' })
+  })
+
+  it('omits sectionName when absent or blank', () => {
+    expect(mapLearningItemToSupportItem(buildLearningItem())).toMatchObject({
+      sectionName: undefined,
+    })
+
+    expect(
+      mapLearningItemToSupportItem(buildLearningItem({ sectionName: '   ' })),
+    ).toMatchObject({ sectionName: undefined })
+  })
+
   it('keeps module in meta for lectures only', () => {
     expect(
       mapLearningItemToSupportItem(
