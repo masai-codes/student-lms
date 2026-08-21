@@ -73,7 +73,7 @@ export type InLecturePopupSqlTemplateFile = {
  * for converting the elements' absolute `startTimestamp` / `endTimestamp` into
  * the video-relative show window.
  */
-export type InLecturePopupMetaData = {
+type InLecturePopupMetaData = {
   id: number
   lectureId: number
   /** The session's nominal start — when it was *meant* to begin. */

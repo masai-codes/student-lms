@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import { ExternalLink } from 'lucide-react'
 
 import { MasaiButton } from '@/components/ui/masai-button'
-import { formatVideoClock } from '../video/controls/lectureVideoChrome.utils'
+import { formatVideoTime } from '../video/formatVideoTime'
 import { AttemptedAssessmentViewPanel } from './AttemptedAssessmentViewPanel'
 import { LectureTabEmptyState } from './LectureTabEmptyState'
 import type { AttemptedAssessmentViewItem } from './AttemptedAssessmentViewPanel'
@@ -106,11 +106,7 @@ export function AttemptedAssessmentsTabContent({
               >
                 <div className="min-w-0">
                   <p className="type-b1-md truncate text-foreground">
-                    {entry.label} · at{' '}
-                    {formatVideoClock(
-                      entry.item.startSec,
-                      entry.item.startSec >= 3600,
-                    )}
+                    {entry.label} · at {formatVideoTime(entry.item.startSec)}
                   </p>
                   {entry.item.submittedAt ? (
                     <p className="type-b3-regular text-foreground-muted">
