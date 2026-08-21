@@ -55,8 +55,8 @@ export function LectureAiChatComposer({
   return (
     <div
       className={cn(
-        'shrink-0 border-t border-border bg-background py-3',
-        platform === 'mobile' ? 'px-0' : 'px-4',
+        'shrink-0 border-t border-border bg-background pt-3',
+        platform === 'mobile' ? 'px-0' : 'px-1',
       )}
     >
       <div className="mx-auto flex max-w-3xl flex-col gap-2 rounded-2xl border border-input bg-background p-2 shadow-sm transition-colors focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
@@ -114,6 +114,9 @@ export function LectureAiChatComposer({
             </Button>
           )}
         </div>
+      </div>
+      <div className="text-[10px] text-center text-foreground-muted">
+        AI tutor can make mistakes. Please double-check responses.
       </div>
     </div>
   )

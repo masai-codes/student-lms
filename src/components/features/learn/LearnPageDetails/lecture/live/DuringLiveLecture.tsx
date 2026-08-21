@@ -25,15 +25,16 @@ export function DuringLiveLecture({
 }: DuringLiveLectureProps) {
   return (
     <LectureStatePanel
-      icon="video"
-      title="Live session in progress"
-      description="Join the live classroom while the session is running. The recording will appear here after the lecture ends."
+      icon="live"
+      title={'Live session'}
       action={
         <div className="flex w-full flex-col items-center gap-5">
           {/* Keep the countdown running down to 00:00:00 next to the join CTA;
               it also auto-refetches at the 5-min mark so the button enables. */}
           <LectureStartsInCountdown schedule={schedule} />
-          {zoomLink ? (
+          {/* IVS mints its URL at click time and carries no `zoomLink`, so defer
+              to the server-resolved state rather than requiring a link here. */}
+          {zoomLink || joinLiveButtonState !== 'hidden' ? (
             <JoinLiveSessionCard
               lectureId={lectureId}
               zoomLink={zoomLink}

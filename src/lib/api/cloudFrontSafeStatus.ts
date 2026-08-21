@@ -13,15 +13,15 @@
  * If CloudFront's intercepted set ever changes, update CLOUDFRONT_INTERCEPTED here
  * — every API/auth error response funnels through this helper.
  */
-export const TRUE_STATUS_HEADER = 'x-true-status'
+const TRUE_STATUS_HEADER = 'x-true-status'
 
 /** Statuses CloudFront intercepts on prod and would otherwise swallow. */
 const CLOUDFRONT_INTERCEPTED = new Set<number>([403, 404])
 
 /** Wire status substituted for any CloudFront-intercepted status. */
-export const CLOUDFRONT_SAFE_WIRE_STATUS = 422
+const CLOUDFRONT_SAFE_WIRE_STATUS = 422
 
-export function isCloudFrontIntercepted(status: number): boolean {
+function isCloudFrontIntercepted(status: number): boolean {
   return CLOUDFRONT_INTERCEPTED.has(status)
 }
 

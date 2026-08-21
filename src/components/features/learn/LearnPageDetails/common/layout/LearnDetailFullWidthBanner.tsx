@@ -27,7 +27,7 @@ export function LearnDetailFullWidthBanner({
       )}
     >
       <div
-        className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-500 p-2.5 md:size-[72px] md:p-5"
+        className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-500 p-2.5 md:size-[72px] md:p-5 dark:bg-brand"
         aria-hidden
       >
         <Lock

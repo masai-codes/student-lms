@@ -27,7 +27,7 @@ export function redirectToResolvedUrl(url: string): void {
   window.location.assign(url)
 }
 
-export function buildSwitchAccountUrl(redirectTo: string | null): string {
+function buildSwitchAccountUrl(redirectTo: string | null): string {
   const params = new URLSearchParams()
   if (redirectTo) {
     params.set(REDIRECT_TO_KEY, redirectTo)

@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
   cleanup,
   fireEvent,
@@ -8,6 +9,7 @@ import {
 } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SignInFlow } from '@/components/features/sign-in/SignInFlow'
+import { ME_QUERY_KEY } from '@/query/me/meCache'
 
 const {
   navigateMock,
@@ -44,6 +46,24 @@ vi.mock('@/components/features/sign-in/signInRouting', () => ({
   redirectToSwitchAccountPage: redirectToSwitchAccountPageMock,
 }))
 
+/**
+ * Renders the flow with a client already holding the `null` `me` a signed-out
+ * visit to /signin caches, so specs can assert sign-in drops it.
+ */
+let queryClient: QueryClient
+
+function renderSignInFlow() {
+  queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+  queryClient.setQueryData(ME_QUERY_KEY, null)
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <SignInFlow />
+    </QueryClientProvider>,
+  )
+}
+
 function stubFetchJson(
   handler: (url: string, init?: RequestInit) => Promise<Response>,
 ) {
@@ -55,7 +75,7 @@ function stubFetchJson(
           ? input.href
           : input.url
     return handler(url, init)
-  }) as typeof fetch
+  })
 }
 
 describe('SignInFlow', () => {
@@ -162,7 +182,7 @@ describe('SignInFlow', () => {
   it('sends rememberMe on email password sign-in by default', async () => {
     const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>
 
-    render(<SignInFlow />)
+    renderSignInFlow()
 
     fireEvent.change(screen.getByLabelText(/email or mobile/i), {
       target: { value: 'demo@example.com' },
@@ -206,7 +226,7 @@ describe('SignInFlow', () => {
       window as Window & { dataLayer?: Array<Record<string, unknown>> }
     ).dataLayer = []
 
-    render(<SignInFlow />)
+    renderSignInFlow()
 
     fireEvent.change(screen.getByLabelText(/email or mobile/i), {
       target: { value: 'demo@example.com' },
@@ -248,7 +268,7 @@ describe('SignInFlow', () => {
       'https://example.com/after-login',
     )
 
-    render(<SignInFlow />)
+    renderSignInFlow()
 
     fireEvent.change(screen.getByLabelText(/email or mobile/i), {
       target: { value: 'demo@example.com' },
@@ -270,7 +290,7 @@ describe('SignInFlow', () => {
   it('navigates within the new app after email sign-in when legacy redirect is disabled', async () => {
     isLegacyStudentRedirectEnabledMock.mockReturnValue(false)
 
-    render(<SignInFlow />)
+    renderSignInFlow()
 
     fireEvent.change(screen.getByLabelText(/email or mobile/i), {
       target: { value: 'demo@example.com' },
@@ -287,6 +307,9 @@ describe('SignInFlow', () => {
       expect(navigateMock).toHaveBeenCalledWith({ to: '/' })
     })
     expect(redirectToOldStudentUiMock).not.toHaveBeenCalled()
+    // The `null` this page cached must be gone, or the destination layout would
+    // read it back and bounce the freshly signed-in user to /signin.
+    expect(queryClient.getQueryState(ME_QUERY_KEY)).toBeUndefined()
   })
 
   it('dispatches failure event for password login failure', async () => {
@@ -314,7 +337,7 @@ describe('SignInFlow', () => {
       return new Response('not found', { status: 404 })
     })
 
-    render(<SignInFlow />)
+    renderSignInFlow()
 
     fireEvent.change(screen.getByLabelText(/email or mobile/i), {
       target: { value: 'demo@example.com' },
@@ -350,7 +373,7 @@ describe('SignInFlow', () => {
   })
 
   it('switches email flow between password and OTP', async () => {
-    render(<SignInFlow />)
+    renderSignInFlow()
     fireEvent.change(screen.getByLabelText(/email or mobile/i), {
       target: { value: 'swap@example.com' },
     })
@@ -369,7 +392,7 @@ describe('SignInFlow', () => {
   })
 
   it('shows disabled resend OTP with cooldown after email OTP is sent', async () => {
-    render(<SignInFlow />)
+    renderSignInFlow()
     fireEvent.change(screen.getByLabelText(/email or mobile/i), {
       target: { value: 'swap@example.com' },
     })
@@ -386,7 +409,7 @@ describe('SignInFlow', () => {
   })
 
   it('enters phone OTP path after valid phone and request-otp succeeds', async () => {
-    render(<SignInFlow />)
+    renderSignInFlow()
     fireEvent.change(screen.getByLabelText(/email or mobile/i), {
       target: { value: '9000000000' },
     })
@@ -477,7 +500,7 @@ describe('SignInFlow', () => {
       return new Response('not found', { status: 404 })
     })
 
-    render(<SignInFlow />)
+    renderSignInFlow()
 
     fireEvent.change(screen.getByLabelText(/email or mobile/i), {
       target: { value: '9000000000' },

@@ -3,13 +3,13 @@ import { buildLmsSteps, buildProgramSteps, getIdCardState } from './steps'
 import type { T0FlowLecturesResult } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 
-const hoisted = vi.hoisted(() => ({ isIHub: false }))
+const hoisted = vi.hoisted(() => ({ hasApp: true }))
 vi.mock('@/utils/portal', () => ({
-  isIHubPortal: () => hoisted.isIHub,
+  isMobileAppPortal: () => hoisted.hasApp,
 }))
 
 afterEach(() => {
-  hoisted.isIHub = false
+  hoisted.hasApp = true
 })
 
 function lectures(
@@ -29,6 +29,8 @@ function lectures(
       trackingId: null,
       admissionsFormUrl: null,
     },
+    idCardApplicable: true,
+    idCardConfigured: true,
     idCardUrl: null,
     ...over,
   }
@@ -87,8 +89,8 @@ describe('buildLmsSteps', () => {
     expect(steps[3].completed).toBe(false) // app not installed
   })
 
-  it('drops the download-app step on the iHub portal', () => {
-    hoisted.isIHub = true
+  it('drops the download-app step on portals with no mobile app', () => {
+    hoisted.hasApp = false
     const steps = buildLmsSteps(
       lectures({
         lmsLectures: [
@@ -321,5 +323,76 @@ describe('getIdCardState', () => {
       url: null,
       unlocked: false,
     })
+  })
+
+  // IITJ students issue their own IDs — no locked card either, even with the
+  // full flow complete.
+  it('is hidden when the client does not issue an LMS ID card', () => {
+    expect(
+      getIdCardState(
+        lectures({
+          idCardApplicable: false,
+          programLectures: [
+            {
+              id: 'p',
+              lectureId: 9,
+              title: 'Intro',
+              videoUrl: 'v',
+              lectureType: 'video',
+            },
+          ],
+          completedLectureIds: [9],
+        }),
+        'full',
+      ),
+    ).toEqual({ show: false, url: null, unlocked: false })
+  })
+
+  // Batch 389 (IITREICT-DAAI) is the real-world case: admissions has no admit-card
+  // template for the program, so a URL never arrives. Showing the unlocked card
+  // would promise "being generated within 30 minutes" forever.
+  it('is hidden when admissions has no ID card configured for the program', () => {
+    expect(
+      getIdCardState(
+        lectures({
+          idCardConfigured: false,
+          programLectures: [
+            {
+              id: 'p',
+              lectureId: 9,
+              title: 'Intro',
+              videoUrl: 'v',
+              lectureType: 'video',
+            },
+          ],
+          completedLectureIds: [9],
+        }),
+        'full',
+      ),
+    ).toEqual({ show: false, url: null, unlocked: false })
+  })
+
+  // Configured but not yet issued — this is the genuine "being generated" case,
+  // and it must still render (url null, unlocked true).
+  it('still shows the card when configured but the URL has not arrived yet', () => {
+    expect(
+      getIdCardState(
+        lectures({
+          idCardConfigured: true,
+          idCardUrl: null,
+          programLectures: [
+            {
+              id: 'p',
+              lectureId: 9,
+              title: 'Intro',
+              videoUrl: 'v',
+              lectureType: 'video',
+            },
+          ],
+          completedLectureIds: [9],
+        }),
+        'full',
+      ),
+    ).toEqual({ show: true, url: null, unlocked: true })
   })
 })

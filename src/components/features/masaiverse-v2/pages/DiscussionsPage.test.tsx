@@ -10,7 +10,7 @@ vi.mock('@tanstack/react-query', () => ({ useQuery: () => useQuery() }))
 // The active tab is stored in the URL search, read via `routeApi.useSearch()`
 // and updated via `routeApi.useNavigate()`. Back it with a tiny reactive store
 // so navigating (e.g. focusing a tab) re-renders the controlled <Tabs>.
-const search = vi.hoisted(() => ({ value: {} as { tab?: string } }))
+const search = vi.hoisted(() => ({ value: {} }))
 
 vi.mock('@tanstack/react-router', async () => {
   const React = await import('react')

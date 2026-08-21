@@ -133,7 +133,7 @@ export function LectureVideoProgressTrack({
   }, [totalDuration])
 
   return (
-    <div className="flex w-full min-w-0 touch-none select-none flex-col pb-1 pt-0.5 md:pb-2">
+    <div className="flex w-full min-w-0 touch-none select-none flex-col pb-0 pt-0.5 md:pb-0">
       <div
         ref={trackRef}
         role="slider"
@@ -210,10 +210,12 @@ export function LectureVideoProgressTrack({
             ))}
         </div>
         {/* Scrubber: pops in on hover (always visible on touch, which has no
-            hover) with a soft halo glow, YouTube-style. */}
+            hover) with a soft halo glow, YouTube-style. Literal white — the
+            player chrome is fixed-dark in both themes; `bg-surface` would turn
+            the knob near-black on the dark rail in dark mode. */}
         {totalDuration > 0 ? (
           <div
-            className="pointer-events-none absolute top-1/2 z-[5] h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-surface shadow-[0_0_0_4px_rgba(255,255,255,0.15),0_2px_8px_rgba(0,0,0,0.5)] ring-1 ring-white/40 transition-transform duration-150 ease-out group-active:scale-110 md:h-4 md:w-4 [@media(hover:hover)]:scale-0 [@media(hover:hover)]:group-hover:scale-110 [@media(hover:hover)]:group-focus-visible:scale-110 [@media(hover:hover)]:group-active:scale-110"
+            className="pointer-events-none absolute top-1/2 z-[5] h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_0_4px_rgba(255,255,255,0.15),0_2px_8px_rgba(0,0,0,0.5)] ring-1 ring-white/40 transition-transform duration-150 ease-out group-active:scale-110 md:h-4 md:w-4 [@media(hover:hover)]:scale-0 [@media(hover:hover)]:group-hover:scale-110 [@media(hover:hover)]:group-focus-visible:scale-110 [@media(hover:hover)]:group-active:scale-110"
             style={{ left: `${elapsedPct}%` }}
             aria-hidden
           />

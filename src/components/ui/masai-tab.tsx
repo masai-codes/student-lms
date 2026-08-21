@@ -51,37 +51,43 @@ export type MasaiTabProps = Omit<
  * MasaiTab — single outlined tab item with default/selected states and
  * optional left/right icons. Composes inside any layout (row, grid, etc.).
  */
-export function MasaiTab({
-  label,
-  selected = false,
-  iconLeft,
-  iconRight,
-  size = 'regular',
-  htmlType = 'button',
-  className,
-  disabled,
-  ...props
-}: MasaiTabProps) {
-  return (
-    <button
-      type={htmlType}
-      role="tab"
-      aria-selected={selected}
-      disabled={disabled}
-      className={cn(tabVariants({ size, selected }), className)}
-      {...props}
-    >
-      {iconLeft ? (
-        <span className="inline-flex shrink-0 items-center" aria-hidden>
-          {iconLeft}
-        </span>
-      ) : null}
-      <span className="truncate">{label}</span>
-      {iconRight ? (
-        <span className="inline-flex shrink-0 items-center" aria-hidden>
-          {iconRight}
-        </span>
-      ) : null}
-    </button>
-  )
-}
+export const MasaiTab = React.forwardRef<HTMLButtonElement, MasaiTabProps>(
+  function MasaiTab(
+    {
+      label,
+      selected = false,
+      iconLeft,
+      iconRight,
+      size = 'regular',
+      htmlType = 'button',
+      className,
+      disabled,
+      ...props
+    },
+    ref,
+  ) {
+    return (
+      <button
+        ref={ref}
+        type={htmlType}
+        role="tab"
+        aria-selected={selected}
+        disabled={disabled}
+        className={cn(tabVariants({ size, selected }), className)}
+        {...props}
+      >
+        {iconLeft ? (
+          <span className="inline-flex shrink-0 items-center" aria-hidden>
+            {iconLeft}
+          </span>
+        ) : null}
+        <span className="truncate">{label}</span>
+        {iconRight ? (
+          <span className="inline-flex shrink-0 items-center" aria-hidden>
+            {iconRight}
+          </span>
+        ) : null}
+      </button>
+    )
+  },
+)

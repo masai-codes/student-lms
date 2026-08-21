@@ -48,7 +48,10 @@ describe('cancelEnrolmentFromAdmissions', () => {
   it('cancels the batch_user + its section_users and reports what changed', async () => {
     const result = await cancelEnrolmentFromAdmissions(input)
 
-    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(FAKE_TX, 123)
+    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(FAKE_TX, {
+      enrolmentId: 123,
+      client: undefined,
+    })
     expect(cancelBatchUser).toHaveBeenCalledWith(
       FAKE_TX,
       expect.objectContaining({ batchUserId: 55 }),
@@ -62,6 +65,14 @@ describe('cancelEnrolmentFromAdmissions', () => {
       userId: 7,
       batchId: 10,
       cancelledSectionUserIds: [901, 902],
+    })
+  })
+
+  it('forwards the payload client to the lookup as an extra filter', async () => {
+    await cancelEnrolmentFromAdmissions({ enrolment_id: 123, client: 'ihub' })
+    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(FAKE_TX, {
+      enrolmentId: 123,
+      client: 'ihub',
     })
   })
 

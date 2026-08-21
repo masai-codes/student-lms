@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 
 /** Duration (ms) of the chat side-panel open/close animation. */
-export const CHAT_PANEL_REVEAL_MS = 300
+const CHAT_PANEL_REVEAL_MS = 300
 
 /**
  * Open/close animation flags for the chat side panel. Keeps the panel mounted

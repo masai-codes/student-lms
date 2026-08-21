@@ -38,6 +38,7 @@ export const MANAGED_TABLES = [
   'feedback',
   'feedback_blueprints',
   'help_faqs',
+  'interview_sessions',
   'lecture_feedback',
   'lecture_zoom_chat',
   'lectures',
@@ -78,7 +79,5 @@ export const MANAGED_TABLES = [
   'zef_lms_polls_submissions',
   'zef_lms_quiz',
   'zef_lms_quiz_submission',
-  'zef_lms_sql_sandbox'
+  'zef_lms_sql_sandbox',
 ] as const
-
-export type ManagedTable = (typeof MANAGED_TABLES)[number]

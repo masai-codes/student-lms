@@ -3,6 +3,7 @@ import { computeGuidedTourProgress, fracValue } from './t0/guidedTourProgress'
 import type { GuidedTourPlatform } from './t0/guidedTourProgress'
 import { db } from '@/db'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
+import { hasCompletedAppDownload } from '@/server/devices/hasCompletedAppDownload'
 
 /** The platform a section belongs to, from its `-web` / `-app` type suffix. */
 function platformFromSectionType(sectionType: string): GuidedTourPlatform {
@@ -153,7 +154,7 @@ async function updateProgressMeta(
     legal_data: unknown
   }
 
-  const [admRows, profileRows, tokenRows] = await Promise.all([
+  const [admRows, profileRows, appDownloadCompleted] = await Promise.all([
     normalizeRows<AdmRow>(
       await db.execute(sql`
         SELECT full_fees_paid, meta FROM user_batch_admission_data
@@ -166,11 +167,7 @@ async function updateProgressMeta(
         WHERE user_id = ${userId} AND deleted_at IS NULL LIMIT 1
       `),
     ),
-    normalizeRows<{ id: number }>(
-      await db.execute(
-        sql`SELECT id FROM user_device_tokens WHERE user_id = ${userId} LIMIT 1`,
-      ),
-    ),
+    hasCompletedAppDownload(userId),
   ])
 
   if (!admRows.length) return
@@ -185,7 +182,7 @@ async function updateProgressMeta(
     fullFeesPaid,
     profileRows[0]?.meta,
     profileRows[0]?.legal_data,
-    tokenRows.length > 0,
+    appDownloadCompleted,
     platform,
   )
 
@@ -194,7 +191,8 @@ async function updateProgressMeta(
   const lmsFrac = `${lms.completed}/${lms.total}`
   metaUpdate[`lms_walkthrough_${platform}`] = lmsFrac
   const lmsOtherFrac = existingMeta[`lms_walkthrough_${other}`] as
-    string | undefined
+    | string
+    | undefined
   metaUpdate['lms_walkthrough'] =
     fracValue(lmsFrac) >= fracValue(lmsOtherFrac)
       ? lmsFrac
@@ -204,7 +202,8 @@ async function updateProgressMeta(
     const progFrac = `${program.completed}/${program.total}`
     metaUpdate[`program_onboarding_${platform}`] = progFrac
     const progOtherFrac = existingMeta[`program_onboarding_${other}`] as
-      string | undefined
+      | string
+      | undefined
     metaUpdate['program_onboarding'] =
       fracValue(progFrac) >= fracValue(progOtherFrac)
         ? progFrac

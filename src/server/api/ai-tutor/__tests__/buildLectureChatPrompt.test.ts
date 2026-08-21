@@ -5,6 +5,8 @@ import {
   AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE,
   AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE,
   AI_TUTOR_LECTURE_RAG_TOOL_NAME,
+  AI_TUTOR_PRACTICE_QUESTIONS_PLAIN_TEXT_GUIDANCE,
+  AI_TUTOR_PRACTICE_QUESTIONS_TOOL_NAME,
   buildEnforcedChatLanguageInstruction,
 } from '@/server/api/ai-tutor/constants'
 import { AI_TUTOR_DEFAULT_CHAT_LANGUAGE } from '@/server/api/ai-tutor/chatLanguage'
@@ -47,7 +49,9 @@ const raggedMaterials: LectureChatMaterials = {
 
 describe('buildLectureChatSystemPrompt', () => {
   it('includes summary and inline notes when notes are not ragged', () => {
-    const prompt = buildLectureChatSystemPrompt(inlineMaterials, 'English')
+    const prompt = buildLectureChatSystemPrompt(inlineMaterials, 'English', [
+      'quiz',
+    ])
 
     expect(prompt).toContain('## Lecture')
     expect(prompt).toContain('Title: React Hooks Deep Dive')
@@ -62,13 +66,17 @@ describe('buildLectureChatSystemPrompt', () => {
   })
 
   it('shows the empty resources message when none were shared', () => {
-    const prompt = buildLectureChatSystemPrompt(raggedMaterials, 'English')
+    const prompt = buildLectureChatSystemPrompt(raggedMaterials, 'English', [
+      'quiz',
+    ])
 
     expect(prompt).toContain('No resources were shared during the lecture.')
   })
 
   it('includes notesToc and tool guidance when notes are ragged', () => {
-    const prompt = buildLectureChatSystemPrompt(raggedMaterials, 'English')
+    const prompt = buildLectureChatSystemPrompt(raggedMaterials, 'English', [
+      'quiz',
+    ])
 
     expect(prompt).toContain('Table of contents')
     expect(prompt).toContain('## Bubble sort')
@@ -80,6 +88,7 @@ describe('buildLectureChatSystemPrompt', () => {
     const prompt = buildLectureChatSystemPrompt(
       { ...raggedMaterials, ragRetrievalAvailable: false },
       AI_TUTOR_DEFAULT_CHAT_LANGUAGE,
+      ['quiz'],
     )
 
     expect(prompt).not.toContain(AI_TUTOR_LECTURE_RAG_TOOL_NAME)
@@ -88,8 +97,28 @@ describe('buildLectureChatSystemPrompt', () => {
     expect(prompt).toContain(buildEnforcedChatLanguageInstruction('English'))
   })
 
+  it('includes the practice-questions tool guidance when quiz is supported', () => {
+    const prompt = buildLectureChatSystemPrompt(inlineMaterials, 'English', [
+      'quiz',
+    ])
+
+    expect(prompt).toContain(AI_TUTOR_PRACTICE_QUESTIONS_TOOL_NAME)
+    expect(prompt).not.toContain(
+      AI_TUTOR_PRACTICE_QUESTIONS_PLAIN_TEXT_GUIDANCE,
+    )
+  })
+
+  it('falls back to plain-text practice-questions guidance when quiz is not supported', () => {
+    const prompt = buildLectureChatSystemPrompt(inlineMaterials, 'English', [])
+
+    expect(prompt).not.toContain(AI_TUTOR_PRACTICE_QUESTIONS_TOOL_NAME)
+    expect(prompt).toContain(AI_TUTOR_PRACTICE_QUESTIONS_PLAIN_TEXT_GUIDANCE)
+  })
+
   it('enforces the provided language in the system prompt', () => {
-    const prompt = buildLectureChatSystemPrompt(inlineMaterials, 'Hindi')
+    const prompt = buildLectureChatSystemPrompt(inlineMaterials, 'Hindi', [
+      'quiz',
+    ])
 
     expect(prompt).toContain(buildEnforcedChatLanguageInstruction('Hindi'))
     expect(prompt).not.toContain('Start by asking which language they prefer')

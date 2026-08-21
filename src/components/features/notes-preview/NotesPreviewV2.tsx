@@ -3,6 +3,7 @@ import { NoteBlank } from '@phosphor-icons/react'
 
 import { MarkdownContent } from '@/components/shared/markdown-content'
 import { fetchNotesPreviewFromApi } from '@/lib/api/notes-preview/notesPreviewApi'
+import { useForcedLightTheme } from '@/lib/theme'
 
 import { notesPreviewRouteApi } from './notesPreviewRoute'
 
@@ -54,6 +55,10 @@ const EMPTY_MESSAGE = 'There is nothing to show here yet.'
 const ERROR_MESSAGE = "This content couldn't be loaded right now."
 
 export function NotesPreviewV2() {
+  // This page is always light — the preview content is authored light-only, so
+  // neither the user's dark pin nor the app shell's theme applies here.
+  useForcedLightTheme()
+
   const { category, contentType, entityId } = notesPreviewRouteApi.useSearch()
   const hasParams = Boolean(category && contentType && entityId)
 

@@ -4,10 +4,6 @@ import { afterEach, describe, expect, it } from 'vitest'
 import EventInfoRows from './EventInfoRows'
 import type { MasaiverseV2EventDetail } from '@/server/api/masaiverse-v2/services/getEventDetail.service'
 
-// Pin the timezone so the viewer-local time renders deterministically.
-// Asia/Kolkata → getTzLabel() === 'IST'.
-process.env.TZ = 'Asia/Kolkata'
-
 function makeEvent(
   overrides: Partial<MasaiverseV2EventDetail> = {},
 ): MasaiverseV2EventDetail {

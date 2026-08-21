@@ -1,9 +1,9 @@
-import { eq, sql } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import { db } from '@/db'
-import { users } from '@/db/schema'
 import { buildAdmissionsRedirectForUser } from '@/server/admissions/buildAdmissionsRedirectForUser'
 import { getAdmissionsStudentStatus } from '@/server/admissions/getAdmissionsStudentStatus'
 import type { AdmissionsStudentStatus } from '@/server/admissions/getAdmissionsStudentStatus'
+import { resolveStudentCode } from '@/server/users/getStudentCode'
 
 /**
  * The single source of truth for the T0 document / student-kit / ID-card steps.
@@ -30,11 +30,17 @@ export interface T0AdmissionsStatus {
   trackingUrl: string | null
   trackingId: string | null
   idCardUrl: string | null
+  /**
+   * Whether admissions issues an ID card for this program. `false` (the default
+   * when the API says so, or when we couldn't reach it) means the card should be
+   * hidden rather than shown as "being generated".
+   */
+  idCardConfigured: boolean
   /** SSO deep-link to the admissions portal (serves both doc upload + kit form). */
   admissionsFormUrl: string | null
 }
 
-export const EMPTY_T0_ADMISSIONS_STATUS: T0AdmissionsStatus = {
+const EMPTY_T0_ADMISSIONS_STATUS: T0AdmissionsStatus = {
   documentsRequired: false,
   documentsUploaded: false,
   documentsVerified: false,
@@ -43,6 +49,7 @@ export const EMPTY_T0_ADMISSIONS_STATUS: T0AdmissionsStatus = {
   trackingUrl: null,
   trackingId: null,
   idCardUrl: null,
+  idCardConfigured: false,
   admissionsFormUrl: null,
 }
 
@@ -116,12 +123,10 @@ export async function getT0AdmissionsStatus(
     userId,
     batchId,
   })
-  const [[user], admissionRows] = await Promise.all([
-    db
-      .select({ username: users.username })
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1),
+  const [username, admissionRows] = await Promise.all([
+    // The student code admissions keys off is per batch enrolment (batch_user.username);
+    // users.username is stale and null for most newer users.
+    resolveStudentCode(userId, batchId),
     normalizeRows<{ payment_url: string | null }>(
       await db.execute(sql`
         SELECT payment_url FROM user_batch_admission_data
@@ -130,7 +135,6 @@ export async function getT0AdmissionsStatus(
     ),
   ])
 
-  const username = user?.username ?? ''
   const redirect =
     admissionRows[0]?.payment_url?.trim() ||
     process.env.ADMISSIONS_SSO_BASE_URL ||
@@ -165,6 +169,7 @@ export async function getT0AdmissionsStatus(
     documentsUploaded: status.documents?.documentsUploaded === true,
     kitApplicable: status.kit?.showKit === true,
     idCardUrl: status.idCard?.url ?? null,
+    idCardConfigured: status.idCard?.idCardConfigured === true,
   })
 
   const documentsRequired = status.documents?.required === true
@@ -175,6 +180,7 @@ export async function getT0AdmissionsStatus(
   const trackingUrl = status.kit?.tracking?.trackingUrl?.trim() || null
   const trackingId = status.kit?.tracking?.trackingId?.trim() || null
   const idCardUrl = httpUrlOrNull(status.idCard?.url)
+  const idCardConfigured = status.idCard?.idCardConfigured === true
 
   // Mirror the latest raw response into our DB; the API remains the source of truth.
   await dumpAdmissionResponse(userId, batchId, status)
@@ -188,6 +194,7 @@ export async function getT0AdmissionsStatus(
     trackingUrl,
     trackingId,
     idCardUrl,
+    idCardConfigured,
     admissionsFormUrl,
   }
 }

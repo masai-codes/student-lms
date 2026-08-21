@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+
 import { LectureAiChatPanel } from './components/LectureAiChatPanel'
 import { useLectureAiChat } from './hooks/useLectureAiChat'
 import { useLectureAiChatFeedback } from './hooks/useLectureAiChatFeedback'
@@ -56,6 +58,13 @@ export function LectureAiChatExperience({
   )
   const feedback = feedbackProp ?? localFeedback
   const chat = chatProp ?? localChat
+
+  // Chat is "active" — and the feedback prompt withheld — while a reply is
+  // in flight/streaming or the learner is typing in the composer.
+  const isChatActive = chat.isSending || chat.input.length > 0
+  useEffect(() => {
+    feedback.reportActivity(isChatActive)
+  }, [feedback, isChatActive])
 
   // `h-full` fills bounded parents (desktop sidebar, in-video overlay, and the
   // fullscreen route whose <main> is `flex-1 min-h-0`).

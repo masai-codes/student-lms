@@ -9,6 +9,10 @@ import {
   zefLmsQuizSubmission,
 } from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
+import {
+  assessProductAuthHeaders,
+  logAssessAuthWarning,
+} from '@/server/assess/productAuth'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import { buildInLectureQuizUniqueId } from '@/server/learn/utils/inLectureQuizUniqueId'
 import { requireAssessEnv } from '@/server/learn/utils/assessEnv'
@@ -36,7 +40,9 @@ async function fetchSubmissionViewUrl(opts: {
   clientId: string
   reportToken: string
 }): Promise<string | null> {
-  const url = new URL(`${opts.base}/student/submissions/get-submission-view-url`)
+  const url = new URL(
+    `${opts.base}/student/submissions/get-submission-view-url`,
+  )
   url.searchParams.set('reportToken', opts.reportToken)
 
   const response = await fetch(url.toString(), {
@@ -46,7 +52,10 @@ async function fetchSubmissionViewUrl(opts: {
       clientid: opts.clientId,
     },
   }).catch((err) => {
-    console.error('[in-lecture-quiz] get-submission-view-url request error', err)
+    console.error(
+      '[in-lecture-quiz] get-submission-view-url request error',
+      err,
+    )
     return null
   })
 
@@ -181,12 +190,17 @@ export async function generateInLectureQuizUrl(input: {
       adminauthtoken: adminAuthToken,
       clientid: clientId,
       'Content-Type': 'application/json',
+      ...assessProductAuthHeaders(clientId),
     },
     body: JSON.stringify({
       // Stable per user + lecture + template so repeat opens don't spawn a new
       // assessment every time. Also how the `gradeAssessment` callback is
       // matched back to (user, lecture, template) — see inLectureQuizUniqueId.ts.
-      uniqueID: buildInLectureQuizUniqueId(userId, lectureId, assessmentTemplateId),
+      uniqueID: buildInLectureQuizUniqueId(
+        userId,
+        lectureId,
+        assessmentTemplateId,
+      ),
       assessmentTemplateId,
       redirectClientUrl: 'https://dont-redirect.com',
       email,
@@ -195,8 +209,15 @@ export async function generateInLectureQuizUrl(input: {
       groupId: String(lectureId),
       liveProgressCallbackUrl,
       noTimeBound: true,
-      skipSubjectiveGrading: false,
+      skipSubjectiveGrading: true,
+      showInstantAnswer: true,
     }),
+  })
+
+  logAssessAuthWarning(response, {
+    route: 'generate-test',
+    flow: 'in-lecture-quiz',
+    zefLmsQuizId,
   })
 
   if (!response.ok) {

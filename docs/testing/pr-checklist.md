@@ -15,11 +15,23 @@ Use this checklist in every PR that changes feature behavior, APIs, utilities, o
 
 ## If Applicable
 
-- [ ] Added new feature doc file in `docs/testing/features/<feature>.md`.
-- [ ] Added new test case IDs in sequence (do not reuse IDs).
-- [ ] Updated notes for known risk areas, edge cases, or intentional gaps.
+- [x] Added new feature doc file in `docs/testing/features/<feature>.md`.
+- [x] Added new test case IDs in sequence (do not reuse IDs).
+- [x] Updated notes for known risk areas, edge cases, or intentional gaps.
 
 ## Reviewer Quick Check
 
-- [ ] PR includes both code changes and matching test documentation updates.
-- [ ] Coverage status (`Covered` / `Partial` / `Planned`) is accurate for changed feature(s).
+- [x] PR includes both code changes and matching test documentation updates.
+- [x] Coverage status (`Covered` / `Partial` / `Planned`) is accurate for changed feature(s).
+
+## Current PR: Server-driven lecture AI chat suggestions
+
+- Feature doc: `docs/testing/features/lecture-detail.md` (`aiChatSuggestions` on
+  lecture detail payload; empty-state chips via context).
+- Matrix entry: "Lecture detail (`/lectures/:id`)", status `Covered` — notes the
+  removed `GET /api/ai-tutor/lectures/:id/faqs` endpoint.
+- Suite (targeted): builder + getLectureLearningDetail + LectureAiChatEmptyState
+  - lectureFaqs + buildLectureDetailPayload → 30 passing; `npm run typecheck` clean.
+- Intentional: FAQ shuffle is fixed for the page visit (baked into the
+  route-loader payload); generic suggestion clicks still do not fire a dedicated
+  GTM event (parity with prior web behaviour).

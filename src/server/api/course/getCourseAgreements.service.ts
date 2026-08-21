@@ -1,6 +1,7 @@
 import { and, eq, isNull } from 'drizzle-orm'
 import { db } from '@/db'
 import { sections, profiles } from '@/db/schema'
+import { resolveSectionLabel } from '@/server/batches/resolveSectionLabel'
 
 export interface CourseAgreementItem {
   sectionId: number
@@ -26,7 +27,8 @@ export async function getCourseAgreements(
   const agreementSections = sectionRows.filter((s) => {
     const settings = s.settings as Record<string, unknown> | null
     const agreements = settings?.agreements as
-      Record<string, unknown> | undefined
+      | Record<string, unknown>
+      | undefined
     return agreements?.shouldModalBeVisible === true
   })
 
@@ -66,7 +68,7 @@ export async function getCourseAgreements(
 
     return {
       sectionId: s.id,
-      sectionName: s.name,
+      sectionName: resolveSectionLabel(s.name, s.settings),
       alreadyAccepted: sectionData.haveAcceptedLegalAgreement === true,
       agreementPdfUrl,
     }

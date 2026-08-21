@@ -4,6 +4,8 @@ import type { EnrolledSection } from '@/server/learn/types'
 import { db } from '@/db'
 import { batches, sectionUser, sections } from '@/db/schema'
 import { batchScopeForPortal } from '@/server/batches/portalBatchScope'
+import { resolveSectionLabel } from '@/server/batches/resolveSectionLabel'
+import { sectionNotHiddenCondition } from '@/server/batches/sectionVisibility'
 
 /**
  * Section IDs the user is enrolled in for a given batch (legacy lectures/assignments API scope).
@@ -35,8 +37,11 @@ export async function getSectionIdsForUserInBatch(
 
 /**
  * Sections the user is enrolled in for a given batch, for the section filter
- * dropdown. Same scope as {@link getSectionIdsForUserInBatch}: portal-scoped and
- * `sections.deleted_at IS NULL`, keyed on the user's `section_user` rows only.
+ * dropdown. Same scope as {@link getSectionIdsForUserInBatch} (portal-scoped,
+ * `sections.deleted_at IS NULL`, keyed on the user's `section_user` rows only)
+ * plus one extra guard: on the IIT Jodhpur portal, sections flagged
+ * `settings.hideSection` are dropped so ops can take a section out of the
+ * learner-facing dropdown — see {@link sectionNotHiddenCondition}.
  *
  * The label prefers `settings.sectionDisplayName` (legacy `assignment.controller`
  * uses the same `settings?.sectionDisplayName || section.name` fallback).
@@ -59,6 +64,7 @@ export async function getEnrolledSectionsForUserInBatch(
         eq(sectionUser.userId, userId),
         eq(sections.batchId, batchId),
         isNull(sections.deletedAt),
+        sectionNotHiddenCondition(),
         batchScopeForPortal(),
       ),
     )
@@ -66,13 +72,9 @@ export async function getEnrolledSectionsForUserInBatch(
   const byId = new Map<number, EnrolledSection>()
   for (const row of rows) {
     if (byId.has(row.sectionId)) continue
-    const displayName =
-      typeof row.settings?.sectionDisplayName === 'string'
-        ? row.settings.sectionDisplayName.trim()
-        : ''
     byId.set(row.sectionId, {
       sectionId: row.sectionId,
-      name: displayName || row.name,
+      name: resolveSectionLabel(row.name, row.settings),
     })
   }
 

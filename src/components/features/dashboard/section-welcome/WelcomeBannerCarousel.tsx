@@ -8,6 +8,7 @@ import {
 } from '../shared/dashboardAnalytics'
 import { rememberBannerId } from '../shared/bannerRotation'
 import { MASAI_LIVE_PROMO } from './masaiLivePromo'
+import { showsMasaiLivePromo } from '@/utils/portal'
 import type { EmblaCarouselType } from 'embla-carousel'
 import type { DashboardBanner } from '@/server/api/dashboard/banners/getWelcomeBanners.service'
 
@@ -19,9 +20,11 @@ const FALLBACK_ICON =
   'https://masai-website-images.s3.ap-south-1.amazonaws.com/Group_f647b8c854.svg'
 const CHANGEMAKERS_ROUTE = '/changemakers-circle'
 
-// Temporarily hide the pinned Masai Live promo slide without removing its code.
-// Flip back to `true` to restore it as the always-first slide.
-const SHOW_MASAI_LIVE_PROMO = false
+// Kill switch for the pinned Masai Live promo slide. Flip to `false` to hide it
+// everywhere without removing its code (e.g. for a white-labelled demo). Portal
+// visibility is separate — see `showsMasaiLivePromo`, which hides the
+// Masai-branded promo on IIT Jodhpur.
+const SHOW_MASAI_LIVE_PROMO = true
 
 // Light-blue promo carousel beside the welcome greeting. Uses embla for smooth
 // mouse/touch drag-to-swipe. Arrows are bounded (no wraparound); dots mark the
@@ -30,7 +33,9 @@ const SHOW_MASAI_LIVE_PROMO = false
 // appear only with >1 slide. Each card is a link; a drag is not treated as a
 // click.
 export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
-  // Slide 0 is the fixed Masai Live promo; slides 1..n are the DB banners.
+  // Slide 0 is the fixed Masai Live promo (when the portal gets it); slides 1..n
+  // are the DB banners.
+  const showPromo = SHOW_MASAI_LIVE_PROMO && showsMasaiLivePromo()
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, startIndex: 0 })
 
   const [selected, setSelected] = useState(0)
@@ -48,12 +53,12 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
       setCanScrollNext(api.canScrollNext())
       // With the promo shown, index 0 is the promo (no DB id) and 1..n map to
       // banners[0..n-1]; with it hidden, banners map directly from index 0.
-      const promoOffset = SHOW_MASAI_LIVE_PROMO ? 1 : 0
+      const promoOffset = showPromo ? 1 : 0
       const bannerIndex = index - promoOffset
       if (bannerIndex >= 0 && bannerIndex < banners.length)
         rememberBannerId(banners[bannerIndex].id)
     },
-    [banners],
+    [banners, showPromo],
   )
 
   useEffect(() => {
@@ -82,8 +87,12 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
   const wasDragged = () => draggedRef.current
   // Total slides = the pinned promo (when shown) + the DB banners. Controls
   // show only when there is more than one slide to page through.
-  const slideCount = banners.length + (SHOW_MASAI_LIVE_PROMO ? 1 : 0)
+  const slideCount = banners.length + (showPromo ? 1 : 0)
   const hasMultiple = slideCount > 1
+
+  // Nothing to show (e.g. a portal without the promo and with no DB banners) —
+  // render nothing rather than an empty card slot.
+  if (slideCount === 0) return null
 
   return (
     <div
@@ -92,7 +101,7 @@ export function WelcomeBannerCarousel({ banners }: WelcomeBannerCarouselProps) {
     >
       <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
         <div className="flex">
-          {SHOW_MASAI_LIVE_PROMO && (
+          {showPromo && (
             <div className="min-w-0 flex-[0_0_100%]">
               <MasaiLivePromoCard wasDragged={wasDragged} />
             </div>
@@ -178,7 +187,7 @@ function BannerCard({
       draggable={false}
       data-testid="dashboard-welcome-banner-item"
       onClick={handleClick}
-      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(79_107_237_/_0.22)] ring-1 ring-inset ring-[#4F6BED]/10 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(79_107_237_/_0.30)]"
+      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(79_107_237_/_0.22)] ring-1 ring-inset ring-[#4F6BED]/10 dark:ring-white/10 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(79_107_237_/_0.30)]"
     >
       {/* Base blue/purple wash. */}
       <span
@@ -221,10 +230,13 @@ function MasaiLivePromoCard({ wasDragged }: { wasDragged: () => boolean }) {
       event.preventDefault()
       return
     }
-    pushDashboardEvent(masaiLivePromoClickEvent(MASAI_LIVE_PROMO.analyticsKey), {
-      analytics_key: MASAI_LIVE_PROMO.analyticsKey,
-      title: MASAI_LIVE_PROMO.title,
-    })
+    pushDashboardEvent(
+      masaiLivePromoClickEvent(MASAI_LIVE_PROMO.analyticsKey),
+      {
+        analytics_key: MASAI_LIVE_PROMO.analyticsKey,
+        title: MASAI_LIVE_PROMO.title,
+      },
+    )
   }
 
   return (
@@ -235,7 +247,7 @@ function MasaiLivePromoCard({ wasDragged }: { wasDragged: () => boolean }) {
       draggable={false}
       data-testid="dashboard-masai-live-promo"
       onClick={handleClick}
-      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(225_29_72_/_0.25)] ring-1 ring-inset ring-[#E11D48]/15 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(225_29_72_/_0.32)]"
+      className="dash-sheen group relative flex h-full items-stretch overflow-hidden rounded-2xl no-underline shadow-[0_6px_20px_-10px_rgb(225_29_72_/_0.25)] ring-1 ring-inset ring-[#E11D48]/15 dark:ring-white/10 transition-shadow duration-300 hover:shadow-[0_12px_30px_-10px_rgb(225_29_72_/_0.32)]"
     >
       {/* Base pink wash. */}
       <span
@@ -293,8 +305,18 @@ function ArrowButton({
   onClick: () => void
 }) {
   const isPrev = direction === 'prev'
-  // `top-1/2` + `-translate-y-1/2` centres the arrow on the card; the horizontal
-  // translate straddles the arrow on the card's side border.
+  // `top-1/2` + `-translate-y-1/2` centres the arrow on the card. The arrows sit
+  // fully INSIDE the carousel box (in the banner's own side padding) rather than
+  // straddling its border on a half-translate: `[data-testid=dashboard-content]`
+  // is `overflow-hidden`, so anything painted outside this box gets sliced off —
+  // the next arrow was rendering as a half circle. A z-index can't escape an
+  // ancestor's overflow clip, so staying inside is the only robust fix. (The
+  // clip itself has to stay: at exactly `md` the container is viewport-wide, so
+  // an outward-straddling arrow would force a horizontal scrollbar.)
+  //
+  // Inset 2px: both banner cards pad their content `md:px-8`, so a 32px arrow
+  // sits in that gutter clear of the CTA, and the 10% hover growth still lands
+  // inside the clip.
   return (
     <button
       type="button"
@@ -302,8 +324,8 @@ function ArrowButton({
       data-testid={`dashboard-welcome-banner-${direction}`}
       disabled={disabled}
       onClick={onClick}
-      className={`absolute top-1/2 z-10 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-foreground-muted shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-surface hover:text-[#3F83F8] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:text-foreground-muted md:flex ${
-        isPrev ? 'left-0 -translate-x-1/2' : 'right-0 translate-x-1/2'
+      className={`absolute top-1/2 z-20 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-foreground-muted shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-surface hover:text-[#3F83F8] hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 disabled:hover:text-foreground-muted md:flex ${
+        isPrev ? 'left-0.5' : 'right-0.5'
       }`}
     >
       {isPrev ? (

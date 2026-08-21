@@ -19,6 +19,24 @@ type BottomDrawerProps = {
   className?: string
   /** Extra classes for the scrollable body. */
   bodyClassName?: string
+  /**
+   * Element to portal into, defaulting to `<body>`. Pass the fullscreen root
+   * when the drawer has to stay visible over a fullscreened element: the
+   * Fullscreen API paints only that element and its descendants, so a sheet
+   * portaled to `<body>` is hidden regardless of z-index.
+   */
+  container?: HTMLElement | null
+  /** `data-testid` for the sheet itself, for automation. */
+  testId?: string
+  /**
+   * Replaces the default ✕ glyph in the header button — e.g. a caret when the
+   * sheet collapses to something instead of going away.
+   */
+  closeIcon?: ReactNode
+  /** Accessible name for that button. Defaults to "Close". */
+  closeLabel?: string
+  /** Extra control rendered in the header, between the title and the close button. */
+  headerAction?: ReactNode
 }
 
 /**
@@ -38,6 +56,11 @@ export default function BottomDrawer({
   children,
   className,
   bodyClassName,
+  container,
+  testId,
+  closeIcon,
+  closeLabel,
+  headerAction,
 }: BottomDrawerProps) {
   return (
     <Drawer.Root
@@ -45,10 +68,12 @@ export default function BottomDrawer({
       onOpenChange={(next) => {
         if (!next) onClose?.()
       }}
+      container={container ?? undefined}
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-[215] bg-black/50" />
         <Drawer.Content
+          data-testid={testId}
           className={cn(
             'fixed inset-x-0 bottom-0 z-[220] flex max-h-[88svh] flex-col rounded-t-2xl border-t border-border bg-surface font-poppins shadow-[0_-8px_24px_rgba(17,24,39,0.12)] outline-none',
             className,
@@ -60,16 +85,19 @@ export default function BottomDrawer({
             <Drawer.Handle className="!h-1 !w-10 !bg-muted" />
           </div>
 
-          <div className="flex shrink-0 items-center justify-between px-5 pb-3 pt-3">
-            <Drawer.Title className="text-[15px] font-bold text-foreground">
+          <div className="flex shrink-0 items-center justify-between gap-2 px-5 pb-3 pt-3">
+            <Drawer.Title className="min-w-0 flex-1 truncate text-[15px] font-bold text-foreground">
               {title ?? ''}
             </Drawer.Title>
-            <Drawer.Close
-              aria-label="Close"
-              className="flex size-8 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
-            >
-              <X size={18} />
-            </Drawer.Close>
+            <div className="flex shrink-0 items-center gap-1.5">
+              {headerAction}
+              <Drawer.Close
+                aria-label={closeLabel ?? 'Close'}
+                className="flex size-8 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
+              >
+                {closeIcon ?? <X size={18} />}
+              </Drawer.Close>
+            </div>
           </div>
 
           <div

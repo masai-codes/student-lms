@@ -4,7 +4,9 @@ const LANGUAGE_ALIASES: Record<string, AiTutorChatLanguage> = {
   en: 'English',
   english: 'English',
   hi: 'Hindi',
+  hin: 'Hinglish',
   hindi: 'Hindi',
+  hinglish: 'Hinglish',
   ta: 'Tamil',
   tamil: 'Tamil',
   te: 'Telugu',
@@ -35,6 +37,7 @@ const VALID_LANGUAGES: ReadonlySet<AiTutorChatLanguage> = new Set(
 
 export type AiTutorChatLanguage =
   | 'English'
+  | 'Hinglish'
   | 'Hindi'
   | 'Tamil'
   | 'Telugu'
@@ -69,7 +72,7 @@ export function parseChatLanguage(value: unknown): AiTutorChatLanguage {
   }
 
   const language = LANGUAGE_ALIASES[value.trim().toLowerCase()]
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (!language) {
     throw new ApiError(400, 'AI_TUTOR_LANGUAGE_INVALID')
   }

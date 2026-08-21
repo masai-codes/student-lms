@@ -163,7 +163,9 @@ export function AssignmentDetailStickyFooter({
                     action.variant === 'secondary'
                       ? 'transition-all duration-200 ease-out active:scale-95'
                       : // Primary CTA: indigo glow + hover lift + press squish.
-                        'shadow-[0_4px_14px_-4px_rgb(79_107_237_/_0.6)] transition-all duration-200 ease-out hover:-translate-y-px hover:shadow-[0_6px_18px_-4px_rgb(79_107_237_/_0.7)] active:translate-y-0 active:scale-95'
+                        // Dark: the primary fill is brand red, so the glow
+                        // re-colors to match (indigo would clash on red/black).
+                        'shadow-[0_4px_14px_-4px_rgb(79_107_237_/_0.6)] transition-all duration-200 ease-out hover:-translate-y-px hover:shadow-[0_6px_18px_-4px_rgb(79_107_237_/_0.7)] active:translate-y-0 active:scale-95 dark:shadow-[0_4px_14px_-4px_rgb(240_82_82_/_0.5)] dark:hover:shadow-[0_6px_18px_-4px_rgb(240_82_82_/_0.6)]'
                   }
                   disabled={!action.enabled || loading}
                   data-testid={`assignment-footer-action-${action.kind}`}

@@ -67,6 +67,7 @@ export function LiveLectureContent({ detail }: LiveLectureContentProps) {
           hideNotes={detail.hideNotes}
           tabs={detail.tabs}
           feedback={detail.feedback}
+          inLecturePopupElements={detail.inLecturePopupElements}
         />
       }
     />

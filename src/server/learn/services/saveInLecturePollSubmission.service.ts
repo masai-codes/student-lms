@@ -1,7 +1,12 @@
 import { and, eq } from 'drizzle-orm'
 
 import { db } from '@/db'
-import { lectures, zefLmsMetaData, zefLmsPollsQuestions, zefLmsPollsSubmissions } from '@/db/schema'
+import {
+  lectures,
+  zefLmsMetaData,
+  zefLmsPollsQuestions,
+  zefLmsPollsSubmissions,
+} from '@/db/schema'
 import { ApiError } from '@/server/api/http/apiError'
 import { ensureUserCanAccessLearnHubEntity } from '@/server/learn/utils/ensureLearnEntityAccess'
 import {

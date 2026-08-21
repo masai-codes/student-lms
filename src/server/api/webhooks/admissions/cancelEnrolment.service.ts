@@ -12,7 +12,9 @@ const FN = 'cancelEnrolmentFromAdmissions'
 /**
  * Cancels an enrolment the admissions platform previously created:
  *
- *   1. locate the batch_user by its enrolment_id (404 if unknown)
+ *   1. locate the batch_user by its enrolment_id — scoped to the payload's
+ *      `client` when sent, so a student of another client never matches
+ *      (404 if unknown)
  *   2. soft-delete + mark the batch_user cancelled (timeline audit)
  *   3. soft-delete every active section_user in that batch (history audit)
  *
@@ -32,10 +34,11 @@ export async function cancelEnrolmentFromAdmissions(
   })
 
   const result = await db.transaction(async (tx) => {
-    const batchUserRow = await findBatchUserByEnrolmentId(
-      tx,
-      input.enrolment_id,
-    )
+    const batchUserRow = await findBatchUserByEnrolmentId(tx, {
+      enrolmentId: input.enrolment_id,
+      // `null` from admissions means "not specified" — same as omitted.
+      client: input.client ?? undefined,
+    })
 
     await cancelBatchUser(tx, {
       batchUserId: batchUserRow.id,

@@ -13,8 +13,6 @@ import type { NormalizedInLectureQuiz } from './normalizeInLectureQuizzes'
 
 /** How often to poll whether the Assess Platform has graded this attempt. */
 const GRADED_POLL_INTERVAL_MS = 3000
-/** Beat between detecting the submission and revealing the skip overlay. */
-const SKIP_REVEAL_DELAY_MS = 1000
 
 type InLectureQuizModalProps = {
   lectureId: number
@@ -25,6 +23,8 @@ type InLectureQuizModalProps = {
   portalContainer?: HTMLElement | null
   /** Skip past the window to the next concept (seek to `endSec` + close). */
   onSkipToLecture: () => void
+  /** Fired once, the moment this session's attempt is detected as graded. */
+  onSubmitted?: () => void
 }
 
 type LoadState =
@@ -44,12 +44,27 @@ function toEmbeddableQuizUrl(url: string): string {
   }
 }
 
+/** Hides per-question subjective scores on the Assess Platform's submission-review page. */
+function toSubmissionViewUrl(url: string): string {
+  try {
+    const parsed = new URL(url)
+    parsed.searchParams.set('hideSubjectiveScores', '1')
+    return parsed.toString()
+  } catch {
+    return url
+  }
+}
+
 /**
  * Non-blocking, in-player quiz panel (see {@link FloatingPopupPanel} for the
  * draggable/resizable chrome). Submission is handled by the iframe's own
- * submit button; once this session's submission is saved, after a short beat
- * a centered "Continue" button appears. Opening/closing by
- * playback window is owned by `useInLectureQuiz`.
+ * submit button; as soon as the Assess `gradeAssessment` callback has persisted
+ * this session's attempt, the panel skips past the quiz window on its own.
+ * An already-submitted quiz is review-only — it never polls and never
+ * auto-skips, so it gets an explicit header "Continue" instead (there is
+ * otherwise no way to leave the review before playback reaches the window's
+ * end on its own). Opening/closing by playback window is owned by
+ * `useInLectureQuiz`.
  */
 export function InLectureQuizModal({
   lectureId,
@@ -57,11 +72,16 @@ export function InLectureQuizModal({
   isFullscreen,
   portalContainer,
   onSkipToLecture,
+  onSubmitted,
 }: InLectureQuizModalProps) {
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
-  const [showSkip, setShowSkip] = useState(false)
-  const skipRef = useRef<HTMLDivElement>(null)
+  // Held in refs so a new callback identity from the parent can't restart the
+  // grading poll (and re-arm a second auto-skip/submit) mid-attempt.
+  const skipRef = useRef(onSkipToLecture)
+  skipRef.current = onSkipToLecture
+  const submittedRef = useRef(onSubmitted)
+  submittedRef.current = onSubmitted
 
   // Fetch the embeddable quiz URL (re-fetch on quiz change / manual retry).
   useEffect(() => {
@@ -74,7 +94,7 @@ export function InLectureQuizModal({
       .then((result) => {
         if (cancelled) return
         const url = result.alreadySubmitted
-          ? result.url
+          ? toSubmissionViewUrl(result.url)
           : toEmbeddableQuizUrl(result.url)
         setState({
           status: 'ready',
@@ -95,24 +115,26 @@ export function InLectureQuizModal({
 
   const alreadySubmitted = state.status === 'ready' && state.alreadySubmitted
 
-  // Poll for the saved submission on a fresh test. Once the row exists (the
-  // Assess `gradeAssessment` callback persisted it this session), wait a beat
-  // then reveal the skip overlay.
+  // Poll for the saved submission on a fresh test. The moment the row exists
+  // (the Assess `gradeAssessment` callback persisted it this session), skip
+  // past the quiz window — the same thing the Continue button did.
   useEffect(() => {
-    if (state.status !== 'ready' || alreadySubmitted || showSkip) return
+    if (state.status !== 'ready' || alreadySubmitted) return
     let cancelled = false
-    let revealTimer: number | undefined
+    // Several polls can be in flight when grading lands; only the first one
+    // gets to skip.
+    let skipped = false
     const check = () => {
       checkInLectureQuizGraded({
         lectureId,
         assessmentTemplateId: quiz.assessmentId,
       })
         .then((result) => {
-          if (cancelled || !result.graded) return
+          if (cancelled || !result.graded || skipped) return
+          skipped = true
           window.clearInterval(intervalId)
-          revealTimer = window.setTimeout(() => {
-            if (!cancelled) setShowSkip(true)
-          }, SKIP_REVEAL_DELAY_MS)
+          submittedRef.current?.()
+          skipRef.current()
         })
         .catch(() => {
           /* transient poll failure — next tick retries */
@@ -123,14 +145,8 @@ export function InLectureQuizModal({
     return () => {
       cancelled = true
       window.clearInterval(intervalId)
-      if (revealTimer) window.clearTimeout(revealTimer)
     }
-  }, [state.status, alreadySubmitted, showSkip, lectureId, quiz.assessmentId])
-
-  // Move keyboard focus to the skip button once the overlay appears.
-  useEffect(() => {
-    if (showSkip) skipRef.current?.querySelector('button')?.focus()
-  }, [showSkip])
+  }, [state.status, alreadySubmitted, lectureId, quiz.assessmentId])
 
   return (
     <FloatingPopupPanel
@@ -139,20 +155,16 @@ export function InLectureQuizModal({
       testId="in-lecture-quiz-modal"
       isFullscreen={isFullscreen}
       portalContainer={portalContainer}
-      overlay={
-        showSkip ? (
-          <div
-            ref={skipRef}
-            className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      headerAction={
+        alreadySubmitted ? (
+          <button
+            type="button"
+            onClick={onSkipToLecture}
+            data-testid="in-lecture-quiz-continue"
+            className="flex h-7 shrink-0 cursor-pointer items-center rounded-full bg-brand-foreground/20 px-3 text-xs font-medium text-brand-foreground transition-colors hover:bg-brand-foreground/35"
           >
-            <MasaiButton
-              type="primary"
-              size="md"
-              htmlType="button"
-              ctaText="Continue"
-              onClick={onSkipToLecture}
-            />
-          </div>
+            Continue
+          </button>
         ) : null
       }
     >
@@ -163,9 +175,10 @@ export function InLectureQuizModal({
             src={state.url}
             className={cn(
               'h-full w-full border-0',
-              // Inactive while dragging/resizing (so the parent keeps the
-              // pointer) and under the skip overlay.
-              (interacting || showSkip) && 'pointer-events-none',
+              // Inactive while dragging/resizing, so the parent keeps the
+              // pointer. Stays interactive after submitting — the iframe shows
+              // the result, and Continue now lives outside it.
+              interacting && 'pointer-events-none',
             )}
             allow="camera; microphone; fullscreen; clipboard-write"
           />

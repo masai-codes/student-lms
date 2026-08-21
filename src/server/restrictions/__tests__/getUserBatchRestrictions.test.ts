@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
+
 const hoisted = vi.hoisted(() => ({
-  rows: [] as Array<{ batchId: number; meta: string | null }>,
+  rows: [] as Array<{
+    batchId: number
+    meta: string | null
+    deletedAt?: string | null
+  }>,
 }))
 
 vi.mock('@/db', () => ({
@@ -13,8 +19,6 @@ vi.mock('@/db', () => ({
     }),
   },
 }))
-
-import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 
 describe('getUserBatchRestrictions', () => {
   beforeEach(() => {
@@ -100,6 +104,39 @@ describe('getUserBatchRestrictions', () => {
       agreementBanned: true,
       agreementBannedDate: '2026-07-03',
     })
+  })
+
+  it('keeps the restriction from a soft-deleted (cancelled) batch_user row', async () => {
+    // Cancelling an enrolment writes the flag AND soft-deletes the row, so
+    // skipping deleted rows would drop the only record of the cancellation.
+    hoisted.rows = [
+      {
+        batchId: 9,
+        deletedAt: '2026-07-25 13:38:19',
+        meta: JSON.stringify({
+          batchEnrolmentCancelled: true,
+          batchEnrolmentCancelledDate: '2026-07-25T13:38:18.991Z',
+        }),
+      },
+    ]
+
+    const r = await getUserBatchRestrictions(0)
+    expect(r.get(9)).toMatchObject({ enrolmentCancelled: true })
+  })
+
+  it('ignores a soft-deleted row when the batch has a live row', async () => {
+    // Re-enrolled into the same batch: the old cancellation must not restrict it.
+    hoisted.rows = [
+      {
+        batchId: 10,
+        deletedAt: '2026-07-25 13:38:19',
+        meta: JSON.stringify({ batchEnrolmentCancelled: true }),
+      },
+      { batchId: 10, deletedAt: null, meta: JSON.stringify({ isIhub: false }) },
+    ]
+
+    const r = await getUserBatchRestrictions(0)
+    expect(r.has(10)).toBe(false)
   })
 
   it('merges flags across multiple batch_user rows for the same batch', async () => {

@@ -29,11 +29,6 @@ export function normalizeStatus(raw: string | null | undefined): TicketStatus {
     : 'open'
 }
 
-/** A ticket is "resolved-ish" (no longer in the unresolved tab) when closed. */
-export function isResolvedStatus(status: TicketStatus): boolean {
-  return status === 'resolved' || status === 'closed' || status === 'automatic'
-}
-
 /** Shape of the user columns we select for any "person" in the UI. */
 export interface UserRowLite {
   id: number

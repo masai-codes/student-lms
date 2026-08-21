@@ -65,7 +65,7 @@ export default function ShareClubButton() {
         type="button"
         onClick={handleShare}
         aria-label="Share club — copy link"
-        className="flex items-center gap-2 rounded-[12px] bg-surface/10 px-4 py-2.5 text-[14px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-surface/20"
+        className="flex items-center gap-2 rounded-[12px] bg-white/10 px-4 py-2.5 text-[14px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
       >
         <ShareNetwork size={18} weight="bold" />
         Share Club
@@ -77,8 +77,8 @@ export default function ShareClubButton() {
           aria-live="polite"
           className="absolute right-0 top-[calc(100%+12px)] z-30 w-[264px] origin-top-right animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-200"
         >
-          <span className="absolute -top-1.5 right-7 size-3 rotate-45 rounded-[2px] border-l border-t border-black/5 bg-surface" />
-          <div className="flex items-center gap-3 rounded-[14px] border border-black/5 bg-surface px-4 py-3 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.35)]">
+          <span className="absolute -top-1.5 right-7 size-3 rotate-45 rounded-[2px] border-l border-t border-black/5 bg-surface dark:border-white/10" />
+          <div className="flex items-center gap-3 rounded-[14px] border border-black/5 bg-surface px-4 py-3 dark:border-white/10 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.35)]">
             <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#23C16B] to-[#1FA463] text-success-foreground shadow-[0_4px_10px_rgba(31,164,99,0.35)]">
               <CheckCircle size={22} weight="fill" />
             </span>

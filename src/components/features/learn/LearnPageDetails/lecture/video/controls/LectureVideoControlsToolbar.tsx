@@ -43,6 +43,7 @@ import {
   AskAiPillContent,
   askAiPillClass,
 } from '@/components/features/lecture-ai-chat/components/AskAiPill'
+import { SqlPillContent, sqlPillClass } from '../../sql-playground/SqlPill'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 import { cn } from '@/lib/utils'
 
@@ -105,6 +106,8 @@ type LectureVideoControlsToolbarProps = {
   onMenuOpenChange?: (open: boolean) => void
   /** Opens the lecture AI chat; the "Ask AI" pill renders only when provided. */
   onOpenAiChat?: () => void
+  /** Opens the SQL Playground drawer; the "SQL" pill renders only when provided. */
+  onOpenSqlPlayground?: () => void
 }
 
 export function LectureVideoControlsToolbar({
@@ -126,6 +129,7 @@ export function LectureVideoControlsToolbar({
   chromeVisible,
   onMenuOpenChange,
   onOpenAiChat,
+  onOpenSqlPlayground,
 }: LectureVideoControlsToolbarProps) {
   const overflowMenuRef = useRef<HTMLDivElement>(null)
   const [volumeUi, setVolumeUi] = useState(1)
@@ -298,7 +302,9 @@ export function LectureVideoControlsToolbar({
 
   // Frosted-glass chrome: standalone circular pills for primary actions and a
   // grouped capsule for secondary ones, floating over the video like the new
-  // YouTube glass player.
+  // YouTube glass player. Literal white/black (never `surface` tokens): the
+  // player chrome is intentionally fixed-dark in BOTH themes — a themed token
+  // would flip near-black in dark mode and dissolve the glass on the video.
   const glassPillClass =
     'border border-white/15 bg-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl'
   const clusterButtonClass =
@@ -419,6 +425,24 @@ export function LectureVideoControlsToolbar({
                 aria-label="Ask AI about this lecture"
               >
                 <AskAiPillContent />
+              </button>
+            </ControlTooltip>
+          ) : null}
+          {onOpenSqlPlayground ? (
+            <ControlTooltip label="Open SQL Playground">
+              <button
+                type="button"
+                onClick={() => {
+                  onActivity()
+                  onOpenSqlPlayground()
+                }}
+                className={cn(
+                  sqlPillClass,
+                  'inline-flex shrink-0 max-sm:h-9 max-sm:w-9 max-sm:gap-0 max-sm:px-0',
+                )}
+                aria-label="Open SQL Playground"
+              >
+                <SqlPillContent />
               </button>
             </ControlTooltip>
           ) : null}

@@ -29,7 +29,7 @@ export function SidebarPanel({
   return (
     <section
       data-testid={testId}
-      className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5 transition-colors duration-300 hover:border-[#4F6BED]/25"
+      className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5 transition-colors duration-300 hover:border-[#4F6BED]/25 dark:hover:border-brand/30"
     >
       <div className="flex items-center justify-between gap-2">
         <h3
@@ -38,7 +38,7 @@ export function SidebarPanel({
         >
           <span
             aria-hidden
-            className="h-4 w-1 shrink-0 rounded-full bg-gradient-to-b from-[#4F6BED] to-[#7C3AED]"
+            className="h-4 w-1 shrink-0 rounded-full bg-gradient-to-b from-[#4F6BED] to-[#7C3AED] dark:from-brand dark:to-[#c93a3a]"
           />
           {title}
         </h3>
@@ -124,7 +124,7 @@ export function SidebarPanelLink({
       type="button"
       onClick={onClick}
       data-testid={testId}
-      className="group inline-flex items-center gap-0.5 text-sm font-medium text-[#4F46E5] transition-colors hover:text-[#4338CA] focus-visible:outline-none focus-visible:underline"
+      className="group inline-flex items-center gap-0.5 text-sm font-medium text-[#4F46E5] transition-colors hover:text-[#4338CA] dark:text-brand dark:hover:text-brand-subtle-foreground focus-visible:outline-none focus-visible:underline"
     >
       <span>{label}</span>
       <span

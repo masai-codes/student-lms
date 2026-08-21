@@ -32,7 +32,7 @@ export default function EventAttendees({ count }: EventAttendeesProps) {
         {Array.from({ length: bubbles }).map((_, index) => (
           <span
             key={index}
-            className={`size-8 rounded-full bg-gradient-to-br ring-2 ring-white ${
+            className={`size-8 rounded-full bg-gradient-to-br ring-2 ring-surface ${
               BUBBLE_GRADIENTS[index % BUBBLE_GRADIENTS.length]
             }`}
           />

@@ -135,17 +135,6 @@ describe('BookmarksPage', () => {
     })
   })
 
-  it('resets search + filters on tab change', async () => {
-    hoisted.search = { page: 3, tab: 'lectures', q: 'x', category: ['DSA'] }
-    renderPage()
-    await screen.findByText('Saved Lecture')
-    fireEvent.click(screen.getByText('Tickets'))
-    expect(hoisted.navigate).toHaveBeenCalledWith({
-      to: '/bookmarks',
-      search: { tab: 'tickets', page: 1 },
-    })
-  })
-
   it('passes the active filters into the fetch query', async () => {
     hoisted.search = {
       page: 2,

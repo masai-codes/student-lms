@@ -1,8 +1,15 @@
 import { AI_TUTOR_API } from '@/lib/api/ai-tutor/aiTutorPaths'
+import { createSseFrameBuffer } from '@/lib/api/sse/sseFrameBuffer'
+import type { PracticeQuestionsPayload } from '@/server/api/ai-tutor/types/practiceQuestions'
+import { parsePracticeQuestionsPayload } from '@/server/api/ai-tutor/types/practiceQuestions'
+
+export { createSseFrameBuffer }
 
 /** Wire events emitted by `POST /api/ai-tutor/chat/stream`. */
-export type ChatStreamEvent =
-  { type: 'token'; content: string } | { type: 'done'; chatId: number }
+type ChatStreamEvent =
+  | { type: 'token'; content: string }
+  | { type: 'practiceQuestions'; payload: PracticeQuestionsPayload }
+  | { type: 'done'; chatId: number }
 
 export type LectureAiChatPlatform = 'web-desktop' | 'web-mobile'
 
@@ -14,58 +21,22 @@ export type StreamLectureAiChatRequest = {
   chatId?: number
   /** Language the assistant should reply in (e.g. "English", "Hindi"). */
   language?: string
+  /** Structured UI elements the caller can render (e.g. `['quiz']`). Omitted means none — the assistant writes everything as plain text. */
+  supportedUIElements?: string[]
 }
 
 export type StreamLectureAiChatHandlers = {
   /** Fired once, on the first streamed token (flip "thinking" → "streaming"). */
   onFirstChunk?: () => void
   onChunk: (content: string) => void
+  /** Fired when the assistant generated practice questions instead of (or alongside) text. */
+  onPracticeQuestions?: (payload: PracticeQuestionsPayload) => void
   onComplete: (chatId: number | null) => void
   onError: (code: string) => void
 }
 
 /** Synthetic code surfaced when the transport (not the server) failed. */
 const STREAM_GENERIC_ERROR = 'AI_TUTOR_CHAT_STREAM_FAILED'
-
-/**
- * Pure buffer that reassembles SSE frames (delimited by a blank line) even when
- * a single frame is split across multiple network chunks. `push` returns the
- * `data:` payloads that became complete with this chunk. Kept side-effect free
- * so it can be unit-tested in isolation.
- */
-export function createSseFrameBuffer() {
-  let buffer = ''
-
-  return {
-    push(chunk: string): Array<string> {
-      buffer += chunk
-      const payloads: Array<string> = []
-
-      let separatorIndex = buffer.indexOf('\n\n')
-      while (separatorIndex !== -1) {
-        const rawFrame = buffer.slice(0, separatorIndex)
-        buffer = buffer.slice(separatorIndex + 2)
-        const payload = extractDataPayload(rawFrame)
-        if (payload !== null) payloads.push(payload)
-        separatorIndex = buffer.indexOf('\n\n')
-      }
-
-      return payloads
-    },
-  }
-}
-
-/** Join the `data:` lines of one SSE frame (the spec allows several per event). */
-function extractDataPayload(rawFrame: string): string | null {
-  const dataLines = rawFrame
-    .split('\n')
-    .map((line) => line.replace(/\r$/, ''))
-    .filter((line) => line.startsWith('data:'))
-    .map((line) => line.slice('data:'.length).replace(/^ /, ''))
-
-  if (dataLines.length === 0) return null
-  return dataLines.join('\n')
-}
 
 function parseEvent(payload: string): ChatStreamEvent | null {
   let parsed: unknown
@@ -79,6 +50,7 @@ function parseEvent(payload: string): ChatStreamEvent | null {
   const record = parsed as {
     type?: unknown
     content?: unknown
+    payload?: unknown
     chatId?: unknown
   }
 
@@ -87,6 +59,10 @@ function parseEvent(payload: string): ChatStreamEvent | null {
       type: 'token',
       content: typeof record.content === 'string' ? record.content : '',
     }
+  }
+  if (record.type === 'practiceQuestions') {
+    const payload = parsePracticeQuestionsPayload(record.payload)
+    return payload ? { type: 'practiceQuestions', payload } : null
   }
   if (record.type === 'done') {
     return {
@@ -143,6 +119,9 @@ async function runStream(
         platform: request.platform,
         ...(request.chatId != null ? { chatId: request.chatId } : {}),
         ...(request.language != null ? { language: request.language } : {}),
+        ...(request.supportedUIElements != null
+          ? { supportedUIElements: request.supportedUIElements }
+          : {}),
       }),
       signal,
     })
@@ -184,6 +163,12 @@ async function runStream(
             handlers.onFirstChunk?.()
           }
           handlers.onChunk(event.content)
+        } else if (event.type === 'practiceQuestions') {
+          if (!sawFirstChunk) {
+            sawFirstChunk = true
+            handlers.onFirstChunk?.()
+          }
+          handlers.onPracticeQuestions?.(event.payload)
         } else {
           completed = true
           handlers.onComplete(event.chatId)

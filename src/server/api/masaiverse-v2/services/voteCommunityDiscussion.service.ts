@@ -9,7 +9,7 @@ import {
   revokeUpvotePoints,
 } from '@/server/api/masaiverse-v2/services/awardLeaderboardPoints.service'
 
-export type VoteValue = 'upvote' | 'downvote'
+type VoteValue = 'upvote' | 'downvote'
 
 export interface DiscussionVoteState {
   /** Upvote count after the change (downvotes are never surfaced). */

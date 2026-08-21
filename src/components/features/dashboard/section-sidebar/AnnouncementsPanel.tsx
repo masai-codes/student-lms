@@ -82,7 +82,7 @@ function AnnouncementRow({
         )
       }}
       data-testid={`dashboard-announcement-item-${announcement.source}-${announcement.id}`}
-      className="dash-lift animate-dash-row-in rounded-xl border border-border p-3.5 no-underline hover:border-[#4F6BED]/35"
+      className="dash-lift animate-dash-row-in rounded-xl border border-border p-3.5 no-underline hover:border-[#4F6BED]/35 dark:hover:border-brand/40"
     >
       <h4 className="truncate text-sm font-semibold text-foreground">
         {announcement.title}

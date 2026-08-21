@@ -5,9 +5,7 @@
  */
 export const LECTURE_AI_CHAT_MAX_MESSAGE_LENGTH = 4_000
 
-export const LECTURE_AI_CHAT_SUGGESTIONS = [
-  'Summarize the key points of this lecture',
-  'Explain the main concept in simple terms',
-  'What should I review after this lecture?',
-  'Give me a practice question on this topic',
-] as const
+export type {
+  LectureAiChatSuggestion,
+  LectureAiChatSuggestionKind,
+} from '@/server/learn/utils/buildLectureAiChatSuggestions'

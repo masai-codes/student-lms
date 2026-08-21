@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm'
 import { db } from '@/db'
-import { isIHubPortalRequest } from '@/server/auth/v2/portalContext'
+import { isMobileAppPortalRequest } from '@/server/auth/v2/portalContext'
 
 /**
  * Shared "how far through the guided tour is this user?" computation.
@@ -40,14 +40,15 @@ export interface GuidedTourWebProgress {
 
 /**
  * The non-video LMS steps: profile photo (always) + download app. The
- * download-app step is Masai-only — iHub has no mobile app, so it is dropped
- * from the tour and, critically, from the denominator (otherwise the tour could
- * never reach 100% on iHub). Keep this in sync with the frontend step builder
- * (`guided-tour/steps.ts`) which reads `lmsExtraSteps` from the same intent.
+ * download-app step only counts on portals the app ships for (see
+ * `MOBILE_APP_PORTALS`); elsewhere it is dropped from the tour and, critically,
+ * from the denominator (otherwise the tour could never reach 100% there). Keep
+ * this in sync with the frontend step builder (`guided-tour/steps.ts`), which
+ * gates the same step on `isMobileAppPortal()`.
  */
-export function lmsWalkthroughExtraSteps(isIHub: boolean): number {
-  // profile photo + (download app unless iHub)
-  return 1 + (isIHub ? 0 : 1)
+export function lmsWalkthroughExtraSteps(hasMobileApp: boolean): number {
+  // profile photo + (download app only where the app exists)
+  return 1 + (hasMobileApp ? 1 : 0)
 }
 
 const LECTURE_TYPES_COUNTED = [
@@ -214,7 +215,8 @@ async function computeAgreementState(
         unknown
       >
       const sectionAgreement = legal[`section_${Number(row.id)}`] as
-        Record<string, unknown> | undefined
+        | Record<string, unknown>
+        | undefined
       return {
         hasAgreement: true,
         signed: sectionAgreement?.['haveAcceptedLegalAgreement'] === true,
@@ -228,9 +230,10 @@ async function computeAgreementState(
  * Computes the live guided-tour progress for one admission batch on a given
  * platform (`'web'` → `-web` sections, `'app'` → `-app` sections).
  * `profileMeta` / `legalData` are the profile's `meta` / `legal_data`, and
- * `hasDeviceToken` whether the user has registered a device — passed in so
- * callers that already loaded them don't re-query. The two fixed LMS steps
- * (profile photo, download app) are platform-independent.
+ * `appDownloadCompleted` whether the user has the app (a device-token row OR a
+ * tracked app login — see `hasCompletedAppDownload`) — passed in so callers that
+ * already loaded them don't re-query. The two fixed LMS steps (profile photo,
+ * download app) are platform-independent.
  */
 export async function computeGuidedTourProgress(
   userId: number,
@@ -238,14 +241,14 @@ export async function computeGuidedTourProgress(
   fullFeesPaid: boolean,
   profileMeta: unknown,
   legalData: unknown,
-  hasDeviceToken: boolean,
+  appDownloadCompleted: boolean,
   platform: GuidedTourPlatform = 'web',
 ): Promise<GuidedTourWebProgress> {
-  const isIHub = isIHubPortalRequest()
+  const appAvailable = isMobileAppPortalRequest()
   const hasPhoto = hasHttpUrl(parseMeta(profileMeta)['profile_pic'])
-  // iHub omits the download-app step from both numerator and denominator.
+  // Non-Masai portals omit the download-app step from numerator and denominator.
   const lmsExtraCompleted =
-    (hasPhoto ? 1 : 0) + (!isIHub && hasDeviceToken ? 1 : 0)
+    (hasPhoto ? 1 : 0) + (appAvailable && appDownloadCompleted ? 1 : 0)
 
   const lmsSectionId = await latestSectionId(
     batchId,
@@ -254,7 +257,7 @@ export async function computeGuidedTourProgress(
   const lmsBase = lmsSectionId
     ? await countSectionCompletions(userId, lmsSectionId)
     : { total: 0, completed: 0 }
-  const lmsTotal = lmsBase.total + lmsWalkthroughExtraSteps(isIHub)
+  const lmsTotal = lmsBase.total + lmsWalkthroughExtraSteps(appAvailable)
   const lms: ProgressCount = {
     total: lmsTotal,
     completed: Math.min(lmsBase.completed + lmsExtraCompleted, lmsTotal),
@@ -295,13 +298,14 @@ export async function computeLiteGuidedTourProgress(
   batchId: number,
   profileMeta: unknown,
   legalData: unknown,
-  hasDeviceToken: boolean,
+  appDownloadCompleted: boolean,
 ): Promise<{ lms: ProgressCount; program: ProgressCount }> {
-  const isIHub = isIHubPortalRequest()
+  const appAvailable = isMobileAppPortalRequest()
   const hasPhoto = hasHttpUrl(parseMeta(profileMeta)['profile_pic'])
   const lms: ProgressCount = {
-    total: lmsWalkthroughExtraSteps(isIHub),
-    completed: (hasPhoto ? 1 : 0) + (!isIHub && hasDeviceToken ? 1 : 0),
+    total: lmsWalkthroughExtraSteps(appAvailable),
+    completed:
+      (hasPhoto ? 1 : 0) + (appAvailable && appDownloadCompleted ? 1 : 0),
   }
 
   const { hasAgreement, signed } = await computeAgreementState(

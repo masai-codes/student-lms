@@ -47,7 +47,7 @@ export default function EventCard({ event, now = new Date() }: EventCardProps) {
             }`}
           >
             {isLive ? (
-              <span className="size-1.5 rounded-full bg-surface" />
+              <span className="size-1.5 rounded-full bg-danger-foreground" />
             ) : null}
             {badgeLabel}
           </span>

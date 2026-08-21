@@ -11,6 +11,8 @@ import { ensureAnthropicConfigured } from '@/server/api/ai-tutor/clients/anthrop
 import { AI_TUTOR_CHAT_MAX_MESSAGE_LENGTH } from '@/server/api/ai-tutor/constants'
 import { parseChatLanguage } from '@/server/api/ai-tutor/chatLanguage'
 import { parsePlatform } from '@/server/api/ai-tutor/feedbackPlatform'
+import type { AiTutorSupportedUiElement } from '@/server/api/ai-tutor/supportedUiElements'
+import { parseSupportedUiElements } from '@/server/api/ai-tutor/supportedUiElements'
 import {
   prepareLectureChatContext,
   streamLectureChatEventsFromContext,
@@ -23,6 +25,7 @@ type StreamChatBody = {
   chatId?: unknown
   platform?: unknown
   language?: unknown
+  supportedUIElements?: unknown
 }
 
 function parsePositiveInt(value: unknown): number | null {
@@ -37,6 +40,7 @@ function parseStreamChatBody(body: StreamChatBody | null): {
   chatId?: number
   platform: AiTutorFeedbackPlatform
   language: AiTutorChatLanguage
+  supportedUIElements: Array<AiTutorSupportedUiElement>
 } {
   const lectureId = parsePositiveInt(body?.lectureId)
   if (!lectureId) {
@@ -63,8 +67,11 @@ function parseStreamChatBody(body: StreamChatBody | null): {
 
   const platform = parsePlatform(body?.platform)
   const language = parseChatLanguage(body?.language)
+  const supportedUIElements = parseSupportedUiElements(
+    body?.supportedUIElements,
+  )
 
-  return { lectureId, chat, chatId, platform, language }
+  return { lectureId, chat, chatId, platform, language, supportedUIElements }
 }
 
 export async function handleStreamChat(request: Request): Promise<Response> {
@@ -83,6 +90,7 @@ export async function handleStreamChat(request: Request): Promise<Response> {
       chatId: parsed.chatId,
       platform: parsed.platform,
       language: parsed.language,
+      supportedUIElements: parsed.supportedUIElements,
     })
 
     const stream = createSseStreamFromEvents(

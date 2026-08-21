@@ -16,6 +16,7 @@ import { fetchLectureAttendanceSummaries } from '@/server/attendance/services/fe
 import { buildLectureVideoAttendanceState } from '@/server/learn/utils/buildLectureVideoAttendanceState'
 import { toLearningPriority } from '@/server/learn/utils/learningDataMappers'
 import { resolveEnableZoomWebView } from '@/server/learn/utils/resolveEnableZoomWebView'
+import { isIvsZoomRedirection } from '@/server/learn/utils/isIvsZoomRedirection'
 import {
   buildLectureDetailPayload,
   isSupportedLectureDetailType,
@@ -31,6 +32,7 @@ import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
 import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 import { getAllAssociatedEntities } from '@/server/learn/services/getAllAssociatedEntities.service'
+import { buildLectureAiChatSuggestions } from '@/server/learn/utils/buildLectureAiChatSuggestions'
 
 export async function getLectureLearningDetailForUser(
   userId: number,
@@ -58,6 +60,7 @@ export async function getLectureLearningDetailForUser(
       settings: lectures.settings,
       notes: lectures.notes,
       isNewZoomRedirection: lectures.isNewZoomRedirection,
+      zoomDetails: lectures.zoomDetails,
       sectionSettings: sections.settings,
       data: lectures.data,
     })
@@ -111,6 +114,7 @@ export async function getLectureLearningDetailForUser(
     db
       .select({
         summary: lecturesAi.summary,
+        faqs: lecturesAi.faqs,
         // Ask MySQL whether a transcript exists instead of selecting it (#353):
         // long lectures store megabytes here, and the page only needs to know
         // whether the CC button and Transcript tab have anything to offer. An
@@ -157,7 +161,7 @@ export async function getLectureLearningDetailForUser(
           isRecommended,
         ),
     getLearnEntityBookmarkState(userId, 'lecture', lectureId),
-    getInLecturePopupElements(lectureId),
+    getInLecturePopupElements(lectureId, userId),
   ])
 
   const attendanceSummary = attendanceMap.get(lectureId) ?? null
@@ -205,6 +209,7 @@ export async function getLectureLearningDetailForUser(
       settings: row.settings,
       hostAvatarUrl: row.hostAvatarUrl,
       notes: row.notes,
+      zoomDetails: row.zoomDetails,
     },
     Date.now(),
     tabs,
@@ -230,7 +235,11 @@ export async function getLectureLearningDetailForUser(
   return {
     ...payload,
     isBookmarked,
-    isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    aiChatSuggestions: buildLectureAiChatSuggestions(aiRow?.faqs),
+    // An IVS lecture always joins through ZEF — it has no raw link to fall back
+    // on, so never leave the CTA pointing at nothing if the flag column lags.
+    isNewZoomRedirection:
+      row.isNewZoomRedirection === 1 || isIvsZoomRedirection(row.zoomDetails),
     enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
     inLecturePopupElements,
     restriction,

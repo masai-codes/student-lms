@@ -18,19 +18,24 @@ const METRICS: Array<{
   {
     key: 'totalQuestions',
     label: 'Total questions',
-    dotClassName: 'bg-[#9333EA]',
+    // Same hue, lifted for legibility on the dark info-subtle wash.
+    dotClassName: 'bg-[#9333EA] dark:bg-chart-4',
   },
   {
     key: 'attempted',
     label: 'Attempted questions',
-    dotClassName: 'bg-[#8F6B00]',
+    dotClassName: 'bg-[#8F6B00] dark:bg-warning',
   },
   {
     key: 'notGraded',
     label: 'Not graded questions',
     dotClassName: 'bg-[#FB923C]',
   },
-  { key: 'correct', label: 'Correct answers', dotClassName: 'bg-[#15803D]' },
+  {
+    key: 'correct',
+    label: 'Correct answers',
+    dotClassName: 'bg-[#15803D] dark:bg-success',
+  },
   { key: 'wrong', label: 'Wrong answers', dotClassName: 'bg-[#FC214C]' },
 ]
 

@@ -72,6 +72,63 @@ describe('admissionEventSchema', () => {
     ).toBe(false)
   })
 
+  it('treats null optional fields as absent, not invalid', () => {
+    const parsed = admissionEventSchema.safeParse(
+      envelope('lms.batch.paid', {
+        full_fees_paid_invoice: null,
+        course_fee_deadline: null,
+        lms_batch_user_id: null,
+      }),
+    )
+    expect(parsed.success).toBe(true)
+  })
+
+  it('accepts a real admissions lms.batch.paid envelope', () => {
+    const parsed = admissionEventSchema.safeParse({
+      type: 'lms.batch.paid',
+      data: {
+        batch_id: '350',
+        username: 'iitreict_dsai_en_iii_2609545',
+        lms_user_id: '10038053',
+        enrolment_id: 385665,
+        full_fees_paid: true,
+        full_fees_amount: 57360,
+        full_fees_paid_date: '2026-08-04 11:07:46',
+        lms_enrolled_batch_id: 350,
+        full_fees_paid_invoice: null,
+        student_kit_tracking_URL: null,
+        lms_admission_user_data_id: 12818,
+        lms_enrolled_batch_user_id: 338327,
+        student_kit_details_filled: false,
+      },
+    })
+    expect(parsed.success).toBe(true)
+  })
+
+  it('still rejects lms.invoice.generated with a null invoice', () => {
+    expect(
+      admissionEventSchema.safeParse(
+        envelope('lms.invoice.generated', { full_fees_paid_invoice: null }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('still rejects lms.fee.deadline.updated with a null deadline', () => {
+    expect(
+      admissionEventSchema.safeParse(
+        envelope('lms.fee.deadline.updated', { course_fee_deadline: null }),
+      ).success,
+    ).toBe(false)
+  })
+
+  it('still rejects transfer events with a null to_batch_id', () => {
+    expect(
+      admissionEventSchema.safeParse(
+        envelope('lms.batch.transfer.completed', { to_batch_id: null }),
+      ).success,
+    ).toBe(false)
+  })
+
   it('rejects an unknown event type', () => {
     expect(
       admissionEventSchema.safeParse(envelope('lms.batch.exploded')).success,
@@ -84,6 +141,27 @@ describe('admissionEventSchema', () => {
       data: {},
     })
     expect(parsed.success).toBe(false)
+  })
+
+  it('accepts and normalises data.client', () => {
+    const parsed = admissionEventSchema.safeParse(
+      envelope('lms.batch.paid', { client: ' IHub ' }),
+    )
+    expect(parsed.success && parsed.data.data.client).toBe('ihub')
+  })
+
+  it('accepts a null data.client as "not sent"', () => {
+    const parsed = admissionEventSchema.safeParse(
+      envelope('lms.batch.paid', { client: null }),
+    )
+    expect(parsed.success && parsed.data.data.client).toBe(null)
+  })
+
+  it('rejects an empty data.client string', () => {
+    expect(
+      admissionEventSchema.safeParse(envelope('lms.batch.paid', { client: '' }))
+        .success,
+    ).toBe(false)
   })
 
   it('keeps unknown envelope + data fields (passthrough)', () => {

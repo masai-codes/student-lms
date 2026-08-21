@@ -1,10 +1,9 @@
-import { sql } from 'drizzle-orm'
+import { sql, eq, isNull, and } from 'drizzle-orm'
 import { db } from '@/db'
 import { batches } from '@/db/schema'
-import { eq, isNull, and } from 'drizzle-orm'
 import { getSectionIdsForUserInBatch } from '@/server/batches/getSectionIdsForUserInBatch'
 
-export interface CourseAttendanceGroup {
+interface CourseAttendanceGroup {
   label: string
   rules: string
   attendancePercentage: number

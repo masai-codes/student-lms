@@ -19,7 +19,7 @@
 
 export type EscalationLevel = 'l1' | 'l2' | 'l3' | 'l4' | 'l5'
 
-export const ESCALATION_ORDER: ReadonlyArray<EscalationLevel> = [
+const ESCALATION_ORDER: ReadonlyArray<EscalationLevel> = [
   'l1',
   'l2',
   'l3',

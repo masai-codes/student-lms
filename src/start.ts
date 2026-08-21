@@ -5,12 +5,13 @@ import {
 } from '@tanstack/react-start'
 
 /**
- * CORS: allow any `*.masaischool.com` / `*.iasam.dev` domain (and localhost in
- * dev) to call this app's API with credentials.
+ * CORS: allow any subdomain of a portal domain in {@link ALLOWED_DOMAINS} (and
+ * localhost in dev) to call this app's API with credentials.
  *
- * The API is served from https://learn.masaischool.com and is consumed
- * cross-origin from other Masai subdomains (e.g. https://students.masaischool.com).
- * The session cookie is already scoped to `.masaischool.com`
+ * The API is served from https://learn.masaischool.com (https://learn.ihubiitrcourses.org
+ * for iHub) and is consumed cross-origin from the old LMS on a sibling subdomain
+ * (e.g. https://students.masaischool.com, https://courses.ihubiitrcourses.org).
+ * The session cookie is already scoped to the request's apex domain
  * (`SameSite=None; Secure`, see src/server/auth/v2/createSession.ts), so the
  * browser sends it cross-subdomain — we only need to advertise the matching
  * CORS response headers here.
@@ -23,8 +24,18 @@ const ALLOWED_METHODS = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
 const DEFAULT_ALLOWED_HEADERS = 'Content-Type, Authorization'
 const PREFLIGHT_MAX_AGE = '86400'
 
-/** Apex domains whose sites (and any subdomain) may call this API over https. */
-const ALLOWED_DOMAINS = ['masaischool.com', 'iasam.dev']
+/**
+ * Apex domains whose sites (and any subdomain) may call this API over https.
+ *
+ * Every portal needs its own apex here, because the old LMS and this app live on
+ * sibling subdomains of the *portal's* domain, not always of masaischool.com:
+ * masai → students./learn.masaischool.com, iHub → courses./learn.ihubiitrcourses.org.
+ * Omitting an apex means the browser blocks that portal's cross-origin calls
+ * (e.g. AI Tutor chat from the old LMS lecture page) even though the session
+ * cookie is scoped wide enough to be sent — `getCookieDomain` derives the cookie
+ * domain from the request's own apex.
+ */
+const ALLOWED_DOMAINS = ['masaischool.com', 'ihubiitrcourses.org', 'iasam.dev']
 
 /** Whether `hostname` is one of the allowed apex domains or a subdomain of one. */
 function isAllowedHostname(hostname: string): boolean {
@@ -34,7 +45,7 @@ function isAllowedHostname(hostname: string): boolean {
 }
 
 /** Whether `origin` is an allowed domain (any subdomain depth) over https, or localhost in dev. */
-function isAllowedOrigin(origin: string): boolean {
+export function isAllowedOrigin(origin: string): boolean {
   let url: URL
   try {
     url = new URL(origin)
@@ -102,4 +113,5 @@ export const startInstance = createStart(() => ({
   // CORS runs first so it can decorate the response on the way back out — even
   // if CSRF (or any later middleware) short-circuits with an error.
   requestMiddleware: [corsMiddleware, csrfMiddleware],
+  defaultSsr: false,
 }))

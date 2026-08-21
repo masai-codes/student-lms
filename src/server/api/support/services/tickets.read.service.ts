@@ -2,7 +2,7 @@
  * Support module — ticket read services.
  *
  * Pure reads over `tickets` + `comments` (+ `users` for authors). Three concerns:
- *   1. {@link listTickets}     — the student's tickets for a tab (newest first).
+ *   1. {@link listTickets}     — the student's tickets for a tab (newest raised first).
  *   2. {@link countOpenTickets} — header badge count.
  *   3. {@link getTicketThread} — full conversation for one ticket (+ capabilities).
  *
@@ -12,6 +12,7 @@
 
 import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm'
 import type {
+  SupportPerson,
   TicketDetail,
   TicketListItem,
   TicketMessage,
@@ -22,6 +23,7 @@ import { db } from '@/db'
 import { batches, comments, tickets, users } from '@/db/schema'
 import { getTicketCapabilities } from '@/server/api/support/ticketCapabilities'
 import { hasHigherLevel } from '@/server/api/support/services/resolveAssignees'
+import { resolveAssigneeDisplayName } from '@/server/api/support/services/ticketReplyTemplate'
 import {
   messageSide,
   normalizeStatus,
@@ -36,8 +38,21 @@ const RESOLVED_STATUSES = ['closed', 'resolved', 'automatic', 'chatbot']
 /** Statuses for the default "unresolved" tab — matches legacy. */
 const UNRESOLVED_STATUSES = ['open', 're-opened']
 
-/** Rows per page in the Raised Tickets list. */
-export const TICKETS_PAGE_SIZE = PAGE_SIZE
+function reopenedAtFromLogstamps(
+  logstamps: Record<string, unknown> | null | undefined,
+): string | null {
+  if (!logstamps) return null
+  const direct = logstamps.reopened_at
+  if (typeof direct === 'string' && direct.trim() !== '') return direct
+
+  let latest: string | null = null
+  for (const [key, value] of Object.entries(logstamps)) {
+    if (!key.startsWith('escalated_to_')) continue
+    if (typeof value !== 'string' || value.trim() === '') continue
+    if (!latest || value > latest) latest = value
+  }
+  return latest
+}
 
 /** WHERE conditions for a tab (shared by list + count). */
 function tabConditions(userId: number, tab: TicketTab) {
@@ -62,7 +77,7 @@ export async function countTickets(
 }
 
 /**
- * List a student's tickets for a given tab, newest-updated first.
+ * List a student's tickets for a given tab, newest-raised first.
  *
  * `hasUnread` is derived: the newest comment is from someone other than the
  * student and is public. (A richer per-user read-state can replace this later
@@ -72,9 +87,12 @@ export async function listTickets(input: {
   userId: number
   tab?: TicketTab
   page?: number
+  /** Override page size (e.g. floating-chat session payload). */
+  limit?: number
 }): Promise<Array<TicketListItem>> {
   const tab = input.tab ?? 'unresolved'
   const page = input.page ?? 1
+  const limit = input.limit ?? PAGE_SIZE
 
   const conditions = tabConditions(input.userId, tab)
 
@@ -86,11 +104,12 @@ export async function listTickets(input: {
       status: tickets.status,
       rating: tickets.rating,
       updatedAt: tickets.updatedAt,
+      createdAt: tickets.createdAt,
     })
     .from(tickets)
     .where(and(...conditions))
-    .orderBy(desc(tickets.id))
-    .limit(PAGE_SIZE)
+    .orderBy(desc(tickets.createdAt), desc(tickets.id))
+    .limit(limit)
     .offset((page - 1) * PAGE_SIZE)
 
   if (rows.length === 0) return []
@@ -121,6 +140,7 @@ export async function listTickets(input: {
       status: normalizeStatus(r.status),
       rating: r.rating,
       updatedAt: r.updatedAt,
+      createdAt: r.createdAt,
       hasUnread: latest ? latest.userId !== input.userId : false,
     }
   })
@@ -162,6 +182,7 @@ export async function getTicketThread(input: {
       status: tickets.status,
       rating: tickets.rating,
       data: tickets.data,
+      logstamps: tickets.logstamps,
       createdAt: tickets.createdAt,
       assigneeId: tickets.assigneeId,
       ownerId: tickets.userId,
@@ -177,9 +198,37 @@ export async function getTicketThread(input: {
   if (rows.length === 0) throw new Error('SUPPORT_TICKET_NOT_FOUND')
   const row = rows[0]
 
+  // The current owner ("Who's this ticket assigned to?") — same `assignee_id`
+  // the escalation ladder moves along. Looked up separately since the ticket's
+  // own INNER JOIN above is keyed on `user_id` (the student), not the assignee.
+  let assignee: SupportPerson | null = null
+  if (row.assigneeId) {
+    const assigneeRows = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        role: users.role,
+        profilePhotoPath: users.profilePhotoPath,
+      })
+      .from(users)
+      .where(eq(users.id, row.assigneeId))
+    if (assigneeRows.length > 0) {
+      assignee = toPerson(assigneeRows[0])
+      const displayName = await resolveAssigneeDisplayName({
+        batchId: row.data?.batch_id ? Number(row.data.batch_id) : null,
+        category: row.category,
+        assigneeId: row.assigneeId,
+      })
+      if (displayName) assignee = { ...assignee, name: displayName }
+    }
+  }
+
   const status = normalizeStatus(row.status)
   const batchId = row.data?.batch_id ? Number(row.data.batch_id) : null
   const subCategory = (row.data?.subCategory as string | undefined) ?? null
+  const reopenedAt = reopenedAtFromLogstamps(
+    row.logstamps as Record<string, unknown> | null | undefined,
+  )
 
   // Resolve escalation availability from the ticket's batch settings.
   let canEscalate = false
@@ -202,6 +251,7 @@ export async function getTicketThread(input: {
       id: comments.id,
       message: comments.message,
       createdAt: comments.createdAt,
+      commentData: comments.data,
       authorId: comments.userId,
       authorName: users.name,
       authorRole: users.role,
@@ -213,18 +263,28 @@ export async function getTicketThread(input: {
     .where(and(eq(comments.ticketId, input.ticketId), eq(comments.public, 1)))
     .orderBy(asc(comments.id))
 
-  const messages: Array<TicketMessage> = messageRows.map((m) => ({
-    id: m.id,
-    message: m.message,
-    createdAt: m.createdAt,
-    side: messageSide(m.authorId, input.userId),
-    author: toPerson({
-      id: m.authorId,
-      name: m.authorName,
-      role: m.authorRole,
-      profilePhotoPath: m.authorPhoto,
-    }),
-  }))
+  const messages: Array<TicketMessage> = messageRows.map((m) => {
+    const commentData = m.commentData as
+      | Record<string, unknown>
+      | null
+      | undefined
+    const isAutoReply = commentData?.firstTemplateResponse === true
+    const isAi = commentData?.source === 'ai'
+
+    return {
+      id: m.id,
+      message: m.message,
+      createdAt: m.createdAt,
+      side: isAutoReply ? 'system' : messageSide(m.authorId, input.userId),
+      isAi: isAi || undefined,
+      author: toPerson({
+        id: m.authorId,
+        name: m.authorName,
+        role: m.authorRole,
+        profilePhotoPath: m.authorPhoto,
+      }),
+    }
+  })
 
   const ticket: TicketDetail = {
     id: row.id,
@@ -243,11 +303,13 @@ export async function getTicketThread(input: {
       name: row.ownerName,
       profilePhotoPath: row.ownerPhoto,
     }),
+    assignee,
+    reopenedAt,
   }
 
   return {
     ticket,
-    statusResponse: buildStatusResponse(status),
+    statusResponse: buildStatusResponse(status, ticket.tatHours),
     messages,
     capabilities,
   }
@@ -256,14 +318,17 @@ export async function getTicketThread(input: {
 /** The status banner copy shown at the top of a conversation. */
 function buildStatusResponse(
   status: ReturnType<typeof normalizeStatus>,
+  tatHours: number | null,
 ): TicketThread['statusResponse'] {
   switch (status) {
     case 'open':
     case 're-opened':
-      // No synthetic banner: open/re-opened tickets carry the real, tailored
-      // "first template response" coordinator comment (see ticketReplyTemplate),
-      // exactly like the legacy flow.
-      return null
+      return {
+        heading: 'We’re on it',
+        message: tatHours
+          ? `A coordinator usually replies within ${tatHours} hours.`
+          : 'A coordinator will reply here soon.',
+      }
     case 'resolved':
       return {
         heading: 'Marked as resolved',

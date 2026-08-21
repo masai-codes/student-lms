@@ -1,0 +1,6 @@
+# ignore following files from search in nvim
+*.test.ts
+*.test.tsx
+drizzle/*.sql
+docs/**/*.md
+src/routeTree.gen.ts

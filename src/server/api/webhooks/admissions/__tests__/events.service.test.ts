@@ -64,11 +64,11 @@ describe('processAdmissionEvent', () => {
   it('lms.batch.paid → marks full fees paid (assumed true) + records payload', async () => {
     const result = await processAdmissionEvent(event('lms.batch.paid'))
 
-    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(
-      FAKE_TX,
-      123,
-      undefined,
-    )
+    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(FAKE_TX, {
+      enrolmentId: 123,
+      lmsBatchUserId: undefined,
+      client: undefined,
+    })
     expect(updateAdmissionDataForBatch).toHaveBeenCalledWith(FAKE_TX, {
       userId: 7,
       batchId: 10,
@@ -165,7 +165,26 @@ describe('processAdmissionEvent', () => {
     await processAdmissionEvent(
       event('lms.batch.pause', { lms_batch_user_id: 456 }),
     )
-    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(FAKE_TX, 123, 456)
+    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(
+      FAKE_TX,
+      expect.objectContaining({ enrolmentId: 123, lmsBatchUserId: 456 }),
+    )
+  })
+
+  it('forwards data.client to the lookup as an extra filter', async () => {
+    await processAdmissionEvent(event('lms.batch.pause', { client: 'iitj' }))
+    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(
+      FAKE_TX,
+      expect.objectContaining({ enrolmentId: 123, client: 'iitj' }),
+    )
+  })
+
+  it('treats a null data.client as "no client filter"', async () => {
+    await processAdmissionEvent(event('lms.batch.pause', { client: null }))
+    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(
+      FAKE_TX,
+      expect.objectContaining({ client: undefined }),
+    )
   })
 
   it.each([

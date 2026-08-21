@@ -1,7 +1,13 @@
 import { ApiError } from '@/server/api/http/apiError'
 
 export type AiTutorFeedbackPlatform =
-  'ios' | 'android' | 'web' | 'web-mobile' | 'web-desktop' | 'app'
+  | 'ios'
+  | 'android'
+  | 'web'
+  | 'web-mobile'
+  | 'web-desktop'
+  | 'app'
+  | 'web-new'
 
 const PLATFORMS: ReadonlyArray<AiTutorFeedbackPlatform> = [
   'ios',
@@ -12,9 +18,8 @@ const PLATFORMS: ReadonlyArray<AiTutorFeedbackPlatform> = [
   'app',
   'web-desktop',
   'web-mobile',
+  'web-new',
 ]
-
-export const AI_TUTOR_FEEDBACK_PLATFORMS = PLATFORMS
 
 function isWebLikePlatform(platform: AiTutorFeedbackPlatform): boolean {
   return (

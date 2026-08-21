@@ -125,9 +125,24 @@ describe('lectureFeedback.service', () => {
       })
     })
 
-    it('legacy mode: meta row exists but caller says not attended -> reads lecture_feedback without querying meta', async () => {
-      // `attended: false` short-circuits before the meta lookup entirely.
-      hoisted.selectQueue = [[{ rating: 2, feedback: 'meh' }]]
+    it('hidden mode: meta row exists but caller says not attended -> no feedback at all, never a legacy read', async () => {
+      // Only the meta lookup runs; `lecture_feedback` is never consulted, so a
+      // stale legacy row for a ZEF-owned lecture can't leak back into the UI.
+      hoisted.selectQueue = [[{ id: 55 }], [{ rating: 2, feedback: 'meh' }]]
+      const { getLectureFeedbackRecord } =
+        await import('../lectureFeedback.service')
+
+      await expect(getLectureFeedbackRecord(7, 572, false)).resolves.toEqual({
+        mode: 'hidden',
+        rating: null,
+        text: null,
+        tags: [],
+      })
+    })
+
+    it('legacy mode: no meta row and not attended -> still reads lecture_feedback', async () => {
+      // [meta lookup (none), lecture_feedback lookup]
+      hoisted.selectQueue = [[], [{ rating: 2, feedback: 'meh' }]]
       const { getLectureFeedbackRecord } =
         await import('../lectureFeedback.service')
 
@@ -170,7 +185,11 @@ describe('lectureFeedback.service', () => {
   describe('submitLectureFeedback', () => {
     it('zef mode: inserts into zef_lms_feedback_submissions and ignores the window entirely', async () => {
       // [lecture row (window long closed), meta lookup (exists), attendance lookup (attended)]
-      hoisted.selectQueue = [[longClosedLectureRow()], [{ id: 55 }], [{ id: 1 }]]
+      hoisted.selectQueue = [
+        [longClosedLectureRow()],
+        [{ id: 55 }],
+        [{ id: 1 }],
+      ]
       const { submitLectureFeedback } =
         await import('../lectureFeedback.service')
 
@@ -203,28 +222,23 @@ describe('lectureFeedback.service', () => {
       expect(hoisted.updateCalls).toHaveLength(0)
     })
 
-    it('legacy mode: meta row exists but the user did not attend -> falls back to lecture_feedback', async () => {
-      // [lecture row, meta lookup (exists), attendance lookup (none), existing-feedback lookup (none)]
-      hoisted.selectQueue = [[openLectureRow()], [{ id: 55 }], [], []]
+    it('rejects when a meta row exists but the user did not attend — no legacy fallback write', async () => {
+      // [lecture row, meta lookup (exists), attendance lookup (none)]
+      hoisted.selectQueue = [[openLectureRow()], [{ id: 55 }], []]
       const { submitLectureFeedback } =
         await import('../lectureFeedback.service')
 
-      const result = await submitLectureFeedback({
-        userId: 7,
-        lectureId: 572,
-        rating: 5,
-        text: 'Loved it',
-        tags: ['Great examples'],
-      })
-
-      expect(result).toEqual({
-        mode: 'legacy',
-        rating: 5,
-        text: 'Loved it',
-        tags: [],
-      })
-      expect(hoisted.insertCalls).toHaveLength(1)
-      expect(hoisted.insertCalls[0].table).toEqual({ __table: 'lectureFeedback' })
+      await expect(
+        submitLectureFeedback({
+          userId: 7,
+          lectureId: 572,
+          rating: 5,
+          text: 'Loved it',
+          tags: ['Great examples'],
+        }),
+      ).rejects.toThrow('FEEDBACK_NOT_AVAILABLE')
+      expect(hoisted.insertCalls).toHaveLength(0)
+      expect(hoisted.updateCalls).toHaveLength(0)
     })
 
     it('legacy mode: no meta row, window open -> inserts into lecture_feedback', async () => {
@@ -248,7 +262,9 @@ describe('lectureFeedback.service', () => {
         tags: [],
       })
       expect(hoisted.insertCalls).toHaveLength(1)
-      expect(hoisted.insertCalls[0].table).toEqual({ __table: 'lectureFeedback' })
+      expect(hoisted.insertCalls[0].table).toEqual({
+        __table: 'lectureFeedback',
+      })
       expect(hoisted.insertCalls[0].values).toMatchObject({
         lectureId: 572,
         userId: 7,
@@ -272,8 +288,13 @@ describe('lectureFeedback.service', () => {
       })
 
       expect(hoisted.updateCalls).toHaveLength(1)
-      expect(hoisted.updateCalls[0].table).toEqual({ __table: 'lectureFeedback' })
-      expect(hoisted.updateCalls[0].set).toMatchObject({ rating: 3, feedback: null })
+      expect(hoisted.updateCalls[0].table).toEqual({
+        __table: 'lectureFeedback',
+      })
+      expect(hoisted.updateCalls[0].set).toMatchObject({
+        rating: 3,
+        feedback: null,
+      })
       expect(hoisted.insertCalls).toHaveLength(0)
     })
 

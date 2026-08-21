@@ -27,7 +27,7 @@ export function AgreementSignedSuccess() {
       <div className="relative z-10 flex flex-col items-center gap-6">
         {/* Animated tick: pulsing halo + popping circle + drawing checkmark. */}
         <div className="relative flex size-28 items-center justify-center">
-          <span className="absolute inset-0 rounded-full bg-green-100 opacity-70 motion-safe:animate-ping" />
+          <span className="absolute inset-0 rounded-full bg-green-100 dark:bg-green-500/20 opacity-70 motion-safe:animate-ping" />
           <svg
             viewBox="0 0 52 52"
             className={`relative size-28 transition-transform duration-500 ease-out ${

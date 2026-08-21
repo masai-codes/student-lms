@@ -21,7 +21,7 @@ export function ResourceDetailActions({
     <LearnDetailDefaultActions
       bookmark={bookmark}
       ticketCategory="resource"
-      ticketEntityId={resourceId}
+      entityId={resourceId}
     />
   )
 }

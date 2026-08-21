@@ -24,6 +24,7 @@ import {
   toggleLectureVideoFullscreen,
 } from './hooks/lectureVideoFullscreen.utils'
 import { seekPlayerToSeconds } from './hooks/lectureVideoResume'
+import { useHasLayoutBox } from './hooks/useHasLayoutBox'
 import {
   shouldUseHlsJsForSrc,
   useLectureVideoAttendance,
@@ -34,6 +35,11 @@ import { LectureVideoCaptionOverlay } from './LectureVideoCaptionOverlay'
 import { LectureVideoGestureLayer } from './LectureVideoGestureLayer'
 import { InLectureQuizModal, useInLectureQuiz } from './in-lecture-quiz'
 import { InLecturePollModal, useInLecturePoll } from './in-lecture-poll'
+import {
+  SqlPlaygroundNudgeCard,
+  useInLectureSqlNudge,
+} from './in-lecture-sql-nudge'
+import { useLectureSqlPlaygroundOptional } from '../hooks/LectureSqlPlaygroundContext'
 import type { LectureChromePlayerRef } from './controls/lectureVideoChrome.utils'
 
 import './lectureReactPlayer.css'
@@ -45,6 +51,7 @@ import type {
 } from '@/server/learn/lectureDetailTypes'
 import { useLectureTranscript } from '../hooks/useLectureTranscript'
 import { LectureChatSidePanel } from '../components/LectureChatSidePanel'
+import { LectureSqlSidePanel } from '../components/LectureSqlSidePanel'
 import { useChatPanelReveal } from '../hooks/useChatPanelReveal'
 import { useLectureChatWidth } from '../hooks/useLectureChatWidth'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
@@ -60,6 +67,8 @@ type LectureReactPlayerProps = {
   className?: string
   /** Reports the intrinsic video aspect ratio (w/h) once metadata loads. */
   onVideoAspectRatioChange?: (ratio: number) => void
+  /** Fired right after an in-lecture quiz or poll is submitted. */
+  onAssessmentSubmitted?: () => void
 }
 
 export function LectureReactPlayer({
@@ -70,16 +79,33 @@ export function LectureReactPlayer({
   inLecturePopupElements,
   className,
   onVideoAspectRatioChange,
+  onAssessmentSubmitted,
 }: LectureReactPlayerProps) {
   const fullscreenContainerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<LectureChromePlayerRef>(null)
   const splitChat = useLectureSplitChatOptional()
   const isFullscreen = useIsElementFullscreen(fullscreenContainerRef)
-  // In fullscreen the chat becomes a resizable right-side split (same as inline)
-  // rendered inside the fullscreen root so it's visible over the video.
+  // The lecture hero mounts this player TWICE — a desktop row and a mobile row
+  // swapped by CSS (`md:flex` / `md:hidden`) rather than conditional rendering,
+  // because unmounting the row that owns the fullscreen element would drop the
+  // user out of fullscreen (see `LectureRecordingExperience`). Both copies are
+  // therefore always mounted, and the quiz/poll popups portal to
+  // `document.body` — which escapes the hidden row's `display: none` and puts
+  // two identical popups on screen. Only the row that actually has a layout box
+  // owns them.
+  const ownsInLecturePopups = useHasLayoutBox(fullscreenContainerRef)
+  const sqlPlayground = useLectureSqlPlaygroundOptional()
+  // In fullscreen, whichever of the chat / SQL Playground is open becomes a
+  // resizable right-side split (same as inline), rendered inside the
+  // fullscreen root so it's visible over the video. They share one slot
+  // (`LectureSplitLayout` keeps them mutually exclusive), so both reveals
+  // share the same width state below.
   const chatWidth = useLectureChatWidth(fullscreenContainerRef)
   const chatReveal = useChatPanelReveal(
     Boolean(splitChat?.isOpen) && isFullscreen,
+  )
+  const sqlReveal = useChatPanelReveal(
+    Boolean(sqlPlayground?.isOpen) && isFullscreen,
   )
 
   const transcriptSource = transcript ?? { available: false, url: null }
@@ -110,6 +136,18 @@ export function LectureReactPlayer({
       isFullscreen ? fullscreenContainerRef.current : null,
     )
   }, [isFullscreen])
+
+  // Portal target for the SQL nudge card — always the video's own root
+  // element (fullscreen or not; it's the same node either way, the
+  // Fullscreen API just re-styles it). Rendering the card as a plain JSX
+  // child inside `.react-player-page` instead would hit that div's global
+  // `> div { width/height: 100% !important }` rule (meant for the actual
+  // player + full-bleed overlays), stretching a small corner card to fill
+  // the whole video canvas.
+  const [videoRootEl, setVideoRootEl] = useState<HTMLElement | null>(null)
+  useEffect(() => {
+    setVideoRootEl(fullscreenContainerRef.current)
+  }, [])
 
   useEffect(() => {
     if (!hasTranscript) setCaptionsOn(false)
@@ -145,6 +183,23 @@ export function LectureReactPlayer({
       seekPlayerToSeconds(videoRef, toSeconds)
     },
   })
+
+  const sqlNudge = useInLectureSqlNudge({
+    sqlSandbox: inLecturePopupElements?.sqlSandbox ?? [],
+    progressSeconds: attendance.progress,
+    enabled: ownsInLecturePopups,
+  })
+  // Narrowed once here so it stays typed as non-null inside the card's
+  // `onOpen` closure below (a nested closure loses the JSX condition's
+  // narrowing of `sqlNudge.activeEntry` itself).
+  const activeSqlEntryId = sqlNudge.activeEntry?.id ?? null
+
+  const openSqlPlayground = useCallback(
+    (entryId?: number) => {
+      sqlPlayground?.open(entryId)
+    },
+    [sqlPlayground],
+  )
 
   // While a quiz or poll card is open, suspend the global player keyboard
   // shortcuts so arrow-key seeks / space-to-pause can't fire from that UI.
@@ -402,11 +457,12 @@ export function LectureReactPlayer({
       ref={fullscreenContainerRef}
       className={cn(
         'lecture-react-player lecture-video-fs-root group relative flex h-full min-h-0 w-full flex-1 flex-col bg-black outline-none',
-        // Split the area into video | chat when the chat is open (inline via the
-        // flex row here; in fullscreen the `fs-split` class flips the injected
-        // :fullscreen column rule to a row — see lectureVideoChrome.constants).
+        // Split the area into video | panel when the chat or SQL Playground is
+        // open (inline via the flex row here; in fullscreen the `fs-split`
+        // class flips the injected :fullscreen column rule to a row — see
+        // lectureVideoChrome.constants).
         isFullscreen &&
-          chatReveal.isRendered &&
+          (chatReveal.isRendered || sqlReveal.isRendered) &&
           'flex-row lecture-video-fs-split',
         className,
       )}
@@ -472,7 +528,7 @@ export function LectureReactPlayer({
             visible={captionsOn && hasTranscript}
             liftForControls={controlsChromeVisible}
           />
-          {quiz.activeQuiz ? (
+          {ownsInLecturePopups && quiz.activeQuiz ? (
             <InLectureQuizModal
               // Remount fresh across the fullscreen boundary (see
               // `popupPortalContainer` above) instead of carrying over drag
@@ -483,9 +539,10 @@ export function LectureReactPlayer({
               isFullscreen={isFullscreen}
               portalContainer={popupPortalContainer}
               onSkipToLecture={quiz.closeQuiz}
+              onSubmitted={onAssessmentSubmitted}
             />
           ) : null}
-          {poll.activePoll ? (
+          {ownsInLecturePopups && poll.activePoll ? (
             <InLecturePollModal
               key={isFullscreen ? 'fullscreen' : 'inline'}
               lectureId={lectureId}
@@ -493,6 +550,17 @@ export function LectureReactPlayer({
               isFullscreen={isFullscreen}
               portalContainer={popupPortalContainer}
               onSkipToLecture={poll.closePoll}
+              onSubmitted={onAssessmentSubmitted}
+            />
+          ) : null}
+          {ownsInLecturePopups && activeSqlEntryId !== null ? (
+            <SqlPlaygroundNudgeCard
+              portalContainer={videoRootEl}
+              onOpen={() => {
+                openSqlPlayground(activeSqlEntryId)
+                sqlNudge.dismissNudge()
+              }}
+              onDismiss={sqlNudge.dismissNudge}
             />
           ) : null}
           {attendance.qualityLevels.length > 0 ? (
@@ -503,7 +571,7 @@ export function LectureReactPlayer({
             // overlay.
             <span
               ref={qualityMenuRef}
-              className="absolute right-3 top-3 z-[55] block"
+              className="absolute right-3 top-3 z-30 block"
             >
               <button
                 type="button"
@@ -596,6 +664,11 @@ export function LectureReactPlayer({
                 }
               : undefined
           }
+          onOpenSqlPlayground={
+            inLecturePopupElements?.metaData?.enableSqlPlayground
+              ? () => openSqlPlayground()
+              : undefined
+          }
           onChromeVisibleChange={setControlsChromeVisible}
         />
       </div>
@@ -612,6 +685,18 @@ export function LectureReactPlayer({
           onResizeStart={chatWidth.startResize}
           onNudge={chatWidth.nudge}
           languageMenuContainer={fullscreenContainerRef.current}
+        />
+      ) : null}
+      {isFullscreen && sqlReveal.isRendered && sqlPlayground ? (
+        <LectureSqlSidePanel
+          metaData={inLecturePopupElements?.metaData ?? null}
+          sqlSandbox={inLecturePopupElements?.sqlSandbox ?? []}
+          onClose={sqlPlayground.close}
+          width={chatWidth.width}
+          isDragging={chatWidth.isDragging}
+          isOpen={sqlReveal.isOpenAnim}
+          onResizeStart={chatWidth.startResize}
+          onNudge={chatWidth.nudge}
         />
       ) : null}
 

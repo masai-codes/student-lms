@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import type { LearnContentItem, LearnContentType } from '../../shared/types'
+import type { LearnContentItem } from '../../shared/types'
 import { learnEntityEvent, pushLearnEvent } from '../../shared/learnAnalytics'
 import { LectureAttendanceInline } from '@/components/features/learn/attendance/LectureAttendanceInline'
 import { LectureOptionalAttendanceInfo } from '@/components/features/learn/attendance/LectureOptionalAttendanceInfo'
@@ -7,26 +7,13 @@ import { getAssignmentStatusChipStyles } from '@/components/features/learn/Learn
 import { LearnListingJoinLiveCta } from '@/components/features/learn/section-three/content-card/LearnListingJoinLiveCta'
 import { LocalTimeWithIstTooltip } from '@/components/shared/local-time-with-ist-tooltip'
 import { MasaiChips } from '@/components/ui/masai-chips'
+import { showsSectionOnLearnCard } from '@/utils/portal'
 import {
   getLearnListingAttendancePresentation,
   shouldShowAssignmentStatusChip,
 } from '@/lib/learn/listingCardPresentation'
 import { cn } from '@/lib/utils'
-
-const LEARN_TYPE_ICON_SRC: Record<LearnContentType, string> = {
-  lecture:
-    'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/lecture.svg',
-  assignment:
-    'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/assignment.svg',
-  resource:
-    'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/resource.svg',
-}
-
-const LEARN_TYPE_ICON_ALT: Record<LearnContentType, string> = {
-  lecture: 'Lecture',
-  assignment: 'Assignment',
-  resource: 'Resource',
-}
+import { CommonIcon, LEARN_TYPE_ICON_CLASS } from '@/components/common/Icon'
 
 const learnContentTagChipPalette = {
   backgroundClassName: 'bg-surface-muted',
@@ -74,16 +61,38 @@ function LearnAssignmentWeightageChip({
   )
 }
 
+/**
+ * The item's section label, shown after the tags so IIT Jodhpur students can tell
+ * apart listings they hold in more than one section. Only the `/learn` feed sets
+ * `sectionName`, and only `SECTION_ON_LEARN_CARD_PORTALS` renders it.
+ */
+function LearnSectionChip({
+  sectionName,
+}: {
+  sectionName: string | null | undefined
+}) {
+  if (!sectionName?.trim() || !showsSectionOnLearnCard()) {
+    return null
+  }
+
+  return (
+    <MasaiChips
+      data-testid="learn-card-section-name"
+      type="default"
+      size="regular"
+      label={sectionName}
+      tabIndex={-1}
+      className="pointer-events-none"
+      {...learnContentTagChipPalette}
+    />
+  )
+}
+
 function LearnTypeIcon({ type }: Pick<LearnContentItem, 'type'>) {
   return (
-    <img
-      src={LEARN_TYPE_ICON_SRC[type]}
-      alt={LEARN_TYPE_ICON_ALT[type]}
-      width={40}
-      height={40}
-      className="size-10 shrink-0 object-contain transition-transform duration-200 group-hover:scale-110"
-      loading="lazy"
-      decoding="async"
+    <CommonIcon
+      className={cn('size-6 md:size-8', LEARN_TYPE_ICON_CLASS[type])}
+      name={type}
     />
   )
 }
@@ -113,14 +122,17 @@ export function LearnContentCard({
   const id = String(item.id)
   const linkProps =
     item.type === 'lecture'
-      ? ({ to: '/lectures/$lectureId', params: { lectureId: id } } as const)
+      ? ({
+          to: '/learn/lectures/$lectureId',
+          params: { lectureId: id },
+        } as const)
       : item.type === 'assignment'
         ? ({
-            to: '/assignments/$assignmentId',
+            to: '/learn/assignments/$assignmentId',
             params: { assignmentId: id },
           } as const)
         : ({
-            to: '/resources/$resourceId',
+            to: '/learn/resources/$resourceId',
             params: { resourceId: id },
           } as const)
 
@@ -141,7 +153,7 @@ export function LearnContentCard({
               : 'learn_listing',
         })
       }
-      className="group bg-surface rounded-[8px] border border-border p-3 block transition-colors duration-200 hover:border-brand/35 hover:bg-surface-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group rounded-lg border border-border p-3 block duration-200 bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:shadow-md transition-all"
     >
       <div
         className={cn(
@@ -160,7 +172,7 @@ export function LearnContentCard({
               title={item.title}
               className={
                 fromDashboard
-                  ? 'line-clamp-2 break-words text-sm font-medium leading-snug text-foreground transition-colors duration-200 group-hover:text-brand md:text-base'
+                  ? 'line-clamp-2 break-words text-sm leading-snug text-foreground transition-colors duration-200 group-hover:text-brand md:text-lg font-semibold'
                   : 'type-b1-md break-words transition-colors duration-200 group-hover:text-brand'
               }
             >
@@ -194,7 +206,7 @@ export function LearnContentCard({
                 {item.tags.length > 0 || item.assignmentWeightage != null ? (
                   <div
                     data-testid="learn-card-dashboard-tags"
-                    className="flex flex-wrap items-center gap-2"
+                    className="flex min-w-0 flex-wrap items-center gap-2"
                   >
                     {item.tags.map((tag, index) => (
                       <MasaiChips
@@ -237,7 +249,7 @@ export function LearnContentCard({
                       ist={item.dateTooltip}
                     />
                   </p>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
                     {item.tags.map((tag, index) => (
                       <MasaiChips
                         key={`${tag}-${index}`}
@@ -249,6 +261,9 @@ export function LearnContentCard({
                         {...resolveTagChipPalette(tag)}
                       />
                     ))}
+                    {!isAssociatedCard ? (
+                      <LearnSectionChip sectionName={item.sectionName} />
+                    ) : null}
                     <MasaiChips
                       type="default"
                       size="regular"
@@ -303,6 +318,11 @@ export function LearnContentCard({
           {item.type === 'lecture' && attendancePresentation ? (
             <LectureAttendanceInline
               {...attendancePresentation}
+              attendance={item.attendance}
+              isLiveLecture={
+                item.learningSubType === 'live' ||
+                item.learningSubType === 'scrum'
+              }
               forceRow={isAssociatedCard}
             />
           ) : null}

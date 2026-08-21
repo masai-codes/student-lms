@@ -30,9 +30,8 @@ describe('generateLectureNotesTocFromMarkdown', () => {
       text: '- Arrays\n  - Bubble sort',
     })
 
-    const { generateLectureNotesTocFromMarkdown } = await import(
-      '../services/generateLectureNotesTocFromMarkdown'
-    )
+    const { generateLectureNotesTocFromMarkdown } =
+      await import('../services/generateLectureNotesTocFromMarkdown')
     await expect(
       generateLectureNotesTocFromMarkdown('# Arrays\n\n## Bubble sort'),
     ).resolves.toBe('- Arrays\n  - Bubble sort')
@@ -49,10 +48,11 @@ describe('generateLectureNotesTocFromMarkdown', () => {
   it('throws when the model returns an empty outline', async () => {
     hoisted.generateText.mockResolvedValueOnce({ text: '   ' })
 
-    const { generateLectureNotesTocFromMarkdown } = await import(
-      '../services/generateLectureNotesTocFromMarkdown'
-    )
-    await expect(generateLectureNotesTocFromMarkdown('# Arrays')).rejects.toMatchObject({
+    const { generateLectureNotesTocFromMarkdown } =
+      await import('../services/generateLectureNotesTocFromMarkdown')
+    await expect(
+      generateLectureNotesTocFromMarkdown('# Arrays'),
+    ).rejects.toMatchObject({
       code: 'AI_TUTOR_NOTES_TOC_GENERATION_FAILED',
     })
   })

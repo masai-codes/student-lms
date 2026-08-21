@@ -1,17 +1,63 @@
 'use client'
 
-import { Sparkles } from 'lucide-react'
+import {
+  BookOpen,
+  ClipboardList,
+  Lightbulb,
+  NotebookText,
+  Sparkles,
+} from 'lucide-react'
 
-import { LECTURE_AI_CHAT_SUGGESTIONS } from '../constants'
+import { useLectureAiChatSuggestions } from '../hooks/LectureAiChatSuggestionsContext'
+import {
+  learnEntityEvent,
+  pushLearnEvent,
+} from '@/components/features/learn/shared/learnAnalytics'
 import { Button } from '@/components/ui/button'
+import type {
+  LectureAiChatSuggestion,
+  LectureAiChatSuggestionKind,
+} from '@/server/learn/utils/buildLectureAiChatSuggestions'
 
 type LectureAiChatEmptyStateProps = {
+  lectureId: number
   onSuggestion: (text: string) => void
 }
 
+const SUGGESTION_ICONS: Record<LectureAiChatSuggestionKind, typeof Sparkles> = {
+  faq: Lightbulb,
+  summary: NotebookText,
+  explain: BookOpen,
+  quiz: ClipboardList,
+}
+
+function SuggestionIcon({ kind }: { kind: LectureAiChatSuggestionKind }) {
+  const Icon = SUGGESTION_ICONS[kind]
+  return <Icon className="size-4 shrink-0 text-muted-foreground" />
+}
+
+function suggestionTestId(kind: LectureAiChatSuggestionKind): string {
+  return kind === 'faq'
+    ? 'lecture-ai-chat-faq-suggestion'
+    : 'lecture-ai-chat-suggestion'
+}
+
 export function LectureAiChatEmptyState({
+  lectureId,
   onSuggestion,
 }: LectureAiChatEmptyStateProps) {
+  const suggestions = useLectureAiChatSuggestions()
+
+  const handleClick = (suggestion: LectureAiChatSuggestion) => {
+    if (suggestion.kind === 'faq') {
+      pushLearnEvent(
+        learnEntityEvent('lecture', 'ai_chat_faq_click', lectureId),
+        { question: suggestion.question },
+      )
+    }
+    onSuggestion(suggestion.question)
+  }
+
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col py-6 text-center">
       <div className="my-auto flex w-full flex-col items-center gap-6">
@@ -29,19 +75,26 @@ export function LectureAiChatEmptyState({
           </p>
         </div>
 
-        <div className="flex w-full flex-col gap-2">
-          {LECTURE_AI_CHAT_SUGGESTIONS.map((suggestion) => (
-            <Button
-              key={suggestion}
-              type="button"
-              variant="outline"
-              className="h-auto w-full justify-start whitespace-normal px-3.5 py-2.5 text-left text-sm font-normal"
-              onClick={() => onSuggestion(suggestion)}
-            >
-              {suggestion}
-            </Button>
-          ))}
-        </div>
+        {suggestions.length > 0 ? (
+          <div
+            className="flex w-full flex-col gap-2"
+            data-testid="lecture-ai-chat-suggestions"
+          >
+            {suggestions.map((suggestion) => (
+              <Button
+                key={`${suggestion.kind}:${suggestion.question}`}
+                type="button"
+                variant="outline"
+                data-testid={suggestionTestId(suggestion.kind)}
+                className="h-auto w-full justify-start gap-2 whitespace-normal px-3.5 py-2.5 text-left text-sm font-normal"
+                onClick={() => handleClick(suggestion)}
+              >
+                <SuggestionIcon kind={suggestion.kind} />
+                {suggestion.question}
+              </Button>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   )

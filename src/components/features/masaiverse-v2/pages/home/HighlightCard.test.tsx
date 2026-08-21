@@ -5,10 +5,6 @@ import HighlightCard from './HighlightCard'
 import type { CSSProperties, ReactNode } from 'react'
 import type { MasaiverseV2HomeHighlight } from '@/server/api/masaiverse-v2/services/getHomeHighlights.service'
 
-// Pin the timezone so the viewer-local time renders deterministically.
-// Asia/Kolkata → getTzLabel() === 'IST'.
-process.env.TZ = 'Asia/Kolkata'
-
 vi.mock('@tanstack/react-router', () => ({
   Link: ({
     children,

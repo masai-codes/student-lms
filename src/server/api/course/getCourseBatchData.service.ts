@@ -1,8 +1,18 @@
 import { and, eq, inArray, isNull } from 'drizzle-orm'
 import { db } from '@/db'
 import { batches, users, profiles, sectionUser, sections } from '@/db/schema'
+import { resolveStudentCode } from '@/server/users/getStudentCode'
+import {
+  arr,
+  asRecord,
+  computeCourseProgress,
+  readCourseTimeline,
+  resolveCourseTitle,
+  resolveInstituteName,
+  str,
+} from '@/server/api/course/courseMeta'
 
-export interface CoursePerson {
+interface CoursePerson {
   name: string
   designation: string
   avatarUrl: string | null
@@ -46,20 +56,6 @@ export interface CourseBatchData {
   supportGroups: CourseRoleGroup[]
   showAttendanceReport: boolean
   showEvaluationReport: boolean
-}
-
-function str(v: unknown, fallback = ''): string {
-  return typeof v === 'string' ? v : fallback
-}
-
-function arr<T>(v: unknown): T[] {
-  return Array.isArray(v) ? (v as T[]) : []
-}
-
-function asRecord(v: unknown): Record<string, unknown> {
-  return v != null && typeof v === 'object' && !Array.isArray(v)
-    ? (v as Record<string, unknown>)
-    : {}
 }
 
 function computeTimelineStatuses(
@@ -199,43 +195,24 @@ export async function getCourseBatchData(
 
   if (!batchRow) return null
 
-  const [userRow] = await db
-    .select({ username: users.username })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1)
+  // Student code is per batch enrolment (batch_user), not users.username.
+  const studentCode = await resolveStudentCode(userId, batchId)
 
   const meta = asRecord(batchRow.meta)
   const settings = asRecord(batchRow.settings)
 
-  const courseTitle = str(meta.courseTitle, batchRow.name)
-  const instituteName = str(
-    meta.instituteName ?? meta.institute ?? meta.collegeName,
-  )
+  const courseTitle = resolveCourseTitle(meta, batchRow.name)
+  const instituteName = resolveInstituteName(meta)
   const courseImage = str(meta.courseImage ?? meta.courseLogo) || null
   const courseDetails = arr<unknown>(meta.courseDetails)
     .map((d) => str(d))
     .filter(Boolean)
 
-  const rawTimeline = arr<unknown>(meta.courseTimeline)
-    .map((t) => {
-      const item = asRecord(t)
-      return {
-        date: str(item.timeLine ?? item.date ?? item.timeline),
-        label: str(item.mileStone ?? item.milestone ?? item.label),
-      }
-    })
-    .filter((t) => t.date && t.label)
-
+  const rawTimeline = readCourseTimeline(meta)
   const courseTimeline = computeTimelineStatuses(rawTimeline)
 
-  const completedCount = courseTimeline.filter(
-    (t) => t.status === 'completed',
-  ).length
-  const courseProgress =
-    rawTimeline.length > 0
-      ? Math.round((completedCount / rawTimeline.length) * 100)
-      : 0
+  // Shared with the /my-programs listing so the two surfaces can never disagree.
+  const courseProgress = computeCourseProgress(rawTimeline)
 
   const courseStructure = arr<unknown>(meta.courseStructure).map((m) => {
     const mod = asRecord(m)
@@ -267,7 +244,7 @@ export async function getCourseBatchData(
     courseImage,
     courseDetails,
     courseProgress,
-    studentCode: userRow?.username ?? '',
+    studentCode,
     courseTimeline,
     courseStructure,
     resources,

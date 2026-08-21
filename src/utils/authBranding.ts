@@ -1,8 +1,24 @@
 import type { AppOrigin } from '@/utils/appOrigin'
 import { getAppOrigin } from '@/utils/appOrigin'
 
+/**
+ * IIT Jodhpur crest + "Powered by masai" lockup. Two artworks: the light one has
+ * a navy/black wordmark, the dark one a white wordmark (the crest keeps its
+ * brand colours in both, so it must not be recoloured with `dark:invert`).
+ */
+const IITJ_LOGO_LIGHT_URL =
+  'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iitj_masai_light.png'
+const IITJ_LOGO_DARK_URL =
+  'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iitj_masai_dark.png'
+
 export type AuthBranding = {
   logoSrc: string
+  /**
+   * Purpose-made dark-theme artwork (white wordmark), when the portal has one.
+   * Undefined means `logoSrc` works on both themes (or is recoloured via
+   * `logoClassName`), so callers should fall back to it.
+   */
+  logoDarkSrc?: string
   logoAlt: string
   logoClassName: string
   pageTitle: string
@@ -21,7 +37,10 @@ const BRANDING: Record<AppOrigin, AuthBranding> = {
   masai: {
     logoSrc: '/masai-logo.svg',
     logoAlt: 'Masai School',
-    logoClassName: 'mx-auto h-10 w-auto cursor-pointer md:h-11',
+    // The SVG's fills are near-black; flatten to white in dark so the
+    // wordmark stays visible on the near-black auth backdrop.
+    logoClassName:
+      'mx-auto h-10 w-auto cursor-pointer md:h-11 dark:brightness-0 dark:invert',
     pageTitle: 'Masai LMS',
     metaDescription:
       'Masai School learning platform — programs, live sessions and placements.',
@@ -48,11 +67,10 @@ const BRANDING: Record<AppOrigin, AuthBranding> = {
     craftedBy: 'iHub DivyaSampark',
   },
   iitj: {
-    logoSrc:
-      'https://s3.ap-south-1.amazonaws.com/static.masaischool.com/iitj-logo-new.png',
+    logoSrc: IITJ_LOGO_LIGHT_URL,
+    logoDarkSrc: IITJ_LOGO_DARK_URL,
     logoAlt: 'IIT Jodhpur',
-    logoClassName:
-      'mx-auto h-14 w-auto cursor-pointer object-contain md:h-16',
+    logoClassName: 'mx-auto h-14 w-auto cursor-pointer object-contain md:h-16',
     pageTitle: 'IIT Jodhpur',
     metaDescription:
       'IIT Jodhpur learning platform — programs and live sessions.',

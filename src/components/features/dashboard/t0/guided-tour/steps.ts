@@ -5,7 +5,7 @@ import type {
 } from '@/server/api/dashboard/getT0FlowLectures.service'
 import type { T0FlowStatus } from '@/server/api/dashboard/getT0FlowStatus.service'
 import type { StudentKitStatus } from '@/server/api/dashboard/t0/getStudentKitStatus.service'
-import { isIHubPortal } from '@/utils/portal'
+import { isMobileAppPortal } from '@/utils/portal'
 
 /**
  * Pure step-model builders for the guided tour. Each tab is a list of steps the
@@ -14,7 +14,7 @@ import { isIHubPortal } from '@/utils/portal'
  * agreement, …) whose completion comes from the T0 status / lectures payload.
  */
 
-export type GuidedTourStepKind = 'video' | 'fixed'
+type GuidedTourStepKind = 'video' | 'fixed'
 
 export interface GuidedTourStep {
   /** Stable key for React + `data-testid`. */
@@ -57,11 +57,11 @@ function videoStep(
 
 /**
  * LMS Walkthrough steps: the walkthrough videos followed by the fixed steps
- * (profile photo, and — Masai only — download app). Completion of the fixed
- * steps mirrors the backend denominator (`lmsWalkthroughExtraSteps`): iHub has
- * no mobile app, so the download-app step is dropped here AND from the backend
- * total to keep the progress bar reachable. The lite (non-T0) flow has no
- * walkthrough videos — strictly the fixed steps.
+ * (profile photo, and — where the app exists — download app). Completion of the
+ * fixed steps mirrors the backend denominator (`lmsWalkthroughExtraSteps`): on
+ * portals with no mobile app the download-app step is dropped here AND from the
+ * backend total, so the progress bar stays reachable. The lite (non-T0) flow has
+ * no walkthrough videos — strictly the fixed steps.
  */
 export function buildLmsSteps(
   lectures: T0FlowLecturesResult,
@@ -84,7 +84,7 @@ export function buildLmsSteps(
     },
   ]
 
-  if (!isIHubPortal()) {
+  if (isMobileAppPortal()) {
     fixedSteps.push({
       key: 'download-app',
       kind: 'fixed',
@@ -167,13 +167,24 @@ export interface IdCardState {
 
 /**
  * State for the ID-card capstone shown beneath the Program Onboarding steps
- * (not a step itself). Hidden for the lite (non-T0) flow.
+ * (not a step itself). Hidden for the lite (non-T0) flow, for clients that
+ * don't issue an LMS ID card at all (IITJ — `idCardApplicable: false` from the
+ * backend), and for programs where admissions has no ID card configured
+ * (`idCardConfigured: false`) — otherwise the unlocked card would promise a
+ * card "being generated" that is never coming. In all three cases neither the
+ * locked nor the unlocked card should appear.
  */
 export function getIdCardState(
   lectures: T0FlowLecturesResult,
   flowVariant: 'full' | 'lite',
 ): IdCardState {
-  if (flowVariant === 'lite') return { show: false, url: null, unlocked: false }
+  if (
+    flowVariant === 'lite' ||
+    !lectures.idCardApplicable ||
+    !lectures.idCardConfigured
+  ) {
+    return { show: false, url: null, unlocked: false }
+  }
 
   const completedIds = new Set(lectures.completedLectureIds)
   const videosComplete = lectures.programLectures.every((l) =>

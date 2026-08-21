@@ -79,17 +79,6 @@ vi.mock('@/db/schema', () => ({
   },
 }))
 
-export function mockSelectChain(result: unknown) {
-  return {
-    from: () => ({
-      where: () => ({
-        limit: () => Promise.resolve(result),
-        then: undefined,
-      }),
-    }),
-  }
-}
-
 export function mockSelectWhereChain(result: unknown) {
   return {
     from: () => ({
@@ -98,29 +87,20 @@ export function mockSelectWhereChain(result: unknown) {
   }
 }
 
-/** For queries using `.from(x).innerJoin(y, ...).where(...).orderBy(...)` */
+/**
+ * For queries using `.from(x).innerJoin(y, ...).where(...).orderBy(...)`, with or
+ * without a `.groupBy(...)` before the `orderBy`.
+ */
 export function mockSelectInnerJoinWhereChain(result: unknown) {
-  // getBatchIdsForEnrolledUser joins section_user -> sections -> batches, so the
-  // chain has two innerJoin() calls before where().orderBy().
+  // getBatchIdsForEnrolledUser joins section_user -> sections -> batches, then
+  // groups by batch to order on min(section_user.created_at).
+  const ordered = { orderBy: () => Promise.resolve(result) }
   const tail = {
-    where: () => ({
-      orderBy: () => Promise.resolve(result),
-    }),
+    where: () => ({ ...ordered, groupBy: () => ordered }),
   }
   const withJoins = { innerJoin: () => withJoins, ...tail }
   return {
     from: () => withJoins,
-  }
-}
-
-export function mockSelectOrderByChain(result: unknown) {
-  return {
-    from: () => ({
-      where: () => ({
-        orderBy: () => Promise.resolve(result),
-      }),
-      orderBy: () => Promise.resolve(result),
-    }),
   }
 }
 

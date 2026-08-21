@@ -8,21 +8,12 @@ const hoisted = vi.hoisted(() => ({
   buildRedirect: vi.fn(),
 }))
 
-// `db.select(...).from(...).where(...).limit(...)` resolves the username lookup;
 // `db.execute(...)` handles the payment_url SELECT and the meta dump UPDATE.
-vi.mock('@/db', () => ({
-  db: {
-    select: () => ({
-      from: () => ({
-        where: () => ({
-          limit: () => Promise.resolve([{ username: 'MSC2024001' }]),
-        }),
-      }),
-    }),
-    execute: hoisted.execute,
-  },
+vi.mock('@/db', () => ({ db: { execute: hoisted.execute } }))
+// The student code admissions keys off comes from batch_user, not users.username.
+vi.mock('@/server/users/getStudentCode', () => ({
+  resolveStudentCode: vi.fn(() => Promise.resolve('MSC2024001')),
 }))
-vi.mock('@/db/schema', () => ({ users: { id: 'id', username: 'username' } }))
 vi.mock('@/server/admissions/getAdmissionsStudentStatus', () => ({
   getAdmissionsStudentStatus: hoisted.getStatus,
 }))

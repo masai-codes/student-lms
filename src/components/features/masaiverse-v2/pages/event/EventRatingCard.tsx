@@ -66,7 +66,7 @@ export default function EventRatingCard({ event }: EventRatingCardProps) {
   if (isRated) {
     const note = submitted != null ? feedback.trim() : event.userFeedback
     return (
-      <div className="rounded-[16px] border border-[#FCD9A8] bg-gradient-to-b from-[#FFF7ED] to-white p-5 text-center dark:bg-none dark:bg-warning-subtle">
+      <div className="rounded-[16px] border border-[#FCD9A8] bg-gradient-to-b from-[#FFF7ED] to-white p-5 text-center dark:border-warning/40 dark:bg-none dark:bg-warning-subtle">
         <p className="text-[24px]" aria-hidden="true">
           🌟
         </p>
@@ -109,7 +109,7 @@ export default function EventRatingCard({ event }: EventRatingCardProps) {
           onSelect={setSelected}
         />
       </div>
-      <p className="mt-2 h-5 text-center text-[13px] font-semibold text-amber-500 transition-opacity duration-200">
+      <p className="mt-2 h-5 text-center text-[13px] font-semibold text-amber-500 dark:text-warning transition-opacity duration-200">
         {RATING_LABELS[active]}
       </p>
 

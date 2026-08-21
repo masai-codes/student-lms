@@ -14,7 +14,7 @@ export function isAdminRole(role: string | null): boolean {
 }
 
 /** Whether the request originates from a mobile app (sends X-App-Mobile: true). */
-export function isMobileRequest(request: Request): boolean {
+function isMobileRequest(request: Request): boolean {
   const v = request.headers.get('x-app-mobile')?.trim().toLowerCase()
   return v === 'true' || v === '1'
 }
@@ -44,6 +44,8 @@ async function fetchUserMeta(userId: number): Promise<unknown> {
  * `request`. Returns true when:
  *   - the user is an admin (admins bypass portal gating entirely), OR
  *   - the user's `client` matches the request portal, OR
+ *   - the user is an IIT Jodhpur student signing in from the Masai mobile app
+ *     (no separate IITJ app build), OR
  *   - the grandfather exception applies: legacy iHub user accessing the
  *     Masai mobile app (no iHub mobile app exists yet).
  *
@@ -61,6 +63,17 @@ export async function canAccessPortal({
 
   const requestPortal = getEmailPortal(request)
   if (user.client === requestPortal) return true
+
+  // IIT Jodhpur students sign in through the Masai mobile app — there is no
+  // separate IITJ app build, so the Masai portal accepts them unconditionally
+  // when the request comes from the app (`isApp=true` → `X-App-Mobile`).
+  if (
+    user.client === 'iitj' &&
+    requestPortal === 'masai' &&
+    isMobileRequest(request)
+  ) {
+    return true
+  }
 
   if (
     user.client === 'ihub' &&

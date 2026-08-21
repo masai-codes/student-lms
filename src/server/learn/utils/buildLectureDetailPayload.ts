@@ -2,9 +2,9 @@ import type {
   LectureDetailPayload,
   LectureDetailTabContent,
   LectureFeedbackState,
-  LectureKind,
   LectureVideoAttendanceState,
 } from '@/server/learn/lectureDetailTypes'
+import { normalizeLectureKind } from '@/server/learn/utils/normalizeLectureKind'
 import type { LearnHubDetailPayload } from '@/server/learn/types'
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import { formatLectureScheduleRange } from '@/server/learn/utils/formatLectureScheduleRange'
@@ -14,6 +14,8 @@ import { resolveLiveLecturePhase } from '@/server/learn/utils/resolveLiveLecture
 import { resolveLectureVideoUrl } from '@/server/learn/utils/resolveLectureVideoUrl'
 import { resolveJoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import { resolveVideoLecturePhase } from '@/server/learn/utils/resolveVideoLecturePhase'
+import { isSalLectureRecordingAvailable } from '@/server/learn/utils/isSalLectureRecordingAvailable'
+import { isIvsZoomRedirection } from '@/server/learn/utils/isIvsZoomRedirection'
 import { scrubZoomLinkForSchedule } from '@/server/learn/utils/scrubZoomLinkForSchedule'
 import {
   isAdaptiveLectureLink,
@@ -31,20 +33,8 @@ type LectureDetailRow = {
   settings: unknown
   hostAvatarUrl: string | null
   notes: string | null
-}
-
-function normalizeLectureKind(type: string): LectureKind | null {
-  const normalized = type.trim().toLowerCase()
-  // `scrum` is a live-class variant (Zoom join + optional recording), so it is
-  // treated as `live` here — mirroring the listing/dashboard `('live','scrum')`
-  // grouping and the legacy LMS `is_live` computation.
-  if (normalized === 'live' || normalized === 'scrum') {
-    return 'live'
-  }
-  if (normalized === 'video') {
-    return 'video'
-  }
-  return null
+  /** `lectures.zoom_details` JSON; read for `redirectionType` (ZEF with IVS). */
+  zoomDetails?: unknown
 }
 
 export function buildLectureDetailPayload(
@@ -56,7 +46,7 @@ export function buildLectureDetailPayload(
   attendance: LectureAttendanceSummary | null,
   optionalAttendance: LectureAttendanceSummary | null,
   feedbackRecord: {
-    mode: 'zef' | 'legacy'
+    mode: 'zef' | 'legacy' | 'hidden'
     rating: number | null
     text: string | null
     tags: Array<string>
@@ -67,6 +57,7 @@ export function buildLectureDetailPayload(
   | 'isNewZoomRedirection'
   | 'enableZoomWebView'
   | 'inLecturePopupElements'
+  | 'aiChatSuggestions'
 > {
   const lectureKind = normalizeLectureKind(row.type)
   if (lectureKind == null) {
@@ -82,7 +73,9 @@ export function buildLectureDetailPayload(
         vimeoPlayerEmbedUrl: row.vimeoPlayerEmbedUrl,
       })
 
-  const hasRecording = videoUrl != null
+  const isSalLecture =
+    lectureKind === 'live' && isAdaptiveLectureLink(row.zoomLink)
+
   const livePhase =
     lectureKind === 'live'
       ? resolveLiveLecturePhase({
@@ -109,17 +102,24 @@ export function buildLectureDetailPayload(
         )
       : null
 
-  // SAL (adaptive) recordings live on the adaptive platform, not in `videoUrl`.
-  // After the lecture ends, the lecture-scoped adaptive link redirects to the
-  // recording, so surface it as the "Watch Recording" link (only when there is
-  // no native recording to prefer). `zoomLink` is already scrubbed + scoped.
-  const adaptiveRecordingUrl =
-    lectureKind === 'live' &&
-    livePhase === 'after' &&
-    !hasRecording &&
-    isAdaptiveLectureLink(zoomLink)
-      ? zoomLink
-      : null
+  let hasRecording = videoUrl != null
+  let adaptiveRecordingUrl: string | null = null
+
+  if (isSalLecture) {
+    // SAL recordings live on the adaptive platform — availability is time-based.
+    hasRecording = false
+    if (
+      zoomLink != null &&
+      isSalLectureRecordingAvailable({
+        zoomLink: row.zoomLink,
+        schedule: row.schedule,
+        concludes: row.concludes,
+        nowMs,
+      })
+    ) {
+      adaptiveRecordingUrl = zoomLink
+    }
+  }
 
   const joinLiveButtonState =
     lectureKind === 'live'
@@ -128,21 +128,25 @@ export function buildLectureDetailPayload(
           concludes: row.concludes,
           nowMs,
           zoomLink: row.zoomLink,
+          isIvsRedirection: isIvsZoomRedirection(row.zoomDetails),
         })
       : null
 
   const feedback: LectureFeedbackState = {
     mode: feedbackRecord.mode,
-    // `zef` mode has no submission window — only `legacy` is time-gated.
+    // `zef` mode has no submission window and `hidden` renders nothing — only
+    // `legacy` is time-gated.
     canSubmit:
       feedbackRecord.mode === 'zef'
         ? true
-        : resolveLectureFeedbackWindow({
-            schedule: row.schedule,
-            concludes: row.concludes,
-            nowMs,
-            showFeedback: settings.showFeedback,
-          }),
+        : feedbackRecord.mode === 'hidden'
+          ? false
+          : resolveLectureFeedbackWindow({
+              schedule: row.schedule,
+              concludes: row.concludes,
+              nowMs,
+              showFeedback: settings.showFeedback,
+            }),
     rating: feedbackRecord.rating,
     text: feedbackRecord.text,
     tags: feedbackRecord.tags,

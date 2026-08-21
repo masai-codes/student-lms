@@ -1,9 +1,12 @@
 import type { EnrolmentClient } from '@/server/api/webhooks/admissions/types'
 
-/** The portal flags admissions may set on an enrolment payload. */
+/**
+ * The portal flags admissions may set on an enrolment payload. `null` is a
+ * legitimate "flag not set" from the platform, so it is accepted like `undefined`.
+ */
 type ClientFlags = {
-  isiHub?: boolean
-  isiitj?: boolean
+  isiHub?: boolean | null
+  isiitj?: boolean | null
 }
 
 /**

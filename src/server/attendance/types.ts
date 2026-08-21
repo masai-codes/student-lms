@@ -14,9 +14,8 @@ export type LectureAttendanceSummary = {
    * card, dashboard and detail all resolve to the same watch state.
    */
   watchPercentage: number
+  /** Whole days left in the catch-up window (legacy-parity — see `computeCatchUpWindow`). */
   daysRemaining: number | null
-  /** Granular "time left" label for the catch-up window, e.g. "2 days 3 hours remaining". */
-  remainingLabel: string | null
   lateByMinutes: number | null
   /** `student_attendances.live_attendance_status`: 1 attended live, 0 otherwise. */
   liveAttendanceStatus: number
@@ -36,6 +35,18 @@ export type LectureAttendanceSummary = {
    * `video_attendance_considered_in_section`.
    */
   videoCountsForAttendance: boolean
+  /**
+   * Section setting `markAbsentIfLate`: whether joining the live session late
+   * (beyond grace, per `lateByMinutes`) marks the student Absent by itself.
+   * Drives the floating-support absent reason copy.
+   */
+  markAbsentIfLate: boolean
+  /**
+   * `batches.is_attendance_mandatory` for the lecture's section's batch.
+   * Presentation-only: when false, the worded Present/Absent badges render as
+   * a bare green tick / red cross. No status logic reads it.
+   */
+  isAttendanceMandatory: boolean
 }
 
 export type LectureAttendanceContext = {
@@ -44,6 +55,8 @@ export type LectureAttendanceContext = {
   schedule: string | null
   concludes: string | null
   sectionSettings: unknown
+  /** `batches.is_attendance_mandatory`; defaults to true when not provided. */
+  isAttendanceMandatory?: boolean
 }
 
 export type StudentAttendanceRow = {

@@ -7,6 +7,7 @@ import {
   toLearningPriority,
 } from '@/server/learn/utils/learningDataMappers'
 import { buildLearnListingCardCtas } from '@/server/learn/utils/buildLearnListingCardCtas'
+import { isIvsZoomRedirection } from '@/server/learn/utils/isIvsZoomRedirection'
 import { resolveEnableZoomWebView } from '@/server/learn/utils/resolveEnableZoomWebView'
 
 /**
@@ -34,6 +35,7 @@ export function buildDashboardScheduleItem(input: {
     isMandatory: toLearningPriority(row.optional) === 'mandatory',
     zoomLink: row.zoomLink ?? null,
     isNewZoomRedirection: row.isNewZoomRedirection === 1,
+    isIvsRedirection: isIvsZoomRedirection(row.zoomDetails),
     enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
     nowMs,
     attendance,

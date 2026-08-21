@@ -11,7 +11,7 @@
 
 services:
   mysql:
-    image: mysql:8.0.42
+    image: docker.io/library/mysql:8.4
     container_name: student-lms-mysql
     restart: unless-stopped
     environment:
@@ -37,6 +37,23 @@ services:
       retries: 30
       start_period: 20s
 
+  redis:
+    image: docker.io/library/redis:8
+    container_name: student-lms-redis
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    volumes:
+      - student_lms_redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
 volumes:
   student_lms_mysql_data:
     name: student_lms_mysql_data
+  student_lms_redis_data:
+    name: student_lms_redis_data

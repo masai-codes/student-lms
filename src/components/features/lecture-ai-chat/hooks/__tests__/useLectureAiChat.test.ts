@@ -91,6 +91,7 @@ describe('useLectureAiChat', () => {
       chat: 'hello',
       platform: 'web-desktop',
       language: 'English',
+      supportedUIElements: ['quiz'],
     })
 
     act(() => lastHandlers!.onFirstChunk?.())
@@ -121,6 +122,7 @@ describe('useLectureAiChat', () => {
       chat: 'hello',
       platform: 'web-mobile',
       language: 'English',
+      supportedUIElements: ['quiz'],
     })
   })
 
@@ -171,6 +173,7 @@ describe('useLectureAiChat', () => {
       chat: 'second',
       platform: 'web-desktop',
       language: 'English',
+      supportedUIElements: ['quiz'],
       chatId: 99,
     })
   })
@@ -251,6 +254,7 @@ describe('useLectureAiChat', () => {
       chat: 'follow up',
       platform: 'web-desktop',
       language: 'English',
+      supportedUIElements: ['quiz'],
       chatId: 5,
     })
   })

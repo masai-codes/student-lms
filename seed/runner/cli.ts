@@ -201,7 +201,11 @@ async function main(): Promise<void> {
   console.log('\nCatalog updated — open http://localhost:3002/seed-catalog/')
 }
 
-main().catch((error: unknown) => {
-  console.error('Seeding error:', error)
-  process.exitCode = 1
-})
+main()
+  .then(() => {
+    process.exit(0)
+  })
+  .catch((error: unknown) => {
+    console.error('Seeding error:', error)
+    process.exit(1)
+  })

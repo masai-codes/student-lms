@@ -9,11 +9,12 @@ type ButtonSize = 'sm' | 'md' | 'lg'
 type IconDirection = 'left' | 'right'
 
 const buttonVariants = cva(
-  'inline-flex cursor-pointer items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-30',
+  'inline-flex cursor-pointer items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:focus-visible:ring-ring disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-30',
   {
     variants: {
       kind: {
-        primary: 'bg-primary-600 !text-white hover:bg-primary-700',
+        primary:
+          'bg-primary-600 !text-white hover:bg-primary-700 dark:bg-brand dark:!text-brand-foreground dark:hover:bg-brand/90',
         secondary:
           'bg-purple-50 !text-brand hover:bg-purple-100 dark:bg-brand-subtle dark:!text-brand-subtle-foreground dark:hover:bg-brand-subtle',
         tertiary:
@@ -90,7 +91,7 @@ export function MasaiButton({
 }: MasaiButtonProps) {
   if (!icon && iconDirection) {
     // Keep this non-throwing to avoid crashing consumers.
-    // eslint-disable-next-line no-console
+
     console.warn(
       '[Button] `iconDirection` was passed without `icon`. The direction will be ignored.',
     )

@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { getAgreementRenderData } from './agreement/getAgreementRenderData.service'
 import type { AgreementSection } from './agreement/getAgreementRenderData.service'
 import { toStudentKitStatus } from './t0/getStudentKitStatus.service'
@@ -9,6 +9,9 @@ import type { LectureRow, T0FlowLectureItem } from './lectureExpansion'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 import type { GuidedTourPlatform } from './t0/guidedTourProgress'
 import { db } from '@/db'
+import { users } from '@/db/schema'
+import { toEmailPortal } from '@/server/auth/v2/isRequestFromIHub'
+import { portalHasIdCard } from '@/utils/portalCapabilities'
 
 export type { T0FlowLectureItem } from './lectureExpansion'
 
@@ -24,6 +27,16 @@ export interface T0FlowLecturesResult {
   documentsUploaded: boolean
   /** Student-kit status (applicability + fill/tracking state) from the admissions API. */
   studentKit: StudentKitStatus
+  /**
+   * Whether the student's client issues an LMS ID card at all — false for IIT
+   * Jodhpur, which hides the capstone entirely (locked *and* unlocked states).
+   */
+  idCardApplicable: boolean
+  /**
+   * Whether admissions has an ID card configured for this program. False means
+   * the capstone is hidden — no card is coming, so "being generated" would lie.
+   */
+  idCardConfigured: boolean
   idCardUrl: string | null
 }
 
@@ -42,6 +55,20 @@ function normalizeRows<T>(result: unknown): Array<T> {
     return (result as { rows: Array<T> }).rows
   }
   return []
+}
+
+/**
+ * Whether this student gets the ID-card capstone, keyed off `users.client` (not
+ * the request domain — IITJ students reach the Masai domain through the mobile
+ * app). Missing user → treated as Masai, matching `toEmailPortal`'s default.
+ */
+async function isIdCardApplicable(userId: number): Promise<boolean> {
+  const rows = await db
+    .select({ client: users.client })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
+  return portalHasIdCard(toEmailPortal(rows[0]?.client))
 }
 
 async function getLecturesForSection(
@@ -99,6 +126,8 @@ export async function getT0FlowLectures(
     isDocumentsRequired: false,
     documentsUploaded: false,
     studentKit: emptyKit,
+    idCardApplicable: false,
+    idCardConfigured: false,
     idCardUrl: null,
   }
 
@@ -129,22 +158,29 @@ export async function getT0FlowLectures(
     programSectionId,
     legalAgreementSections,
     admissionsStatus,
+    idCardApplicable,
   ] = await Promise.all([
     getSectionId(batchId, `lms-walkthrough-${platform}`),
     getSectionId(batchId, `program-onboarding-${platform}`),
     getAgreementRenderData(userId, batchId),
     getT0AdmissionsStatus(userId, batchId),
+    isIdCardApplicable(userId),
   ])
   const isDocumentsRequired = admissionsStatus.documentsRequired
   const documentsUploaded = admissionsStatus.documentsUploaded
   const studentKit = toStudentKitStatus(admissionsStatus)
-  const idCardUrl = admissionsStatus.idCardUrl
+  // Clients without an LMS ID card (IITJ) never get a URL either — nothing
+  // downstream can render a card it shouldn't have.
+  const idCardUrl = idCardApplicable ? admissionsStatus.idCardUrl : null
+  const idCardConfigured = idCardApplicable && admissionsStatus.idCardConfigured
   console.log('[student-status] getT0FlowLectures applied admissions status', {
     userId,
     batchId,
     isDocumentsRequired,
     documentsUploaded,
     kitApplicable: studentKit.applicable,
+    idCardApplicable,
+    idCardConfigured,
     idCardUrl,
   })
 
@@ -184,6 +220,8 @@ export async function getT0FlowLectures(
     isDocumentsRequired,
     documentsUploaded,
     studentKit,
+    idCardApplicable,
+    idCardConfigured,
     idCardUrl,
   }
 }

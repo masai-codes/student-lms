@@ -30,7 +30,9 @@ sorted **soonest-schedule first**.
 ## Pending Tasks (second tab)
 
 Served via `GET /api/dashboard/overview` → `pendingTasks` (`getDashboardPendingTasks`).
-The tab badge counts these items. Two sources, merged (assignments first, then
+Also exposed directly at `GET /api/dashboard/pending-tasks` → `{ pendingTasks }`
+for consumers that do not need the full overview payload. The tab badge counts
+these items. Two sources, merged (assignments first, then
 catch-up lectures), rendered by the **same** reused card:
 
 **Pending assignments** (`fetchPendingAssignments` + `fetchAssignmentStartState`):

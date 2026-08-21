@@ -88,7 +88,7 @@ function getScreenOrientation(): OrientationLockCapable | null {
 }
 
 /** Best-effort landscape lock (Android fullscreen); silently unsupported elsewhere. */
-export function lockLandscapeOrientation(): void {
+function lockLandscapeOrientation(): void {
   try {
     const orientation = getScreenOrientation()
     void orientation?.lock?.('landscape').catch(() => {})
@@ -97,7 +97,7 @@ export function lockLandscapeOrientation(): void {
   }
 }
 
-export function unlockOrientation(): void {
+function unlockOrientation(): void {
   try {
     getScreenOrientation()?.unlock?.()
   } catch {
@@ -148,9 +148,7 @@ export async function exitAnyFullscreen(): Promise<void> {
 }
 
 /** iPhone-only path: the native fullscreen video player (rotates freely). */
-export function enterNativeVideoFullscreen(
-  video: HTMLVideoElement | null,
-): boolean {
+function enterNativeVideoFullscreen(video: HTMLVideoElement | null): boolean {
   const webkitVideo: WebkitVideoElement | null = video
   if (!webkitVideo || typeof webkitVideo.webkitEnterFullscreen !== 'function') {
     return false

@@ -22,11 +22,12 @@ export function CertificateFileCard({ certificate, subtitle }: Props) {
         }}
       >
         <div className="flex items-center gap-2 min-w-0 flex-1 py-3">
-          <div
-            className="w-12 h-12 flex items-center justify-center rounded-lg shrink-0"
-            style={{ background: '#EBF5FF' }}
-          >
-            <ShieldCheck size={24} color="#3F83F8" strokeWidth={1.5} />
+          <div className="w-12 h-12 flex items-center justify-center rounded-lg shrink-0 bg-[#EBF5FF] dark:bg-info-subtle">
+            <ShieldCheck
+              size={24}
+              strokeWidth={1.5}
+              className="text-[#3F83F8] dark:text-info-subtle-foreground"
+            />
           </div>
           <div className="flex flex-col gap-1 min-w-0 flex-1">
             <span className="font-medium text-base leading-6 text-foreground truncate">
@@ -50,10 +51,8 @@ export function CertificateFileCard({ certificate, subtitle }: Props) {
                   certificate.verificationUrl!,
                 )
               }
-              className="flex items-center justify-center rounded-lg text-sm font-medium cursor-pointer"
+              className="flex items-center justify-center rounded-lg text-sm font-medium cursor-pointer bg-[#EBF5FF] text-brand dark:bg-brand-subtle dark:text-brand-subtle-foreground"
               style={{
-                background: '#EBF5FF',
-                color: '#6962AC',
                 padding: '10px 16px',
                 height: 40,
               }}

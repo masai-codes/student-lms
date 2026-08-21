@@ -1,5 +1,7 @@
 export type LearnDiscussionsEmptyStateContext =
-  'lecture' | 'assignment' | 'resource'
+  | 'lecture'
+  | 'assignment'
+  | 'resource'
 
 export function learnDiscussionsEmptyStateNoun(
   context: LearnDiscussionsEmptyStateContext,

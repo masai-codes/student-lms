@@ -6,9 +6,26 @@ import {
 } from '../createAssessPlatformUrl'
 import { isApiError } from '@/server/api/http/apiError'
 
-const hoisted = vi.hoisted(() => ({ dbSelect: vi.fn() }))
+const hoisted = vi.hoisted(() => ({
+  dbSelect: vi.fn(),
+  dbUpdate: vi.fn(),
+  acquireLock: vi.fn(),
+  releaseLock: vi.fn(),
+}))
 
-vi.mock('@/db', () => ({ db: { select: hoisted.dbSelect } }))
+vi.mock('@/db', () => ({
+  db: { select: hoisted.dbSelect, update: hoisted.dbUpdate },
+}))
+
+vi.mock('@/server/redis/lock', () => ({
+  acquireLock: hoisted.acquireLock,
+  releaseLock: hoisted.releaseLock,
+}))
+
+// Assess gets the batch-scoped student code (batch_user.username), not users.username.
+vi.mock('@/server/users/getStudentCode', () => ({
+  resolveStudentCode: vi.fn(() => Promise.resolve('MSN-270-1')),
+}))
 
 function queueSelect(rows: Array<unknown>) {
   hoisted.dbSelect.mockReturnValueOnce({
@@ -109,6 +126,63 @@ describe('createAssessPlatformUrl', () => {
   it('throws when the experience-api base url is missing', () => {
     delete process.env.EXPERIENCE_API_BASE_URL
     expect(() => callbackBaseUrl()).toThrow()
+  })
+
+  // Regression: assignment 81793 ("Module - 3 Evaluation", case3 +
+  // attemptInWindow, 90 min inside a 12:00-20:00 IST window) sent Assess the
+  // whole remaining window, so students got ~8 hours. The payload must carry
+  // the fixed duration plus the deadline that stops a late starter.
+  it('sends the windowed duration and mustEndOnOrBefore for attemptInWindow assignments', async () => {
+    process.env.ASSESS_PLATFORM_URL = 'http://assess.test'
+    process.env.ASSESS_PLATFORM_AUTH_TOKEN = 'auth'
+    process.env.ASSESS_PLATFORM_SECRET_KEY = 'secret'
+    process.env.ASSESS_PLATFORM_CALLBACK_TOKEN = 'cb'
+    process.env.EXPERIENCE_API_BASE_URL = 'https://experience-api.test'
+
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-08T12:14:10+05:30'))
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ url: 'http://assess.test/?token=xyz' }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    hoisted.acquireLock.mockResolvedValue(true)
+    hoisted.releaseLock.mockResolvedValue(undefined)
+    hoisted.dbUpdate.mockReturnValue({
+      set: () => ({ where: () => Promise.resolve([{ affectedRows: 1 }]) }),
+    })
+
+    queueSelect([{ id: 2, data: null }]) // loadOwnedSubmission
+    queueSelect([
+      {
+        id: 1,
+        concludes: '2026-08-08 20:00:00',
+        settings: {
+          case: 'case3',
+          duration: 90,
+          attemptInWindow: true,
+          sectionDetailTime: '5400',
+          assess_platform_id: 'tpl',
+          assess_platform_client_id: 'client',
+        },
+        batchId: 270,
+      },
+    ])
+    queueSelect([{ duration: 'full-time' }]) // batches
+    queueSelect([{ email: 'a@b.test' }]) // users
+    queueSelect([{ id: 2, data: null }]) // re-check under the lock
+
+    await expect(
+      createAssessPlatformUrl({ assignmentId: 1, submissionId: 2, userId: 7 }),
+    ).resolves.toEqual({ url: 'http://assess.test/?token=xyz' })
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body as string)
+    expect(body.username).toBe('MSN-270-1')
+    expect(body.overrideSectionTime).toBe(5400)
+    expect(body.mustEndOnOrBefore).toBe('2026-08-08T14:30:00.000Z')
+
+    vi.useRealTimers()
   })
 
   it('404s when the submission is not owned/found', async () => {

@@ -10,8 +10,8 @@ describe('activeAppNavIdForPathname', () => {
     expect(activeAppNavIdForPathname('/lectures/42')).toBe('learn')
     expect(activeAppNavIdForPathname('/assignments/1')).toBe('learn')
     expect(activeAppNavIdForPathname('/resources/3')).toBe('learn')
-    expect(activeAppNavIdForPathname('/masaiverse')).toBe('masaiverse')
-    expect(activeAppNavIdForPathname('/masaiverse/events')).toBe('masaiverse')
+    expect(activeAppNavIdForPathname('/masaiverse')).toBe('community')
+    expect(activeAppNavIdForPathname('/masaiverse/events')).toBe('community')
   })
 
   it('returns undefined for legacy-only paths', () => {

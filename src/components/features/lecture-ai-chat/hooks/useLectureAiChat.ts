@@ -14,7 +14,10 @@ import type {
   LectureAiChatPlatform,
   StreamLectureAiChatRequest,
 } from '@/lib/api/ai-tutor/streamAiTutorChat'
-import { getAiTutorConversation } from '@/lib/api/ai-tutor/aiTutorChatApi'
+import {
+  getAiTutorConversation,
+  submitPracticeQuestionAnswers as submitPracticeQuestionAnswersRequest,
+} from '@/lib/api/ai-tutor/aiTutorChatApi'
 import { streamLectureAiChat } from '@/lib/api/ai-tutor/streamAiTutorChat'
 
 let messageCounter = 0
@@ -41,6 +44,15 @@ export type UseLectureAiChatResult = {
   startNewChat: () => void
   /** Loads a past conversation and continues it (subsequent sends reuse its id). */
   selectConversation: (chatId: number) => Promise<void>
+  /**
+   * Persists a quiz's answers (question id -> chosen option id) and updates
+   * the message locally so the quiz card reflects "answered" immediately.
+   */
+  submitPracticeQuestionAnswers: (
+    messageId: string,
+    quizId: string,
+    answers: Record<string, string>,
+  ) => void
 }
 
 /**
@@ -121,6 +133,13 @@ export function useLectureAiChat(
             ),
           )
         },
+        onPracticeQuestions: (payload) => {
+          patchMessage(assistantId, {
+            status: 'streaming',
+            practiceQuestions: payload,
+            practiceQuestionsJustGenerated: true,
+          })
+        },
         onComplete: (chatId) => {
           cancelStreamRef.current = null
           if (chatId != null) {
@@ -187,6 +206,7 @@ export function useLectureAiChat(
           chat: value,
           platform,
           language,
+          supportedUIElements: ['quiz'],
           ...(chatIdRef.current != null ? { chatId: chatIdRef.current } : {}),
         },
         assistantMessage.id,
@@ -262,6 +282,9 @@ export function useLectureAiChat(
           content: turn.content,
           status: turn.role === 'user' ? 'sent' : 'completed',
           createdAt: turn.createdAt ?? index,
+          ...(turn.practiceQuestions
+            ? { practiceQuestions: turn.practiceQuestions }
+            : {}),
         }),
       )
 
@@ -280,6 +303,33 @@ export function useLectureAiChat(
       }
     }
   }, [])
+
+  const submitPracticeQuestionAnswers = useCallback(
+    (messageId: string, quizId: string, answers: Record<string, string>) => {
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === messageId && message.practiceQuestions
+            ? {
+                ...message,
+                practiceQuestions: { ...message.practiceQuestions, answers },
+              }
+            : message,
+        ),
+      )
+
+      const chatId = chatIdRef.current
+      if (chatId == null) return
+      void submitPracticeQuestionAnswersRequest({
+        chatId,
+        quizId,
+        answers,
+      }).catch(() => {
+        // Best-effort persistence — the quiz already reflects the submitted
+        // answers locally regardless of whether this call succeeds.
+      })
+    },
+    [],
+  )
 
   useEffect(() => {
     return () => {
@@ -302,5 +352,6 @@ export function useLectureAiChat(
     stop,
     startNewChat,
     selectConversation,
+    submitPracticeQuestionAnswers,
   }
 }

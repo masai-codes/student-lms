@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { HTMLAttributes, ReactNode } from 'react'
 import mermaid from 'mermaid'
 
+import { useTheme } from '@/lib/theme'
+
 type MermaidCodeProps = {
   inline?: boolean
   className?: string
@@ -9,16 +11,17 @@ type MermaidCodeProps = {
   node?: unknown
 } & HTMLAttributes<HTMLElement>
 
-let isMermaidInitialized = false
+let initializedTheme: 'default' | 'dark' | null = null
 
-const ensureMermaidInitialized = () => {
-  if (isMermaidInitialized) return
+/** Re-initializes when the app theme flips so diagrams render dark-legible. */
+const ensureMermaidInitialized = (theme: 'default' | 'dark') => {
+  if (initializedTheme === theme) return
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'strict',
-    theme: 'default',
+    theme,
   })
-  isMermaidInitialized = true
+  initializedTheme = theme
 }
 
 const readNodeText = (value: ReactNode): string => {
@@ -39,6 +42,7 @@ export function MermaidCodeComponent({
   node,
   ...restProps
 }: MermaidCodeProps) {
+  const { resolvedTheme } = useTheme()
   const [svg, setSvg] = useState('')
   const [hasError, setHasError] = useState(false)
   const renderIdRef = useRef(`mermaid-${Math.random().toString(36).slice(2)}`)
@@ -54,7 +58,7 @@ export function MermaidCodeComponent({
 
     const renderMermaid = async () => {
       try {
-        ensureMermaidInitialized()
+        ensureMermaidInitialized(resolvedTheme === 'dark' ? 'dark' : 'default')
         const { svg: renderedSvg } = await mermaid.render(
           renderIdRef.current,
           codeValue,
@@ -72,7 +76,7 @@ export function MermaidCodeComponent({
     return () => {
       isMounted = false
     }
-  }, [codeValue, isMermaidCodeBlock])
+  }, [codeValue, isMermaidCodeBlock, resolvedTheme])
 
   useEffect(() => {
     if (!containerRef.current || !svg) return
@@ -94,5 +98,3 @@ export function MermaidCodeComponent({
     </code>
   )
 }
-
-export default MermaidCodeComponent

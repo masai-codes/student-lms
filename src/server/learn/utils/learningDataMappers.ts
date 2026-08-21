@@ -26,6 +26,8 @@ export interface LearningEntityRow {
   zoomLink?: string | null
   /** `lectures.is_new_zoom_redirection` (tinyint 0/1); ZEF join flow when 1. */
   isNewZoomRedirection?: number | null
+  /** `lectures.zoom_details` JSON; read for `redirectionType` (ZEF with IVS). */
+  zoomDetails?: unknown
   /** `sections.settings` JSON; read for `enableZoomWebView` on live join CTAs. */
   sectionSettings?: unknown
   /** `assignments.settings` JSON; read for `weightagePercentage` on cards. */
@@ -36,7 +38,7 @@ export function toLearningPriority(optional: number | null): LearningPriority {
   return optional === 1 ? 'recommended' : 'mandatory'
 }
 
-export function toModuleName(week: number): string {
+function toModuleName(week: number): string {
   return `Module ${week}`
 }
 
