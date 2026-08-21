@@ -1,10 +1,9 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 
 import { LectureAiChatMobileEntry } from './components/LectureAiChatMobileEntry'
 import { LectureSplitLayout } from './components/LectureSplitLayout'
-import { LectureSqlPlaygroundMobileEntry } from './components/LectureSqlPlaygroundMobileEntry'
 import { useLectureVideoMaxHeight } from './hooks/useLectureVideoMaxHeight'
 import { LectureDetailActions } from './shared/LectureDetailActions'
 import { LectureDetailFooter } from './shared/LectureDetailFooter'
@@ -79,14 +78,6 @@ export function LectureRecordingExperience({
   // and tag rows get pushed off-screen.
   const { videoRef, maxHeightPx } = useLectureVideoMaxHeight()
 
-  // Bumped whenever a quiz/poll popup successfully submits — the footer
-  // watches this and refetches `inLecturePopupElements` so the Attempted
-  // Assessments tab picks up the new `submittedAt` without a page reload.
-  const [assessmentSubmittedNonce, setAssessmentSubmittedNonce] = useState(0)
-  const handleAssessmentSubmitted = useCallback(() => {
-    setAssessmentSubmittedNonce((n) => n + 1)
-  }, [])
-
   const renderVideoSection = () => (
     <LectureVideoSection
       lectureId={entityId}
@@ -97,7 +88,6 @@ export function LectureRecordingExperience({
       className="min-h-0 flex-1"
       fullBleed={false}
       onVideoAspectRatioChange={setVideoAspectRatio}
-      onAssessmentSubmitted={handleAssessmentSubmitted}
     />
   )
 
@@ -133,19 +123,11 @@ export function LectureRecordingExperience({
   const belowHero = (
     <div className="shrink-0 border-t border-border bg-surface lg:hidden">
       <LectureAiChatMobileEntry lectureId={entityId} />
-      <LectureSqlPlaygroundMobileEntry
-        metaData={inLecturePopupElements.metaData}
-        sqlSandbox={inLecturePopupElements.sqlSandbox}
-      />
     </div>
   )
 
   return (
-    <LectureSplitLayout
-      lectureId={entityId}
-      sqlMetaData={inLecturePopupElements.metaData}
-      sqlSandbox={inLecturePopupElements.sqlSandbox}
-    >
+    <LectureSplitLayout lectureId={entityId}>
       <LectureDetailChrome
         title={title}
         tags={tags}
@@ -174,8 +156,6 @@ export function LectureRecordingExperience({
             hideNotes={hideNotes}
             tabs={tabs}
             feedback={feedback}
-            inLecturePopupElements={inLecturePopupElements}
-            assessmentSubmittedNonce={assessmentSubmittedNonce}
           />
         }
       />

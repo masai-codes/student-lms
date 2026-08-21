@@ -1,9 +1,10 @@
 'use client'
 
-import { LectureResizableSidePanel } from './LectureResizableSidePanel'
+import { LectureChatResizeHandle } from './LectureChatResizeHandle'
 import { useLectureSplitChatOptional } from '../hooks/LectureSplitChatContext'
 
 import { LectureAiChatExperience } from '@/components/features/lecture-ai-chat/LectureAiChatExperience'
+import { cn } from '@/lib/utils'
 
 type LectureChatSidePanelProps = {
   lectureId: number
@@ -21,9 +22,9 @@ type LectureChatSidePanelProps = {
 }
 
 /**
- * The resizable chat column: shares its shell (`LectureResizableSidePanel`)
- * with `LectureSqlSidePanel`, so both panels resize/animate identically.
- * Shared by the inline stage and the in-video fullscreen layout.
+ * The resizable chat column: a draggable divider plus a width-animated panel
+ * that reveals the chat surface. Shared by the inline stage and the in-video
+ * fullscreen layout so both resize/animate identically.
  */
 export function LectureChatSidePanel({
   lectureId,
@@ -40,21 +41,46 @@ export function LectureChatSidePanel({
   const splitChat = useLectureSplitChatOptional()
 
   return (
-    <LectureResizableSidePanel
-      testId="lecture-chat-panel"
-      width={width}
-      isDragging={isDragging}
-      isOpen={isOpen}
-      onResizeStart={onResizeStart}
-      onNudge={onNudge}
-    >
-      <LectureAiChatExperience
-        lectureId={lectureId}
-        onCloseSidebar={onClose}
-        languageMenuContainer={languageMenuContainer}
-        chat={splitChat?.chat}
-        feedback={splitChat?.feedback}
+    <>
+      <LectureChatResizeHandle
+        onPointerDown={onResizeStart}
+        onNudge={onNudge}
+        isDragging={isDragging}
+        className={cn(
+          'transition-opacity duration-300 ease-out motion-reduce:transition-none',
+          isOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
+        )}
       />
-    </LectureResizableSidePanel>
+      <div
+        data-testid="lecture-chat-panel"
+        className={cn(
+          // No left border here — the resize handle carries the single divider
+          // line so the two don't stack into a thick-looking edge.
+          'h-full min-h-0 shrink-0 overflow-hidden bg-background',
+          // Animate open/close (width), but track the pointer 1:1 mid-drag.
+          !isDragging &&
+            'transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+        )}
+        style={{ width: isOpen ? width : 0 }}
+      >
+        {/* Fixed-width content behind the clipping panel so it reveals cleanly
+            instead of reflowing while the width animates. */}
+        <div
+          className={cn(
+            'flex h-full min-h-0 flex-col transition-opacity duration-200 ease-out motion-reduce:transition-none',
+            isOpen ? 'opacity-100' : 'opacity-0',
+          )}
+          style={{ width }}
+        >
+          <LectureAiChatExperience
+            lectureId={lectureId}
+            onCloseSidebar={onClose}
+            languageMenuContainer={languageMenuContainer}
+            chat={splitChat?.chat}
+            feedback={splitChat?.feedback}
+          />
+        </div>
+      </div>
+    </>
   )
 }

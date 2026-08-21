@@ -7,22 +7,8 @@ import type { InLecturePopupQuizElement } from '@/server/learn/lectureDetailType
 
 const LECTURE_ID = 999
 const QUIZZES: Array<InLecturePopupQuizElement> = [
-  {
-    id: 1,
-    assessmentId: 'a',
-    status: 'active',
-    startSec: 215,
-    endSec: 357,
-    submittedAt: null,
-  },
-  {
-    id: 2,
-    assessmentId: 'b',
-    status: 'active',
-    startSec: 463,
-    endSec: 512,
-    submittedAt: null,
-  },
+  { id: 1, assessmentId: 'a', status: 'active', startSec: 215, endSec: 357 },
+  { id: 2, assessmentId: 'b', status: 'active', startSec: 463, endSec: 512 },
 ]
 
 type Props = { progressSeconds: number; seekSignal?: number }

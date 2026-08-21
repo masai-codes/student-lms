@@ -43,7 +43,6 @@ import {
   AskAiPillContent,
   askAiPillClass,
 } from '@/components/features/lecture-ai-chat/components/AskAiPill'
-import { SqlPillContent, sqlPillClass } from '../../sql-playground/SqlPill'
 import { pushLearnEvent } from '@/components/features/learn/shared/learnAnalytics'
 import { cn } from '@/lib/utils'
 
@@ -106,8 +105,6 @@ type LectureVideoControlsToolbarProps = {
   onMenuOpenChange?: (open: boolean) => void
   /** Opens the lecture AI chat; the "Ask AI" pill renders only when provided. */
   onOpenAiChat?: () => void
-  /** Opens the SQL Playground drawer; the "SQL" pill renders only when provided. */
-  onOpenSqlPlayground?: () => void
 }
 
 export function LectureVideoControlsToolbar({
@@ -129,7 +126,6 @@ export function LectureVideoControlsToolbar({
   chromeVisible,
   onMenuOpenChange,
   onOpenAiChat,
-  onOpenSqlPlayground,
 }: LectureVideoControlsToolbarProps) {
   const overflowMenuRef = useRef<HTMLDivElement>(null)
   const [volumeUi, setVolumeUi] = useState(1)
@@ -425,24 +421,6 @@ export function LectureVideoControlsToolbar({
                 aria-label="Ask AI about this lecture"
               >
                 <AskAiPillContent />
-              </button>
-            </ControlTooltip>
-          ) : null}
-          {onOpenSqlPlayground ? (
-            <ControlTooltip label="Open SQL Playground">
-              <button
-                type="button"
-                onClick={() => {
-                  onActivity()
-                  onOpenSqlPlayground()
-                }}
-                className={cn(
-                  sqlPillClass,
-                  'inline-flex shrink-0 max-sm:h-9 max-sm:w-9 max-sm:gap-0 max-sm:px-0',
-                )}
-                aria-label="Open SQL Playground"
-              >
-                <SqlPillContent />
               </button>
             </ControlTooltip>
           ) : null}

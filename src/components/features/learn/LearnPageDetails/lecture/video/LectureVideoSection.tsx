@@ -22,8 +22,6 @@ type LectureVideoSectionProps = {
   fullBleed?: boolean
   /** Reports the intrinsic video aspect ratio (w/h) once metadata loads. */
   onVideoAspectRatioChange?: (ratio: number) => void
-  /** Fired right after an in-lecture quiz or poll is submitted. */
-  onAssessmentSubmitted?: () => void
 }
 
 export function LectureVideoSection({
@@ -35,7 +33,6 @@ export function LectureVideoSection({
   className,
   fullBleed = true,
   onVideoAspectRatioChange,
-  onAssessmentSubmitted,
 }: LectureVideoSectionProps) {
   const player = (
     <LectureReactPlayer
@@ -45,7 +42,6 @@ export function LectureVideoSection({
       transcript={transcript}
       inLecturePopupElements={inLecturePopupElements}
       onVideoAspectRatioChange={onVideoAspectRatioChange}
-      onAssessmentSubmitted={onAssessmentSubmitted}
     />
   )
 

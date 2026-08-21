@@ -1,8 +1,5 @@
 import type { AssignmentDetailPayload } from '@/server/learn/assignmentDetailTypes'
-import type {
-  InLecturePopupElements,
-  LectureDetailPayload,
-} from '@/server/learn/lectureDetailTypes'
+import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 import type { ProblemDetailPayload } from '@/server/learn/utils/buildProblemDetailPayload'
 import type { ResourceDetailPayload } from '@/server/learn/resourceDetailTypes'
 import type {
@@ -80,19 +77,6 @@ export async function fetchLectureLearningDetailFromApi(
   lectureId: number,
 ): Promise<LectureDetailPayload> {
   return fetchLearnApi<LectureDetailPayload>(LEARN_API.lecture(lectureId))
-}
-
-/**
- * Refetches just the in-lecture quiz/poll popup elements (with the current
- * user's `submittedAt`) — called after a quiz or poll submission so the
- * Attempted Assessments tab picks it up without reloading the whole page.
- */
-export async function fetchInLecturePopupElementsFromApi(
-  lectureId: number,
-): Promise<InLecturePopupElements> {
-  return fetchLearnApi<InLecturePopupElements>(
-    LEARN_API.lecturePopupElements(lectureId),
-  )
 }
 
 export async function fetchAssignmentLearningDetailFromApi(

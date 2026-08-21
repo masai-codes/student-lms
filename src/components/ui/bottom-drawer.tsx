@@ -35,8 +35,6 @@ type BottomDrawerProps = {
   closeIcon?: ReactNode
   /** Accessible name for that button. Defaults to "Close". */
   closeLabel?: string
-  /** Extra control rendered in the header, between the title and the close button. */
-  headerAction?: ReactNode
 }
 
 /**
@@ -60,7 +58,6 @@ export default function BottomDrawer({
   testId,
   closeIcon,
   closeLabel,
-  headerAction,
 }: BottomDrawerProps) {
   return (
     <Drawer.Root
@@ -85,19 +82,16 @@ export default function BottomDrawer({
             <Drawer.Handle className="!h-1 !w-10 !bg-muted" />
           </div>
 
-          <div className="flex shrink-0 items-center justify-between gap-2 px-5 pb-3 pt-3">
-            <Drawer.Title className="min-w-0 flex-1 truncate text-[15px] font-bold text-foreground">
+          <div className="flex shrink-0 items-center justify-between px-5 pb-3 pt-3">
+            <Drawer.Title className="text-[15px] font-bold text-foreground">
               {title ?? ''}
             </Drawer.Title>
-            <div className="flex shrink-0 items-center gap-1.5">
-              {headerAction}
-              <Drawer.Close
-                aria-label={closeLabel ?? 'Close'}
-                className="flex size-8 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
-              >
-                {closeIcon ?? <X size={18} />}
-              </Drawer.Close>
-            </div>
+            <Drawer.Close
+              aria-label={closeLabel ?? 'Close'}
+              className="flex size-8 items-center justify-center rounded-full text-foreground-muted hover:bg-surface-muted hover:text-foreground"
+            >
+              {closeIcon ?? <X size={18} />}
+            </Drawer.Close>
           </div>
 
           <div
