@@ -59,7 +59,6 @@ export function VideoLectureContent({ detail }: VideoLectureContentProps) {
           hideNotes={detail.hideNotes}
           tabs={detail.tabs}
           feedback={detail.feedback}
-          inLecturePopupElements={detail.inLecturePopupElements}
         />
       }
     />

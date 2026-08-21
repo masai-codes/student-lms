@@ -13,8 +13,6 @@ type LectureTabBarProps = {
   activeTabId: LectureDetailTabId
   onTabChange: (tabId: LectureDetailTabId) => void
   hideNotes: boolean
-  /** Whether the user has submitted at least one in-lecture quiz or poll for this lecture. */
-  hasAttemptedAssessments?: boolean
   className?: string
 }
 
@@ -22,13 +20,9 @@ export function LectureTabBar({
   activeTabId,
   onTabChange,
   hideNotes,
-  hasAttemptedAssessments = false,
   className,
 }: LectureTabBarProps) {
-  const tabs = resolveVisibleLectureDetailTabs(
-    hideNotes,
-    hasAttemptedAssessments,
-  )
+  const tabs = resolveVisibleLectureDetailTabs(hideNotes)
 
   return (
     <div
@@ -42,7 +36,6 @@ export function LectureTabBar({
       {tabs.map((tab) => (
         <MasaiTab
           key={tab.id}
-          data-testid={`lecture-tab-${tab.id}`}
           label={tab.label}
           selected={activeTabId === tab.id}
           onClick={() => {

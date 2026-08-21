@@ -1,7 +1,6 @@
 'use client'
 
 import { AssociatedContentList } from '../../common/associated/AssociatedContentList'
-import { AttemptedAssessmentsTabContent } from './AttemptedAssessmentsTabContent'
 import { ExpandableTabContent } from './ExpandableTabContent'
 import { LectureNotesTabContent } from './LectureNotesTabContent'
 import { LectureTabEmptyState } from './LectureTabEmptyState'
@@ -9,10 +8,7 @@ import { LectureTabMarkdown } from './LectureTabMarkdown'
 import { LectureTranscriptTabContent } from './LectureTranscriptTabContent'
 import type { LectureDetailTabId } from './constants/staticLectureTabContent'
 
-import type {
-  InLecturePopupElements,
-  LectureDetailTabContent,
-} from '@/server/learn/lectureDetailTypes'
+import type { LectureDetailTabContent } from '@/server/learn/lectureDetailTypes'
 
 type MarkdownTabId = Extract<LectureDetailTabId, 'ai-summary'>
 
@@ -24,7 +20,7 @@ const MARKDOWN_TAB_FIELD: Record<
 }
 
 const TAB_EMPTY_COPY: Record<
-  Exclude<LectureDetailTabId, 'description' | 'attempted-assessments'>,
+  Exclude<LectureDetailTabId, 'description'>,
   { title: string; description: string }
 > = {
   'ai-summary': {
@@ -47,10 +43,6 @@ const TAB_EMPTY_COPY: Record<
 type LectureTabPanelProps = {
   tabId: LectureDetailTabId
   tabs: LectureDetailTabContent
-  /** Only needed for the 'attempted-assessments' tab; other tabs ignore it. */
-  inLecturePopupElements?: InLecturePopupElements
-  /** Only needed for the 'attempted-assessments' tab; other tabs ignore it. */
-  lectureId?: number
 }
 
 function renderMarkdownTab(tabId: MarkdownTabId, content: string | null) {
@@ -71,26 +63,9 @@ function renderMarkdownTab(tabId: MarkdownTabId, content: string | null) {
 function renderTabBody(
   tabId: LectureDetailTabId,
   tabs: LectureDetailTabContent,
-  inLecturePopupElements: InLecturePopupElements | undefined,
-  lectureId: number | undefined,
 ) {
   if (tabId === 'description') {
     return <LectureNotesTabContent notes={tabs.notes} />
-  }
-
-  if (tabId === 'attempted-assessments') {
-    // Only reachable when the tab bar decided to show it, which already
-    // requires at least one submitted quiz or poll — see
-    // `hasAttemptedAssessments`. Both the submitted and still-pending
-    // quizzes/polls are passed through — the tab content splits them.
-    if (lectureId == null) return null
-    return (
-      <AttemptedAssessmentsTabContent
-        lectureId={lectureId}
-        quizzes={inLecturePopupElements?.quiz ?? []}
-        polls={inLecturePopupElements?.polls ?? []}
-      />
-    )
   }
 
   if (tabId === 'associated') {
@@ -122,12 +97,7 @@ function renderTabBody(
   return renderMarkdownTab(tabId, tabs[MARKDOWN_TAB_FIELD[tabId]])
 }
 
-export function LectureTabPanel({
-  tabId,
-  tabs,
-  inLecturePopupElements,
-  lectureId,
-}: LectureTabPanelProps) {
+export function LectureTabPanel({ tabId, tabs }: LectureTabPanelProps) {
   return (
     <div
       role="tabpanel"
@@ -137,7 +107,7 @@ export function LectureTabPanel({
     >
       {/* Remounts per tab (keyed by tabId upstream), replaying the entrance. */}
       <div className="animate-dash-row-in rounded-xl bg-surface-muted px-4 py-3 ring-1 ring-border/80 dark:bg-surface">
-        {renderTabBody(tabId, tabs, inLecturePopupElements, lectureId)}
+        {renderTabBody(tabId, tabs)}
       </div>
     </div>
   )

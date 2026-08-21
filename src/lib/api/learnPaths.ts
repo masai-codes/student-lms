@@ -13,8 +13,6 @@ export const LEARN_API = {
     `/api/learn/lectures/${lectureId}/poll-status`,
   lecturePollSubmit: (lectureId: number) =>
     `/api/learn/lectures/${lectureId}/poll-submit`,
-  lecturePopupElements: (lectureId: number) =>
-    `/api/learn/lectures/${lectureId}/popup-elements`,
   lectureBookmark: (lectureId: number) =>
     `/api/learn/lectures/${lectureId}/bookmark`,
   lectureFeedback: (lectureId: number) =>

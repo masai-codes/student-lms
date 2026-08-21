@@ -23,8 +23,6 @@ type InLectureQuizModalProps = {
   portalContainer?: HTMLElement | null
   /** Skip past the window to the next concept (seek to `endSec` + close). */
   onSkipToLecture: () => void
-  /** Fired once, the moment this session's attempt is detected as graded. */
-  onSubmitted?: () => void
 }
 
 type LoadState =
@@ -59,12 +57,10 @@ function toSubmissionViewUrl(url: string): string {
  * Non-blocking, in-player quiz panel (see {@link FloatingPopupPanel} for the
  * draggable/resizable chrome). Submission is handled by the iframe's own
  * submit button; as soon as the Assess `gradeAssessment` callback has persisted
- * this session's attempt, the panel skips past the quiz window on its own.
- * An already-submitted quiz is review-only — it never polls and never
- * auto-skips, so it gets an explicit header "Continue" instead (there is
- * otherwise no way to leave the review before playback reaches the window's
- * end on its own). Opening/closing by playback window is owned by
- * `useInLectureQuiz`.
+ * this session's attempt, the panel skips past the quiz window on its own —
+ * there is no manual Continue action (see the commented-out ribbon below). An
+ * already-submitted quiz is review-only: it never polls and never auto-skips.
+ * Opening/closing by playback window is owned by `useInLectureQuiz`.
  */
 export function InLectureQuizModal({
   lectureId,
@@ -72,16 +68,13 @@ export function InLectureQuizModal({
   isFullscreen,
   portalContainer,
   onSkipToLecture,
-  onSubmitted,
 }: InLectureQuizModalProps) {
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [attempt, setAttempt] = useState(0)
-  // Held in refs so a new callback identity from the parent can't restart the
-  // grading poll (and re-arm a second auto-skip/submit) mid-attempt.
+  // Held in a ref so a new callback identity from the parent can't restart the
+  // grading poll (and re-arm a second auto-skip) mid-attempt.
   const skipRef = useRef(onSkipToLecture)
   skipRef.current = onSkipToLecture
-  const submittedRef = useRef(onSubmitted)
-  submittedRef.current = onSubmitted
 
   // Fetch the embeddable quiz URL (re-fetch on quiz change / manual retry).
   useEffect(() => {
@@ -133,7 +126,6 @@ export function InLectureQuizModal({
           if (cancelled || !result.graded || skipped) return
           skipped = true
           window.clearInterval(intervalId)
-          submittedRef.current?.()
           skipRef.current()
         })
         .catch(() => {
@@ -155,18 +147,25 @@ export function InLectureQuizModal({
       testId="in-lecture-quiz-modal"
       isFullscreen={isFullscreen}
       portalContainer={portalContainer}
-      headerAction={
-        alreadySubmitted ? (
-          <button
-            type="button"
-            onClick={onSkipToLecture}
-            data-testid="in-lecture-quiz-continue"
-            className="flex h-7 shrink-0 cursor-pointer items-center rounded-full bg-brand-foreground/20 px-3 text-xs font-medium text-brand-foreground transition-colors hover:bg-brand-foreground/35"
-          >
-            Continue
-          </button>
-        ) : null
-      }
+      // Manual Continue ribbon, parked while the panel auto-skips on grading.
+      // Restore by uncommenting and reinstating the `submitted` state that
+      // enables it (`canContinue = alreadySubmitted || submitted`).
+      // footer={
+      //   <div ref={continueRef} className="flex justify-center">
+      //     <MasaiButton
+      //       type="primary"
+      //       size="md"
+      //       htmlType="button"
+      //       ctaText="Continue"
+      //       disabled={!canContinue}
+      //       onClick={onSkipToLecture}
+      //       // Stretches across the ribbon, capped so it stays a button rather
+      //       // than a banner on a wide (resized) panel.
+      //       className="w-full max-w-md"
+      //       data-testid="in-lecture-quiz-continue"
+      //     />
+      //   </div>
+      // }
     >
       {({ interacting }) =>
         state.status === 'ready' ? (
