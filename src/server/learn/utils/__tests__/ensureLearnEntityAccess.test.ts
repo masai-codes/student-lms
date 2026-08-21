@@ -17,18 +17,16 @@ describe('ensureUserCanAccessLearnHubEntity', () => {
 
   it('grants access when the user is a member of the section', async () => {
     hoisted.rows = [{ id: 1 }]
-    const { ensureUserCanAccessLearnHubEntity } = await import(
-      '../ensureLearnEntityAccess'
-    )
+    const { ensureUserCanAccessLearnHubEntity } =
+      await import('../ensureLearnEntityAccess')
 
     expect(await ensureUserCanAccessLearnHubEntity(42, 7)).toBe(true)
   })
 
   it('denies access when the user is not a member of the section', async () => {
     hoisted.rows = []
-    const { ensureUserCanAccessLearnHubEntity } = await import(
-      '../ensureLearnEntityAccess'
-    )
+    const { ensureUserCanAccessLearnHubEntity } =
+      await import('../ensureLearnEntityAccess')
 
     expect(await ensureUserCanAccessLearnHubEntity(42, 7)).toBe(false)
   })
@@ -37,9 +35,8 @@ describe('ensureUserCanAccessLearnHubEntity', () => {
     // A batch-enrolled user must NOT be able to open a section-less row; batch
     // membership is deliberately never consulted here.
     hoisted.rows = [{ id: 1 }]
-    const { ensureUserCanAccessLearnHubEntity } = await import(
-      '../ensureLearnEntityAccess'
-    )
+    const { ensureUserCanAccessLearnHubEntity } =
+      await import('../ensureLearnEntityAccess')
 
     expect(await ensureUserCanAccessLearnHubEntity(42, null)).toBe(false)
   })

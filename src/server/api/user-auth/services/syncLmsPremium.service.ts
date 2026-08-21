@@ -12,7 +12,7 @@ function internalKey(): string {
   return (process.env.LMS_MASAI_LIVE_INTERNAL_KEY || '').trim()
 }
 
-export function isLmsPremiumSyncConfigured(): boolean {
+function isLmsPremiumSyncConfigured(): boolean {
   return Boolean(masaiLiveApiBase() && internalKey())
 }
 

@@ -3,7 +3,7 @@ import { db } from '@/db'
 import { getBatchIdsForEnrolledUser } from '@/server/batches/getBatchIdsForEnrolledUser'
 import { getSectionIdsForUserInBatches } from '@/server/batches/getSectionIdsForUserInBatch'
 
-export type NavbarPillEventType = 'evaluation' | 'live' | 'scrum'
+type NavbarPillEventType = 'evaluation' | 'live' | 'scrum'
 
 export interface NavbarPillEvent {
   id: number

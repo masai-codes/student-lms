@@ -27,7 +27,6 @@ export function initClarity() {
   if (!isBrowser()) return
 
   if ((window as any).__clarityInitialized) return
-
   ;(function (
     c: any,
     l: Document,
@@ -48,6 +47,5 @@ export function initClarity() {
     y = l.getElementsByTagName(r)[0]
     y?.parentNode?.insertBefore(t, y)
   })(window, document, 'clarity', 'script', CLARITY_PROJECT_ID)
-
   ;(window as any).__clarityInitialized = true
 }

@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { checkIfValidQuery } from '../checkIfValidQuery'
+
 const hoisted = vi.hoisted(() => ({
   generateObject: vi.fn(),
   getOpenAiChatModel: vi.fn(),
@@ -11,8 +13,6 @@ vi.mock('ai', () => ({
 vi.mock('@/server/ai-chat/clients/openAiChatModel', () => ({
   getOpenAiChatModel: hoisted.getOpenAiChatModel,
 }))
-
-import { checkIfValidQuery } from '../checkIfValidQuery'
 
 describe('checkIfValidQuery', () => {
   beforeEach(() => {

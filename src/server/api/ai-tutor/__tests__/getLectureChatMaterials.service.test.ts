@@ -16,7 +16,10 @@ vi.mock('@/db/schema', () => ({
     notes: 'lectures.notes',
     data: 'lectures.data',
   },
-  lecturesAi: { lectureId: 'lecturesAi.lectureId', summary: 'lecturesAi.summary' },
+  lecturesAi: {
+    lectureId: 'lecturesAi.lectureId',
+    summary: 'lecturesAi.summary',
+  },
   lectureZoomChat: {
     lectureId: 'lectureZoomChat.lectureId',
     finalChat: 'lectureZoomChat.finalChat',
@@ -53,9 +56,8 @@ describe('getLectureChatMaterials', () => {
       .mockReturnValueOnce(lectureSelectChain(null))
       .mockReturnValueOnce(lectureSelectChain(null))
 
-    const { getLectureChatMaterials } = await import(
-      '../services/getLectureChatMaterials.service'
-    )
+    const { getLectureChatMaterials } =
+      await import('../services/getLectureChatMaterials.service')
     await expect(getLectureChatMaterials(9)).rejects.toMatchObject({
       code: 'AI_TUTOR_LECTURE_NOT_FOUND',
     })
@@ -73,9 +75,8 @@ describe('getLectureChatMaterials', () => {
       .mockReturnValueOnce(lectureSelectChain({ summary: 'Lecture summary' }))
       .mockReturnValueOnce(lectureSelectChain({ finalChat: null }))
 
-    const { getLectureChatMaterials } = await import(
-      '../services/getLectureChatMaterials.service'
-    )
+    const { getLectureChatMaterials } =
+      await import('../services/getLectureChatMaterials.service')
     await expect(getLectureChatMaterials(12)).resolves.toEqual({
       lectureId: 12,
       title: 'React Hooks',
@@ -101,9 +102,8 @@ describe('getLectureChatMaterials', () => {
       .mockReturnValueOnce(lectureSelectChain({ summary: null }))
       .mockReturnValueOnce(lectureSelectChain({ finalChat: null }))
 
-    const { getLectureChatMaterials } = await import(
-      '../services/getLectureChatMaterials.service'
-    )
+    const { getLectureChatMaterials } =
+      await import('../services/getLectureChatMaterials.service')
     const materials = await getLectureChatMaterials(12)
 
     expect(materials).toEqual({
@@ -127,9 +127,8 @@ describe('getLectureChatMaterials', () => {
       .mockReturnValueOnce(lectureSelectChain({ summary: null }))
       .mockReturnValueOnce(lectureSelectChain(null))
 
-    const { getLectureChatMaterials } = await import(
-      '../services/getLectureChatMaterials.service'
-    )
+    const { getLectureChatMaterials } =
+      await import('../services/getLectureChatMaterials.service')
     const materials = await getLectureChatMaterials(12)
 
     expect(materials.notesRagged).toBe(false)
@@ -158,9 +157,8 @@ describe('getLectureChatMaterials', () => {
         }),
       )
 
-    const { getLectureChatMaterials } = await import(
-      '../services/getLectureChatMaterials.service'
-    )
+    const { getLectureChatMaterials } =
+      await import('../services/getLectureChatMaterials.service')
     const materials = await getLectureChatMaterials(12)
 
     expect(materials.resourcesShared).toEqual([

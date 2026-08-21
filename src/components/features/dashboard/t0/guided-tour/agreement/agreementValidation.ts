@@ -18,7 +18,7 @@ export function sanitizePan(value: string): string {
 }
 
 /** Today as yyyy-mm-dd (for the DOB max bound). */
-export function todayIso(): string {
+function todayIso(): string {
   return new Date().toISOString().slice(0, 10)
 }
 

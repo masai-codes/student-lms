@@ -40,7 +40,7 @@ export interface T0AdmissionsStatus {
   admissionsFormUrl: string | null
 }
 
-export const EMPTY_T0_ADMISSIONS_STATUS: T0AdmissionsStatus = {
+const EMPTY_T0_ADMISSIONS_STATUS: T0AdmissionsStatus = {
   documentsRequired: false,
   documentsUploaded: false,
   documentsVerified: false,

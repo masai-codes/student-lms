@@ -1,9 +1,13 @@
 import type { PracticeQuestionsPayload } from '@/server/api/ai-tutor/types/practiceQuestions'
 
-export type LectureAiChatRole = 'user' | 'assistant'
+type LectureAiChatRole = 'user' | 'assistant'
 
-export type LectureAiChatMessageStatus =
-  'sent' | 'thinking' | 'streaming' | 'completed' | 'error'
+type LectureAiChatMessageStatus =
+  | 'sent'
+  | 'thinking'
+  | 'streaming'
+  | 'completed'
+  | 'error'
 
 export type LectureAiChatMessage = {
   id: string

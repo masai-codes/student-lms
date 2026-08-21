@@ -4,9 +4,7 @@ function notFound(): Response {
   return new Response('Not Found', { status: 404 })
 }
 
-export function renderSwaggerUiHtml(
-  specUrl = '/api/docs/openapi.json',
-): string {
+function renderSwaggerUiHtml(specUrl = '/api/docs/openapi.json'): string {
   return `<!doctype html>
 <html lang="en">
 <head>

@@ -1,6 +1,6 @@
 import { cloudFrontSafeResponseInit } from '@/lib/api/cloudFrontSafeStatus'
 
-export type ErrorBody = {
+type ErrorBody = {
   error: {
     code: string
     message: string

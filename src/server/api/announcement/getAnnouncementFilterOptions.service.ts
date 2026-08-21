@@ -5,7 +5,7 @@ import { menus, sectionUser } from '@/db/schema'
 /** `menus.category` row that holds the announcement category filter values. */
 const ANNOUNCEMENT_CATEGORY_MENU = 'announcement-category'
 
-export interface AnnouncerOption {
+interface AnnouncerOption {
   id: string
   name: string
 }

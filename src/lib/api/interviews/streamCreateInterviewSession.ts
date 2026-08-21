@@ -3,7 +3,7 @@ import { createSseFrameBuffer } from '@/lib/api/sse/sseFrameBuffer'
 import type { CreateInterviewSessionResult } from '@/server/api/interviews/services/interviewSession.service'
 
 /** Wire events emitted by `POST /api/interviews/sessions/stream`. */
-export type CreateInterviewSessionStreamEvent =
+type CreateInterviewSessionStreamEvent =
   | { type: 'audio-delta'; data: string }
   | { type: 'done'; result: CreateInterviewSessionResult }
   | { type: 'error'; code: string }

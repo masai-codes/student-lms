@@ -6,10 +6,7 @@ import type {
 /** Catalog storage shape — `domain` is the record key, not repeated per topic. */
 export type CatalogTopic = Omit<InterviewTopic, 'domain'>
 
-export const INTERVIEW_TOPIC_CATALOG: Record<
-  InterviewDomain,
-  Array<CatalogTopic>
-> = {
+const INTERVIEW_TOPIC_CATALOG: Record<InterviewDomain, Array<CatalogTopic>> = {
   frontend: [
     {
       id: 'frontend-html',
@@ -2515,12 +2512,6 @@ export const INTERVIEW_TOPIC_CATALOG: Record<
       subtopics: [],
     },
   ],
-}
-
-export function getCatalogTopicsForDomain(
-  domain: InterviewDomain,
-): Array<InterviewTopic> {
-  return INTERVIEW_TOPIC_CATALOG[domain].map((topic) => ({ ...topic, domain }))
 }
 
 export function getCatalogTopicsForDomains(

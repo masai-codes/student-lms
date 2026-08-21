@@ -398,17 +398,6 @@ export async function updateMasaiverseV2Banner(
   })
 }
 
-/** Permanently deletes a banner (admin only). */
-export async function deleteMasaiverseV2Banner(
-  bannerId: string,
-): Promise<{ success: true }> {
-  return fetchJson<{ success: true }>(MASAIVERSE_V2_API.bannerDelete, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ bannerId }),
-  })
-}
-
 /** Raw editable club data (name + full meta) for the admin edit drawer. */
 export type MasaiverseV2ClubEditData = {
   id: string

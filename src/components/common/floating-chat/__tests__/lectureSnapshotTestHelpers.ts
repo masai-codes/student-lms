@@ -1,10 +1,12 @@
-import type { LectureAttendanceSummary } from '@/server/attendance/types'
+import type {
+  LectureAttendanceSummary,
+  StudentAttendanceRow,
+} from '@/server/attendance/types'
 import type { LectureSupportSnapshot } from '@/server/api/support/support.types'
 import { buildLectureAttendanceSummary } from '@/server/attendance/utils/buildLectureAttendanceSummary'
-import type { StudentAttendanceRow } from '@/server/attendance/types'
 
-export const LECTURE_SCHEDULE = '2026-05-01 10:00:00'
-export const LECTURE_CONCLUDES = '2026-05-01 12:00:00'
+const LECTURE_SCHEDULE = '2026-05-01 10:00:00'
+const LECTURE_CONCLUDES = '2026-05-01 12:00:00'
 
 /** Two days after conclude — catch-up window still open when catchUpDays = 5. */
 export const NOW_WINDOW_OPEN = new Date('2026-05-03 12:00:00+05:30').getTime()

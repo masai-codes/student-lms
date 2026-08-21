@@ -7,7 +7,7 @@
  * enumerable so the UI can render a live checklist instead.
  */
 
-export const MIN_PASSWORD_LENGTH = 8
+const MIN_PASSWORD_LENGTH = 8
 
 export interface PasswordRule {
   id: 'length' | 'no-spaces'

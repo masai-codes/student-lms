@@ -8,8 +8,8 @@ import { getEventStatus } from '@/lib/masaiverseEventCard'
 import { readEnrollmentRating } from '@/server/api/masaiverse-v2/services/rateEvent.service'
 
 /** Free-form `events.category` string (e.g. "hackathon", "offline_meetup"). */
-export type EventCategory = string
-export type EventMode = 'online' | 'offline'
+type EventCategory = string
+type EventMode = 'online' | 'offline'
 
 export interface EventHost {
   /** Host display name. */

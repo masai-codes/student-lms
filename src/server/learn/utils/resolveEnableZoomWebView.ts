@@ -13,7 +13,9 @@ export function resolveEnableZoomWebView(settings: unknown): boolean {
     typeof settings === 'object' &&
     'enableZoomWebView' in settings
   ) {
-    return (settings as { enableZoomWebView?: unknown }).enableZoomWebView === true
+    return (
+      (settings as { enableZoomWebView?: unknown }).enableZoomWebView === true
+    )
   }
   return false
 }

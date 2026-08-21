@@ -41,7 +41,7 @@ export function takePendingPhoneOtpSignIn(): PendingPhoneOtpSignIn | null {
         rememberMe: parsed.rememberMe === true,
       }
     }
-    return { response: parsed as VerifyOtpResult, rememberMe: false }
+    return { response: parsed, rememberMe: false }
   } catch {
     return null
   }

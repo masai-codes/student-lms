@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { generateAllInterviewQuestions } from '../generateInterviewQuestions.service'
+
 const hoisted = vi.hoisted(() => ({
   requestOpenRouterChatCompletion: vi.fn(),
 }))
@@ -7,8 +9,6 @@ const hoisted = vi.hoisted(() => ({
 vi.mock('@/server/api/interviews/clients/openRouterClient', () => ({
   requestOpenRouterChatCompletion: hoisted.requestOpenRouterChatCompletion,
 }))
-
-import { generateAllInterviewQuestions } from '../generateInterviewQuestions.service'
 
 beforeEach(() => {
   vi.clearAllMocks()

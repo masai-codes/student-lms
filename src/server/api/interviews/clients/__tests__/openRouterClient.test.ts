@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import {
+  requestOpenRouterAudioStream,
+  requestOpenRouterChatCompletion,
+  requestOpenRouterChatCompletionStream,
+} from '../openRouterClient'
+
 const hoisted = vi.hoisted(() => ({
   generateText: vi.fn(),
   streamText: vi.fn(),
@@ -13,12 +19,6 @@ vi.mock('ai', () => ({
 vi.mock('@/server/api/interviews/clients/openRouterModel', () => ({
   getOpenRouterTextModel: hoisted.getOpenRouterTextModel,
 }))
-
-import {
-  requestOpenRouterAudioStream,
-  requestOpenRouterChatCompletion,
-  requestOpenRouterChatCompletionStream,
-} from '../openRouterClient'
 
 function sseBodyFromFrames(frames: Array<string>): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder()

@@ -1,6 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai'
 
-export const AI_CHAT_OPENAI_DEFAULT_MODEL = 'gpt-4.1-mini'
+const AI_CHAT_OPENAI_DEFAULT_MODEL = 'gpt-4.1-mini'
 
 export function getOpenAiApiKey(): string {
   const apiKey = process.env.OPENAI_API_KEY?.trim()

@@ -4,7 +4,7 @@
  * rejected on session bootstrap so an active session is cut off on the next request.
  */
 
-export const DEACTIVATED_STATUS = 'disabled'
+const DEACTIVATED_STATUS = 'disabled'
 
 export function isUserDeactivated(status: string | null | undefined): boolean {
   return (

@@ -49,14 +49,6 @@ export interface LearnContentItem {
   sectionName?: string | null
 }
 
-export interface LearnFilterValues {
-  moduleFilterValues: Array<string>
-  categoryFilterValues: Array<string>
-  typeFilterValues: Array<string>
-  priorityFilterValues: Array<LearnPriority>
-  instructorFilterValues: Array<string>
-}
-
 /**
  * Top-level future window for the listing (independent of the modal date filter).
  * `today` is the legacy default (past + today); the others extend into the future.
@@ -87,9 +79,9 @@ export function learnScheduleHorizonToDays(
   return undefined
 }
 
-export type LearnSchedulePhase = 'all' | 'upcoming' | 'past'
-export type LearnAttendanceFilter = 'present' | 'absent'
-export type LearnAssignmentProgressFilter = 'all' | AssignmentProgressStatus
+type LearnSchedulePhase = 'all' | 'upcoming' | 'past'
+type LearnAttendanceFilter = 'present' | 'absent'
+type LearnAssignmentProgressFilter = 'all' | AssignmentProgressStatus
 
 export interface LearnModalFiltersState {
   modules: Array<string>

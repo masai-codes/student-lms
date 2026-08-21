@@ -2,12 +2,7 @@ import { eq } from 'drizzle-orm'
 
 import { db } from '@/db'
 import { lectures, sections } from '@/db/schema'
-import {
-  cacheDel,
-  cacheGetJson,
-  cacheScanKeys,
-  cacheSetJson,
-} from '@/server/redis/cache'
+import { cacheGetJson, cacheSetJson } from '@/server/redis/cache'
 import { parseIstToMs } from '@/server/time/istClock'
 
 /**
@@ -131,24 +126,4 @@ export async function getLectureEligibility(
     await cacheSetJson(sectionKey(sectionId, lectureId), value, TTL_SECONDS)
   }
   return value
-}
-
-/** Invalidate one lecture (both keys). */
-export async function invalidateLectureEligibility(
-  lectureId: number,
-  sectionId: number,
-): Promise<void> {
-  await cacheDel(sectionKey(sectionId, lectureId), lookupKey(lectureId))
-}
-
-/** Invalidate every cached lecture in a section (e.g. after a settings change). */
-export async function invalidateSectionEligibility(
-  sectionId: number,
-): Promise<void> {
-  const keys = await cacheScanKeys(`${KEY_PREFIX}:${sectionId}:*`)
-  const toDelete = keys.flatMap((key) => {
-    const lectureId = Number(key.split(':').pop())
-    return Number.isFinite(lectureId) ? [key, lookupKey(lectureId)] : [key]
-  })
-  await cacheDel(...toDelete)
 }

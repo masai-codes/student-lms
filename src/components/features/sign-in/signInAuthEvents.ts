@@ -5,7 +5,10 @@ import type {
 
 type SignInEventSource = 'sso-v2'
 type SignInMethod =
-  'email-password' | 'email-otp' | 'phone-otp' | 'phone-use-account'
+  | 'email-password'
+  | 'email-otp'
+  | 'phone-otp'
+  | 'phone-use-account'
 
 type SignInSuccessDetail = {
   source: SignInEventSource
