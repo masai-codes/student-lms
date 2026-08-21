@@ -6,7 +6,10 @@ import type {
 } from '@/server/learn/types'
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
-import { toSupportLectureDisplayType } from '@/lib/support/lectureDisplayType'
+import {
+  formatSupportLectureDisplayTypeLabel,
+  toSupportLectureDisplayType,
+} from '@/lib/support/lectureDisplayType'
 import type { Item } from './types'
 import {
   IITJ_ASSIGNMENT_PRACTICE_ID,
@@ -98,7 +101,20 @@ export function supportCategoryToLearnFilters(
 export {
   formatSupportLectureDisplayTypeLabel as formatSupportLectureTypeLabel,
   supportLectureDisplayTypeChipClassName as supportLectureTypeChipClassName,
+  toSupportLectureDisplayType,
 } from '@/lib/support/lectureDisplayType'
+
+/** Readable label for any lecture `type` value — known display types get their
+ * short label, anything else (e.g. a raw DB value with no dedicated chip
+ * style) just gets capitalized rather than hidden. */
+export function formatLectureTypeOptionLabel(rawType: string): string {
+  const known = formatSupportLectureDisplayTypeLabel(
+    toSupportLectureDisplayType(rawType),
+  )
+  if (known) return known
+  const trimmed = rawType.trim()
+  return trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : rawType
+}
 
 /** Priority chip styles — mandatory is higher contrast than optional. */
 export function supportAssignmentPriorityChipClassName(

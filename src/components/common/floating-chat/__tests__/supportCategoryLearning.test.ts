@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  formatLectureTypeOptionLabel,
   formatSupportItemScheduleDate,
   mapLearningItemToSupportItem,
   supportCategoryToLearnFilters,
@@ -53,6 +54,23 @@ describe('formatSupportItemScheduleDate', () => {
 
   it('returns fallback when schedule is missing', () => {
     expect(formatSupportItemScheduleDate(null)).toBe('No schedule')
+  })
+})
+
+describe('formatLectureTypeOptionLabel', () => {
+  it('uses the known short label for live/video/scrum', () => {
+    expect(formatLectureTypeOptionLabel('live')).toBe('Live')
+    expect(formatLectureTypeOptionLabel('video')).toBe('Video')
+    expect(formatLectureTypeOptionLabel('scrum')).toBe('Scrum')
+  })
+
+  it('capitalizes any other raw type instead of hiding it', () => {
+    expect(formatLectureTypeOptionLabel('recorded')).toBe('Recorded')
+    expect(formatLectureTypeOptionLabel('reading')).toBe('Reading')
+  })
+
+  it('is case-insensitive on the way in', () => {
+    expect(formatLectureTypeOptionLabel('LIVE')).toBe('Live')
   })
 })
 
