@@ -3,18 +3,18 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { useLectureAiChatFaqs } from '../useLectureAiChatFaqs'
-import { getLectureFaqs } from '@/lib/api/ai-tutor/aiTutorChatApi'
+import { useLectureAiChatSuggestions } from '../useLectureAiChatSuggestions'
+import { getLectureAiChatSuggestions } from '@/lib/api/cache/lectureAiChatSuggestionsApi'
 
-vi.mock('@/lib/api/ai-tutor/aiTutorChatApi', () => ({
-  getLectureFaqs: vi.fn(),
+vi.mock('@/lib/api/cache/lectureAiChatSuggestionsApi', () => ({
+  getLectureAiChatSuggestions: vi.fn(),
 }))
 
 function Probe({ lectureId }: { lectureId: number }) {
-  const { data, isLoading } = useLectureAiChatFaqs(lectureId)
+  const { data, isLoading } = useLectureAiChatSuggestions(lectureId)
   return (
     <div data-testid="probe">
-      {JSON.stringify({ faqs: data?.faqs ?? null, isLoading })}
+      {JSON.stringify({ suggestions: data?.suggestions ?? null, isLoading })}
     </div>
   )
 }
@@ -34,7 +34,7 @@ function probeState() {
   return JSON.parse(screen.getByTestId('probe').textContent ?? '{}')
 }
 
-describe('useLectureAiChatFaqs', () => {
+describe('useLectureAiChatSuggestions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -43,18 +43,18 @@ describe('useLectureAiChatFaqs', () => {
     cleanup()
   })
 
-  it('fetches faqs for the given lecture', async () => {
-    vi.mocked(getLectureFaqs).mockResolvedValue({
-      faqs: [{ question: 'Q1', answer: 'A1' }],
+  it('fetches suggestions for the given lecture', async () => {
+    vi.mocked(getLectureAiChatSuggestions).mockResolvedValue({
+      suggestions: [{ icon: 'faq', question: 'Q1' }],
     })
 
     renderProbe(42)
 
     await waitFor(() => {
       expect(probeState()).toMatchObject({
-        faqs: [{ question: 'Q1', answer: 'A1' }],
+        suggestions: [{ icon: 'faq', question: 'Q1' }],
       })
     })
-    expect(getLectureFaqs).toHaveBeenCalledWith(42)
+    expect(getLectureAiChatSuggestions).toHaveBeenCalledWith(42)
   })
 })
