@@ -78,8 +78,3 @@ export function forceLightTheme({ persist }: { persist: boolean }): void {
   }
   applyThemeToDocument(APP_FORCED_PREFERENCE)
 }
-
-/** App-shell flavour: pins light and persists it. */
-export function forceLightThemeForApp(): void {
-  forceLightTheme({ persist: true })
-}

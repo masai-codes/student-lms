@@ -3,6 +3,7 @@
 import { LiveLectureContent } from './live/LiveLectureContent'
 import { VideoLectureContent } from './video/VideoLectureContent'
 import { LearnRestrictionPage } from '../common/ban/LearnBanNotice'
+import { LectureAiChatSuggestionsProvider } from '@/components/features/lecture-ai-chat/hooks/LectureAiChatSuggestionsContext'
 import type { LectureDetailPayload } from '@/server/learn/lectureDetailTypes'
 import {
   formatLectureRangeIST,
@@ -32,9 +33,18 @@ export function LectureDetailPage({ detail }: LectureDetailPageProps) {
       }
     : detail
 
-  if (localizedDetail.lectureKind === 'live') {
-    return <LiveLectureContent detail={localizedDetail} />
-  }
+  const content =
+    localizedDetail.lectureKind === 'live' ? (
+      <LiveLectureContent detail={localizedDetail} />
+    ) : (
+      <VideoLectureContent detail={localizedDetail} />
+    )
 
-  return <VideoLectureContent detail={localizedDetail} />
+  return (
+    <LectureAiChatSuggestionsProvider
+      suggestions={localizedDetail.aiChatSuggestions}
+    >
+      {content}
+    </LectureAiChatSuggestionsProvider>
+  )
 }

@@ -62,7 +62,9 @@ describe('SubscribeCalendarButton', () => {
   it('opens the modal with all four provider rows', async () => {
     renderButton()
     fireEvent.click(screen.getByTestId('my-calendar-subscribe'))
-    expect(await screen.findByTestId('my-calendar-subscribe-google')).toBeTruthy()
+    expect(
+      await screen.findByTestId('my-calendar-subscribe-google'),
+    ).toBeTruthy()
     expect(screen.getByTestId('my-calendar-subscribe-outlook')).toBeTruthy()
     expect(screen.getByTestId('my-calendar-subscribe-apple')).toBeTruthy()
     expect(screen.getByTestId('my-calendar-subscribe-copy')).toBeTruthy()
@@ -77,9 +79,7 @@ describe('SubscribeCalendarButton', () => {
   })
 
   it('opens the provider URL in a new tab with tracking', async () => {
-    const openSpy = vi
-      .spyOn(window, 'open')
-      .mockImplementation(() => null)
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
     renderButton()
     fireEvent.click(screen.getByTestId('my-calendar-subscribe'))
     fireEvent.click(await screen.findByTestId('my-calendar-subscribe-google'))

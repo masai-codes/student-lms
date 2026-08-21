@@ -31,7 +31,8 @@ function mockDb(everEnrolled: Array<number>, batchRows: Array<BatchRow>) {
   hoisted.dbSelect.mockReturnValueOnce({
     from: () => ({
       innerJoin: () => ({
-        where: () => Promise.resolve(everEnrolled.map((batchId) => ({ batchId }))),
+        where: () =>
+          Promise.resolve(everEnrolled.map((batchId) => ({ batchId }))),
       }),
     }),
   })
@@ -40,7 +41,9 @@ function mockDb(everEnrolled: Array<number>, batchRows: Array<BatchRow>) {
   })
 }
 
-function flags(overrides: Partial<BatchRestrictionFlags> = {}): BatchRestrictionFlags {
+function flags(
+  overrides: Partial<BatchRestrictionFlags> = {},
+): BatchRestrictionFlags {
   return {
     enrolmentCancelled: false,
     enrolmentCancelledDate: null,
@@ -124,7 +127,13 @@ describe('getMyCourses service', () => {
     hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([])
     hoisted.getUserBatchRestrictions.mockResolvedValue(
       new Map([
-        [10, flags({ enrolmentCancelled: true, enrolmentCancelledDate: '2026-07-01' })],
+        [
+          10,
+          flags({
+            enrolmentCancelled: true,
+            enrolmentCancelledDate: '2026-07-01',
+          }),
+        ],
       ]),
     )
     mockDb([10], [AIML])
@@ -163,7 +172,11 @@ describe('getMyCourses service', () => {
     )
     mockDb([10], [])
 
-    await expect(run()).resolves.toEqual({ active: [], paused: [], cancelled: [] })
+    await expect(run()).resolves.toEqual({
+      active: [],
+      paused: [],
+      cancelled: [],
+    })
   })
 
   it('sorts programs with no detail page last, newest-enrolment-first within each group', async () => {
@@ -277,7 +290,11 @@ describe('getMyCourses service', () => {
     hoisted.getBatchIdsForEnrolledUser.mockResolvedValue([])
     mockDb([], [])
 
-    await expect(run()).resolves.toEqual({ active: [], paused: [], cancelled: [] })
+    await expect(run()).resolves.toEqual({
+      active: [],
+      paused: [],
+      cancelled: [],
+    })
     // Only the ever-enrolled lookup ran; there were no batch ids to load.
     expect(hoisted.dbSelect).toHaveBeenCalledTimes(1)
   })

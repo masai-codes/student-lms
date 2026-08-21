@@ -149,6 +149,20 @@ describe('getLectureLearningDetailForUser', () => {
     expect(result.discussions).toEqual([])
     expect(result.attendance).toBeNull()
     expect(result.isBookmarked).toBe(false)
+    expect(result.aiChatSuggestions).toEqual([
+      {
+        kind: 'summary',
+        question: 'Summarize the key points of this lecture',
+      },
+      {
+        kind: 'explain',
+        question: 'What are the core concepts I should understand?',
+      },
+      {
+        kind: 'quiz',
+        question: 'Quiz me on this lecture',
+      },
+    ])
     expect(result.isNewZoomRedirection).toBe(true)
     expect(result.enableZoomWebView).toBe(true)
     expect(hoisted.bookmarkState).toHaveBeenCalledWith(9, 'lecture', 227)
@@ -269,7 +283,13 @@ describe('getLectureLearningDetailForUser', () => {
         from: () => ({
           where: () => ({
             limit: () =>
-              Promise.resolve([{ summary: 'Key points', hasTranscript: 1 }]),
+              Promise.resolve([
+                {
+                  summary: 'Key points',
+                  faqs: [{ question: 'What is X?', answer: 'X is Y.' }],
+                  hasTranscript: 1,
+                },
+              ]),
           }),
         }),
       })
@@ -290,6 +310,24 @@ describe('getLectureLearningDetailForUser', () => {
       available: true,
       url: '/api/cache/transcript/1/2/227',
     })
+    expect(result.aiChatSuggestions[0]).toEqual({
+      kind: 'faq',
+      question: 'What is X?',
+    })
+    expect(result.aiChatSuggestions.slice(-3)).toEqual([
+      {
+        kind: 'summary',
+        question: 'Summarize the key points of this lecture',
+      },
+      {
+        kind: 'explain',
+        question: 'What are the core concepts I should understand?',
+      },
+      {
+        kind: 'quiz',
+        question: 'Quiz me on this lecture',
+      },
+    ])
   })
 
   it('throws when lecture type is unsupported', async () => {

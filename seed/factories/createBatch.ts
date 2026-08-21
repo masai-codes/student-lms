@@ -14,13 +14,19 @@ export type CreateBatchOverrides = Partial<Omit<BatchInsert, 'id'>>
 export async function createBatch(
   overrides: CreateBatchOverrides = {},
 ): Promise<BatchSelect> {
+  const { meta: metaOverride, ...restOverrides } = overrides
+
   const values: BatchInsert = {
     name: DEFAULT_BATCH_NAME,
     starting: formatMysqlDate(offsetFromNow({ daysAgo: 0 })),
     duration: '30 weeks',
     program: 'FT',
     active: 1,
-    ...overrides,
+    // `interviews` drives which /interviews tracks the batch's students see
+    // (see `resolveInterviewDomains`) — default to the generalist software
+    // track unless a flow overrides it (e.g. a Data Science batch).
+    meta: { interviews: ['fullstack'], ...metaOverride },
+    ...restOverrides,
   }
 
   const [result] = await db.insert(batches).values(values)

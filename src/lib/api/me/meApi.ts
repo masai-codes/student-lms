@@ -1,7 +1,7 @@
 import type { CurrentUser } from '@/server/api/me/getCurrentUser.service'
 import { fetchJson } from '@/lib/api/fetchJson'
 
-export const ME_API = '/api/me'
+const ME_API = '/api/me'
 
 /** Fetches the signed-in user's lightweight profile (name for now). */
 export async function fetchCurrentUser(): Promise<CurrentUser> {

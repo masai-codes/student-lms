@@ -3,9 +3,9 @@ import { buildNotesOutline } from '@/server/api/ai-tutor/services/buildNotesOutl
 
 describe('buildNotesOutline', () => {
   it('returns markdown headings when present', () => {
-    expect(
-      buildNotesOutline('# Arrays\nBody\n## Time complexity\nMore'),
-    ).toBe('# Arrays\n## Time complexity')
+    expect(buildNotesOutline('# Arrays\nBody\n## Time complexity\nMore')).toBe(
+      '# Arrays\n## Time complexity',
+    )
   })
 
   it('falls back to a preview when there are no headings', () => {

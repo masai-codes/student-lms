@@ -117,7 +117,9 @@ describe('captureSigningContext', () => {
   it('fails when reverse geocoding errors', async () => {
     positionSucceeds()
     stubFetch((url) =>
-      url.includes('ipify') ? { ok: true, body: { ip: '1.2.3.4' } } : { ok: false },
+      url.includes('ipify')
+        ? { ok: true, body: { ip: '1.2.3.4' } }
+        : { ok: false },
     )
 
     await expect(captureSigningContext()).rejects.toBeInstanceOf(

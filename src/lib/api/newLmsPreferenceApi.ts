@@ -1,6 +1,6 @@
 import { fetchJson } from '@/lib/api/fetchJson'
 
-export const NEW_LMS_PREFERENCE_API = {
+const NEW_LMS_PREFERENCE_API = {
   newLmsPages: '/api/profile/new-lms-pages',
   tryNewTour: '/api/profile/try-new-tour',
 } as const

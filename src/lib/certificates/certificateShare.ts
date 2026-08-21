@@ -62,7 +62,5 @@ export function resolveViewableCertificateUrl(certificate: {
   verificationUrl: string | null
   pdfUrl: string | null
 }): string | null {
-  return (
-    asHttpUrl(certificate.verificationUrl) ?? asHttpUrl(certificate.pdfUrl)
-  )
+  return asHttpUrl(certificate.verificationUrl) ?? asHttpUrl(certificate.pdfUrl)
 }

@@ -2,9 +2,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-export function parseLectureDataJson(
-  raw: unknown,
-): Record<string, unknown> | null {
+function parseLectureDataJson(raw: unknown): Record<string, unknown> | null {
   if (raw == null) return null
   if (isRecord(raw)) return raw
   if (typeof raw === 'string') {

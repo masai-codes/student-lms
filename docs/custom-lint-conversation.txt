@@ -1,0 +1,76 @@
+ ▐▛███▜▌   Claude Code v2.1.220
+▝▜█████▛▘  Sonnet 5 · Claude Team
+  ▘▘ ▝▝    ~/code/masai/lms/student-lms
+
+
+❯ /clear                                                                        
+
+❯ can you run npm run lint and show me a summary of which eslint rule is giving 
+  how many errors, warnings.                                                    
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● npm run lint → 1276 problems: 140 errors, 1136 warnings (85 auto-fixable).
+
+  Errors by rule
+
+  ┌─────────────────────────────────────────────────────┬───────┐
+  │                        Rule                         │ Count │
+  ├─────────────────────────────────────────────────────┼───────┤
+  │ import/first                                        │ 41    │
+  ├─────────────────────────────────────────────────────┼───────┤
+  │ @typescript-eslint/no-unnecessary-type-assertion    │ 37    │
+  ├─────────────────────────────────────────────────────┼───────┤
+  │ @typescript-eslint/consistent-type-imports          │ 30    │
+  ├─────────────────────────────────────────────────────┼───────┤
+  │ import/no-duplicates                                │ 14    │
+  ├─────────────────────────────────────────────────────┼───────┤
+  │ Parsing error (parserOptions.project, from test.js) │ 13    │
+  ├─────────────────────────────────────────────────────┼───────┤
+  │ react/no-array-index-key                            │ 1     │
+  ├─────────────────────────────────────────────────────┼───────┤
+  │ react-hooks/exhaustive-deps                         │ 1     │
+  ├─────────────────────────────────────────────────────┼───────┤
+  │ no-constant-binary-expression                       │ 1     │
+  ├─────────────────────────────────────────────────────┼───────┤
+  │ jsx-a11y/no-autofocus                               │ 1     │
+  ├─────────────────────────────────────────────────────┼───────┤
+  │ jsx-a11y/media-has-caption                          │ 1     │
+  └─────────────────────────────────────────────────────┴───────┘
+
+  Warnings by rule
+
+  ┌──────────────────────────────────────────────────┬───────┐
+  │                       Rule                       │ Count │
+  ├──────────────────────────────────────────────────┼───────┤
+  │ local/no-raw-color                               │ 541   │
+  ├──────────────────────────────────────────────────┼───────┤
+  │ local/require-data-testid                        │ 426   │
+  ├──────────────────────────────────────────────────┼───────┤
+  │ @typescript-eslint/require-await                 │ 111   │
+  ├──────────────────────────────────────────────────┼───────┤
+  │ local/no-response-outside-http-layer             │ 14    │
+  ├──────────────────────────────────────────────────┼───────┤
+  │ local/no-hardcoded-api-path                      │ 14    │
+  ├──────────────────────────────────────────────────┼───────┤
+  │ local/no-direct-fetch                            │ 9     │
+  ├──────────────────────────────────────────────────┼───────┤
+  │ no-shadow                                        │ 8     │
+  ├──────────────────────────────────────────────────┼───────┤
+  │ local/no-server-value-import-in-client           │ 8     │
+  ├──────────────────────────────────────────────────┼───────┤
+  │ local/no-new-server-fn                           │ 3     │
+  ├──────────────────────────────────────────────────┼───────┤
+  │ Unused eslint-disable (no-unnecessary-condition) │ 1     │
+  ├──────────────────────────────────────────────────┼───────┤
+  │ Unused eslint-disable (no-console)               │ 1     │
+  └──────────────────────────────────────────────────┴───────┘
+
+  Notable: local/no-raw-color and local/require-data-testid (from the new custom
+  lint rules) account for ~85% of all warnings. The 13 parsing errors all come
+  from a single stray test.js at the repo root not covered by the TS project
+  config — worth checking if that file should exist there.
+
+✻ Churned for 36s
+
+※ recap: You asked for a lint summary; ran npm run lint across the LMS repo and found 140 errors and 1136 warnings, mostly from the new local no-raw-color and require-data-testid rules. Next: decide whether to start fixing, starting with the stray test.js parsing errors.

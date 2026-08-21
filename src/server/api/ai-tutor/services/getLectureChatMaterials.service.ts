@@ -58,7 +58,11 @@ export async function getLectureChatMaterials(
 ): Promise<LectureChatMaterials> {
   const [lectureRows, aiRows, zoomChatRows] = await Promise.all([
     db
-      .select({ title: lectures.title, notes: lectures.notes, data: lectures.data })
+      .select({
+        title: lectures.title,
+        notes: lectures.notes,
+        data: lectures.data,
+      })
       .from(lectures)
       .where(eq(lectures.id, lectureId))
       .limit(1),
@@ -84,7 +88,8 @@ export async function getLectureChatMaterials(
   const resourcesShared = parseLectureZoomChatResources(
     zoomChatRows[0]?.finalChat ?? null,
   )
-  const notesRagged = readNotesRaggedFromLectureData(lectureRows[0].data) === true
+  const notesRagged =
+    readNotesRaggedFromLectureData(lectureRows[0].data) === true
 
   return buildMaterials({
     lectureId,

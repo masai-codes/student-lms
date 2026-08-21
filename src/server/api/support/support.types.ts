@@ -171,7 +171,7 @@ export interface TicketMessage {
 }
 
 /** The status banner shown at the top of a conversation. */
-export interface TicketStatusResponse {
+interface TicketStatusResponse {
   heading: string
   message: string
   createdAt?: string | null

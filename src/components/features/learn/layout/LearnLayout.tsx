@@ -220,24 +220,23 @@ export function LearnLayout({
         onClearAll={clearAllFilters}
       />
 
-      {/* Only the content list reflects loading — header, tabs and search stay put. */}
-      {isFetching ? (
-        <LearnContentListSkeleton />
-      ) : (
-        <>
-          <div className="layout-gutter-x layout-max-w mx-auto animate-dash-rise [--dash-delay:0.16s]">
+      <div className="layout-gutter-x layout-max-w mx-auto animate-dash-rise [--dash-delay:0.16s]">
+        {isFetching ? (
+          <LearnContentListSkeleton />
+        ) : (
+          <>
+            {' '}
             <LearnContentListSection items={learningItems} />
-          </div>
-
-          <div className="animate-dash-rise [--dash-delay:0.24s]">
-            <LearnPaginationSection
-              currentPage={currentPage}
-              totalPages={data.pagination.totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </div>
-        </>
-      )}
+            <div className="animate-dash-rise [--dash-delay:0.24s]">
+              <LearnPaginationSection
+                currentPage={currentPage}
+                totalPages={data.pagination.totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }

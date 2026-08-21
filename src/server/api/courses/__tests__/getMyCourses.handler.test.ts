@@ -14,7 +14,8 @@ vi.mock('@/server/api/courses/getMyCourses.service', () => ({
 }))
 
 async function invoke() {
-  const { handleGetMyCourses } = await import('../handlers/getMyCourses.handler')
+  const { handleGetMyCourses } =
+    await import('../handlers/getMyCourses.handler')
   return handleGetMyCourses()
 }
 

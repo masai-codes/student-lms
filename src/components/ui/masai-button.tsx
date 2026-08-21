@@ -91,7 +91,7 @@ export function MasaiButton({
 }: MasaiButtonProps) {
   if (!icon && iconDirection) {
     // Keep this non-throwing to avoid crashing consumers.
-    // eslint-disable-next-line no-console
+
     console.warn(
       '[Button] `iconDirection` was passed without `icon`. The direction will be ignored.',
     )

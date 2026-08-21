@@ -8,7 +8,7 @@ import { isAdminRole } from '@/server/auth/v2/portalGate'
  * The `users.meta` key that persists whether an admin has switched Masaiverse
  * into admin mode. Only meaningful for users whose DB `role` is admin.
  */
-export const ADMIN_MODE_META_KEY = 'isMasaiverseAdminModeEnabled'
+const ADMIN_MODE_META_KEY = 'isMasaiverseAdminModeEnabled'
 
 /** Current admin-mode state for a user, as exposed to the client. */
 export type MasaiverseV2AdminModeState = {

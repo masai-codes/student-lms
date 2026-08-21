@@ -10,7 +10,7 @@ export interface DashboardProductUpdate {
 }
 
 /** Backend page size for the product-updates listing. */
-export const PRODUCT_UPDATES_PAGE_SIZE = 25
+const PRODUCT_UPDATES_PAGE_SIZE = 25
 /** How many product updates the dashboard card surfaces. */
 export const DASHBOARD_PRODUCT_UPDATES_LIMIT = 5
 

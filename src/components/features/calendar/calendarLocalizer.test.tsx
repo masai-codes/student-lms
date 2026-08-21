@@ -30,17 +30,15 @@ describe('calendarLocalizer', () => {
       start: new Date(2026, 7, 12, 9, 0),
       end: new Date(2026, 7, 12, 10, 0),
     }
-    expect(
-      sortCalendarEvents({ evtA: wedShort, evtB }),
-    ).toBeGreaterThan(0)
+    expect(sortCalendarEvents({ evtA: wedShort, evtB })).toBeGreaterThan(0)
     // Equal spans fall back to start time.
     const tueLater = {
       start: new Date(2026, 7, 11, 19, 0),
       end: new Date(2026, 7, 13, 21, 0),
     }
-    expect(
-      sortCalendarEvents({ evtA: tueLater, evtB: evtA }),
-    ).toBeGreaterThan(0)
+    expect(sortCalendarEvents({ evtA: tueLater, evtB: evtA })).toBeGreaterThan(
+      0,
+    )
   })
 
   it('keeps week-view gutter slots on the local hour even with the tz plugin loaded', () => {

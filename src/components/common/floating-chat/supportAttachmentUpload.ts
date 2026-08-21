@@ -3,7 +3,7 @@ export const SUPPORT_MAX_ATTACHMENTS = 5
 
 const IMAGE_NAME_RE = /\.(png|jpe?g|gif|webp|svg|bmp)$/i
 
-export function isSupportImageName(name: string): boolean {
+function isSupportImageName(name: string): boolean {
   return IMAGE_NAME_RE.test(name)
 }
 

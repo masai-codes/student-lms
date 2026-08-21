@@ -103,17 +103,20 @@ export function InterviewReportCard({
       data-testid="interview-report"
       className="mx-auto w-full max-w-2xl py-8"
     >
-      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-foreground-muted">
-        {topicLabel} · Interview complete
-      </p>
+      <div className="mb-4 flex items-center gap-2">
+        <span className="size-2 rounded-full bg-success" />
+        <p className="type-b3-md text-foreground-subtle uppercase tracking-wider">
+          {topicLabel} · Interview complete
+        </p>
+      </div>
       <div className="mb-6 flex items-baseline gap-2">
-        <span className="type-h3 font-bold text-foreground">
-          {report.overallScore}
+        <span className="type-h1 text-foreground">{report.overallScore}</span>
+        <span className="type-b2-regular text-foreground-muted">
+          / 100 overall
         </span>
-        <span className="text-sm text-foreground-muted">/ 100 overall</span>
       </div>
 
-      <p className="mb-6 text-sm text-foreground">{report.summary}</p>
+      <p className="type-b1-regular mb-6 text-foreground">{report.summary}</p>
 
       <div className="mb-6 rounded-xl border border-border bg-surface p-4">
         <h2 className="type-b1-md mb-3 font-semibold text-foreground">

@@ -42,11 +42,7 @@ function setup(isEditing = true) {
   }
 }
 
-function fill(values: {
-  current?: string
-  next?: string
-  confirm?: string
-}) {
+function fill(values: { current?: string; next?: string; confirm?: string }) {
   if (values.current !== undefined) {
     fireEvent.change(screen.getByTestId('profile-password-current'), {
       target: { value: values.current },
@@ -137,7 +133,11 @@ describe('ChangePasswordCard — edit mode', () => {
     hoisted.updatePasswordRequest.mockResolvedValue({ updated: true })
     const { props } = setup()
 
-    fill({ current: 'old-secret', next: 'brandnewpass', confirm: 'brandnewpass' })
+    fill({
+      current: 'old-secret',
+      next: 'brandnewpass',
+      confirm: 'brandnewpass',
+    })
     fireEvent.click(save())
 
     await waitFor(() =>

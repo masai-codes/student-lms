@@ -31,6 +31,14 @@ export function LiveWaveform({ mediaStream }: { mediaStream: MediaStream }) {
     analyser.fftSize = 512
     source.connect(analyser)
 
+    // Reads the live `--brand` token so the waveform matches whichever brand
+    // color the active theme resolves to (e.g. red in dark mode) instead of
+    // a hardcoded light-mode purple.
+    const barColor =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--brand')
+        .trim() || '#7164E9'
+
     const timeDomainData = new Uint8Array(analyser.frequencyBinCount)
     const bars: Array<number> = []
     let lastSampleAt = 0
@@ -86,7 +94,7 @@ export function LiveWaveform({ mediaStream }: { mediaStream: MediaStream }) {
       const midY = cssHeight / 2
 
       ctx.clearRect(0, 0, cssWidth, cssHeight)
-      ctx.fillStyle = '#7164E9'
+      ctx.fillStyle = barColor
 
       bars.forEach((amplitude, i) => {
         const barHeight = Math.max(3, amplitude * (cssHeight - 8))

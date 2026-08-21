@@ -3,7 +3,7 @@ import { Briefcase, SealCheck, Shield, UsersFour } from '@phosphor-icons/react'
 import type { NavItem } from '@/lib/navigation/navItemConfig'
 import { getOldStudentUiUrlForPath } from '@/utils/authRedirect'
 
-export const PRIVACY_POLICY_URL = 'https://www.masaischool.com/privacy-policy'
+const PRIVACY_POLICY_URL = 'https://www.masaischool.com/privacy-policy'
 
 /** Practice interview still lives on the legacy student app. */
 const PRACTICE_INTERVIEW_PATH = '/practice-interview'

@@ -98,9 +98,9 @@ describe('ProfileTabPanel', () => {
         <p>Body</p>
       </ProfileTabPanel>,
     )
-    expect(
-      screen.getByTestId('profile-thing-panel').className,
-    ).toContain('pb-10')
+    expect(screen.getByTestId('profile-thing-panel').className).toContain(
+      'pb-10',
+    )
   })
 })
 

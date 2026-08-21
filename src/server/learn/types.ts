@@ -4,7 +4,18 @@ import type { ResourcePhase } from '@/server/learn/resourceDetailTypes'
 
 import type { LearnDiscussionThreadItem } from '@/server/new-discussions/types/learnDiscussionDetail'
 
-export type { LectureAttendanceSummary }
+/**
+ * Presentation payload for /lectures/:id, /assignments/:id, /resources/:id.
+ * Mirrors listing card fields — all strings/arrays are finalized on the server.
+ */
+
+/**
+ * Backend-computed restriction for a detail page (see `@/server/restrictions`).
+ * The frontend renders the matching gated UI purely from this value — it never
+ * derives the restriction itself.
+ */
+
+import type { LearnDetailRestriction } from '@/server/restrictions/types'
 
 export interface EnrolledBatch {
   batchId: number
@@ -39,7 +50,9 @@ export type LearnListingJoinLiveState = 'hidden' | 'disabled' | 'active'
 
 /** Assignment status chip on learn listing cards (legacy AssignmentListCard rules). */
 export type AssignmentListingStatusChip =
-  AssignmentProgressStatus | 'practice-mode' | null
+  | AssignmentProgressStatus
+  | 'practice-mode'
+  | null
 
 /** Server-resolved CTA visibility for learn listing cards — see `buildLearnListingCardCtas`. */
 export interface LearnListingCardCtas {
@@ -215,38 +228,6 @@ export interface LearnDiscussionListItem extends DiscussionListItem {
   contentId: number
   contentTitle: string
 }
-
-/**
- * Presentation payload for /lectures/:id, /assignments/:id, /resources/:id.
- * Mirrors listing card fields — all strings/arrays are finalized on the server.
- */
-export type {
-  AssignmentDetailPayload,
-  AssignmentKind,
-  AssignmentPhase,
-} from '@/server/learn/assignmentDetailTypes'
-
-export type {
-  ResourceDetailPayload,
-  ResourceKind,
-  ResourcePhase,
-} from '@/server/learn/resourceDetailTypes'
-
-export type {
-  LectureDetailPayload,
-  LectureDetailTabContent,
-  LectureKind,
-  LiveLecturePhase,
-  VideoLecturePhase,
-} from '@/server/learn/lectureDetailTypes'
-
-/**
- * Backend-computed restriction for a detail page (see `@/server/restrictions`).
- * The frontend renders the matching gated UI purely from this value — it never
- * derives the restriction itself.
- */
-export type { LearnDetailRestriction } from '@/server/restrictions/types'
-import type { LearnDetailRestriction } from '@/server/restrictions/types'
 
 export interface LearnHubDetailPayload {
   id: number

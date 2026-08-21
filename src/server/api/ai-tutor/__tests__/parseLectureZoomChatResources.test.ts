@@ -11,7 +11,9 @@ describe('parseLectureZoomChatResources', () => {
   })
 
   it('returns an empty list for non-array values', () => {
-    expect(parseLectureZoomChatResources({ url: 'https://example.com' })).toEqual([])
+    expect(
+      parseLectureZoomChatResources({ url: 'https://example.com' }),
+    ).toEqual([])
     expect(parseLectureZoomChatResources('https://example.com')).toEqual([])
     expect(parseLectureZoomChatResources(42)).toEqual([])
   })

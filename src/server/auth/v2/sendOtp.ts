@@ -14,7 +14,7 @@ import { sendOtpEmail } from '@/server/auth/v2/otpEmail'
 import { sendOtpSms } from '@/server/auth/v2/otpSms'
 import { sendOtpWhatsapp } from '@/server/auth/v2/otpWhatsapp'
 
-export type OtpChannel = 'email' | 'sms' | 'whatsapp'
+type OtpChannel = 'email' | 'sms' | 'whatsapp'
 
 const OTP_TTL_MINUTES = 10
 const BCRYPT_COST = 10

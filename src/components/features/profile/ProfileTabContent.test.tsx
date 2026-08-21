@@ -26,7 +26,9 @@ vi.mock('./undertakings/UndertakingsTab', () => ({
 vi.mock('./certificates/CertificatesTab', () => ({
   CertificatesTab: stub('stub-certificates'),
 }))
-vi.mock('./invoices/InvoicesTab', () => ({ InvoicesTab: stub('stub-invoices') }))
+vi.mock('./invoices/InvoicesTab', () => ({
+  InvoicesTab: stub('stub-invoices'),
+}))
 vi.mock('./student-kit/StudentKitTab', () => ({
   StudentKitTab: stub('stub-student-kit'),
 }))

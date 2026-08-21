@@ -1,7 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import type { CalendarEventDto } from '@/server/api/calendar/calendarTypes'
 import type { MyCalendarEvent } from '@/lib/calendar/calendarEventMapping'
 
@@ -21,7 +27,7 @@ vi.mock('@/lib/api/calendar/calendarApi', () => ({
 vi.mock('@/utils/gtm', () => ({ pushGtmEvent: hoisted.pushGtmEvent }))
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ to, children, ...props }: Record<string, unknown>) => (
-    <a href={String(to)} {...(props)}>
+    <a href={String(to)} {...props}>
       {children as React.ReactNode}
     </a>
   ),
@@ -65,7 +71,13 @@ const dto = (over: Partial<CalendarEventDto> = {}): CalendarEventDto => ({
   ...over,
 })
 
-function renderPage(search: { view?: 'month' | 'week' | 'day'; date?: string; batchId?: number } = {}) {
+function renderPage(
+  search: {
+    view?: 'month' | 'week' | 'day'
+    date?: string
+    batchId?: number
+  } = {},
+) {
   const onSearchChange = vi.fn()
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -79,9 +91,16 @@ function renderPage(search: { view?: 'month' | 'week' | 'day'; date?: string; ba
 }
 
 describe('MyCalendarPage', () => {
-  afterEach(cleanup)
+  afterEach(() => {
+    cleanup()
+    vi.useRealTimers()
+  })
   beforeEach(() => {
     vi.clearAllMocks()
+    // Pin "today" away from the fixture dates so the "defaults stay out of
+    // the URL" collapsing in patchSearch doesn't collide with the real date.
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.setSystemTime(new Date('2026-01-15T00:00:00+05:30'))
     hoisted.fetchBatches.mockResolvedValue({ batches: [] })
     hoisted.fetchEvents.mockResolvedValue({
       range: { start: '2026-08-09', end: '2026-08-15' },

@@ -6,7 +6,7 @@ import type { AssignmentDetailFooter } from '@/server/learn/assignmentDetailFoot
 import { readWeightagePercentage } from '@/server/learn/utils/buildAssignmentHeaderBadges'
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 
-export type AssignmentSupportSnapshotTone =
+type AssignmentSupportSnapshotTone =
   | 'neutral'
   | 'success'
   | 'warning'

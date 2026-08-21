@@ -2,7 +2,10 @@ import { and, inArray, isNull } from 'drizzle-orm'
 import { db } from '@/db'
 import { lectures } from '@/db/schema'
 import { getSectionIdsForUser } from '@/server/batches/getSectionIdsForUser'
-import type { InterviewTopic } from '@/server/api/interviews/types/interviewSession'
+import type {
+  InterviewDomain,
+  InterviewTopic,
+} from '@/server/api/interviews/types/interviewSession'
 
 const CURRICULUM_TOPIC_ID_PREFIX = 'curriculum:'
 
@@ -30,6 +33,7 @@ export function buildCurriculumRubricFocus(label: string): Array<string> {
   return [`${label} fundamentals`, 'Applied problem solving', 'Communication']
 }
 
+// TODO: Fetch topics from lectures
 /**
  * Derives interview topics from what the student has actually been taught —
  * distinct `lectures.module` values across their enrolled sections. `module`
@@ -43,6 +47,7 @@ export function buildCurriculumRubricFocus(label: string): Array<string> {
  */
 export async function getCurriculumInterviewTopics(
   userId: number,
+  domain: InterviewDomain,
   catalogTopics: Array<InterviewTopic>,
 ): Promise<Array<InterviewTopic>> {
   const sectionIds = await getSectionIdsForUser(userId)
@@ -74,7 +79,9 @@ export async function getCurriculumInterviewTopics(
       label,
       iconKey: 'curriculum',
       blurb: `Practice interview questions from your ${label} coursework.`,
+      domain,
       rubricFocus: buildCurriculumRubricFocus(label),
+      subtopics: [],
     })
   }
 

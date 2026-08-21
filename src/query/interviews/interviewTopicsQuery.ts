@@ -1,6 +1,6 @@
 import { fetchInterviewTopics } from '@/lib/api/interviews/interviewsApi'
 
-export const INTERVIEW_TOPICS_QUERY_KEY = ['interview-topics'] as const
+const INTERVIEW_TOPICS_QUERY_KEY = ['interview-topics'] as const
 
 export const interviewTopicsQuery = () => ({
   queryKey: INTERVIEW_TOPICS_QUERY_KEY,

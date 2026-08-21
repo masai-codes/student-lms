@@ -26,7 +26,7 @@ function normalizeRows(result: unknown): Array<Record<string, unknown>> {
     result &&
     typeof result === 'object' &&
     'rows' in result &&
-    Array.isArray((result as { rows: unknown }).rows)
+    Array.isArray(result.rows)
   ) {
     return (result as { rows: Array<Record<string, unknown>> }).rows
   }

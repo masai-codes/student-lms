@@ -11,7 +11,8 @@ import { mapDiscussionThreadRow } from '@/server/new-discussions/utils/mapDiscus
 export async function listDiscussionsWithThreadsForLearnEntity(
   viewerUserId: number,
   entityType:
-    DiscussionPersistedEntityType | Array<DiscussionPersistedEntityType>,
+    | DiscussionPersistedEntityType
+    | Array<DiscussionPersistedEntityType>,
   entityId: number,
 ): Promise<Array<DiscussionListItem>> {
   const rows = await db

@@ -1,6 +1,6 @@
 import { Warning } from '@phosphor-icons/react'
 
-export interface AgreementFieldIssue {
+interface AgreementFieldIssue {
   /** Field key, used to focus the matching control (`agreement-${key}`). */
   key: string
   /** Human-readable field label (e.g. "Parent's Email ID"). */
@@ -19,7 +19,7 @@ function focusField(key: string) {
   if (!el) return
   el.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
   // Focus after the scroll so the field lands in view before it steals focus.
-  window.setTimeout(() => (el as HTMLElement).focus?.(), 150)
+  window.setTimeout(() => el.focus?.(), 150)
 }
 
 /**

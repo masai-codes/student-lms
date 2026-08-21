@@ -43,7 +43,10 @@ export function CalendarToolbar(props: CalendarToolbarProps) {
   ]
 
   return (
-    <div data-testid="my-calendar-toolbar" className="animate-dash-rise space-y-2">
+    <div
+      data-testid="my-calendar-toolbar"
+      className="animate-dash-rise space-y-2"
+    >
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div className="flex min-w-0 items-center gap-2">
           <button

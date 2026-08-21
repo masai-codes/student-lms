@@ -4,10 +4,16 @@ import {
   fetchCalendarEvents,
 } from '@/lib/api/calendar/calendarApi'
 
-export const CALENDAR_KEYS = {
+const CALENDAR_KEYS = {
   all: ['calendar'] as const,
   events: (input: FetchCalendarEventsInput) =>
-    ['calendar', 'events', input.start, input.end, input.batchId ?? null] as const,
+    [
+      'calendar',
+      'events',
+      input.start,
+      input.end,
+      input.batchId ?? null,
+    ] as const,
   batches: ['calendar', 'batches'] as const,
 }
 

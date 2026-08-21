@@ -67,7 +67,11 @@ export function parseCalendarWindow(
 
 /** 400 whose message keeps the stable code (the detail travels separately). */
 function invalidRange(detail: string): ApiError {
-  return new ApiError(400, 'INVALID_CALENDAR_RANGE', `INVALID_CALENDAR_RANGE: ${detail}`)
+  return new ApiError(
+    400,
+    'INVALID_CALENDAR_RANGE',
+    `INVALID_CALENDAR_RANGE: ${detail}`,
+  )
 }
 
 /**
@@ -76,7 +80,7 @@ function invalidRange(detail: string): ApiError {
  * calendar day outside the local grid and still belong on it. The client
  * buckets by local day and drops off-grid rows, so extra rows are harmless.
  */
-export const CALENDAR_TZ_PAD_DAYS = 1
+const CALENDAR_TZ_PAD_DAYS = 1
 
 /** The window actually sent to SQL — visible range widened by the TZ pad. */
 export function padCalendarWindow(window: CalendarWindow): CalendarWindow {

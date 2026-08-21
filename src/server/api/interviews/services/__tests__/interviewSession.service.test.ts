@@ -56,8 +56,9 @@ beforeEach(() => {
   hoisted.resolveInterviewTopicSelection.mockResolvedValue({
     topicId: 'dsa',
     topicLabel: 'DSA',
-    domain: 'software-development',
+    domain: 'backend',
     rubricFocus: ['Complexity'],
+    subtopics: ['Hash maps', 'Big-O notation'],
   })
   hoisted.requestOpenRouterChatCompletion.mockResolvedValue(
     [

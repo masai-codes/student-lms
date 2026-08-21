@@ -13,6 +13,13 @@ export const AI_TUTOR_CONVERSATION_TITLE_MAX_LENGTH = 50
 /** Default Claude model; override with `ANTHROPIC_MODEL`. */
 export const AI_TUTOR_CHAT_DEFAULT_MODEL = 'claude-haiku-4-5'
 
+/**
+ * Default Claude model requested through OpenRouter when `ANTHROPIC_API_KEY`
+ * isn't set; override with `AI_TUTOR_OPENROUTER_MODEL`.
+ */
+export const AI_TUTOR_CHAT_OPENROUTER_DEFAULT_MODEL =
+  'anthropic/claude-haiku-4.5'
+
 /** Notes at or below this length are inlined in the system prompt instead of RAG retrieval. */
 export const AI_TUTOR_INLINE_NOTES_MAX_CHARS = 10_000
 
@@ -103,10 +110,3 @@ For attendance, placement, optional sessions, or institute policy: say you only 
 Patient, supportive, encouraging. After a good explanation, briefly check: "Does that clear your doubt?" — unless they are frustrated or ending the session.
 
 Always prioritize answering what the student actually asked over describing what the lecture contained.`
-
-/** @deprecated Use buildLectureChatSystemPrompt instead. */
-export const AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT = `${AI_TUTOR_LECTURE_CHAT_SYSTEM_PROMPT_BASE}
-
-${buildEnforcedChatLanguageInstruction('English')}
-
-${AI_TUTOR_LECTURE_CHAT_RESPONSE_GUIDANCE}`

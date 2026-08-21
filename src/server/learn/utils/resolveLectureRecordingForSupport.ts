@@ -13,7 +13,7 @@ import { verifyUrlReachable } from '@/server/learn/utils/verifyUrlReachable'
 /** Support floater budget — fail fast; cached results reuse the full TTL. */
 const SUPPORT_RECORDING_PROBE_TIMEOUT_MS = 1_500
 
-export type LectureRecordingStatus = 'available' | 'not_available'
+type LectureRecordingStatus = 'available' | 'not_available'
 
 export type ResolvedLectureRecording = {
   recordingStatus: LectureRecordingStatus

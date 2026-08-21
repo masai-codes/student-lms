@@ -1,6 +1,6 @@
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 
-export type AssignmentFooterActionVariant = 'primary' | 'secondary'
+type AssignmentFooterActionVariant = 'primary' | 'secondary'
 
 export type AssignmentFooterActionKind =
   | 'start-assessment'
@@ -16,26 +16,25 @@ export type AssignmentFooterAction = {
   enabled: boolean
 }
 
-export type AssignmentFooterStatusChip = {
+type AssignmentFooterStatusChip = {
   status: AssignmentProgressStatus
   label: string
 }
 
-export type AssignmentFooterScore = {
+type AssignmentFooterScore = {
   state: 'pending' | 'released'
   score: number | null
   label: string
 }
 
-export type AssignmentFooterNoticeVariant =
-  'score-policy' | 'practice-after-deadline'
+type AssignmentFooterNoticeVariant = 'score-policy' | 'practice-after-deadline'
 
-export type AssignmentFooterNotice = {
+type AssignmentFooterNotice = {
   variant: AssignmentFooterNoticeVariant
   message: string
 }
 
-export type AssignmentDetailFooterMeta = {
+type AssignmentDetailFooterMeta = {
   submissionId: number | null
   assessPlatformLink: string | null
   platform: string | null

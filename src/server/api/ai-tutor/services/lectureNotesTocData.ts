@@ -1,5 +1,5 @@
-export const AI_TUTOR_NOTES_TOC_DATA_KEY = 'notesToc'
-export const AI_TUTOR_NOTES_RAGGED_DATA_KEY = 'notesRagged'
+const AI_TUTOR_NOTES_TOC_DATA_KEY = 'notesToc'
+const AI_TUTOR_NOTES_RAGGED_DATA_KEY = 'notesRagged'
 
 export type LectureNotesRagData = {
   [AI_TUTOR_NOTES_TOC_DATA_KEY]?: string

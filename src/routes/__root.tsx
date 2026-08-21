@@ -5,13 +5,12 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { Toaster } from 'sonner'
-import { useTheme } from '@/lib/theme'
+import { useTheme, ThemeProvider, buildThemeInitScript } from '@/lib/theme'
 import appCss from '../styles.css?url'
 import type { RouterContext } from '@/types'
 import { captureAppMobileContextFromUrl } from '@/utils/appMobile'
 import { installAppOriginFetchHeader } from '@/utils/appOrigin'
 import { getAuthBranding } from '@/utils/authBranding'
-import { ThemeProvider, buildThemeInitScript } from '@/lib/theme'
 
 const GA_MEASUREMENT_ID = 'G-R3MQZK6LM6'
 
