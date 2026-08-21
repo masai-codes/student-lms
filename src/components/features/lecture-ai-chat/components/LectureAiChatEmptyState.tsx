@@ -1,15 +1,23 @@
 'use client'
 
-import { BookOpen, ListChecks, NotebookText, Sparkles } from 'lucide-react'
+import {
+  BookOpen,
+  ClipboardList,
+  Lightbulb,
+  NotebookText,
+  Sparkles,
+} from 'lucide-react'
 
-import { useLectureAiChatFaqs } from '../hooks/useLectureAiChatFaqs'
-import { LECTURE_AI_CHAT_SUGGESTIONS } from '../constants'
-import type { LectureAiChatSuggestionKind } from '../constants'
+import { useLectureAiChatSuggestions } from '../hooks/LectureAiChatSuggestionsContext'
 import {
   learnEntityEvent,
   pushLearnEvent,
 } from '@/components/features/learn/shared/learnAnalytics'
 import { Button } from '@/components/ui/button'
+import type {
+  LectureAiChatSuggestion,
+  LectureAiChatSuggestionKind,
+} from '@/server/learn/utils/buildLectureAiChatSuggestions'
 
 type LectureAiChatEmptyStateProps = {
   lectureId: number
@@ -17,35 +25,37 @@ type LectureAiChatEmptyStateProps = {
 }
 
 const SUGGESTION_ICONS: Record<LectureAiChatSuggestionKind, typeof Sparkles> = {
+  faq: Lightbulb,
   summary: NotebookText,
   explain: BookOpen,
-  quiz: ListChecks,
+  quiz: ClipboardList,
 }
 
-function FaqIcon() {
-  return (
-    <span
-      aria-hidden="true"
-      className="flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold leading-none text-primary"
-    >
-      ?
-    </span>
-  )
+function SuggestionIcon({ kind }: { kind: LectureAiChatSuggestionKind }) {
+  const Icon = SUGGESTION_ICONS[kind]
+  return <Icon className="size-4 shrink-0 text-muted-foreground" />
+}
+
+function suggestionTestId(kind: LectureAiChatSuggestionKind): string {
+  return kind === 'faq'
+    ? 'lecture-ai-chat-faq-suggestion'
+    : 'lecture-ai-chat-suggestion'
 }
 
 export function LectureAiChatEmptyState({
   lectureId,
   onSuggestion,
 }: LectureAiChatEmptyStateProps) {
-  const faqsQuery = useLectureAiChatFaqs(lectureId)
-  const faqs = faqsQuery.data?.faqs ?? []
+  const suggestions = useLectureAiChatSuggestions()
 
-  const handleFaqClick = (question: string) => {
-    pushLearnEvent(
-      learnEntityEvent('lecture', 'ai_chat_faq_click', lectureId),
-      { question },
-    )
-    onSuggestion(question)
+  const handleClick = (suggestion: LectureAiChatSuggestion) => {
+    if (suggestion.kind === 'faq') {
+      pushLearnEvent(
+        learnEntityEvent('lecture', 'ai_chat_faq_click', lectureId),
+        { question: suggestion.question },
+      )
+    }
+    onSuggestion(suggestion.question)
   }
 
   return (
@@ -65,41 +75,26 @@ export function LectureAiChatEmptyState({
           </p>
         </div>
 
-        <div
-          className="flex w-full flex-col gap-2"
-          data-testid="lecture-ai-chat-suggestions"
-        >
-          {faqs.map((faq) => (
-            <Button
-              key={faq.question}
-              type="button"
-              variant="outline"
-              data-testid="lecture-ai-chat-faq-suggestion"
-              className="h-auto w-full justify-start gap-2 whitespace-normal px-3.5 py-2.5 text-left text-sm font-normal"
-              onClick={() => handleFaqClick(faq.question)}
-            >
-              <FaqIcon />
-              {faq.question}
-            </Button>
-          ))}
-
-          {LECTURE_AI_CHAT_SUGGESTIONS.map((suggestion) => {
-            const Icon = SUGGESTION_ICONS[suggestion.kind]
-            return (
+        {suggestions.length > 0 ? (
+          <div
+            className="flex w-full flex-col gap-2"
+            data-testid="lecture-ai-chat-suggestions"
+          >
+            {suggestions.map((suggestion) => (
               <Button
-                key={suggestion.kind}
+                key={`${suggestion.kind}:${suggestion.question}`}
                 type="button"
                 variant="outline"
-                data-testid="lecture-ai-chat-suggestion"
+                data-testid={suggestionTestId(suggestion.kind)}
                 className="h-auto w-full justify-start gap-2 whitespace-normal px-3.5 py-2.5 text-left text-sm font-normal"
-                onClick={() => onSuggestion(suggestion.label)}
+                onClick={() => handleClick(suggestion)}
               >
-                <Icon className="size-4 shrink-0 text-muted-foreground" />
-                {suggestion.label}
+                <SuggestionIcon kind={suggestion.kind} />
+                {suggestion.question}
               </Button>
-            )
-          })}
-        </div>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   )

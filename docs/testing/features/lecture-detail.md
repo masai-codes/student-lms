@@ -5,7 +5,7 @@
 - Route: `/lectures/$lectureId`
 - Live lecture phases: before start, during live, after live (with / without recording)
 - Video lecture phases: `before`, `during_after` (with / without recording)
-- Server payload: `getLectureLearningDetail` → `LectureDetailPayload` (all tab bodies from DB; no static lecture copy)
+- Server payload: `getLectureLearningDetail` → `LectureDetailPayload` (all tab bodies from DB; no static lecture copy). Includes `aiChatSuggestions`: up to 3 randomized lecture FAQs (`kind: 'faq'`) from `lectures_ai.faqs`, followed by the three generic prompts (`summary` / `explain` / `quiz`). The chat empty state renders this list as-is via `LectureAiChatSuggestionsProvider` — no separate FAQs endpoint.
 - Tabs: single **Description** tab renders `lectures.notes` (legacy parity — no separate Notes tab, and `lectures.description` is not surfaced). `settings.hide_notes` hides the Description tab; the active tab falls back to the first visible tab.
 - Mutations are REST (no `createServerFn`): video progress `POST /api/learn/lectures/:id/video-progress`; create discussion `POST /api/learn/discussions`; add reply `POST /api/learn/discussions/:id/replies`; bookmark `POST`/`DELETE /api/learn/lectures/:id/bookmark`; feedback `POST /api/learn/lectures/:id/feedback`.
 - Live join: `zoomLink` is schedule-scrubbed, then adaptive ("SAL") links are rewritten to the lecture-scoped form via `toLectureScopedAdaptiveLink` (parity with legacy). ZEF (`is_new_zoom_redirection`): payload carries `isNewZoomRedirection`; when set, the active join button calls `POST /api/learn/lectures/:id/zoom-redirect` and opens the returned ZEF URL, falling back to the raw link on failure. The ZEF token is **minted locally in the new LMS** (`zoomRedirectionToken` — groupLectureIdentifier resolution, admin host-email mapping, HS256 signing) and the base host (`zoom.masaischool.com` vs `zoom.ihubiitrcourses.org`) is chosen from the batch duration. Requires env `ZOOM_REDIRECTION_JWT_SECRET`. New schema columns mapped: `lectures.is_new_zoom_redirection`, `lectures.zoom_details`.
@@ -39,6 +39,8 @@
 - `src/lib/learn/__tests__/zoomWebView.test.ts` — `buildZoomWebViewUrl` (old-LMS embed URL; null when base unresolved)
 - `src/server/learn/utils/__tests__/scrubZoomLinkForSchedule.test.ts`
 - `src/server/learn/utils/__tests__/buildLectureDetailPayload.test.ts`
+- `src/server/learn/utils/__tests__/buildLectureAiChatSuggestions.test.ts` — FAQ parse/shuffle/cap + default prompts; injects `random` for determinism
+- `src/components/features/lecture-ai-chat/components/__tests__/LectureAiChatEmptyState.test.tsx` — server-driven suggestion chips via `LectureAiChatSuggestionsProvider` (faq + defaults, GTM on faq click, empty list)
 - `src/server/learn/utils/__tests__/buildLectureTabContent.test.ts` — AI summary surfacing + the `tabs.transcript` cache pointer (the payload no longer carries transcript text — see `docs/testing/features/lecture-transcript-cache.md`)
 - `src/server/learn/utils/__tests__/formatLectureTranscript.test.ts` — transcript segment parser tolerates string-typed `start`/`end`
 - `src/server/learn/__tests__/getLectureLearningDetail.service.test.ts`

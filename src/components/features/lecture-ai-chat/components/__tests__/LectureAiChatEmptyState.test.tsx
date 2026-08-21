@@ -3,21 +3,28 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { LectureAiChatEmptyState } from '../LectureAiChatEmptyState'
-import { useLectureAiChatFaqs } from '../../hooks/useLectureAiChatFaqs'
+import { LectureAiChatSuggestionsProvider } from '../../hooks/LectureAiChatSuggestionsContext'
+import { LECTURE_AI_CHAT_SUGGESTION_DEFAULTS } from '@/server/learn/utils/buildLectureAiChatSuggestions'
+import type { LectureAiChatSuggestion } from '@/server/learn/utils/buildLectureAiChatSuggestions'
 import { pushGtmEvent } from '@/utils/gtm'
 
-vi.mock('../../hooks/useLectureAiChatFaqs', () => ({
-  useLectureAiChatFaqs: vi.fn(),
-}))
 vi.mock('@/utils/gtm', () => ({
   pushGtmEvent: vi.fn(),
 }))
 
+function renderEmptyState(
+  suggestions: Array<LectureAiChatSuggestion>,
+  onSuggestion = vi.fn(),
+) {
+  return render(
+    <LectureAiChatSuggestionsProvider suggestions={suggestions}>
+      <LectureAiChatEmptyState lectureId={42} onSuggestion={onSuggestion} />
+    </LectureAiChatSuggestionsProvider>,
+  )
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.mocked(useLectureAiChatFaqs).mockReturnValue({
-    data: { faqs: [] },
-  } as never)
 })
 
 afterEach(() => {
@@ -25,18 +32,16 @@ afterEach(() => {
 })
 
 describe('LectureAiChatEmptyState', () => {
-  it('renders the static suggestions', () => {
-    render(<LectureAiChatEmptyState lectureId={42} onSuggestion={vi.fn()} />)
+  it('renders the default suggestions from context', () => {
+    renderEmptyState([...LECTURE_AI_CHAT_SUGGESTION_DEFAULTS])
 
     expect(screen.getAllByTestId('lecture-ai-chat-suggestion')).toHaveLength(3)
     expect(screen.queryByTestId('lecture-ai-chat-faq-suggestion')).toBeNull()
   })
 
-  it('sends the suggestion text when a static suggestion is clicked', () => {
+  it('sends the suggestion text when a default suggestion is clicked', () => {
     const onSuggestion = vi.fn()
-    render(
-      <LectureAiChatEmptyState lectureId={42} onSuggestion={onSuggestion} />,
-    )
+    renderEmptyState([...LECTURE_AI_CHAT_SUGGESTION_DEFAULTS], onSuggestion)
 
     fireEvent.click(
       screen.getByText('Summarize the key points of this lecture'),
@@ -46,30 +51,26 @@ describe('LectureAiChatEmptyState', () => {
     )
   })
 
-  it('renders lecture faqs ahead of the static suggestions', () => {
-    vi.mocked(useLectureAiChatFaqs).mockReturnValue({
-      data: {
-        faqs: [{ question: 'What is X?', answer: 'X is Y.' }],
-      },
-    } as never)
-
-    render(<LectureAiChatEmptyState lectureId={42} onSuggestion={vi.fn()} />)
+  it('renders lecture faqs ahead of the default suggestions', () => {
+    renderEmptyState([
+      { kind: 'faq', question: 'What is X?' },
+      ...LECTURE_AI_CHAT_SUGGESTION_DEFAULTS,
+    ])
 
     const faqButtons = screen.getAllByTestId('lecture-ai-chat-faq-suggestion')
     expect(faqButtons).toHaveLength(1)
     expect(faqButtons[0].textContent).toContain('What is X?')
+    expect(screen.getAllByTestId('lecture-ai-chat-suggestion')).toHaveLength(3)
   })
 
   it('sends the faq question and fires a GTM event when a faq is clicked', () => {
-    vi.mocked(useLectureAiChatFaqs).mockReturnValue({
-      data: {
-        faqs: [{ question: 'What is X?', answer: 'X is Y.' }],
-      },
-    } as never)
     const onSuggestion = vi.fn()
-
-    render(
-      <LectureAiChatEmptyState lectureId={42} onSuggestion={onSuggestion} />,
+    renderEmptyState(
+      [
+        { kind: 'faq', question: 'What is X?' },
+        ...LECTURE_AI_CHAT_SUGGESTION_DEFAULTS,
+      ],
+      onSuggestion,
     )
 
     fireEvent.click(screen.getByTestId('lecture-ai-chat-faq-suggestion'))
@@ -81,14 +82,12 @@ describe('LectureAiChatEmptyState', () => {
     )
   })
 
-  it('renders nothing extra when the faqs query has no data yet', () => {
-    vi.mocked(useLectureAiChatFaqs).mockReturnValue({
-      data: undefined,
-    } as never)
+  it('renders no suggestion chips when the context list is empty', () => {
+    renderEmptyState([])
 
-    render(<LectureAiChatEmptyState lectureId={42} onSuggestion={vi.fn()} />)
-
+    expect(screen.queryByTestId('lecture-ai-chat-suggestions')).toBeNull()
     expect(screen.queryByTestId('lecture-ai-chat-faq-suggestion')).toBeNull()
-    expect(screen.getAllByTestId('lecture-ai-chat-suggestion')).toHaveLength(3)
+    expect(screen.queryByTestId('lecture-ai-chat-suggestion')).toBeNull()
+    expect(screen.getByText('Ask about this lecture')).toBeTruthy()
   })
 })
