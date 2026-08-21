@@ -236,7 +236,12 @@ export function FloatingChatModal({
   const batchContacts = inbox?.batchContacts ?? {}
   const oneOnOneGroups = inbox?.oneOnOne ?? []
   const hasOneOnOne = oneOnOneGroups.length > 0
-  const categories = getFloatingChatCategories(inbox?.isIitj ?? false)
+  // TEMP(iitj): also skips the item-confirmation ("Take a moment to
+  // double-check") and common-questions (subcategory) screens below — see
+  // the two `isIitj` checks further down. Ripping out `ENABLE_IITJ_CATEGORY_OVERRIDES`
+  // in mockData.ts alone won't restore those; search this file for `isIitj`.
+  const isIitj = inbox?.isIitj ?? false
+  const categories = getFloatingChatCategories(isIitj)
   const showBatchStep = batches.length > 1
   const pendingEntityLaunchKey = entityLaunchIntent
     ? floatingChatEntityLaunchKey(entityLaunchIntent)
@@ -322,13 +327,20 @@ export function FloatingChatModal({
     setMessage('')
     setFiles([])
     setUploadError(null)
-    setStep(2.5)
+    // TEMP(iitj): skip the confirmation + common-questions screens entirely,
+    // straight to the composer with the deep-linked item already selected.
+    if (isIitj) {
+      goToComposer(2)
+    } else {
+      setStep(2.5)
+    }
     appliedEntityLaunchRef.current = launchKey
     onEntityLaunchComplete?.()
   }, [
     entityLaunchIntent,
     isOpen,
     inbox,
+    isIitj,
     isEntityContextLoading,
     isEntityContextError,
     entityContextError,
@@ -1068,7 +1080,13 @@ export function FloatingChatModal({
                 }
                 onSelect={(item) => {
                   setSelectedItem(item)
-                  setStep(2.5)
+                  // TEMP(iitj): skip the confirmation + common-questions
+                  // screens entirely, straight to the composer.
+                  if (isIitj) {
+                    goToComposer(2)
+                  } else {
+                    setStep(2.5)
+                  }
                 }}
                 showSectionDropdown={
                   usesLearnApi &&
