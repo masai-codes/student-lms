@@ -16,6 +16,12 @@ export type InLecturePopupQuizElement = {
   status: 'active' | 'inactive'
   startSec: number
   endSec: number
+  /**
+   * When the current user's `zef_lms_quiz_submission` row for this quiz was
+   * recorded (`evaluated_at`, falling back to `created_at`) — null when they
+   * haven't submitted it yet. Powers the "Attempted Assessments" tab.
+   */
+  submittedAt: string | null
 }
 
 /** A single in-lecture popup poll question, sourced from `zef_lms_polls_questions`. */
@@ -24,8 +30,41 @@ export type InLecturePopupPollElement = {
   question: string
   options: unknown
   status: 'active' | 'inactive'
+  /**
+   * When the current user's `zef_lms_polls_submissions` row for this poll was
+   * recorded (`submitted_at`, falling back to `created_at`) — null when they
+   * haven't responded yet. Powers the "Attempted Assessments" tab.
+   */
+  submittedAt: string | null
   startSec: number
   endSec: number
+}
+
+/**
+ * A single SQL sandbox entry, sourced from `zef_lms_sql_sandbox`. Unlike the
+ * quiz/poll elements, the table carries no start/end timestamps — just a
+ * single `executedAt` moment, converted to `executedAtSec` (video-relative,
+ * same conversion as the poll windows) rather than a start/end window. Null
+ * when the row hasn't executed yet or when no reference is usable.
+ */
+export type InLecturePopupSqlSandboxElement = {
+  id: number
+  query: string
+  status: 'pending' | 'success' | 'error'
+  error: string | null
+  executedAtSec: number | null
+}
+
+/**
+ * The lecture's seed `.sql` file for the SQL playground, sourced from
+ * `lectures.zoom_details.sqlTemplateFile` — `{ url, status }`, e.g.
+ * `{ url: "https://.../seed.sql", status: "UPLOADED" }`. `status` is whatever
+ * the upload pipeline stamped it with; only `'UPLOADED'` means the file is
+ * actually fetchable, which the playground tab checks before loading it.
+ */
+export type InLecturePopupSqlTemplateFile = {
+  url: string
+  status: string
 }
 
 /**
@@ -50,6 +89,18 @@ type InLecturePopupMetaData = {
   source: 'zef' | 'lms'
   createdAt: string | null
   updatedAt: string | null
+  /**
+   * SQL playground config for this lecture, sourced from
+   * `lectures.zoom_details` (NOT the ZEF `meta` JSON above) —
+   * `zoom_details.enableSqlPlayground`, `.editorType`, `.sqlTemplateFile`.
+   * The playground tab only shows when `enableSqlPlayground` is true; when
+   * it's false, `sqlSandbox` below is also left empty.
+   */
+  enableSqlPlayground: boolean
+  /** `zoom_details.editorType`; defaults to `'sqlite'` for any other value. */
+  editorType: 'sqlite' | 'postgres'
+  /** Null when absent, or its `url` isn't a well-formed http(s) URL. */
+  sqlTemplateFile: InLecturePopupSqlTemplateFile | null
 }
 
 /**
@@ -61,6 +112,8 @@ export type InLecturePopupElements = {
   metaData: InLecturePopupMetaData | null
   quiz: Array<InLecturePopupQuizElement>
   polls: Array<InLecturePopupPollElement>
+  /** Always empty when `metaData` is null or `metaData.enableSqlPlayground` is false. */
+  sqlSandbox: Array<InLecturePopupSqlSandboxElement>
 }
 
 export type LectureKind = 'live' | 'video'

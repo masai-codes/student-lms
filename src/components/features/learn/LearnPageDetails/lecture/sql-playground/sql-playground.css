@@ -1,0 +1,11 @@
+/* CodeMirror defaults to a fixed 300px height — stretch it to fill the
+   bordered wrapper SqlPlaygroundContent gives it instead. */
+.sql-playground-cm,
+.sql-playground-cm .CodeMirror {
+  height: 100%;
+}
+
+.sql-playground-cm .CodeMirror {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+}

@@ -161,7 +161,7 @@ export async function getLectureLearningDetailForUser(
           isRecommended,
         ),
     getLearnEntityBookmarkState(userId, 'lecture', lectureId),
-    getInLecturePopupElements(lectureId),
+    getInLecturePopupElements(lectureId, userId),
   ])
 
   const attendanceSummary = attendanceMap.get(lectureId) ?? null

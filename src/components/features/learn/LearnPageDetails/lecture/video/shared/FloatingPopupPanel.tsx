@@ -7,7 +7,7 @@ import type {
   ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { CaretDown, CaretUp } from '@phosphor-icons/react'
+import { CaretDown, CaretUp, X } from '@phosphor-icons/react'
 
 import BottomDrawer from '@/components/ui/bottom-drawer'
 import { useIsMobileViewport } from '@/hooks/useIsMobileViewport'
@@ -135,6 +135,22 @@ export type FloatingPopupPanelProps = {
    * action). Hidden while minimized, like the content itself.
    */
   footer?: ReactNode
+  /**
+   * When provided, renders a close (X) affordance in the header — mobile's
+   * drawer close/swipe dismisses fully instead of collapsing to a pill. Omit
+   * for the video-window popups (quiz/poll), which are opened and closed by
+   * the caller's playback-window hook and only ever minimize; pass it when
+   * the popup is opened on demand outside that flow (e.g. from a static tab)
+   * and needs its own way to go away.
+   */
+  onClose?: () => void
+  /**
+   * Extra control rendered in the header, before the minimize/close buttons
+   * (e.g. the quiz review's "Continue" — skip past this window without
+   * waiting for playback to reach its end). Like the minimize/close buttons,
+   * it stays visible even while the panel is minimized.
+   */
+  headerAction?: ReactNode
 }
 
 /**
@@ -166,6 +182,8 @@ export function FloatingPopupPanel({
   children,
   overlay,
   footer,
+  onClose,
+  headerAction,
 }: FloatingPopupPanelProps) {
   const isMobile = useIsMobileViewport()
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
@@ -415,11 +433,19 @@ export function FloatingPopupPanel({
         // Same `data-testid` as the panel: automation finds the popup by one
         // selector whichever surface the viewport picked.
         testId={testId}
-        // Swipe-down and the header button both collapse to the pill rather
-        // than closing — the popup has no dismiss on either surface.
-        onClose={toggleMinimized}
-        closeIcon={<CaretDown size={18} weight="bold" />}
-        closeLabel="Minimize"
+        // Swipe-down and the header button collapse to the pill by default —
+        // the popup has no dismiss on either surface. When the caller passed
+        // its own `onClose`, that replaces the collapse with a real dismiss.
+        onClose={onClose ?? toggleMinimized}
+        closeIcon={
+          onClose ? (
+            <X size={18} weight="bold" />
+          ) : (
+            <CaretDown size={18} weight="bold" />
+          )
+        }
+        closeLabel={onClose ? 'Close' : 'Minimize'}
+        headerAction={headerAction}
         // Same fullscreen reasoning as the panel's portal — see `portalContainer`.
         container={portalContainer}
         // A definite height, not just `max-h`: the quiz iframe sizes itself with
@@ -468,21 +494,41 @@ export function FloatingPopupPanel({
             `type-*` classes declare their own `color`, which beats anything
             inherited from the header. */}
         <p className="type-b1-md truncate text-brand-foreground">{title}</p>
-        <button
-          type="button"
-          aria-label={minimized ? 'Restore' : 'Minimize'}
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={toggleMinimized}
-          // Circular and filled at rest, matching the pill's chevron — a
-          // hover-only background left it reading as decoration on first look.
-          className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-brand-foreground/20 transition-colors hover:bg-brand-foreground/35"
-        >
-          {minimized ? (
-            <CaretUp size={16} weight="bold" />
-          ) : (
-            <CaretDown size={16} weight="bold" />
-          )}
-        </button>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {headerAction ? (
+            // Stops the drag gesture from starting under the caller's control
+            // (a plain click would otherwise also nudge the panel).
+            <span onPointerDown={(e) => e.stopPropagation()}>
+              {headerAction}
+            </span>
+          ) : null}
+          <button
+            type="button"
+            aria-label={minimized ? 'Restore' : 'Minimize'}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={toggleMinimized}
+            // Circular and filled at rest, matching the pill's chevron — a
+            // hover-only background left it reading as decoration on first look.
+            className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-brand-foreground/20 transition-colors hover:bg-brand-foreground/35"
+          >
+            {minimized ? (
+              <CaretUp size={16} weight="bold" />
+            ) : (
+              <CaretDown size={16} weight="bold" />
+            )}
+          </button>
+          {onClose ? (
+            <button
+              type="button"
+              aria-label="Close"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={onClose}
+              className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-brand-foreground/20 transition-colors hover:bg-brand-foreground/35"
+            >
+              <X size={16} weight="bold" />
+            </button>
+          ) : null}
+        </div>
       </header>
 
       {/* CSS-hidden rather than unmounted while minimized, so content like a

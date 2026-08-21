@@ -96,6 +96,14 @@ describe('MyCalendarPage', () => {
     vi.useRealTimers()
   })
   beforeEach(() => {
+    // The component's "strip the default date from the URL" logic compares
+    // against the real `dayjs()` (today). Pin it away from every date literal
+    // used below (`2026-08-09`..`2026-08-21`) so that comparison can't
+    // accidentally match on the day this suite happens to run — only `Date`
+    // is faked, so RTL's `findBy*`/`waitFor` (real setTimeout polling) are
+    // unaffected.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date(2026, 0, 15))
     vi.clearAllMocks()
     // Pin "today" away from the fixture dates so the "defaults stay out of
     // the URL" collapsing in patchSearch doesn't collide with the real date.

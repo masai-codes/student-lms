@@ -16,6 +16,7 @@ const poll = (
   status: 'active',
   startSec,
   endSec,
+  submittedAt: null,
 })
 
 describe('normalizeInLecturePolls', () => {

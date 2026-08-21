@@ -27,6 +27,8 @@ type InLecturePollModalProps = {
   portalContainer?: HTMLElement | null
   /** Skip past the window to the next concept (seek to `endSec` + close). */
   onSkipToLecture: () => void
+  /** Fired once, right after a response is successfully submitted. */
+  onSubmitted?: () => void
 }
 
 type LoadState =
@@ -82,6 +84,7 @@ export function InLecturePollModal({
   isFullscreen,
   portalContainer,
   onSkipToLecture,
+  onSubmitted,
 }: InLecturePollModalProps) {
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [selected, setSelected] = useState<number | null>(null)
@@ -133,6 +136,7 @@ export function InLecturePollModal({
           selectedOptionIndex: result.selectedOptionIndex,
           results: result.results,
         })
+        onSubmitted?.()
       })
       .catch(() => {
         setSubmitError(true)
