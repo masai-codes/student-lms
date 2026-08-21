@@ -35,6 +35,8 @@ type VideoAttendanceCustomControlsProps = {
   onCaptionsToggle: () => void
   /** Opens the lecture AI chat; the toolbar's "Ask AI" pill renders only when provided. */
   onOpenAiChat?: () => void
+  /** Opens the SQL Playground drawer; the toolbar's "SQL" pill renders only when provided. */
+  onOpenSqlPlayground?: () => void
   /** Reports auto-hide chrome visibility (e.g. so captions can lift above the progress bar). */
   onChromeVisibleChange?: (visible: boolean) => void
   className?: string
@@ -59,6 +61,7 @@ export function VideoAttendanceCustomControls({
   captionsOn,
   onCaptionsToggle,
   onOpenAiChat,
+  onOpenSqlPlayground,
   onChromeVisibleChange,
   className = '',
 }: VideoAttendanceCustomControlsProps) {
@@ -306,6 +309,7 @@ export function VideoAttendanceCustomControls({
         chromeVisible={chromeVisible}
         onMenuOpenChange={setOverflowMenuOpen}
         onOpenAiChat={onOpenAiChat}
+        onOpenSqlPlayground={onOpenSqlPlayground}
       />
     </div>
   )

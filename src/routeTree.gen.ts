@@ -199,6 +199,7 @@ import { Route as ApiLearnLecturesLectureIdVideoProgressRouteImport } from './ro
 import { Route as ApiLearnLecturesLectureIdQuizUrlRouteImport } from './routes/api/learn/lectures/$lectureId/quiz-url'
 import { Route as ApiLearnLecturesLectureIdQuizSubmitRouteImport } from './routes/api/learn/lectures/$lectureId/quiz-submit'
 import { Route as ApiLearnLecturesLectureIdQuizStatusRouteImport } from './routes/api/learn/lectures/$lectureId/quiz-status'
+import { Route as ApiLearnLecturesLectureIdPopupElementsRouteImport } from './routes/api/learn/lectures/$lectureId/popup-elements'
 import { Route as ApiLearnLecturesLectureIdPollSubmitRouteImport } from './routes/api/learn/lectures/$lectureId/poll-submit'
 import { Route as ApiLearnLecturesLectureIdPollStatusRouteImport } from './routes/api/learn/lectures/$lectureId/poll-status'
 import { Route as ApiLearnLecturesLectureIdFeedbackRouteImport } from './routes/api/learn/lectures/$lectureId/feedback'
@@ -1307,6 +1308,12 @@ const ApiLearnLecturesLectureIdQuizStatusRoute =
     path: '/quiz-status',
     getParentRoute: () => ApiLearnLecturesLectureIdRoute,
   } as any)
+const ApiLearnLecturesLectureIdPopupElementsRoute =
+  ApiLearnLecturesLectureIdPopupElementsRouteImport.update({
+    id: '/popup-elements',
+    path: '/popup-elements',
+    getParentRoute: () => ApiLearnLecturesLectureIdRoute,
+  } as any)
 const ApiLearnLecturesLectureIdPollSubmitRoute =
   ApiLearnLecturesLectureIdPollSubmitRouteImport.update({
     id: '/poll-submit',
@@ -1749,6 +1756,7 @@ export interface FileRoutesByFullPath {
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
   '/api/learn/lectures/$lectureId/poll-status': typeof ApiLearnLecturesLectureIdPollStatusRoute
   '/api/learn/lectures/$lectureId/poll-submit': typeof ApiLearnLecturesLectureIdPollSubmitRoute
+  '/api/learn/lectures/$lectureId/popup-elements': typeof ApiLearnLecturesLectureIdPopupElementsRoute
   '/api/learn/lectures/$lectureId/quiz-status': typeof ApiLearnLecturesLectureIdQuizStatusRoute
   '/api/learn/lectures/$lectureId/quiz-submit': typeof ApiLearnLecturesLectureIdQuizSubmitRoute
   '/api/learn/lectures/$lectureId/quiz-url': typeof ApiLearnLecturesLectureIdQuizUrlRoute
@@ -1977,6 +1985,7 @@ export interface FileRoutesByTo {
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
   '/api/learn/lectures/$lectureId/poll-status': typeof ApiLearnLecturesLectureIdPollStatusRoute
   '/api/learn/lectures/$lectureId/poll-submit': typeof ApiLearnLecturesLectureIdPollSubmitRoute
+  '/api/learn/lectures/$lectureId/popup-elements': typeof ApiLearnLecturesLectureIdPopupElementsRoute
   '/api/learn/lectures/$lectureId/quiz-status': typeof ApiLearnLecturesLectureIdQuizStatusRoute
   '/api/learn/lectures/$lectureId/quiz-submit': typeof ApiLearnLecturesLectureIdQuizSubmitRoute
   '/api/learn/lectures/$lectureId/quiz-url': typeof ApiLearnLecturesLectureIdQuizUrlRoute
@@ -2208,6 +2217,7 @@ export interface FileRoutesById {
   '/api/learn/lectures/$lectureId/feedback': typeof ApiLearnLecturesLectureIdFeedbackRoute
   '/api/learn/lectures/$lectureId/poll-status': typeof ApiLearnLecturesLectureIdPollStatusRoute
   '/api/learn/lectures/$lectureId/poll-submit': typeof ApiLearnLecturesLectureIdPollSubmitRoute
+  '/api/learn/lectures/$lectureId/popup-elements': typeof ApiLearnLecturesLectureIdPopupElementsRoute
   '/api/learn/lectures/$lectureId/quiz-status': typeof ApiLearnLecturesLectureIdQuizStatusRoute
   '/api/learn/lectures/$lectureId/quiz-submit': typeof ApiLearnLecturesLectureIdQuizSubmitRoute
   '/api/learn/lectures/$lectureId/quiz-url': typeof ApiLearnLecturesLectureIdQuizUrlRoute
@@ -2439,6 +2449,7 @@ export interface FileRouteTypes {
     | '/api/learn/lectures/$lectureId/feedback'
     | '/api/learn/lectures/$lectureId/poll-status'
     | '/api/learn/lectures/$lectureId/poll-submit'
+    | '/api/learn/lectures/$lectureId/popup-elements'
     | '/api/learn/lectures/$lectureId/quiz-status'
     | '/api/learn/lectures/$lectureId/quiz-submit'
     | '/api/learn/lectures/$lectureId/quiz-url'
@@ -2667,6 +2678,7 @@ export interface FileRouteTypes {
     | '/api/learn/lectures/$lectureId/feedback'
     | '/api/learn/lectures/$lectureId/poll-status'
     | '/api/learn/lectures/$lectureId/poll-submit'
+    | '/api/learn/lectures/$lectureId/popup-elements'
     | '/api/learn/lectures/$lectureId/quiz-status'
     | '/api/learn/lectures/$lectureId/quiz-submit'
     | '/api/learn/lectures/$lectureId/quiz-url'
@@ -2897,6 +2909,7 @@ export interface FileRouteTypes {
     | '/api/learn/lectures/$lectureId/feedback'
     | '/api/learn/lectures/$lectureId/poll-status'
     | '/api/learn/lectures/$lectureId/poll-submit'
+    | '/api/learn/lectures/$lectureId/popup-elements'
     | '/api/learn/lectures/$lectureId/quiz-status'
     | '/api/learn/lectures/$lectureId/quiz-submit'
     | '/api/learn/lectures/$lectureId/quiz-url'
@@ -4406,6 +4419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLearnLecturesLectureIdQuizStatusRouteImport
       parentRoute: typeof ApiLearnLecturesLectureIdRoute
     }
+    '/api/learn/lectures/$lectureId/popup-elements': {
+      id: '/api/learn/lectures/$lectureId/popup-elements'
+      path: '/popup-elements'
+      fullPath: '/api/learn/lectures/$lectureId/popup-elements'
+      preLoaderRoute: typeof ApiLearnLecturesLectureIdPopupElementsRouteImport
+      parentRoute: typeof ApiLearnLecturesLectureIdRoute
+    }
     '/api/learn/lectures/$lectureId/poll-submit': {
       id: '/api/learn/lectures/$lectureId/poll-submit'
       path: '/poll-submit'
@@ -4957,6 +4977,7 @@ interface ApiLearnLecturesLectureIdRouteChildren {
   ApiLearnLecturesLectureIdFeedbackRoute: typeof ApiLearnLecturesLectureIdFeedbackRoute
   ApiLearnLecturesLectureIdPollStatusRoute: typeof ApiLearnLecturesLectureIdPollStatusRoute
   ApiLearnLecturesLectureIdPollSubmitRoute: typeof ApiLearnLecturesLectureIdPollSubmitRoute
+  ApiLearnLecturesLectureIdPopupElementsRoute: typeof ApiLearnLecturesLectureIdPopupElementsRoute
   ApiLearnLecturesLectureIdQuizStatusRoute: typeof ApiLearnLecturesLectureIdQuizStatusRoute
   ApiLearnLecturesLectureIdQuizSubmitRoute: typeof ApiLearnLecturesLectureIdQuizSubmitRoute
   ApiLearnLecturesLectureIdQuizUrlRoute: typeof ApiLearnLecturesLectureIdQuizUrlRoute
@@ -4976,6 +4997,8 @@ const ApiLearnLecturesLectureIdRouteChildren: ApiLearnLecturesLectureIdRouteChil
       ApiLearnLecturesLectureIdPollStatusRoute,
     ApiLearnLecturesLectureIdPollSubmitRoute:
       ApiLearnLecturesLectureIdPollSubmitRoute,
+    ApiLearnLecturesLectureIdPopupElementsRoute:
+      ApiLearnLecturesLectureIdPopupElementsRoute,
     ApiLearnLecturesLectureIdQuizStatusRoute:
       ApiLearnLecturesLectureIdQuizStatusRoute,
     ApiLearnLecturesLectureIdQuizSubmitRoute:

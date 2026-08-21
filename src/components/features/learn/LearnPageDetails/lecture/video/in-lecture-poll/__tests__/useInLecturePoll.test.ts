@@ -13,6 +13,7 @@ const POLLS: Array<InLecturePopupPollElement> = [
     status: 'active',
     startSec: 215,
     endSec: 357,
+    submittedAt: null,
   },
   {
     id: 2,
@@ -21,6 +22,7 @@ const POLLS: Array<InLecturePopupPollElement> = [
     status: 'active',
     startSec: 463,
     endSec: 512,
+    submittedAt: null,
   },
 ]
 

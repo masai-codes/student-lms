@@ -14,6 +14,7 @@ const quiz = (
   status: 'active',
   startSec,
   endSec,
+  submittedAt: null,
 })
 
 describe('normalizeInLectureQuizzes', () => {
