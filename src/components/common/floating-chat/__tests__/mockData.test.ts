@@ -28,18 +28,40 @@ describe('getFloatingChatCategories', () => {
     )
   })
 
-  it('leaves the general category and every other field untouched for iitj students', () => {
+  it('overrides the evaluation and general descriptions for iitj students', () => {
     const categories = getFloatingChatCategories(true)
-    const general = categories.find((c) => c.id === 'general')
-    const defaultGeneral = CATEGORIES.find((c) => c.id === 'general')
 
-    expect(general).toEqual(defaultGeneral)
+    expect(categories.find((c) => c.id === 'evaluation')?.desc).toBe(
+      'Offline exam, centre related',
+    )
+    expect(categories.find((c) => c.id === 'general')?.desc).toBe(
+      'Any General Program related queries excluding the above',
+    )
+  })
+
+  it('leaves ids/icons untouched, and leaves lecture/assignment/resource descriptions untouched, for iitj students', () => {
+    const categories = getFloatingChatCategories(true)
+
+    for (const id of [
+      'lecture',
+      'assignment',
+      'resource',
+      'evaluation',
+      'general',
+    ]) {
+      const category = categories.find((c) => c.id === id)
+      const defaultCategory = CATEGORIES.find((c) => c.id === id)
+      expect(category?.id).toBe(defaultCategory?.id)
+      expect(category?.icon).toBe(defaultCategory?.icon)
+    }
 
     const lecture = categories.find((c) => c.id === 'lecture')
     const defaultLecture = CATEGORIES.find((c) => c.id === 'lecture')
-    expect(lecture?.id).toBe(defaultLecture?.id)
     expect(lecture?.desc).toBe(defaultLecture?.desc)
-    expect(lecture?.icon).toBe(defaultLecture?.icon)
+
+    const general = categories.find((c) => c.id === 'general')
+    const defaultGeneral = CATEGORIES.find((c) => c.id === 'general')
+    expect(general?.label).toBe(defaultGeneral?.label)
   })
 
   it('never mutates the shared CATEGORIES constant', () => {
