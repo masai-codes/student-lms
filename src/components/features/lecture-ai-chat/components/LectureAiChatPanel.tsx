@@ -47,6 +47,11 @@ type LectureAiChatPanelProps = {
   isExpanded?: boolean
   /** When provided, renders a maximize/minimize control in the header. */
   onToggleExpand?: () => void
+  /**
+   * Fired as the message list starts/stops scrolling — scrolling counts as
+   * interaction for the feedback prompt's inactivity timer, same as typing.
+   */
+  onScrollActivityChange?: (isScrolling: boolean) => void
 }
 
 /**
@@ -66,6 +71,7 @@ export function LectureAiChatPanel({
   onLanguageMenuOpenChange,
   isExpanded,
   onToggleExpand,
+  onScrollActivityChange,
 }: LectureAiChatPanelProps) {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const conversations = useLectureAiConversations(lectureId, isHistoryOpen)
@@ -181,6 +187,7 @@ export function LectureAiChatPanel({
           onSuggestion={(text) => chat.sendMessage(text)}
           onSubmitPracticeQuestionAnswers={chat.submitPracticeQuestionAnswers}
           containScroll={containScroll}
+          onScrollActivityChange={onScrollActivityChange}
         />
       )}
 

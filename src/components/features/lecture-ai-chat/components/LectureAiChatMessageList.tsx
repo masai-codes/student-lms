@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import { ArrowDown } from 'lucide-react'
 
 import { useStickToBottom } from '../hooks/useStickToBottom'
@@ -8,6 +9,9 @@ import { LectureAiChatMessage } from './LectureAiChatMessage'
 import type { LectureAiChatMessage as LectureAiChatMessageModel } from '../types'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+
+/** Scrolling counts as "stopped" once no scroll event fires for this long. */
+const SCROLL_ACTIVITY_IDLE_MS = 400
 
 type LectureAiChatMessageListProps = {
   lectureId: number
@@ -27,6 +31,12 @@ type LectureAiChatMessageListProps = {
    * wheel should chain to the page as usual.
    */
   containScroll?: boolean
+  /**
+   * Fired as the list starts/stops scrolling — scrolling counts as
+   * interaction for the feedback prompt's inactivity timer, same as typing
+   * (see `useLectureAiChatFeedback`).
+   */
+  onScrollActivityChange?: (isScrolling: boolean) => void
 }
 
 export function LectureAiChatMessageList({
@@ -37,6 +47,7 @@ export function LectureAiChatMessageList({
   onSuggestion,
   onSubmitPracticeQuestionAnswers,
   containScroll = false,
+  onScrollActivityChange,
 }: LectureAiChatMessageListProps) {
   const isEmpty = messages.length === 0
   const lastContentLength = isEmpty
@@ -46,6 +57,38 @@ export function LectureAiChatMessageList({
     messages.length,
     lastContentLength,
   )
+
+  const onScrollActivityChangeRef = useRef(onScrollActivityChange)
+  onScrollActivityChangeRef.current = onScrollActivityChange
+
+  useEffect(() => {
+    const list = listRef.current
+    if (!list) return
+
+    let isScrolling = false
+    let idleTimer: ReturnType<typeof setTimeout> | null = null
+
+    const onScroll = () => {
+      if (!isScrolling) {
+        isScrolling = true
+        onScrollActivityChangeRef.current?.(true)
+      }
+      if (idleTimer != null) clearTimeout(idleTimer)
+      idleTimer = setTimeout(() => {
+        isScrolling = false
+        onScrollActivityChangeRef.current?.(false)
+      }, SCROLL_ACTIVITY_IDLE_MS)
+    }
+
+    list.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      list.removeEventListener('scroll', onScroll)
+      if (idleTimer != null) clearTimeout(idleTimer)
+      // Unmounting mid-scroll (e.g. switching to chat history) must not leave
+      // the feedback timer permanently suppressed.
+      if (isScrolling) onScrollActivityChangeRef.current?.(false)
+    }
+  }, [listRef])
 
   return (
     <div className="relative min-h-0 flex-1">

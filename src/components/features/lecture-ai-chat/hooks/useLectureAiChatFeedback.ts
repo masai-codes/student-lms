@@ -6,6 +6,14 @@ import { submitLectureAiChatFeedback } from '@/lib/api/ai-tutor/lectureAiChatFee
 
 export type LectureAiChatFeedbackRating = 1 | 2 | 3 | 4 | 5
 
+/**
+ * Independent reasons the chat can be "active" right now. Each is reported
+ * separately (see `reportActivity`) so one source going idle (e.g. the
+ * learner stops scrolling) can't clobber another that's still active (e.g.
+ * they're mid-stream or typing).
+ */
+export type LectureAiChatActivitySource = 'compose' | 'scroll'
+
 /** How long the chat must sit idle before the feedback prompt appears. */
 const INACTIVITY_DELAY_MS = 15_000
 
@@ -25,12 +33,18 @@ export type UseLectureAiChatFeedbackResult = {
    */
   notifyFirstReplyCompleted: (chatId: number | null) => void
   /**
-   * Reports whether the chat is currently "active" — a message sent with its
-   * reply still pending/streaming, or the learner typing in the composer.
-   * The feedback prompt only appears after `INACTIVITY_DELAY_MS` of
-   * continuous inactivity following `notifyFirstReplyCompleted`.
+   * Reports whether a given source of interaction — composing (a message
+   * sent with its reply still pending/streaming, or typing in the composer)
+   * or scrolling the message list — is currently active. Sources are tracked
+   * independently, so scrolling settling doesn't hide activity from an
+   * unrelated in-flight send, and vice versa. The feedback prompt only
+   * appears once every source has been inactive for `INACTIVITY_DELAY_MS`
+   * following `notifyFirstReplyCompleted`.
    */
-  reportActivity: (isActive: boolean) => void
+  reportActivity: (
+    source: LectureAiChatActivitySource,
+    isActive: boolean,
+  ) => void
   submit: (
     rating: LectureAiChatFeedbackRating,
     feedback?: string,
@@ -43,8 +57,9 @@ export type UseLectureAiChatFeedbackResult = {
  * experience (spec: docs/AI_CHAT_FEEDBACK.md). Becomes eligible once the AI's
  * reply to the first message of a newly-started thread completes — not for
  * threads reopened from history — and is then shown after the chat has been
- * inactive (no in-flight send, nothing typed in the composer) for
- * `INACTIVITY_DELAY_MS`. At most once per `chatId` per page visit.
+ * inactive (no in-flight send, nothing typed in the composer, no scrolling
+ * the message list) for `INACTIVITY_DELAY_MS`. At most once per `chatId` per
+ * page visit.
  */
 export function useLectureAiChatFeedback(
   lectureId: number,
@@ -59,7 +74,9 @@ export function useLectureAiChatFeedback(
   // Eligible chatId awaiting its inactivity window; cleared once shown,
   // submitted, or skipped.
   const pendingChatIdRef = useRef<number | null>(null)
-  const isActiveRef = useRef(false)
+  // Currently-active interaction sources (see `LectureAiChatActivitySource`);
+  // "active" overall iff this set is non-empty.
+  const activeSourcesRef = useRef(new Set<LectureAiChatActivitySource>())
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const clearTimer = useCallback(() => {
@@ -72,7 +89,7 @@ export function useLectureAiChatFeedback(
   const scheduleShow = useCallback(() => {
     clearTimer()
     const pendingChatId = pendingChatIdRef.current
-    if (pendingChatId == null || isActiveRef.current) return
+    if (pendingChatId == null || activeSourcesRef.current.size > 0) return
 
     timerRef.current = setTimeout(() => {
       timerRef.current = null
@@ -96,12 +113,14 @@ export function useLectureAiChatFeedback(
   )
 
   const reportActivity = useCallback(
-    (isActive: boolean) => {
-      isActiveRef.current = isActive
+    (source: LectureAiChatActivitySource, isActive: boolean) => {
+      const sources = activeSourcesRef.current
       if (isActive) {
+        sources.add(source)
         clearTimer()
       } else {
-        scheduleShow()
+        sources.delete(source)
+        if (sources.size === 0) scheduleShow()
       }
     },
     [clearTimer, scheduleShow],

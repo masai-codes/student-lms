@@ -337,4 +337,73 @@ describe('handleStreamChat', () => {
     expect(body).toContain('data: {"type":"token","content":"Hello "}')
     expect(body.endsWith('data: {"type":"done","chatId":12}\n\n')).toBe(true)
   })
+
+  it.each([
+    ['ios', 'app-ios'],
+    ['android', 'app-android'],
+  ])(
+    'stays backward compatible with the native app sending platform "%s" — normalizes to "%s"',
+    async (legacyPlatform, normalizedPlatform) => {
+      const { handleStreamChat } =
+        await import('../handlers/streamChat.handler')
+      vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
+      hoisted.prepareLectureChatContext.mockResolvedValueOnce({
+        chatRow: { id: 12, chatHistory: [] },
+        systemPrompt: 'system prompt',
+        messages: [{ role: 'user', content: 'explain hooks' }],
+        chat: 'explain hooks',
+        platform: normalizedPlatform,
+        language: 'English',
+      })
+      hoisted.streamLectureChatEventsFromContext.mockImplementationOnce(
+        function* () {
+          yield { type: 'done' as const, chatId: 12 }
+        },
+      )
+
+      const res = await handleStreamChat(
+        postRequest({
+          lectureId: 99,
+          chat: 'explain hooks',
+          platform: legacyPlatform,
+        }),
+      )
+
+      expect(res.status).toBe(200)
+      expect(hoisted.prepareLectureChatContext).toHaveBeenCalledWith(
+        expect.objectContaining({ platform: normalizedPlatform }),
+      )
+    },
+  )
+
+  it('stays backward compatible with an old cached web bundle still sending platform "web-desktop"/"web-mobile" unchanged', async () => {
+    const { handleStreamChat } = await import('../handlers/streamChat.handler')
+    vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
+    hoisted.prepareLectureChatContext.mockResolvedValueOnce({
+      chatRow: { id: 12, chatHistory: [] },
+      systemPrompt: 'system prompt',
+      messages: [{ role: 'user', content: 'explain hooks' }],
+      chat: 'explain hooks',
+      platform: 'web-desktop',
+      language: 'English',
+    })
+    hoisted.streamLectureChatEventsFromContext.mockImplementationOnce(
+      function* () {
+        yield { type: 'done' as const, chatId: 12 }
+      },
+    )
+
+    const res = await handleStreamChat(
+      postRequest({
+        lectureId: 99,
+        chat: 'explain hooks',
+        platform: 'web-desktop',
+      }),
+    )
+
+    expect(res.status).toBe(200)
+    expect(hoisted.prepareLectureChatContext).toHaveBeenCalledWith(
+      expect.objectContaining({ platform: 'web-desktop' }),
+    )
+  })
 })

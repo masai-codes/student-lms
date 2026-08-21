@@ -23,6 +23,7 @@ export async function findOrCreateChatPracticeRow(input: {
   userId: number
   lectureId: number
   chatId?: number
+  platform?: AiTutorFeedbackPlatform
 }): Promise<ChatPracticeRow> {
   if (input.chatId != null) {
     const rows = await db
@@ -59,6 +60,7 @@ export async function findOrCreateChatPracticeRow(input: {
     chatHistory: [],
     createdAt: now,
     updatedAt: now,
+    startedFrom: input.platform,
   })
 
   const insertId = Number(insertResult.insertId)
@@ -144,6 +146,7 @@ export async function submitChatPracticeFeedback(input: {
   chatId: number
   rating: number
   feedback: string | null
+  platform: AiTutorFeedbackPlatform
 }): Promise<SubmitAiTutorFeedbackResponse> {
   if (!Number.isInteger(input.rating) || input.rating < 0 || input.rating > 6) {
     throw new ApiError(400, 'AI_TUTOR_RATING_INVALID')
@@ -174,6 +177,7 @@ export async function submitChatPracticeFeedback(input: {
       rating: input.rating,
       feedback,
       feedbackTime: now,
+      ratedFrom: input.platform,
       updatedAt: now,
     })
     .where(eq(aiChatPracticeQuestions.id, input.chatId))

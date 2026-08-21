@@ -18,6 +18,7 @@ vi.mock('@/db/schema', () => ({
     rating: 'ai_chat_practice_questions.rating',
     feedback: 'ai_chat_practice_questions.feedback',
     feedbackTime: 'ai_chat_practice_questions.feedback_time',
+    ratedFrom: 'ai_chat_practice_questions.rated_from',
     updatedAt: 'ai_chat_practice_questions.updated_at',
   },
 }))
@@ -51,6 +52,7 @@ describe('submitChatPracticeFeedback', () => {
         chatId: 4,
         rating: 7,
         feedback: null,
+        platform: 'web',
       }),
     ).rejects.toMatchObject({ code: 'AI_TUTOR_RATING_INVALID' })
   })
@@ -67,12 +69,14 @@ describe('submitChatPracticeFeedback', () => {
       chatId: 4,
       rating: 0,
       feedback: 'web',
+      platform: 'web',
     })
 
     expect(webUpdate.set).toHaveBeenCalledWith(
       expect.objectContaining({
         rating: 0,
         feedback: 'web',
+        ratedFrom: 'web',
       }),
     )
 
@@ -85,12 +89,14 @@ describe('submitChatPracticeFeedback', () => {
       chatId: 4,
       rating: 6,
       feedback: 'ios-Great',
+      platform: 'ios',
     })
 
     expect(mobileUpdate.set).toHaveBeenCalledWith(
       expect.objectContaining({
         rating: 6,
         feedback: 'ios-Great',
+        ratedFrom: 'ios',
       }),
     )
   })
@@ -107,6 +113,7 @@ describe('submitChatPracticeFeedback', () => {
         chatId: 4,
         rating: 4,
         feedback: null,
+        platform: 'web',
       }),
     ).rejects.toMatchObject({ code: 'AI_TUTOR_CHAT_NOT_FOUND' })
   })
@@ -124,6 +131,7 @@ describe('submitChatPracticeFeedback', () => {
       chatId: 4,
       rating: 5,
       feedback: longFeedback,
+      platform: 'web',
     })
 
     expect(result).toEqual({
@@ -154,6 +162,7 @@ describe('submitChatPracticeFeedback', () => {
       chatId: 4,
       rating: 3,
       feedback: '   ',
+      platform: 'web',
     })
 
     expect(result).toEqual({
@@ -181,6 +190,7 @@ describe('submitChatPracticeFeedback', () => {
       chatId: 4,
       rating: 1,
       feedback: 'web',
+      platform: 'web',
     })
 
     expect(result).toEqual({
