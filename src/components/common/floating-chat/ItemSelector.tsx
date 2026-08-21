@@ -356,6 +356,7 @@ export function ItemSelector({
                 (categoryObj.id === 'assignment' ||
                   categoryObj.id === 'evaluation') &&
                 item.moduleName
+              const showSectionPill = showSectionDropdown && item.sectionName
 
               return (
                 <button
@@ -408,6 +409,11 @@ export function ItemSelector({
                       {showModulePill ? (
                         <span className="text-[11px] font-bold text-[#62647d] dark:text-foreground-muted bg-[#f1f1f7] dark:bg-muted px-2 py-[2.5px] rounded-full group-hover:bg-surface transition-colors truncate max-w-[140px]">
                           {item.moduleName}
+                        </span>
+                      ) : null}
+                      {showSectionPill ? (
+                        <span className="text-[11px] font-bold text-[#62647d] dark:text-foreground-muted bg-[#f1f1f7] dark:bg-muted px-2 py-[2.5px] rounded-full group-hover:bg-surface transition-colors truncate max-w-[140px]">
+                          {item.sectionName}
                         </span>
                       ) : null}
                       <span className="text-[11.5px] text-[#9496ab] dark:text-foreground-subtle truncate">
