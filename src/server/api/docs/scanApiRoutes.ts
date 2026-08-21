@@ -12,9 +12,9 @@ import {
   mapHandlersToSymbols,
 } from '@/server/api/docs/resolveHandlerSources'
 
-export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete'
+type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete'
 
-export type ScannedMethodDetails = {
+type ScannedMethodDetails = {
   queryParams: ScannedQueryParam[]
   requestBody: ScannedRequestBody | null
 }

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type { EmblaCarouselType } from 'embla-carousel'
 
 /** Default auto-advance interval (ms) for the dashboard banner carousels. */
-export const BANNER_AUTOPLAY_MS = 5000
+const BANNER_AUTOPLAY_MS = 5000
 
 /**
  * Per-banner intervals, intentionally staggered so stacked carousels don't all

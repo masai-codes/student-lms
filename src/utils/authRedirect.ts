@@ -1,6 +1,6 @@
 import { getOldStudentUiUrlFromEnv } from '@/utils/viteEnv'
 
-export function getOldStudentUiUrl() {
+function getOldStudentUiUrl() {
   return getOldStudentUiUrlFromEnv()
 }
 
@@ -30,14 +30,6 @@ export function getOldStudentUiUrlForPath(path: string): string | undefined {
   const normalizedBase = base.replace(/\/$/, '')
   const normalizedPath = path.startsWith('/') ? path : `/${path}`
   return `${normalizedBase}${normalizedPath}`
-}
-
-/** Auto-redirect protected routes to legacy LMS (off unless `VITE_ENABLE_LEGACY_STUDENT_REDIRECT=true`). */
-export function getLegacyProtectedRouteRedirectUrl(
-  path: string,
-): string | undefined {
-  if (!isLegacyStudentRedirectEnabled()) return undefined
-  return getOldStudentUiUrlForPath(path)
 }
 
 export function redirectToOldStudentUi(context?: RedirectDebugContext) {

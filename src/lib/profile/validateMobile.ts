@@ -9,9 +9,9 @@
 
 const INDIAN_LEADING_DIGITS = ['6', '7', '8', '9']
 
-export const INDIAN_MOBILE_LENGTH = 10
-export const INTERNATIONAL_MOBILE_MIN_LENGTH = 7
-export const INTERNATIONAL_MOBILE_MAX_LENGTH = 15
+const INDIAN_MOBILE_LENGTH = 10
+const INTERNATIONAL_MOBILE_MIN_LENGTH = 7
+const INTERNATIONAL_MOBILE_MAX_LENGTH = 15
 
 export interface MobileValidationResult {
   isValid: boolean

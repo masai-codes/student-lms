@@ -6,7 +6,7 @@ const API_KEY_HEADER = 'X-API-KEY'
 const DEFAULT_COLLECTION_NAME = 'student-lms-ai-tutor'
 const REQUEST_TIMEOUT_MS = 30_000
 
-export function getRagPlatformBaseUrl(): string {
+function getRagPlatformBaseUrl(): string {
   const raw = process.env.RAG_PLATFORM_BASE_URL?.trim()
   if (!raw) {
     throw new ApiError(503, 'AI_TUTOR_RAG_PLATFORM_NOT_CONFIGURED')
@@ -14,7 +14,7 @@ export function getRagPlatformBaseUrl(): string {
   return raw.replace(/\/$/, '')
 }
 
-export function getRagPlatformApiKey(): string {
+function getRagPlatformApiKey(): string {
   const apiKey = process.env.RAG_PLATFORM_API_KEY?.trim()
   if (!apiKey) {
     throw new ApiError(503, 'AI_TUTOR_RAG_PLATFORM_NOT_CONFIGURED')
@@ -23,13 +23,15 @@ export function getRagPlatformApiKey(): string {
 }
 
 export function getRagPlatformCollectionName(): string {
-  return process.env.RAG_PLATFORM_COLLECTION_NAME?.trim() || DEFAULT_COLLECTION_NAME
+  return (
+    process.env.RAG_PLATFORM_COLLECTION_NAME?.trim() || DEFAULT_COLLECTION_NAME
+  )
 }
 
 export function isRagPlatformConfigured(): boolean {
   return Boolean(
     process.env.RAG_PLATFORM_BASE_URL?.trim() &&
-      process.env.RAG_PLATFORM_API_KEY?.trim(),
+    process.env.RAG_PLATFORM_API_KEY?.trim(),
   )
 }
 
@@ -57,7 +59,9 @@ async function parseRagJson<T>(res: Response): Promise<T> {
   return (await res.json()) as T
 }
 
-export async function ensureRagCollection(collectionName: string): Promise<void> {
+export async function ensureRagCollection(
+  collectionName: string,
+): Promise<void> {
   const res = await fetch(`${getRagPlatformBaseUrl()}/collections`, {
     method: 'POST',
     headers: ragHeaders(),

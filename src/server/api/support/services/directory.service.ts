@@ -95,7 +95,7 @@ async function isLegalAgreementBlocking(userId: number): Promise<boolean> {
     )
 
   const enabled = rows.filter((r) => {
-    const s = (r.settings as Record<string, any> | null) ?? {}
+    const s = r.settings ?? {}
     const agreements = (s.agreements ?? {}) as Record<string, any>
     return (
       agreements.shouldModalBeVisible === true &&
@@ -110,9 +110,8 @@ async function isLegalAgreementBlocking(userId: number): Promise<boolean> {
     .where(eq(profiles.userId, userId))
     .limit(1)
 
-  const legalData = ((profileRows.length > 0
-    ? profileRows[0].legalData
-    : null) ?? {}) as Record<string, any>
+  const legalData =
+    (profileRows.length > 0 ? profileRows[0].legalData : null) ?? {}
   const agreementsBySection = (legalData.agreements ?? {}) as Record<
     string,
     any
@@ -239,7 +238,7 @@ export async function getOneOnOneGroups(
   // Keep only pp-enabled sections (show_pp + ppLink).
   const enabled = myRows
     .map((r) => {
-      const s = (r.settings as Record<string, any> | null) ?? {}
+      const s = r.settings ?? {}
       const ppLink = typeof s.ppLink === 'string' ? s.ppLink.trim() : ''
       return { ...r, showPp: Boolean(s.show_pp), ppLink }
     })

@@ -72,9 +72,3 @@ export async function verifyUrlReachable(
   inFlightProbes.set(trimmed, probe)
   return probe
 }
-
-/** Test helper — clears the in-memory reachability cache. */
-export function clearUrlReachabilityCacheForTests(): void {
-  reachabilityCache.clear()
-  inFlightProbes.clear()
-}

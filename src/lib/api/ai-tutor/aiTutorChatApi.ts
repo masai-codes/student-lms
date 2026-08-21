@@ -8,12 +8,10 @@ import type { AiTutorFeedbackPlatform } from '@/server/api/ai-tutor/feedbackPlat
 import type { SubmitAiTutorFeedbackResponse } from '@/server/api/ai-tutor/types/feedback'
 
 export type {
-  AiTutorChatTurn,
   AiTutorConversationSummary,
   GetAiTutorConversationResponse,
   ListAiTutorConversationsResponse,
 } from '@/server/api/ai-tutor/types/conversation'
-export type { SubmitAiTutorFeedbackResponse } from '@/server/api/ai-tutor/types/feedback'
 
 export async function listAiTutorConversations(
   lectureId: number,

@@ -2,7 +2,7 @@ import { eq, inArray } from 'drizzle-orm'
 import { db } from '@/db'
 import { sessions, users } from '@/db/schema'
 
-export type LinkedAccountUser = {
+type LinkedAccountUser = {
   id: number
   name: string
   email: string

@@ -2,11 +2,11 @@
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { AIAvatar } from './AIAvatar'
+
 vi.mock('lottie-react', () => ({
   default: () => <div data-testid="lottie" />,
 }))
-
-import { AIAvatar } from './AIAvatar'
 
 describe('AIAvatar', () => {
   afterEach(() => {

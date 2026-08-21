@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type WaveSurfer from 'wavesurfer.js'
 
-export type InterviewRecorderState = 'idle' | 'recording' | 'recorded'
+type InterviewRecorderState = 'idle' | 'recording' | 'recorded'
 
 export interface UseInterviewRecorderResult {
   state: InterviewRecorderState

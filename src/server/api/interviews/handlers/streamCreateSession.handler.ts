@@ -11,7 +11,7 @@ import {
   type CreateInterviewSessionStreamEvent,
 } from '@/server/api/interviews/services/interviewSession.service'
 
-export type CreateInterviewSessionSseEvent =
+type CreateInterviewSessionSseEvent =
   | CreateInterviewSessionStreamEvent
   | { type: 'error'; code: string }
 

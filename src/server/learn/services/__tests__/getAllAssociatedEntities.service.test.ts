@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { getAllAssociatedEntities } from '../getAllAssociatedEntities.service'
+
 const hoisted = vi.hoisted(() => ({
   selectQueue: [] as Array<Array<Record<string, unknown>>>,
   fetchAttendance: vi.fn(),
@@ -37,8 +39,6 @@ vi.mock('@/server/attendance/services/fetchLectureAttendanceSummaries', () => ({
 vi.mock('@/server/learn/queries/fetchLatestSubmissionByAssignment', () => ({
   fetchLatestSubmissionByAssignment: hoisted.fetchSubmissions,
 }))
-
-import { getAllAssociatedEntities } from '../getAllAssociatedEntities.service'
 
 const NOW = 1_000_000_000_000
 

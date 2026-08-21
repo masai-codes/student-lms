@@ -76,12 +76,12 @@ const EMPTY_EVENTS: MasaiverseV2ClubEvents = {
   past: [],
 }
 
-export interface ClubAboutDetail {
+interface ClubAboutDetail {
   heading: string
   value: string
 }
 
-export interface ClubLearningTenureItem {
+interface ClubLearningTenureItem {
   emoji: string | null
   heading: string
   text: string | null

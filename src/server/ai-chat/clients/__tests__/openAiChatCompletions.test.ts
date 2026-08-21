@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { requestOpenAiChatCompletion } from '../openAiChatCompletions'
+
 const hoisted = vi.hoisted(() => ({
   generateText: vi.fn(),
   getOpenAiChatModel: vi.fn(),
@@ -11,8 +13,6 @@ vi.mock('ai', () => ({
 vi.mock('@/server/ai-chat/clients/openAiChatModel', () => ({
   getOpenAiChatModel: hoisted.getOpenAiChatModel,
 }))
-
-import { requestOpenAiChatCompletion } from '../openAiChatCompletions'
 
 describe('requestOpenAiChatCompletion', () => {
   const originalTimeout = process.env.AI_CHAT_OPENAI_TIMEOUT_MS

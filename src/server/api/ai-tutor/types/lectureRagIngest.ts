@@ -1,4 +1,4 @@
-export type LectureRagSourceType = 'notes'
+type LectureRagSourceType = 'notes'
 
 export type RagPlatformJobResponse = {
   job_id: string

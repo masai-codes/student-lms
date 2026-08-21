@@ -6,7 +6,7 @@ import { lectures } from '@/db/schema'
 import { getIstDayWindow } from '@/server/time/istClock'
 
 /** Single hardcoded section holding all help / support-session lectures. */
-export const HELP_SESSION_SECTION_ID = 7576
+const HELP_SESSION_SECTION_ID = 7576
 /** Window is "today" through end of the 8th day out. */
 const SUPPORT_SESSION_WINDOW_DAYS = 8
 

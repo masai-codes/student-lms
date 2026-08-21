@@ -39,9 +39,8 @@ describe('getLectureRagContent', () => {
   it('throws when the lecture does not exist', async () => {
     hoisted.dbSelect.mockReturnValueOnce(lectureSelectChain(null))
 
-    const { getLectureRagContent } = await import(
-      '../services/lectureRagContent.service'
-    )
+    const { getLectureRagContent } =
+      await import('../services/lectureRagContent.service')
     await expect(getLectureRagContent(99)).rejects.toMatchObject({
       code: 'AI_TUTOR_LECTURE_NOT_FOUND',
     })
@@ -52,9 +51,8 @@ describe('getLectureRagContent', () => {
       lectureSelectChain({ notes: '   ', batchId: 1, sectionId: 2 }),
     )
 
-    const { getLectureRagContent } = await import(
-      '../services/lectureRagContent.service'
-    )
+    const { getLectureRagContent } =
+      await import('../services/lectureRagContent.service')
     await expect(getLectureRagContent(12)).rejects.toMatchObject({
       code: 'AI_TUTOR_NOTES_NOT_FOUND',
     })
@@ -65,9 +63,8 @@ describe('getLectureRagContent', () => {
       lectureSelectChain({ notes: '  Notes body  ', batchId: 4, sectionId: 5 }),
     )
 
-    const { getLectureRagContent } = await import(
-      '../services/lectureRagContent.service'
-    )
+    const { getLectureRagContent } =
+      await import('../services/lectureRagContent.service')
     await expect(getLectureRagContent(12)).resolves.toEqual({
       lectureId: 12,
       notes: 'Notes body',

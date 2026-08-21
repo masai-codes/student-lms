@@ -6,7 +6,7 @@ import { parsePracticeQuestionsPayload } from '@/server/api/ai-tutor/types/pract
 export { createSseFrameBuffer }
 
 /** Wire events emitted by `POST /api/ai-tutor/chat/stream`. */
-export type ChatStreamEvent =
+type ChatStreamEvent =
   | { type: 'token'; content: string }
   | { type: 'practiceQuestions'; payload: PracticeQuestionsPayload }
   | { type: 'done'; chatId: number }

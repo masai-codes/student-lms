@@ -2,14 +2,7 @@ import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
 import type { LectureAiChatSuggestion } from '@/server/learn/utils/buildLectureAiChatSuggestions'
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
-import type { InLecturePopupQuiz } from '@/server/learn/utils/parseLectureSettings'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
-
-export type { InLecturePopupQuiz }
-export type {
-  LectureAiChatSuggestion,
-  LectureAiChatSuggestionKind,
-} from '@/server/learn/utils/buildLectureAiChatSuggestions'
 
 /**
  * A single in-lecture popup quiz element, sourced from `zef_lms_quiz`.
@@ -41,7 +34,7 @@ export type InLecturePopupPollElement = {
  * for converting the elements' absolute `startTimestamp` / `endTimestamp` into
  * the video-relative show window.
  */
-export type InLecturePopupMetaData = {
+type InLecturePopupMetaData = {
   id: number
   lectureId: number
   /** The session's nominal start — when it was *meant* to begin. */

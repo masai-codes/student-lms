@@ -30,7 +30,9 @@ describe('buildAbsentWindowOverCondition', () => {
     expect(sql).toContain("'$.catchUpDays'")
     expect(sql).toContain('> 0')
     expect(sql).toContain('DATE_ADD')
-    expect(sql).toContain('COALESCE(`lectures`.`concludes`, `lectures`.`schedule`)')
+    expect(sql).toContain(
+      'COALESCE(`lectures`.`concludes`, `lectures`.`schedule`)',
+    )
     expect(sql).toContain('<=')
   })
 

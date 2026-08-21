@@ -12,15 +12,10 @@
 
 import type {
   AssignmentSupportSnapshot,
-  FaqVote,
   FloatingChatInbox,
   LectureSupportSnapshot,
   SupportEntityContext,
-  SupportFaq,
-  SupportOverview,
-  TicketListItem,
   TicketRating,
-  TicketTab,
   TicketThread,
 } from '@/server/api/support/support.types'
 import { fetchJson } from '@/lib/api/fetchJson'
@@ -32,14 +27,6 @@ const jsonPost = (body: unknown): RequestInit => ({
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(body),
 })
-
-/** GET the aggregated landing payload (optionally scoped to a batch). */
-export async function fetchSupportOverview(
-  batchId?: number,
-): Promise<SupportOverview> {
-  const qs = batchId ? `?batchId=${batchId}` : ''
-  return fetchJson<SupportOverview>(`${SUPPORT_API.overview}${qs}`)
-}
 
 /** GET the floating support modal inbox payload. */
 export async function fetchFloatingChatInbox(): Promise<FloatingChatInbox> {
@@ -74,22 +61,6 @@ export async function fetchAssignmentSupportSnapshot(
   )
 }
 
-/** GET a page of FAQs for a batch (live search). */
-export async function fetchSupportFaqs(input: {
-  batchId: number
-  search?: string
-  category?: string
-  subCategory?: string
-  limit?: number
-}): Promise<{ faqs: Array<SupportFaq> }> {
-  const params = new URLSearchParams({ batchId: String(input.batchId) })
-  if (input.search) params.set('search', input.search)
-  if (input.category) params.set('category', input.category)
-  if (input.subCategory) params.set('subCategory', input.subCategory)
-  if (input.limit) params.set('limit', String(input.limit))
-  return fetchJson(`${SUPPORT_API.faqs}?${params.toString()}`)
-}
-
 /** GET the subcategories for a single (context) category — e.g. "lecture". */
 export async function fetchSubcategoriesByCategory(
   category: string,
@@ -97,24 +68,6 @@ export async function fetchSubcategoriesByCategory(
   return fetchJson(
     `${SUPPORT_API.subcategories}?category=${encodeURIComponent(category)}`,
   )
-}
-
-/** POST an FAQ vote; returns the new aggregate counts. */
-export async function voteSupportFaq(input: {
-  faqId: number
-  vote: FaqVote
-}): Promise<{ faqId: number; upvotes: number; downvotes: number }> {
-  return fetchJson(SUPPORT_API.faqVote, jsonPost(input))
-}
-
-/** GET the student's tickets for a tab (with the total count for pagination). */
-export async function fetchSupportTickets(input: {
-  tab: TicketTab
-  page?: number
-}): Promise<{ tickets: Array<TicketListItem>; total: number }> {
-  const params = new URLSearchParams({ tab: input.tab })
-  if (input.page) params.set('page', String(input.page))
-  return fetchJson(`${SUPPORT_API.tickets}?${params.toString()}`)
 }
 
 /** GET one ticket's full conversation (header + messages + capabilities). */
