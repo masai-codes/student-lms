@@ -16,6 +16,7 @@ import {
 const VIDEO_SECTION = {
   considerVideoAttendanceForActualAttendance: true,
   catchUpDays: 5,
+  minimumVideoWatchPercentage: 80,
 }
 
 describe('video lecture snapshot matrix — section settings × student state', () => {
@@ -36,7 +37,7 @@ describe('video lecture snapshot matrix — section settings × student state', 
       watch: 40,
       label: 'Pending',
       reason:
-        'Finish watching the recording to be marked present — status updates can take up to 24 hours.',
+        "You need to watch the entire recording to be marked present. You've watched 40% of the recording so far. Your status will update within 24 hours once you finish.",
     },
     {
       name: 'partial watch — catch-up window closed',
@@ -45,7 +46,7 @@ describe('video lecture snapshot matrix — section settings × student state', 
       watch: 30,
       label: 'Absent',
       reason:
-        'You did not finish watching the recording and the window to finish it has closed, so you were marked absent.',
+        "You did not finish watching the recording and the window to do so has closed, so you were marked absent. You've watched 30% of the recording so far.",
       catchUp: 'Closed',
     },
     {
@@ -55,8 +56,17 @@ describe('video lecture snapshot matrix — section settings × student state', 
       watch: 0,
       label: 'Absent',
       reason:
-        'You did not finish watching the recording and the window to finish it has closed, so you were marked absent.',
+        'You did not finish watching the recording and the window to do so has closed, so you were marked absent.',
       catchUp: 'Closed',
+    },
+    {
+      name: 'threshold met — Pending waiting for 24h update',
+      nowMs: NOW_WINDOW_OPEN,
+      record: absentRow(),
+      watch: 85,
+      label: 'Pending',
+      reason:
+        'You have watched the full recording. Your attendance status will update within 24 hours.',
     },
   ])('$name', ({ nowMs, record, watch, label, reason, catchUp }) => {
     const attendance = buildAttendanceFromSection(

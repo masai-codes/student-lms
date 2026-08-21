@@ -37,14 +37,15 @@ function watchProgressPhrase(watchPct: number): string {
 
 /**
  * Whether the student has watched enough of the recording to qualify for
- * attendance. Returns `true` when the threshold is unknown (we can't say they
- * haven't met it) so the UI falls back to generic messaging.
+ * attendance. When the section threshold is unknown, only treat 100% as met —
+ * never claim a partial watch already qualifies (that would show "you watched
+ * the full recording" incorrectly).
  */
 function hasMetWatchThreshold(
   watchPct: number,
   threshold: number | null,
 ): boolean {
-  if (threshold == null) return true
+  if (threshold == null) return watchPct >= 100
   return watchPct >= threshold
 }
 

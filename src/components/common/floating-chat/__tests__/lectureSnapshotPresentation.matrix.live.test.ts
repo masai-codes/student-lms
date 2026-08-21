@@ -18,6 +18,7 @@ const LIVE_ONLY_SECTION = {}
 const VIDEO_COUNTS_SECTION = {
   considerVideoAttendanceForActualAttendance: true,
   catchUpDays: 5,
+  minimumVideoWatchPercentage: 80,
 }
 const VIDEO_TRACKED_ONLY_SECTION = {
   enableVideoAttendance: true,
@@ -103,7 +104,7 @@ describe('live lecture snapshot matrix — section settings × student state', (
         watch: 0,
         label: 'Absent',
         reason:
-          'You did not join the live session, so you were marked absent. You can still watch the recording to become Present within the catch-up window.',
+          'You did not join the live session, so you were marked absent. You can still watch the full recording to become Present within the catch-up window.',
       },
       {
         name: 'absent — catch-up window closed',
@@ -122,7 +123,7 @@ describe('live lecture snapshot matrix — section settings × student state', (
         watch: 40,
         label: 'Pending',
         reason:
-          'You did not join the live session, so you were marked absent. Finish watching the recording to become Present; status updates can take up to 24 hours.',
+          "You did not join the live session, so you were marked absent. Watch the entire recording to become Present; status updates can take up to 24 hours. You've watched 40% of the recording so far.",
       },
       {
         name: 'late join enforced — catch-up window open',
@@ -132,7 +133,7 @@ describe('live lecture snapshot matrix — section settings × student state', (
         section: { markAbsentIfLate: true },
         label: 'Absent',
         reason:
-          'You joined the live session late by 15 min, past the allowed limit, so you were marked absent. You can still watch the recording to become Present within the catch-up window.',
+          'You joined the live session late by 15 min, past the allowed limit, so you were marked absent. You can still watch the full recording to become Present within the catch-up window.',
       },
       {
         name: 'late join not enforced — catch-up window open',
@@ -142,7 +143,7 @@ describe('live lecture snapshot matrix — section settings × student state', (
         section: { markAbsentIfLate: false },
         label: 'Absent',
         reason:
-          "You joined the live session late by 15 min — that alone doesn't mark you absent; your status will update within 24 hours. You can still watch the recording to become Present within the catch-up window.",
+          "You joined the live session late by 15 min — that alone doesn't mark you absent; your status will update within 24 hours. You can still watch the full recording to become Present within the catch-up window.",
       },
       {
         name: 'late join enforced — partial watch',
@@ -152,7 +153,16 @@ describe('live lecture snapshot matrix — section settings × student state', (
         section: { markAbsentIfLate: true },
         label: 'Pending',
         reason:
-          'You joined the live session late by 20 min, past the allowed limit, so you were marked absent. Finish watching the recording to become Present; status updates can take up to 24 hours.',
+          "You joined the live session late by 20 min, past the allowed limit, so you were marked absent. Watch the entire recording to become Present; status updates can take up to 24 hours. You've watched 55% of the recording so far.",
+      },
+      {
+        name: 'threshold met — Pending waiting for 24h update',
+        nowMs: NOW_WINDOW_OPEN,
+        record: absentRow(),
+        watch: 85,
+        label: 'Pending',
+        reason:
+          'You did not join the live session, so you were marked absent. You have watched the full recording — your attendance status will update within 24 hours.',
       },
     ])('$name', ({ nowMs, record, watch, section, label, reason }) => {
       const attendance = buildAttendanceFromSection(
