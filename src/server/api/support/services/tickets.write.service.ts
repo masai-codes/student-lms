@@ -35,7 +35,8 @@ import {
 } from '@/server/api/support/services/ticketInfo.service'
 import { resolveTicketTitle } from '@/server/api/support/services/generateTicketTitle.service'
 import { fetchEntityTitleForTicket } from '@/server/api/support/services/fetchEntityTitleForTicket.service'
-import { buildFirstTemplateResponse } from '@/server/api/support/services/ticketReplyTemplate'
+import { classifyTicketSubCategory } from '@/server/api/support/services/classifyTicketSubCategory.service'
+import { triggerAiTicketDraft } from '@/server/api/support/services/aiTicketDraftTrigger.service'
 import { normalizeStatus } from '@/server/api/support/services/serialize'
 import { supportNow } from '@/server/api/support/services/supportTime'
 import { getTicketCapabilities } from '@/server/api/support/ticketCapabilities'
@@ -84,8 +85,8 @@ export async function createTicket(input: {
 
   const now = supportNow()
 
-  const [activeSections, entityTitle, duration, assignment] = await Promise.all(
-    [
+  const [activeSections, entityTitle, duration, assignment, aiSubCategory] =
+    await Promise.all([
       getActiveSectionNames(input.userId, input.batchId),
       input.entityId != null
         ? fetchEntityTitleForTicket({
@@ -101,8 +102,14 @@ export async function createTicket(input: {
         questionId: input.questionId,
         timestamp: now,
       }),
-    ],
-  )
+      // Only classify when the student didn't tap a "common question" chip.
+      input.subCategory?.trim()
+        ? Promise.resolve(null)
+        : classifyTicketSubCategory({
+            category: input.category,
+            message: input.message.trim(),
+          }),
+    ])
 
   const { assigneeId, info, logstamps } = assignment
   appendCreateTicketSectionInfo({ info, activeSections, duration })
@@ -110,10 +117,13 @@ export async function createTicket(input: {
     info.log += 'Ticket raised from support floater.\n'
   }
 
+  const resolvedSubCategory =
+    input.subCategory?.trim() || aiSubCategory?.subCategory || ''
+
   const { title, source: titleSource } = await resolveTicketTitle({
     message: input.message.trim(),
     category: input.category,
-    subCategory: input.subCategory,
+    subCategory: resolvedSubCategory || null,
     entityTitle,
   })
 
@@ -146,10 +156,11 @@ export async function createTicket(input: {
     info,
     data: {
       batch_id: String(input.batchId),
-      subCategory: input.subCategory ?? '',
+      subCategory: resolvedSubCategory,
       help_faq_question: true,
       ...(input.questionId != null ? { question_id: input.questionId } : {}),
       ...(entityId !== null ? { entity_id: entityId } : {}),
+      ...(aiSubCategory ? { subcategory_source: 'ai' as const } : {}),
       'active-sections': activeSections,
       workflow_id: `ticket-${randomUUID()}`,
       title_source: titleSource,
@@ -161,36 +172,11 @@ export async function createTicket(input: {
 
   const ticketId = Number(result.insertId)
 
-  // Post the tailored first-template reply as a real coordinator comment, exactly
-  // like the legacy flow. Best-effort: a failure here must not fail ticket
-  // creation (the ticket already exists and is owned by an assignee).
-  try {
-    const { message, displayName } = await buildFirstTemplateResponse({
-      batchId: input.batchId,
-      category: input.category,
-      assigneeId,
-    })
-    await db.insert(comments).values({
-      ticketId,
-      userId: assigneeId,
-      message,
-      public: 1,
-      createdAt: now,
-      updatedAt: now,
-      data: {
-        firstTemplateResponse: true,
-        ticket_level: 'l1',
-        displayName,
-      },
-    })
-  } catch (error) {
-    console.error(
-      `[support] first-template reply failed for ticket ${ticketId}`,
-      error,
-    )
-  }
+  // Kick off turn 1's AI draft instead of the old synchronous template reply —
+  // nothing is sent to the student until we know the AI's outcome (or its
+  // trigger-failure fallback, which reuses this same templated copy).
+  await triggerAiTicketDraft({ ticketId })
 
-  // TODO(workflow): kick off the background workflow (TAT, notifications) here.
   return { id: ticketId }
 }
 
@@ -226,6 +212,10 @@ export async function addReply(input: {
     .update(tickets)
     .set({ updatedAt: now })
     .where(eq(tickets.id, input.ticketId))
+
+  // Kick off this turn's AI draft now that the reply is committed — the
+  // history `triggerAiTicketDraft` reads back includes this reply.
+  await triggerAiTicketDraft({ ticketId: input.ticketId })
 
   return { id: Number(result.insertId) }
 }

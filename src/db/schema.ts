@@ -56,6 +56,45 @@ export const aiChatPracticeQuestions = mysqlTable(
   ],
 )
 
+export const aiTicketDrafts = mysqlTable(
+  'ai_ticket_drafts',
+  {
+    id: bigint({ mode: 'number', unsigned: true }).autoincrement().notNull(),
+    ticketId: int('ticket_id', { unsigned: true })
+      .notNull()
+      .references(() => tickets.id),
+    conversationTurn: int('conversation_turn', { unsigned: true }).notNull(),
+    workflowRunId: varchar('workflow_run_id', { length: 255 }).notNull(),
+    generatedMessage: text('generated_message').notNull(),
+    status: mysqlEnum(['generating', 'ready', 'failed'])
+      .default('generating')
+      .notNull(),
+    // Legacy human-review flow, unused by the automated pipeline.
+    outcome: mysqlEnum(['rejected', 'sent_as_is', 'sent_edited']),
+    feedback: text(),
+    agentResponse: json('agent_response').$type<Record<string, any>>(),
+    sentCommentId: int('sent_comment_id', { unsigned: true }).references(
+      () => comments.id,
+    ),
+    reviewedBy: bigint('reviewed_by', {
+      mode: 'number',
+      unsigned: true,
+    }).references(() => users.id),
+    reviewedAt: timestamp('reviewed_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).default(
+      sql`CURRENT_TIMESTAMP`,
+    ),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).default(
+      sql`CURRENT_TIMESTAMP`,
+    ),
+  },
+  (table) => [
+    index('ai_ticket_drafts_ticket_id_index').on(table.ticketId),
+    index('ai_ticket_drafts_created_at_index').on(table.createdAt),
+    primaryKey({ columns: [table.id], name: 'ai_ticket_drafts_id' }),
+  ],
+)
+
 export const aiTutorSessions = mysqlTable(
   'ai_tutor_sessions',
   {

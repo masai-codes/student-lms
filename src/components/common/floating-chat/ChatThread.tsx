@@ -23,6 +23,31 @@ interface ChatThreadProps {
   /** When the ticket was last reopened/escalated — drives a second divider. */
   reopenedAt?: string | null
   ticketStatus?: TicketStatus
+  /** An AI draft is still generating for this ticket — shows a "thinking" bubble after the thread. */
+  isAiPending?: boolean
+}
+
+/**
+ * Shown while an AI draft is generating — a compact status pill, never a
+ * message-shaped bubble (no sender name, no message-sized text) so it never
+ * reads as actual content. The spin ring is sized exactly to the icon circle
+ * so it can never bleed into the pill sitting right next to it — the one
+ * loader on this row, no redundant second animation.
+ */
+function AiThinkingIndicator() {
+  return (
+    <div className="flex items-center gap-[9px] max-w-[92%] self-start animate-in slide-in-from-bottom-2 duration-300 fade-in">
+      <div className="relative flex items-center justify-center shrink-0 size-[26px] rounded-full bg-info text-info-foreground">
+        <span className="absolute inset-0 rounded-full border-2 border-info/30 border-t-info-foreground animate-spin" />
+        <MagicWand weight="fill" className="size-[13px]" />
+      </div>
+      <div className="flex items-center rounded-full bg-info-subtle px-3 py-[7px] dark:ring-1 dark:ring-info/35">
+        <span className="text-[11.5px] font-medium leading-[1.3] text-info-subtle-foreground dark:text-foreground">
+          Your request is being processed… We'll get back to you shortly.
+        </span>
+      </div>
+    </div>
+  )
 }
 
 /** "Chat with {name}" divider shown above a ticket's conversation. */
@@ -126,6 +151,7 @@ export function ChatThread({
   assignee,
   reopenedAt,
   ticketStatus,
+  isAiPending,
 }: ChatThreadProps) {
   const dividerPlacements = assigneeDividerPlacements(
     messages,
@@ -301,6 +327,7 @@ export function ChatThread({
       {dividerPlacements.has(messages.length) ? (
         <AssigneeDivider name={dividerPlacements.get(messages.length)!} />
       ) : null}
+      {isAiPending ? <AiThinkingIndicator /> : null}
     </div>
   )
 }

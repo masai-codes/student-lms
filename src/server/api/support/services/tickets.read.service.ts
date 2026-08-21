@@ -10,7 +10,7 @@
  * both are enforced in the WHERE clauses here, not in the UI.
  */
 
-import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, isNull, sql } from 'drizzle-orm'
 import type {
   SupportPerson,
   TicketDetail,
@@ -20,10 +20,11 @@ import type {
   TicketThread,
 } from '@/server/api/support/support.types'
 import { db } from '@/db'
-import { batches, comments, tickets, users } from '@/db/schema'
+import { aiTicketDrafts, batches, comments, tickets, users } from '@/db/schema'
 import { getTicketCapabilities } from '@/server/api/support/ticketCapabilities'
 import { hasHigherLevel } from '@/server/api/support/services/resolveAssignees'
 import { resolveAssigneeDisplayName } from '@/server/api/support/services/ticketReplyTemplate'
+import { resolveStaleAiDraftIfNeeded } from '@/server/api/support/services/aiTicketDraftFallback.service'
 import {
   messageSide,
   normalizeStatus,
@@ -198,6 +199,12 @@ export async function getTicketThread(input: {
   if (rows.length === 0) throw new Error('SUPPORT_TICKET_NOT_FOUND')
   const row = rows[0]
 
+  // Self-healing: resolve any draft stuck in `generating` past the timeout
+  // before reading the thread, so a student who reopens the ticket is never
+  // left waiting on a dead draft forever (no cron — this is the only place
+  // it's checked). Best-effort; never blocks the read.
+  await resolveStaleAiDraftIfNeeded(input.ticketId)
+
   // The current owner ("Who's this ticket assigned to?") — same `assignee_id`
   // the escalation ladder moves along. Looked up separately since the ticket's
   // own INNER JOIN above is keyed on `user_id` (the student), not the assignee.
@@ -286,6 +293,20 @@ export async function getTicketThread(input: {
     }
   })
 
+  // After the staleness sweep above, anything still `generating` is a
+  // genuinely in-flight draft (or one freshly triggered by this very turn).
+  const pendingDraftRows = await db
+    .select({ id: aiTicketDrafts.id })
+    .from(aiTicketDrafts)
+    .where(
+      and(
+        eq(aiTicketDrafts.ticketId, input.ticketId),
+        eq(aiTicketDrafts.status, 'generating'),
+        isNull(aiTicketDrafts.sentCommentId),
+      ),
+    )
+    .limit(1)
+
   const ticket: TicketDetail = {
     id: row.id,
     title: row.title,
@@ -305,6 +326,7 @@ export async function getTicketThread(input: {
     }),
     assignee,
     reopenedAt,
+    hasPendingAiDraft: pendingDraftRows.length > 0,
   }
 
   return {

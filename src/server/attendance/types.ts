@@ -41,6 +41,13 @@ export type LectureAttendanceSummary = {
    * Drives the floating-support absent reason copy.
    */
   markAbsentIfLate: boolean
+  /**
+   * Section setting `minimumVideoWatchPercentage`: the watch % the student must
+   * reach for the recording to count toward attendance. `null` when the setting
+   * is absent or non-numeric. Drives the watch-progress reason copy in the
+   * floating-support absent reason banner.
+   */
+  videoWatchThreshold: number | null
 }
 
 export type LectureAttendanceContext = {

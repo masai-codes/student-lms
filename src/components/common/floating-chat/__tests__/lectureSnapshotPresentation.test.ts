@@ -27,6 +27,7 @@ function makeAttendance(
     includeVideoAttendance: true,
     videoCountsForAttendance: true,
     markAbsentIfLate: false,
+    videoWatchThreshold: null,
     ...overrides,
   }
 }
@@ -139,13 +140,15 @@ describe('getSupportAttendancePresentation', () => {
     expect(result.absentReason).toMatch(/catch-up window/i)
   })
 
-  it('says the catch-up window has closed once it is over', () => {
+  it('says the catch-up window has closed once it is over (live, threshold not met)', () => {
     const result = getSupportAttendancePresentation(
       makeSnapshot({
         attendance: makeAttendance({
           videoCountsForAttendance: true,
           isCatchupWindowOver: true,
           daysRemaining: 0,
+          watchPercentage: 20,
+          videoWatchThreshold: 80,
         }),
       }),
     )
@@ -184,36 +187,60 @@ describe('getSupportAttendancePresentation', () => {
     expect(result.absentReason).toMatch(/24 hours/i)
   })
 
-  it('explains video-lecture attendance from watch percentage', () => {
+  it('explains video-lecture attendance from watch percentage when below threshold', () => {
     const result = getSupportAttendancePresentation(
       makeSnapshot({
         lectureKind: 'video',
-        attendance: makeAttendance({ watchPercentage: 40 }),
+        attendance: makeAttendance({
+          watchPercentage: 40,
+          videoWatchThreshold: 80,
+        }),
       }),
     )
 
     expect(result.absentReason).toMatch(
-      /finish watching the recording to be marked present/i,
+      /watch the entire recording to be marked present/i,
     )
+    expect(result.absentReason).toMatch(/40%/i)
+  })
+
+  it('says attendance will update within 24h when threshold is met and window is open', () => {
+    const result = getSupportAttendancePresentation(
+      makeSnapshot({
+        lectureKind: 'video',
+        attendance: makeAttendance({
+          watchPercentage: 85,
+          videoWatchThreshold: 80,
+        }),
+      }),
+    )
+
+    expect(result.absentReason).toMatch(/full recording/i)
+    expect(result.absentReason).toMatch(/24 hours/i)
   })
 
   it('explains a video lecture with no watch progress at all', () => {
     const result = getSupportAttendancePresentation(
       makeSnapshot({
         lectureKind: 'video',
-        attendance: makeAttendance({ watchPercentage: 0, videoPercentage: 0 }),
+        attendance: makeAttendance({
+          watchPercentage: 0,
+          videoPercentage: 0,
+          videoWatchThreshold: 80,
+        }),
       }),
     )
 
     expect(result.absentReason).toMatch(/have not watched this recording yet/i)
   })
 
-  it('explains a video lecture once its catch-up window has closed', () => {
+  it('explains a video lecture once its catch-up window has closed and threshold was not met', () => {
     const result = getSupportAttendancePresentation(
       makeSnapshot({
         lectureKind: 'video',
         attendance: makeAttendance({
           watchPercentage: 30,
+          videoWatchThreshold: 80,
           isCatchupWindowOver: true,
           daysRemaining: 0,
         }),
@@ -223,7 +250,24 @@ describe('getSupportAttendancePresentation', () => {
     expect(result.absentReason).toMatch(
       /did not finish watching the recording/i,
     )
-    expect(result.absentReason).toMatch(/window to finish it has closed/i)
+    expect(result.absentReason).toMatch(/window to do so has closed/i)
+  })
+
+  it('explains window-closed when threshold was met but window passed', () => {
+    const result = getSupportAttendancePresentation(
+      makeSnapshot({
+        lectureKind: 'video',
+        attendance: makeAttendance({
+          watchPercentage: 90,
+          videoWatchThreshold: 80,
+          isCatchupWindowOver: true,
+          daysRemaining: 0,
+        }),
+      }),
+    )
+
+    expect(result.absentReason).toMatch(/watched the full recording/i)
+    expect(result.absentReason).toMatch(/attendance window has since closed/i)
   })
 })
 

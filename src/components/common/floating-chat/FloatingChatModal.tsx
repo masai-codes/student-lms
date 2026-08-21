@@ -1232,6 +1232,7 @@ export function FloatingChatModal({
                     assignee={ticketThread?.ticket.assignee}
                     reopenedAt={ticketThread?.ticket.reopenedAt}
                     ticketStatus={ticketThread?.ticket.status}
+                    isAiPending={ticketThread?.ticket.hasPendingAiDraft}
                   />
                 )}
               </>

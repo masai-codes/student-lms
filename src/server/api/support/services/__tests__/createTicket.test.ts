@@ -16,15 +16,22 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const hoisted = vi.hoisted(() => ({
   dbSelect: vi.fn(),
   dbInsert: vi.fn(),
-  buildFirstTemplateResponse: vi.fn(),
+  triggerAiTicketDraft: vi.fn(),
+  classifyTicketSubCategory: vi.fn(),
 }))
 
 vi.mock('@/db', () => ({
   db: { select: hoisted.dbSelect, insert: hoisted.dbInsert },
 }))
-vi.mock('@/server/api/support/services/ticketReplyTemplate', () => ({
-  buildFirstTemplateResponse: hoisted.buildFirstTemplateResponse,
+vi.mock('@/server/api/support/services/aiTicketDraftTrigger.service', () => ({
+  triggerAiTicketDraft: hoisted.triggerAiTicketDraft,
 }))
+vi.mock(
+  '@/server/api/support/services/classifyTicketSubCategory.service',
+  () => ({
+    classifyTicketSubCategory: hoisted.classifyTicketSubCategory,
+  }),
+)
 vi.mock('@/server/api/support/services/directory.service', () => ({
   getActiveSectionNames: vi.fn().mockResolvedValue([]),
 }))
@@ -73,10 +80,8 @@ const MYSQL_DATETIME = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
 describe('createTicket', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    hoisted.buildFirstTemplateResponse.mockResolvedValue({
-      message: 'template',
-      displayName: 'Program Co-ordinator',
-    })
+    hoisted.triggerAiTicketDraft.mockResolvedValue(undefined)
+    hoisted.classifyTicketSubCategory.mockResolvedValue(null)
   })
 
   it('stores created_at / updated_at as IST wall-clock, never NULL', async () => {
@@ -126,6 +131,8 @@ describe('createTicket', () => {
     expect(inserts[0].data['active-sections']).toEqual([])
     expect(inserts[0].data.workflow_id).toMatch(/^ticket-/)
     expect(inserts[0].data.title_source).toBe('fallback')
+    // A chip was already picked — no need to ask the AI to guess.
+    expect(hoisted.classifyTicketSubCategory).not.toHaveBeenCalled()
   })
 
   it('omits entity_id, and defaults subCategory to "", outside an entity page', async () => {
@@ -192,8 +199,8 @@ describe('createTicket', () => {
     expect(inserts[0].info.log).not.toContain('support floater')
   })
 
-  it('timestamps the first-template comment with the same convention', async () => {
-    const inserts = captureInserts()
+  it('kicks off the AI draft for turn 1 instead of a synchronous template reply', async () => {
+    captureInserts()
     const { createTicket } = await import('../tickets.write.service')
 
     await createTicket({
@@ -203,9 +210,49 @@ describe('createTicket', () => {
       message: 'my video is broken',
     })
 
-    const comment = inserts[1]
-    expect(comment.ticketId).toBe(4242)
-    expect(comment.createdAt).toMatch(MYSQL_DATETIME)
-    expect(comment.updatedAt).toMatch(MYSQL_DATETIME)
+    expect(hoisted.triggerAiTicketDraft).toHaveBeenCalledWith({
+      ticketId: 4242,
+    })
+  })
+
+  it('classifies subCategory with AI when the student did not pick a chip', async () => {
+    const inserts = captureInserts()
+    hoisted.classifyTicketSubCategory.mockResolvedValue({
+      subCategory: 'Unable to join live lecture',
+      source: 'ai',
+    })
+    const { createTicket } = await import('../tickets.write.service')
+
+    await createTicket({
+      userId: 1,
+      batchId: 10,
+      category: 'lecture',
+      message: "I can't get into class",
+    })
+
+    expect(hoisted.classifyTicketSubCategory).toHaveBeenCalledWith({
+      category: 'lecture',
+      message: "I can't get into class",
+    })
+    expect(inserts[0].data).toMatchObject({
+      subCategory: 'Unable to join live lecture',
+      subcategory_source: 'ai',
+    })
+  })
+
+  it('leaves subCategory blank when AI classification finds no match', async () => {
+    const inserts = captureInserts()
+    hoisted.classifyTicketSubCategory.mockResolvedValue(null)
+    const { createTicket } = await import('../tickets.write.service')
+
+    await createTicket({
+      userId: 1,
+      batchId: 10,
+      category: 'lecture',
+      message: 'totally unrelated message',
+    })
+
+    expect(inserts[0].data.subCategory).toBe('')
+    expect(inserts[0].data).not.toHaveProperty('subcategory_source')
   })
 })

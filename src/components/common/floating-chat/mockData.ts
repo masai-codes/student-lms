@@ -35,7 +35,7 @@ export const CATEGORIES: Category[] = [
   {
     id: 'general',
     label: 'General Query',
-    desc: "Anything that doesn't fit below",
+    desc: "Anything that doesn't fit above",
     icon: ChatCircle,
   },
 ]

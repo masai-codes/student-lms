@@ -13,6 +13,7 @@ describe('parseSectionAttendanceSettings', () => {
       considerVideoAttendanceForActualAttendance: false,
       catchUpDays: 3,
       markAbsentIfLate: false,
+      videoWatchThreshold: null,
     })
   })
 
@@ -27,6 +28,7 @@ describe('parseSectionAttendanceSettings', () => {
       considerVideoAttendanceForActualAttendance: true,
       catchUpDays: 5,
       markAbsentIfLate: false,
+      videoWatchThreshold: null,
     })
   })
 
@@ -44,6 +46,7 @@ describe('parseSectionAttendanceSettings', () => {
       considerVideoAttendanceForActualAttendance: false,
       catchUpDays: 4,
       markAbsentIfLate: false,
+      videoWatchThreshold: null,
     })
   })
 
@@ -53,7 +56,29 @@ describe('parseSectionAttendanceSettings', () => {
       considerVideoAttendanceForActualAttendance: false,
       catchUpDays: 0,
       markAbsentIfLate: true,
+      videoWatchThreshold: null,
     })
+  })
+
+  it('reads minimumVideoWatchPercentage as videoWatchThreshold', () => {
+    expect(
+      parseSectionAttendanceSettings({ minimumVideoWatchPercentage: 75 }),
+    ).toEqual({
+      enableVideoAttendance: false,
+      considerVideoAttendanceForActualAttendance: false,
+      catchUpDays: 0,
+      markAbsentIfLate: false,
+      videoWatchThreshold: 75,
+    })
+  })
+
+  it('returns null threshold for zero or non-numeric minimumVideoWatchPercentage', () => {
+    expect(
+      parseSectionAttendanceSettings({ minimumVideoWatchPercentage: 0 }),
+    ).toMatchObject({ videoWatchThreshold: null })
+    expect(
+      parseSectionAttendanceSettings({ minimumVideoWatchPercentage: 'bad' }),
+    ).toMatchObject({ videoWatchThreshold: null })
   })
 
   it('returns safe defaults for invalid input', () => {
@@ -62,6 +87,7 @@ describe('parseSectionAttendanceSettings', () => {
       considerVideoAttendanceForActualAttendance: false,
       catchUpDays: 0,
       markAbsentIfLate: false,
+      videoWatchThreshold: null,
     })
   })
 })

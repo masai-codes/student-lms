@@ -23,6 +23,12 @@ export type SectionAttendanceSettings = {
    * recording-watch rules, and updates can take up to 24 hours to reflect.
    */
   markAbsentIfLate: boolean
+  /**
+   * `minimumVideoWatchPercentage`: the minimum watch % a student must reach for
+   * the recording to count toward attendance. `null` when the setting is absent
+   * or not a finite number (treat as "no specific threshold").
+   */
+  videoWatchThreshold: number | null
 }
 
 export function parseSectionAttendanceSettings(
@@ -55,10 +61,15 @@ export function parseSectionAttendanceSettings(
 
   const markAbsentIfLate = settings.markAbsentIfLate === true
 
+  const rawThreshold = Number(settings.minimumVideoWatchPercentage)
+  const videoWatchThreshold =
+    Number.isFinite(rawThreshold) && rawThreshold > 0 ? rawThreshold : null
+
   return {
     enableVideoAttendance,
     considerVideoAttendanceForActualAttendance,
     catchUpDays,
     markAbsentIfLate,
+    videoWatchThreshold,
   }
 }

@@ -14,6 +14,7 @@
  */
 export const MANAGED_TABLES = [
   'ai_chat_practice_questions',
+  'ai_ticket_drafts',
   'ai_tutor_sessions',
   'announcement_reads',
   'announcements',

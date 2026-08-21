@@ -5,4 +5,4 @@
  * should render as the Sahay AI card instead of a normal agent bubble.
  * Leave `false` until the AI reply pipeline is live.
  */
-export const ENABLE_SUPPORT_AI_REPLY_CARD = false
+export const ENABLE_SUPPORT_AI_REPLY_CARD = true

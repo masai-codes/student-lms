@@ -89,10 +89,15 @@ export const supportSubcategoriesQuery = (category: string) => ({
   staleTime: 5 * 60 * 1000,
 })
 
-/** One ticket's conversation. */
+/** One ticket's conversation. Polls briefly while an AI draft is outstanding
+ * so the floater picks up the answer (or its eventual fallback) within a few
+ * seconds, without ever rendering partial/uncertain AI content. */
 export const ticketThreadQuery = (ticketId: number) => ({
   queryKey: SUPPORT_KEYS.thread(ticketId),
   queryFn: () => fetchTicketThread(ticketId),
   staleTime: 15 * 1000,
+  refetchInterval: (query: {
+    state: { data?: { ticket: { hasPendingAiDraft?: boolean } } }
+  }) => (query.state.data?.ticket.hasPendingAiDraft ? 15000 : false),
   ...REFETCH_ON_NAV,
 })

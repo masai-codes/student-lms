@@ -196,6 +196,10 @@ export interface TicketDetail {
   assignee?: SupportPerson | null
   /** When the ticket was last reopened or escalated (`logstamps.reopened_at`). */
   reopenedAt?: string | null
+  /** An AI draft for this ticket is still `generating` — the client shows a
+   * lightweight "thinking" state and polls briefly, without ever rendering
+   * partial/uncertain AI content. */
+  hasPendingAiDraft?: boolean
 }
 
 /**

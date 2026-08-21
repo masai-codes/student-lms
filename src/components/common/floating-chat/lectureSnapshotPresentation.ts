@@ -26,12 +26,40 @@ export function formatAiSummaryStatusLabel(status: AiSummaryStatus): string {
 }
 
 /**
+ * Build a human-readable phrase about how much of the recording the student has
+ * watched, used to contextualise the absent reason without revealing the
+ * threshold. Only emitted when there is meaningful watch progress (> 0%).
+ */
+function watchProgressPhrase(watchPct: number): string {
+  if (watchPct <= 0) return ''
+  return ` You've watched ${Math.round(watchPct)}% of the recording so far.`
+}
+
+/**
+ * Whether the student has watched enough of the recording to qualify for
+ * attendance. Returns `true` when the threshold is unknown (we can't say they
+ * haven't met it) so the UI falls back to generic messaging.
+ */
+function hasMetWatchThreshold(
+  watchPct: number,
+  threshold: number | null,
+): boolean {
+  if (threshold == null) return true
+  return watchPct >= threshold
+}
+
+/**
  * Simple, student-facing explanation of a non-Present lecture attendance — so
  * they know what happened before raising a ticket. Branches on lecture kind
  * (a `video` lecture only has recording-watch attendance; a `live` lecture is
  * scored on joining live, with the recording as a possible catch-up depending
  * on the section's settings) and on whether the student is still inside the
  * catch-up window, has missed it entirely, or is mid-way through watching.
+ *
+ * Uses the student's actual watch % to give specific feedback:
+ * - Below threshold → show watched % and say the full recording must be watched
+ * - Met/exceeded threshold, within window → "just a matter of time (24 hrs)"
+ * - Met/exceeded threshold, window closed → recording watched but window passed
  */
 function buildAttendanceReason(
   snapshot: LectureSupportSnapshot,
@@ -45,17 +73,33 @@ function buildAttendanceReason(
 
   const isWindowOver = uiState === 'att_window_over'
   const isWatching = uiState === 'continue_watching'
+  const watchPct = attendance.watchPercentage ?? 0
+  const threshold = attendance.videoWatchThreshold
+  const metThreshold = hasMetWatchThreshold(watchPct, threshold)
 
   if (snapshot.lectureKind === 'video') {
     if (isWindowOver) {
-      return 'You did not finish watching the recording and the window to finish it has closed, so you were marked absent.'
+      if (metThreshold) {
+        // Watched enough but the window has since closed — nothing to do now
+        return 'You watched the full recording but the attendance window has since closed, so your status could not be updated.'
+      }
+      const progress = watchProgressPhrase(watchPct)
+      return `You did not finish watching the recording and the window to do so has closed, so you were marked absent.${progress}`
     }
     if (isWatching) {
-      return 'Finish watching the recording to be marked present — status updates can take up to 24 hours.'
+      if (metThreshold) {
+        // Threshold met, still in window — just waiting for the 24-hr cron
+        return 'You have watched the full recording. Your attendance status will update within 24 hours.'
+      }
+      const progress = watchProgressPhrase(watchPct)
+      return `You need to watch the entire recording to be marked present.${progress} Your status will update within 24 hours once you finish.`
     }
-    return 'You have not watched this recording yet, so you were marked absent. Watch the full recording to be marked present.'
+    // absent, not currently watching
+    const progress = watchProgressPhrase(watchPct)
+    return `You have not watched this recording yet, so you were marked absent. Watch the full recording to be marked present.${progress}`
   }
 
+  // Live lecture
   const lateByMinutes = attendance.lateByMinutes
   const joinedLate = lateByMinutes != null && lateByMinutes > 0
 
@@ -70,12 +114,21 @@ function buildAttendanceReason(
   }
 
   if (isWindowOver) {
-    return `${liveReason} The window to watch the recording and claim attendance has closed.`
+    if (metThreshold) {
+      return `${liveReason} You watched the full recording but the catch-up window has since closed.`
+    }
+    const progress = watchProgressPhrase(watchPct)
+    return `${liveReason} The window to watch the recording and claim attendance has closed.${progress}`
   }
   if (isWatching) {
-    return `${liveReason} Finish watching the recording to become Present; status updates can take up to 24 hours.`
+    if (metThreshold) {
+      return `${liveReason} You have watched the full recording — your attendance status will update within 24 hours.`
+    }
+    const progress = watchProgressPhrase(watchPct)
+    return `${liveReason} Watch the entire recording to become Present; status updates can take up to 24 hours.${progress}`
   }
-  return `${liveReason} You can still watch the recording to become Present within the catch-up window.`
+  const progress = watchProgressPhrase(watchPct)
+  return `${liveReason} You can still watch the full recording to become Present within the catch-up window.${progress}`
 }
 
 export function getSupportAttendancePresentation(

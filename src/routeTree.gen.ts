@@ -112,6 +112,7 @@ import { Route as ApiSupportFloatingChatInboxRouteImport } from './routes/api/su
 import { Route as ApiSupportFloatingChatContextRouteImport } from './routes/api/support/floating-chat/context'
 import { Route as ApiSupportFaqsVoteRouteImport } from './routes/api/support/faqs/vote'
 import { Route as ApiSupportCallbackCreateRouteImport } from './routes/api/support/callback/create'
+import { Route as ApiSupportAiCallbackRouteImport } from './routes/api/support/ai/callback'
 import { Route as ApiProfileSessionsSessionIdRouteImport } from './routes/api/profile/sessions/$sessionId'
 import { Route as ApiMigrationsBatchUserSetEnrolmentIdRouteImport } from './routes/api/migrations/batch-user/set-enrolment-id'
 import { Route as ApiMessageIdReplyRouteImport } from './routes/api/message/$id/reply'
@@ -797,6 +798,11 @@ const ApiSupportCallbackCreateRoute =
     path: '/api/support/callback/create',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiSupportAiCallbackRoute = ApiSupportAiCallbackRouteImport.update({
+  id: '/api/support/ai/callback',
+  path: '/api/support/ai/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiProfileSessionsSessionIdRoute =
   ApiProfileSessionsSessionIdRouteImport.update({
     id: '/api/profile/sessions/$sessionId',
@@ -1685,6 +1691,7 @@ export interface FileRoutesByFullPath {
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
   '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   '/api/profile/sessions/$sessionId': typeof ApiProfileSessionsSessionIdRoute
+  '/api/support/ai/callback': typeof ApiSupportAiCallbackRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
   '/api/support/floating-chat/context': typeof ApiSupportFloatingChatContextRoute
@@ -1913,6 +1920,7 @@ export interface FileRoutesByTo {
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
   '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   '/api/profile/sessions/$sessionId': typeof ApiProfileSessionsSessionIdRoute
+  '/api/support/ai/callback': typeof ApiSupportAiCallbackRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
   '/api/support/floating-chat/context': typeof ApiSupportFloatingChatContextRoute
@@ -2144,6 +2152,7 @@ export interface FileRoutesById {
   '/api/message/$id/reply': typeof ApiMessageIdReplyRoute
   '/api/migrations/batch-user/set-enrolment-id': typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   '/api/profile/sessions/$sessionId': typeof ApiProfileSessionsSessionIdRoute
+  '/api/support/ai/callback': typeof ApiSupportAiCallbackRoute
   '/api/support/callback/create': typeof ApiSupportCallbackCreateRoute
   '/api/support/faqs/vote': typeof ApiSupportFaqsVoteRoute
   '/api/support/floating-chat/context': typeof ApiSupportFloatingChatContextRoute
@@ -2375,6 +2384,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/reply'
     | '/api/migrations/batch-user/set-enrolment-id'
     | '/api/profile/sessions/$sessionId'
+    | '/api/support/ai/callback'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
     | '/api/support/floating-chat/context'
@@ -2603,6 +2613,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/reply'
     | '/api/migrations/batch-user/set-enrolment-id'
     | '/api/profile/sessions/$sessionId'
+    | '/api/support/ai/callback'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
     | '/api/support/floating-chat/context'
@@ -2833,6 +2844,7 @@ export interface FileRouteTypes {
     | '/api/message/$id/reply'
     | '/api/migrations/batch-user/set-enrolment-id'
     | '/api/profile/sessions/$sessionId'
+    | '/api/support/ai/callback'
     | '/api/support/callback/create'
     | '/api/support/faqs/vote'
     | '/api/support/floating-chat/context'
@@ -3038,6 +3050,7 @@ export interface RootRouteChildren {
   ApiMessageIdReplyRoute: typeof ApiMessageIdReplyRoute
   ApiMigrationsBatchUserSetEnrolmentIdRoute: typeof ApiMigrationsBatchUserSetEnrolmentIdRoute
   ApiProfileSessionsSessionIdRoute: typeof ApiProfileSessionsSessionIdRoute
+  ApiSupportAiCallbackRoute: typeof ApiSupportAiCallbackRoute
   ApiSupportCallbackCreateRoute: typeof ApiSupportCallbackCreateRoute
   ApiSupportFloatingChatContextRoute: typeof ApiSupportFloatingChatContextRoute
   ApiSupportFloatingChatInboxRoute: typeof ApiSupportFloatingChatInboxRoute
@@ -3789,6 +3802,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/support/faqs/vote'
       preLoaderRoute: typeof ApiSupportFaqsVoteRouteImport
       parentRoute: typeof ApiSupportFaqsRoute
+    }
+    '/api/support/ai/callback': {
+      id: '/api/support/ai/callback'
+      path: '/api/support/ai/callback'
+      fullPath: '/api/support/ai/callback'
+      preLoaderRoute: typeof ApiSupportAiCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/support/callback/create': {
       id: '/api/support/callback/create'
@@ -5177,6 +5197,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMigrationsBatchUserSetEnrolmentIdRoute:
     ApiMigrationsBatchUserSetEnrolmentIdRoute,
   ApiProfileSessionsSessionIdRoute: ApiProfileSessionsSessionIdRoute,
+  ApiSupportAiCallbackRoute: ApiSupportAiCallbackRoute,
   ApiSupportCallbackCreateRoute: ApiSupportCallbackCreateRoute,
   ApiSupportFloatingChatContextRoute: ApiSupportFloatingChatContextRoute,
   ApiSupportFloatingChatInboxRoute: ApiSupportFloatingChatInboxRoute,
