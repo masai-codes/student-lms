@@ -1103,6 +1103,9 @@ export function FloatingChatModal({
                 }}
                 lectureTypeFilter={lectureTypeFilter}
                 onLectureTypeChange={setLectureTypeFilter}
+                lectureTypeOptions={
+                  learnPageData?.filterValues.typeFilterValues ?? []
+                }
                 attendanceStatusFilter={attendanceStatusFilter}
                 onAttendanceStatusChange={setAttendanceStatusFilter}
                 assignmentPriorityFilter={assignmentPriorityFilter}
