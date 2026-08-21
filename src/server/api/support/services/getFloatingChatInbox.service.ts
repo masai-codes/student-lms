@@ -15,6 +15,7 @@ import {
 import {
   getBatchContact,
   getOneOnOneGroups,
+  getUserClient,
   getUserSupportBatches,
 } from '@/server/api/support/services/directory.service'
 import {
@@ -37,6 +38,7 @@ export async function getFloatingChatInbox(
     callback,
     admissionFlags,
     oneOnOne,
+    client,
     ...contacts
   ] = await Promise.all([
     listTickets({ userId, tab: 'all', page: 1, limit: INBOX_TICKET_LIMIT }),
@@ -45,6 +47,7 @@ export async function getFloatingChatInbox(
     getCallbackOptions(),
     getCallbackAdmissionFlags(userId),
     getOneOnOneGroups(userId),
+    getUserClient(userId),
     ...batches.map((b) => getBatchContact(b.id)),
   ])
 
@@ -63,5 +66,6 @@ export async function getFloatingChatInbox(
     fullFeesPaidBatchIds: admissionFlags.fullFeesPaidBatchIds,
     batchContacts,
     oneOnOne,
+    isIitj: client === 'iitj',
   }
 }
