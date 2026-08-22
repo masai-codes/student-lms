@@ -32,6 +32,7 @@ import { getBatchIdForSection } from '@/server/batches/getBatchIdsForSections'
 import { getUserBatchRestrictions } from '@/server/restrictions/getUserBatchRestrictions'
 import { LECTURE_RESOURCE_TYPE } from '@/server/learn/utils/resolveLectureLearningType'
 import { getAllAssociatedEntities } from '@/server/learn/services/getAllAssociatedEntities.service'
+import { buildLectureAiChatSuggestions } from '@/server/learn/utils/buildLectureAiChatSuggestions'
 
 export async function getLectureLearningDetailForUser(
   userId: number,
@@ -113,6 +114,7 @@ export async function getLectureLearningDetailForUser(
     db
       .select({
         summary: lecturesAi.summary,
+        faqs: lecturesAi.faqs,
         // Ask MySQL whether a transcript exists instead of selecting it (#353):
         // long lectures store megabytes here, and the page only needs to know
         // whether the CC button and Transcript tab have anything to offer. An
@@ -233,6 +235,7 @@ export async function getLectureLearningDetailForUser(
   return {
     ...payload,
     isBookmarked,
+    aiChatSuggestions: buildLectureAiChatSuggestions(aiRow?.faqs),
     // An IVS lecture always joins through ZEF — it has no raw link to fall back
     // on, so never leave the CTA pointing at nothing if the flag column lags.
     isNewZoomRedirection:

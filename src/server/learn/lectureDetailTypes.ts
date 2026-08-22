@@ -1,5 +1,6 @@
 import type { LectureAttendanceSummary } from '@/server/attendance/types'
 import type { LearnHubDetailPayload, LearningItem } from '@/server/learn/types'
+import type { LectureAiChatSuggestion } from '@/server/learn/utils/buildLectureAiChatSuggestions'
 import type { JoinLiveButtonState } from '@/server/learn/utils/resolveJoinLiveButtonState'
 import type { WatchIntervalSegment } from '@/server/video-attendance/types'
 
@@ -199,4 +200,11 @@ export type LectureDetailPayload = LearnHubDetailPayload & {
    * / `zef_lms_polls_questions`). Both arrays empty when none are configured.
    */
   inLecturePopupElements: InLecturePopupElements
+  /**
+   * Chat empty-state suggestion chips: up to 3 randomized lecture FAQs
+   * (`kind: 'faq'`) followed by the three generic prompts (summary / explain /
+   * quiz). Combined list is capped at 6. Built server-side so web and mobile
+   * share one source of truth.
+   */
+  aiChatSuggestions: Array<LectureAiChatSuggestion>
 }

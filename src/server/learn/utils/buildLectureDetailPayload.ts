@@ -57,6 +57,7 @@ export function buildLectureDetailPayload(
   | 'isNewZoomRedirection'
   | 'enableZoomWebView'
   | 'inLecturePopupElements'
+  | 'aiChatSuggestions'
 > {
   const lectureKind = normalizeLectureKind(row.type)
   if (lectureKind == null) {
