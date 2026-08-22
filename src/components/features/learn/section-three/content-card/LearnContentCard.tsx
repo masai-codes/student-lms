@@ -333,6 +333,11 @@ export function LearnContentCard({
           {item.type === 'lecture' && attendancePresentation ? (
             <LectureAttendanceInline
               {...attendancePresentation}
+              attendance={item.attendance}
+              isLiveLecture={
+                item.learningSubType === 'live' ||
+                item.learningSubType === 'scrum'
+              }
               forceRow={isAssociatedCard}
             />
           ) : null}

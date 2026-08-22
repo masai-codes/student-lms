@@ -500,6 +500,9 @@ export const batches = mysqlTable(
     programDomain: varchar('program_domain', { length: 255 }),
     programType: varchar('program_type', { length: 255 }),
     calendarToken: varchar('calendar_token', { length: 64 }),
+    isAttendanceMandatory: tinyint('is_attendance_mandatory')
+      .default(0)
+      .notNull(),
   },
   (table) => [
     index('idx_name').on(table.name),

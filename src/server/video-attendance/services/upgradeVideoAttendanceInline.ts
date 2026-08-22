@@ -6,7 +6,8 @@ import { getIstNowSqlDatetime } from '@/server/time/istClock'
 import { getLectureEligibility } from '@/server/video-attendance/services/lectureEligibilityCache'
 
 /**
- * Inline "absent -> present via recording" upgrade.
+ * Inline "absent -> present via recording" upgrade. Present is earned when the
+ * COMBINED live + video percentage meets the section threshold, not video alone.
  *
  * Port of experience-api `inlineAttendanceUpgrade.ts` + `getLectureEligibility`,
  * run here (against the shared DB) instead of inside the upstream write endpoint
@@ -66,13 +67,35 @@ export async function upgradeVideoAttendanceInline(
     if (!row) return
 
     const newPercentage = Number(row.watchPercentage)
-    if (
-      !Number.isFinite(newPercentage) ||
-      newPercentage < eligibility.threshold
-    )
-      return
+    if (!Number.isFinite(newPercentage)) return
 
     if (Date.now() > eligibility.deadline) return
+
+    // Live and video attendance combine toward the section threshold: the
+    // video only has to cover whatever the live percentage left short of it
+    // (e.g. threshold 60 with 20% live means 40% watched earns Present). Read
+    // the still-absent row's live % to compute the remaining requirement.
+    const absentRows = await db
+      .select({ livePercentage: studentAttendances.livePercentage })
+      .from(studentAttendances)
+      .where(
+        and(
+          eq(studentAttendances.lectureId, lectureId),
+          eq(studentAttendances.userId, userId),
+          eq(studentAttendances.status, 0),
+          eq(studentAttendances.liveAttendanceStatus, 0),
+        ),
+      )
+      .limit(1)
+
+    const absentRow = absentRows[0]
+    if (!absentRow) return
+
+    const requiredVideoPercentage = Math.max(
+      0,
+      eligibility.threshold - Number(absentRow.livePercentage ?? 0),
+    )
+    if (newPercentage < requiredVideoPercentage) return
 
     // Flip only a still-absent, live-absent row. Scoped WHERE = idempotent:
     // once present the update matches 0 rows, so repeated pings are harmless.

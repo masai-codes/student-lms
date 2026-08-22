@@ -41,6 +41,12 @@ export type LectureAttendanceSummary = {
    * Drives the floating-support absent reason copy.
    */
   markAbsentIfLate: boolean
+  /**
+   * `batches.is_attendance_mandatory` for the lecture's section's batch.
+   * Presentation-only: when false, the worded Present/Absent badges render as
+   * a bare green tick / red cross. No status logic reads it.
+   */
+  isAttendanceMandatory: boolean
 }
 
 export type LectureAttendanceContext = {
@@ -49,6 +55,8 @@ export type LectureAttendanceContext = {
   schedule: string | null
   concludes: string | null
   sectionSettings: unknown
+  /** `batches.is_attendance_mandatory`; defaults to true when not provided. */
+  isAttendanceMandatory?: boolean
 }
 
 export type StudentAttendanceRow = {

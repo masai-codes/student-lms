@@ -27,6 +27,7 @@ function makeAttendance(
     includeVideoAttendance: true,
     videoCountsForAttendance: true,
     markAbsentIfLate: false,
+    isAttendanceMandatory: true,
     ...overrides,
   }
 }
