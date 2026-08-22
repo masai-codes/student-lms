@@ -50,6 +50,7 @@ const item = (
     assignmentScore: null,
   },
   courseName: 'Full Stack',
+  sectionName: null,
   enableZoomWebView: false,
   ...over,
 })
@@ -71,6 +72,12 @@ describe('scheduleItemToLearnContent', () => {
     // IST tooltip is deterministic (device-tz independent); the DB value is IST.
     expect(result.dateTooltip).toBe('3 Jul, 6:30 PM - 7:30 PM (IST)')
     expect(result.date).toBeTruthy()
+  })
+
+  it('passes the section label through for the card chip', () => {
+    expect(
+      scheduleItemToLearnContent(item({ sectionName: 'AI & ML' })).sectionName,
+    ).toBe('AI & ML')
   })
 })
 

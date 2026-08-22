@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  formatLectureTypeOptionLabel,
   formatSupportItemScheduleDate,
   mapLearningItemToSupportItem,
   supportCategoryToLearnFilters,
@@ -56,6 +57,23 @@ describe('formatSupportItemScheduleDate', () => {
   })
 })
 
+describe('formatLectureTypeOptionLabel', () => {
+  it('uses the known short label for live/video/scrum', () => {
+    expect(formatLectureTypeOptionLabel('live')).toBe('Live')
+    expect(formatLectureTypeOptionLabel('video')).toBe('Video')
+    expect(formatLectureTypeOptionLabel('scrum')).toBe('Scrum')
+  })
+
+  it('capitalizes any other raw type instead of hiding it', () => {
+    expect(formatLectureTypeOptionLabel('recorded')).toBe('Recorded')
+    expect(formatLectureTypeOptionLabel('reading')).toBe('Reading')
+  })
+
+  it('is case-insensitive on the way in', () => {
+    expect(formatLectureTypeOptionLabel('LIVE')).toBe('Live')
+  })
+})
+
 describe('mapLearningItemToSupportItem', () => {
   it('includes moduleName for assignment and evaluation cards', () => {
     expect(mapLearningItemToSupportItem(buildLearningItem())).toMatchObject({
@@ -79,6 +97,24 @@ describe('mapLearningItemToSupportItem', () => {
       isOptional: true,
       isMandatory: false,
     })
+  })
+
+  it('passes through a trimmed sectionName when present', () => {
+    expect(
+      mapLearningItemToSupportItem(
+        buildLearningItem({ sectionName: '  Section A  ' }),
+      ),
+    ).toMatchObject({ sectionName: 'Section A' })
+  })
+
+  it('omits sectionName when absent or blank', () => {
+    expect(mapLearningItemToSupportItem(buildLearningItem())).toMatchObject({
+      sectionName: undefined,
+    })
+
+    expect(
+      mapLearningItemToSupportItem(buildLearningItem({ sectionName: '   ' })),
+    ).toMatchObject({ sectionName: undefined })
   })
 
   it('keeps module in meta for lectures only', () => {

@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 import { MagnifyingGlass, CaretRight, CaretLeft } from '@phosphor-icons/react'
 import type { Category, Item } from './types'
 import {
+  formatLectureTypeOptionLabel,
   formatSupportLectureTypeLabel,
   supportAssignmentPriorityChipClassName,
   supportLectureTypeChipClassName,
@@ -47,6 +48,7 @@ interface ItemSelectorProps {
   onSectionChange?: (sectionId: number | null) => void
   lectureTypeFilter?: string
   onLectureTypeChange?: (value: string) => void
+  lectureTypeOptions?: Array<string>
   attendanceStatusFilter?: string
   onAttendanceStatusChange?: (value: string) => void
   assignmentPriorityFilter?: string
@@ -81,6 +83,7 @@ export function ItemSelector({
   onSectionChange,
   lectureTypeFilter,
   onLectureTypeChange,
+  lectureTypeOptions = [],
   attendanceStatusFilter,
   onAttendanceStatusChange,
   assignmentPriorityFilter,
@@ -169,9 +172,11 @@ export function ItemSelector({
               </SelectTrigger>
               <SelectContent className="z-[300]">
                 <SelectItem value="any">All types</SelectItem>
-                <SelectItem value="live">Live</SelectItem>
-                <SelectItem value="scrum">Scrum</SelectItem>
-                <SelectItem value="video">Video</SelectItem>
+                {lectureTypeOptions.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {formatLectureTypeOptionLabel(type)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -356,6 +361,7 @@ export function ItemSelector({
                 (categoryObj.id === 'assignment' ||
                   categoryObj.id === 'evaluation') &&
                 item.moduleName
+              const showSectionPill = showSectionDropdown && item.sectionName
 
               return (
                 <button
@@ -408,6 +414,11 @@ export function ItemSelector({
                       {showModulePill ? (
                         <span className="text-[11px] font-bold text-[#62647d] dark:text-foreground-muted bg-[#f1f1f7] dark:bg-muted px-2 py-[2.5px] rounded-full group-hover:bg-surface transition-colors truncate max-w-[140px]">
                           {item.moduleName}
+                        </span>
+                      ) : null}
+                      {showSectionPill ? (
+                        <span className="text-[11px] font-bold text-[#62647d] dark:text-foreground-muted bg-[#f1f1f7] dark:bg-muted px-2 py-[2.5px] rounded-full group-hover:bg-surface transition-colors truncate max-w-[140px]">
+                          {item.sectionName}
                         </span>
                       ) : null}
                       <span className="text-[11.5px] text-[#9496ab] dark:text-foreground-subtle truncate">

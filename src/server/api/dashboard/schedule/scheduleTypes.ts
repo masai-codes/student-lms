@@ -38,6 +38,12 @@ export function withSectionLabel<
 export interface DashboardScheduleItem extends LearningItem {
   /** Course/section label, only when the user is in more than one batch. */
   courseName: string | null
+  /**
+   * Learner-facing section label (`settings.sectionDisplayName`, else the raw
+   * cohort code). Rendered as a chip on portals in
+   * `SECTION_ON_LEARN_CARD_PORTALS`, same as the `/learn` feed.
+   */
+  sectionName: string | null
   /** `sections.settings.enableZoomWebView` (lectures only). */
   enableZoomWebView: boolean
 }

@@ -48,7 +48,7 @@ export const CATEGORIES: Category[] = [
  * `normalizeFloatingChatCategoryId` becomes a no-op passthrough everywhere
  * it's used (`ticketCategoryMapping.ts`, `supportCategoryLearning.ts`,
  * `FloatingChatModal.tsx`). To rip this out for good once it's no longer
- * needed: delete this flag, `IITJ_CATEGORY_LABELS`,
+ * needed: delete this flag, `IITJ_CATEGORY_LABELS`, `IITJ_CATEGORY_DESCS`,
  * `IITJ_ASSIGNMENT_PRACTICE_ID`/`_LABEL`, and the iitj branch of
  * `getFloatingChatCategories` + `normalizeFloatingChatCategoryId` in this
  * file, then remove the now-unused imports in the three files above.
@@ -62,6 +62,13 @@ const IITJ_CATEGORY_LABELS: Partial<Record<string, string>> = {
   assignment: 'Assignment / Quiz',
   resource: 'Course study material',
   evaluation: 'Offline Major exams',
+}
+
+/** iitj-only description overrides — only the two chips below get a distinct
+ * `desc`; every other chip keeps its default description. */
+const IITJ_CATEGORY_DESCS: Partial<Record<string, string>> = {
+  evaluation: 'Offline exam, centre related',
+  general: 'Any General Program related queries excluding the above',
 }
 
 /**
@@ -80,7 +87,13 @@ export function getFloatingChatCategories(isIitj: boolean): Category[] {
 
   const relabeled = CATEGORIES.map((category) => {
     const label = IITJ_CATEGORY_LABELS[category.id]
-    return label ? { ...category, label } : category
+    const desc = IITJ_CATEGORY_DESCS[category.id]
+    if (!label && !desc) return category
+    return {
+      ...category,
+      ...(label ? { label } : {}),
+      ...(desc ? { desc } : {}),
+    }
   })
 
   const assignmentIndex = relabeled.findIndex((c) => c.id === 'assignment')

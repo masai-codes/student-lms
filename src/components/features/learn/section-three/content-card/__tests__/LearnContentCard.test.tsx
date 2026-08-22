@@ -248,13 +248,27 @@ describe('LearnContentCard — section chip', () => {
     },
   )
 
-  it('stays off the dashboard and associated-content cards', () => {
+  it('renders on the dashboard card too, including when the item has no tags', () => {
     showsSectionOnLearnCard.mockReturnValue(true)
     const item = { ...makeItem('lecture', 'mandatory'), sectionName: 'AI & ML' }
 
     render(<LearnContentCard item={item} fromDashboard />)
-    expect(screen.queryByTestId('learn-card-section-name')).toBeNull()
+    expect(screen.getByTestId('learn-card-section-name').textContent).toBe(
+      'AI & ML',
+    )
     cleanup()
+
+    // The tags row is otherwise hidden with no tags/weightage — the chip still
+    // needs it rendered.
+    render(<LearnContentCard item={{ ...item, tags: [] }} fromDashboard />)
+    expect(screen.getByTestId('learn-card-section-name').textContent).toBe(
+      'AI & ML',
+    )
+  })
+
+  it('stays off associated-content cards', () => {
+    showsSectionOnLearnCard.mockReturnValue(true)
+    const item = { ...makeItem('lecture', 'mandatory'), sectionName: 'AI & ML' }
 
     render(<LearnContentCard item={item} isAssociatedCard />)
     expect(screen.queryByTestId('learn-card-section-name')).toBeNull()
