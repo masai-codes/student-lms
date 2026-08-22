@@ -5,12 +5,9 @@ import { syncLmsPremiumForMasaiLiveLogin } from '@/server/api/user-auth/services
 const findCurrentLmsBatch = vi.hoisted(() => vi.fn())
 const fetchMock = vi.hoisted(() => vi.fn())
 
-vi.mock(
-  '@/server/api/user-auth/services/findCurrentLmsBatch.service',
-  () => ({
-    findCurrentLmsBatch,
-  }),
-)
+vi.mock('@/server/api/user-auth/services/findCurrentLmsBatch.service', () => ({
+  findCurrentLmsBatch,
+}))
 vi.mock('@/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }))

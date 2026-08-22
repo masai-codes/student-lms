@@ -52,7 +52,11 @@ export function buildIcsFeed(input: {
 
 function icsTitle(event: CalendarEventDto): string {
   const prefix =
-    event.type === 'lecture' ? '' : event.type === 'quiz' ? 'Quiz: ' : 'Assignment: '
+    event.type === 'lecture'
+      ? ''
+      : event.type === 'quiz'
+        ? 'Quiz: '
+        : 'Assignment: '
   return `${prefix}${event.title}`
 }
 

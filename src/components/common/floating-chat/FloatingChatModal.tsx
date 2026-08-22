@@ -35,7 +35,10 @@ import {
 import { mapSupportCategoryToTicketCategory } from './ticketCategoryMapping'
 import { ApiClientError } from '@/lib/api/apiClientError'
 
-import { CATEGORIES } from './mockData'
+import {
+  getFloatingChatCategories,
+  normalizeFloatingChatCategoryId,
+} from './mockData'
 import type { Item, Message, TicketFilter, FloatingChatView } from './types'
 import { ENABLE_SUPPORT_AI_REPLY_CARD } from './supportAiFlags'
 
@@ -184,6 +187,16 @@ export function FloatingChatModal({
   const [itemSearch, setItemSearch] = useState('')
   const [debouncedItemSearch, setDebouncedItemSearch] = useState('')
   const [itemPage, setItemPage] = useState(1)
+  /** Section (aka "Course") filter — opt-in per batch (`batches.meta.showSectionDropdown`). */
+  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
+    null,
+  )
+  // Batch-scoped, not category-scoped — persists across lecture/assignment/
+  // resource/evaluation tabs, but a different batch has a different section
+  // list, so a stale id from the last one must not carry over.
+  useEffect(() => {
+    setSelectedSectionId(null)
+  }, [selectedBatchId])
 
   const [ticketFilter, setTicketFilter] = useState<TicketFilter>('all')
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null)
@@ -223,6 +236,12 @@ export function FloatingChatModal({
   const batchContacts = inbox?.batchContacts ?? {}
   const oneOnOneGroups = inbox?.oneOnOne ?? []
   const hasOneOnOne = oneOnOneGroups.length > 0
+  // TEMP(iitj): also skips the item-confirmation ("Take a moment to
+  // double-check") and common-questions (subcategory) screens below — see
+  // the two `isIitj` checks further down. Ripping out `ENABLE_IITJ_CATEGORY_OVERRIDES`
+  // in mockData.ts alone won't restore those; search this file for `isIitj`.
+  const isIitj = inbox?.isIitj ?? false
+  const categories = getFloatingChatCategories(isIitj)
   const showBatchStep = batches.length > 1
   const pendingEntityLaunchKey = entityLaunchIntent
     ? floatingChatEntityLaunchKey(entityLaunchIntent)
@@ -308,13 +327,20 @@ export function FloatingChatModal({
     setMessage('')
     setFiles([])
     setUploadError(null)
-    setStep(2.5)
+    // TEMP(iitj): skip the confirmation + common-questions screens entirely,
+    // straight to the composer with the deep-linked item already selected.
+    if (isIitj) {
+      goToComposer(2)
+    } else {
+      setStep(2.5)
+    }
     appliedEntityLaunchRef.current = launchKey
     onEntityLaunchComplete?.()
   }, [
     entityLaunchIntent,
     isOpen,
     inbox,
+    isIitj,
     isEntityContextLoading,
     isEntityContextError,
     entityContextError,
@@ -399,6 +425,7 @@ export function FloatingChatModal({
       page: itemPage,
       pageSize: SUPPORT_ITEM_PAGE_SIZE,
       filters: learnFilters,
+      sectionId: selectedSectionId ?? undefined,
     }),
     enabled:
       view === 'home' &&
@@ -411,7 +438,7 @@ export function FloatingChatModal({
 
   const subcategoryCategory =
     selectedCategory && supportCategoryUsesLearnApi(selectedCategory)
-      ? selectedCategory
+      ? normalizeFloatingChatCategoryId(selectedCategory)
       : null
 
   const {
@@ -456,6 +483,7 @@ export function FloatingChatModal({
     setAssignmentModuleFilter('any')
     setEvaluationProgressFilter('any')
     setEvaluationModuleFilter('any')
+    setSelectedSectionId(null)
     setComposerReturnStep(2.8)
     setSelectedCallbackReason(null)
     setSelectedCallbackTimeslot(null)
@@ -549,7 +577,17 @@ export function FloatingChatModal({
   const hasPendingCallback =
     selectedBatchId != null &&
     hasPendingCallbackForBatch(callbackTickets, selectedBatchId)
-  const selectedCategoryObj = CATEGORIES.find((c) => c.id === selectedCategory)
+  const selectedCategoryObj = categories.find((c) => c.id === selectedCategory)
+  // Drives item listing/filters/snapshot/review-nav for ItemSelector and
+  // ItemConfirmation — iitj's practice-exercise chip must behave exactly like
+  // `assignment` there, so its id is normalized while label/desc/icon stay
+  // the chip's own (still shown as "Non graded practice exercises").
+  const functionalCategoryObj = selectedCategoryObj
+    ? {
+        ...selectedCategoryObj,
+        id: normalizeFloatingChatCategoryId(selectedCategoryObj.id),
+      }
+    : selectedCategoryObj
   const selectedItemObj = selectedItem
   const selectedTicket: TicketListItem | undefined = tickets.find(
     (t) => t.id === selectedTicketId,
@@ -1002,15 +1040,15 @@ export function FloatingChatModal({
               !showEntityLaunchError &&
               !showInboxLoading && (
                 <CategorySelector
-                  categories={CATEGORIES}
+                  categories={categories}
                   onSelect={handleCategorySelect}
                   onRequestCallback={startCallbackFlow}
                 />
               )}
 
-            {view === 'home' && step === 2 && selectedCategoryObj && (
+            {view === 'home' && step === 2 && functionalCategoryObj && (
               <ItemSelector
-                categoryObj={selectedCategoryObj}
+                categoryObj={functionalCategoryObj}
                 items={selectorItems}
                 search={itemSearch}
                 onSearchChange={setItemSearch}
@@ -1042,10 +1080,32 @@ export function FloatingChatModal({
                 }
                 onSelect={(item) => {
                   setSelectedItem(item)
-                  setStep(2.5)
+                  // TEMP(iitj): skip the confirmation + common-questions
+                  // screens entirely, straight to the composer.
+                  if (isIitj) {
+                    goToComposer(2)
+                  } else {
+                    setStep(2.5)
+                  }
+                }}
+                showSectionDropdown={
+                  usesLearnApi &&
+                  learnPageData?.batches.some(
+                    (b) =>
+                      b.batchId === selectedBatchId && b.showSectionDropdown,
+                  ) === true
+                }
+                sections={learnPageData?.sections ?? []}
+                selectedSectionId={selectedSectionId}
+                onSectionChange={(sectionId) => {
+                  setSelectedSectionId(sectionId)
+                  setItemPage(1)
                 }}
                 lectureTypeFilter={lectureTypeFilter}
                 onLectureTypeChange={setLectureTypeFilter}
+                lectureTypeOptions={
+                  learnPageData?.filterValues.typeFilterValues ?? []
+                }
                 attendanceStatusFilter={attendanceStatusFilter}
                 onAttendanceStatusChange={setAttendanceStatusFilter}
                 assignmentPriorityFilter={assignmentPriorityFilter}
@@ -1072,13 +1132,13 @@ export function FloatingChatModal({
 
             {view === 'home' &&
               step === 2.5 &&
-              selectedCategoryObj &&
+              functionalCategoryObj &&
               selectedItemObj && (
                 <ItemConfirmation
-                  categoryObj={selectedCategoryObj}
+                  categoryObj={functionalCategoryObj}
                   itemObj={selectedItemObj}
                   onConfirm={() => {
-                    if (supportCategoryUsesLearnApi(selectedCategoryObj.id)) {
+                    if (supportCategoryUsesLearnApi(functionalCategoryObj.id)) {
                       setStep(2.8)
                     } else {
                       goToComposer(2.5)

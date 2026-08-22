@@ -41,7 +41,12 @@ describe('buildIcsFeed', () => {
   it('prefixes non-lecture summaries and omits URL when there is no detail path', () => {
     const ics = buildIcsFeed({
       events: [
-        event({ type: 'quiz', title: 'Weekly Quiz', detailPath: null, hostName: null }),
+        event({
+          type: 'quiz',
+          title: 'Weekly Quiz',
+          detailPath: null,
+          hostName: null,
+        }),
       ],
       origin: ORIGIN,
       now: NOW,
@@ -65,9 +70,7 @@ describe('buildIcsFeed', () => {
       origin: ORIGIN,
       now: NOW,
     })
-    const folded = ics
-      .split('\r\n')
-      .findIndex((line) => line.startsWith(' '))
+    const folded = ics.split('\r\n').findIndex((line) => line.startsWith(' '))
     expect(folded).toBeGreaterThan(-1)
     for (const line of ics.split('\r\n')) {
       expect(line.length).toBeLessThanOrEqual(75)

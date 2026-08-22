@@ -12,7 +12,7 @@ import { AnswerRecorder } from './AnswerRecorder'
 
 const hoisted = vi.hoisted(() => ({
   recorderState: {
-    state: 'idle' as 'idle' | 'recording' | 'recorded',
+    state: 'idle',
     seconds: 0,
     audioBlob: null as Blob | null,
     mediaStream: null as MediaStream | null,

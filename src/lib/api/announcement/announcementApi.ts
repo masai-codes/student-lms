@@ -1,7 +1,6 @@
 import { fetchJson } from '@/lib/api/fetchJson'
 import { ANNOUNCEMENT_API, MESSAGE_API } from '@/lib/api/announcementPaths'
 import type { AnnouncementItem } from '@/server/api/announcement/getAnnouncements.service'
-import type { AnnouncementDetail } from '@/server/api/announcement/getAnnouncementById.service'
 import type { PopupItem } from '@/server/api/announcement/getAnnouncementPopups.service'
 
 export interface FetchAnnouncementsParams {
@@ -20,7 +19,7 @@ export interface FetchAnnouncementsParams {
   endDate?: string
 }
 
-export interface AnnouncerOption {
+interface AnnouncerOption {
   id: string
   name: string
 }
@@ -115,13 +114,4 @@ export async function fetchAnnouncementPopups(): Promise<PopupItem[]> {
     ANNOUNCEMENT_API.popups,
   )
   return popups
-}
-
-export async function fetchAnnouncementById(
-  id: number | string,
-): Promise<AnnouncementDetail> {
-  const { announcement } = await fetchJson<{
-    announcement: AnnouncementDetail
-  }>(ANNOUNCEMENT_API.detail(id))
-  return announcement
 }

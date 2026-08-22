@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { buildZoomWebViewUrl } from '../zoomWebView'
+
 const hoisted = vi.hoisted(() => ({ getOldStudentUiUrlFromEnv: vi.fn() }))
 
 vi.mock('@/utils/viteEnv', () => ({
   getOldStudentUiUrlFromEnv: hoisted.getOldStudentUiUrlFromEnv,
 }))
-
-import { buildZoomWebViewUrl } from '../zoomWebView'
 
 describe('buildZoomWebViewUrl', () => {
   afterEach(() => vi.clearAllMocks())

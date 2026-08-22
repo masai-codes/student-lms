@@ -41,6 +41,7 @@ export function scheduleItemToLearnContent(
       : null,
     assignmentWeightage: item.assignmentWeightage,
     courseName: item.courseName,
+    sectionName: item.sectionName,
     dateTooltip:
       formatScheduleRangeIST(item.scheduleDate, item.concludes) || null,
   }

@@ -21,7 +21,7 @@ import type { InLecturePopupQuizElement } from '@/server/learn/lectureDetailType
 type QuizStatus = 'idle' | 'active' | 'closed'
 
 /** Outcome the modal reports once the quiz resolves (not persisted). */
-export type QuizResolution = 'auto_submitted' | 'submitted' | 'stopped'
+type QuizResolution = 'auto_submitted' | 'submitted' | 'stopped'
 
 type UseInLectureQuizOptions = {
   lectureId: number

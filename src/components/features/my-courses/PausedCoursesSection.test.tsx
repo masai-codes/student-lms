@@ -61,15 +61,18 @@ describe('PausedCoursesSection', () => {
     expect(
       screen.getByTestId('my-courses-paused-card-badge-1').textContent,
     ).toContain('Paused')
-    expect(screen.getByTestId('my-courses-paused-card-date-1').textContent).toBe(
-      'since 2 Jul 2026',
-    )
+    expect(
+      screen.getByTestId('my-courses-paused-card-date-1').textContent,
+    ).toBe('since 2 Jul 2026')
   })
 
   it('omits the date line when the pause date is missing or unparseable', () => {
     render(
       <PausedCoursesSection
-        courses={[paused(1, { pausedOn: null }), paused(2, { pausedOn: 'garbage' })]}
+        courses={[
+          paused(1, { pausedOn: null }),
+          paused(2, { pausedOn: 'garbage' }),
+        ]}
       />,
     )
 
@@ -85,14 +88,22 @@ describe('PausedCoursesSection', () => {
     const card = screen.getByTestId('my-courses-paused-card-1')
     expect(card.getAttribute('data-to')).toBe('/course/$batchId')
     expect(card.getAttribute('data-batch-id')).toBe('1')
-    expect(screen.getByTestId('my-courses-paused-card-details-cta-1')).toBeTruthy()
+    expect(
+      screen.getByTestId('my-courses-paused-card-details-cta-1'),
+    ).toBeTruthy()
   })
 
   it('leaves a details-disabled paused program inert, with no CTA', () => {
-    render(<PausedCoursesSection courses={[paused(1, { showBatchDetails: false })]} />)
+    render(
+      <PausedCoursesSection
+        courses={[paused(1, { showBatchDetails: false })]}
+      />,
+    )
 
     expect(screen.getByTestId('my-courses-paused-card-1').tagName).toBe('DIV')
-    expect(screen.queryByTestId('my-courses-paused-card-details-cta-1')).toBeNull()
+    expect(
+      screen.queryByTestId('my-courses-paused-card-details-cta-1'),
+    ).toBeNull()
   })
 
   it('tracks a click on a paused program card', () => {

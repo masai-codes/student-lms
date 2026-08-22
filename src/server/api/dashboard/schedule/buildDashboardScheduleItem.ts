@@ -56,6 +56,9 @@ export function buildDashboardScheduleItem(input: {
   return {
     ...item,
     courseName: input.showCourseName ? resolveCourseName(row) : null,
+    // Already the display label (rows pass through `withSectionLabel`); the
+    // IIT Jodhpur portal shows it as a chip on the card.
+    sectionName: row.sectionName?.trim() || null,
     enableZoomWebView: resolveEnableZoomWebView(row.sectionSettings),
   }
 }

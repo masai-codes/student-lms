@@ -61,6 +61,7 @@ describe('handleCreateInterviewSession', () => {
       7,
       'dsa',
       'English',
+      undefined,
     )
     await expect(res.json()).resolves.toEqual({
       sessionId: 42,

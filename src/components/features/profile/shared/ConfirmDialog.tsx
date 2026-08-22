@@ -54,9 +54,7 @@ export function ConfirmDialog({
           {/* Radix requires a description; fall back to the title for screen readers. */}
           <ModalDescription
             className={
-              description
-                ? 'type-b2-regular text-foreground-muted'
-                : 'sr-only'
+              description ? 'type-b2-regular text-foreground-muted' : 'sr-only'
             }
           >
             {description ?? title}

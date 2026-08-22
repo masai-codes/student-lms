@@ -2,7 +2,8 @@
 export const PROFILE_UNDERTAKING_TEMPLATE = {
   shouldModalBeVisible: true,
   heading: 'Code of Conduct',
-  pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+  pdfUrl:
+    'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
 } as const
 
 interface ProfileBadgeSpec {

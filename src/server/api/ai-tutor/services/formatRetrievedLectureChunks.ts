@@ -1,12 +1,19 @@
-import type { RagPlatformChunkResult, RetrievedLectureChunk  } from '@/server/api/ai-tutor/types/lectureRagRetrieve'
+import type {
+  RagPlatformChunkResult,
+  RetrievedLectureChunk,
+} from '@/server/api/ai-tutor/types/lectureRagRetrieve'
 import { AI_TUTOR_RAG_RETRIEVED_CONTENT_MAX_CHARS } from '@/server/api/ai-tutor/constants'
 
-function readSourceType(metadata: Record<string, unknown> | undefined): string | null {
+function readSourceType(
+  metadata: Record<string, unknown> | undefined,
+): string | null {
   const value = metadata?.source_type
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
 
-export function mapRagChunkToRetrieved(chunk: RagPlatformChunkResult): RetrievedLectureChunk {
+export function mapRagChunkToRetrieved(
+  chunk: RagPlatformChunkResult,
+): RetrievedLectureChunk {
   return {
     content: chunk.content,
     sourceType: readSourceType(chunk.metadata),

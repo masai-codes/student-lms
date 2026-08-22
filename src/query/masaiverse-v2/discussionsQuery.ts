@@ -13,7 +13,7 @@ export const MASAIVERSE_V2_DISCUSSIONS_KEY = [
 ] as const
 
 /** Page size for the "load more" pagination. */
-export const DISCUSSIONS_PAGE_SIZE = 5
+const DISCUSSIONS_PAGE_SIZE = 5
 
 /**
  * Reserved `?tab=` value for the club-less community feed on the discussions

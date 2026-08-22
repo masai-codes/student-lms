@@ -11,12 +11,16 @@ vi.mock('@/lib/api/profile/profileApi', () => ({
   fetchProfileCertificates: hoisted.fetchProfileCertificates,
 }))
 vi.mock('@/components/certificate-card/CertificateCard', () => ({
-  CertificateCard: ({ certificate: item }: { certificate: CertificateItem }) => (
-    <div data-testid="certificate-card-stub">{item.certificateTitle}</div>
-  ),
+  CertificateCard: ({
+    certificate: item,
+  }: {
+    certificate: CertificateItem
+  }) => <div data-testid="certificate-card-stub">{item.certificateTitle}</div>,
 }))
 
-function certificate(overrides: Partial<CertificateItem> = {}): CertificateItem {
+function certificate(
+  overrides: Partial<CertificateItem> = {},
+): CertificateItem {
   return {
     certificateObjectId: 'obj-1',
     code: null,

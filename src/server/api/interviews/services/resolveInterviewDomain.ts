@@ -4,37 +4,62 @@ import { batches, sectionUser, sections } from '@/db/schema'
 import { batchScopeForPortal } from '@/server/batches/portalBatchScope'
 import type { InterviewDomain } from '@/server/api/interviews/types/interviewSession'
 
-const DATA_AI_ML_PATTERN = /data|ml|ai\b|analytics/i
-const PRODUCT_MANAGEMENT_PATTERN = /product|\bpm\b/i
+const VALID_DOMAINS = new Set<InterviewDomain>([
+  'frontend',
+  'backend',
+  'fullstack',
+  'digital-marketing',
+  'product-management',
+  'data-analytics',
+  'data-science',
+  'applied-ai',
+  'general',
+])
 
-/**
- * Maps a batch's free-text `program` / `programDomain` (ops-entered, no fixed
- * enum) to one of our interview domains via keyword matching, mirroring the
- * "resolve with graceful fallback" shape of `resolveModuleName`.
- */
-export function classifyProgramText(
-  text: string | null | undefined,
-): InterviewDomain | null {
-  const value = text?.trim()
-  if (!value) return null
-  if (DATA_AI_ML_PATTERN.test(value)) return 'data-ai-ml'
-  if (PRODUCT_MANAGEMENT_PATTERN.test(value)) return 'product-management'
-  return 'software-development'
+function asRecord(value: unknown): Record<string, unknown> {
+  return value != null && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {}
 }
 
 /**
- * Resolves the student's interview domain from their most recently enrolled
- * active batch. No enrollment → `general` (catalog-only fallback, never an
- * empty topic list).
+ * Parses the ops-configured `batches.meta.interviews` array — the interview
+ * tracks ops has enabled for that batch. Unknown/malformed entries are
+ * silently dropped rather than failing the whole lookup.
  */
-export async function resolveInterviewDomain(
+export function parseInterviewDomainsFromMeta(
+  meta: unknown,
+): Array<InterviewDomain> {
+  const raw = asRecord(meta).interviews
+  if (!Array.isArray(raw)) return []
+
+  const domains: Array<InterviewDomain> = []
+  for (const entry of raw) {
+    if (
+      typeof entry === 'string' &&
+      VALID_DOMAINS.has(entry as InterviewDomain)
+    ) {
+      domains.push(entry as InterviewDomain)
+    }
+  }
+  return domains
+}
+
+/**
+ * Resolves the interview domain(s) enabled for the student as the union of
+ * `batches.meta.interviews` across all of their active batch enrollments,
+ * plus `general` — always included so every student sees the general-topic
+ * catalog regardless of what their batches have configured.
+ *
+ * Rows are ordered most-recently-enrolled first so `domains[0]` (used by
+ * callers as the "primary" domain) stays deterministic rather than
+ * depending on arbitrary DB row order.
+ */
+export async function resolveInterviewDomains(
   userId: number,
-): Promise<InterviewDomain> {
+): Promise<Array<InterviewDomain>> {
   const rows = await db
-    .select({
-      programDomain: batches.programDomain,
-      program: batches.program,
-    })
+    .select({ meta: batches.meta })
     .from(sectionUser)
     .innerJoin(sections, eq(sectionUser.sectionId, sections.id))
     .innerJoin(batches, eq(sections.batchId, batches.id))
@@ -51,14 +76,42 @@ export async function resolveInterviewDomain(
     // in fast seed scripts) needs a tiebreaker — higher id is a reliable proxy
     // for "inserted later" regardless of timestamp granularity.
     .orderBy(desc(sectionUser.createdAt), desc(sectionUser.id))
-    .limit(1)
 
-  const row = rows.at(0)
-  if (!row) return 'general'
+  const domains = new Set<InterviewDomain>()
+  for (const row of rows) {
+    for (const domain of parseInterviewDomainsFromMeta(row.meta)) {
+      domains.add(domain)
+    }
+  }
+  domains.add('general')
 
-  return (
-    classifyProgramText(row.programDomain) ??
-    classifyProgramText(row.program) ??
-    'software-development'
-  )
+  return Array.from(domains)
+}
+
+/**
+ * Whether the student's enrolled batches have opted into the interviews
+ * feature at all (`batches.meta.interviews` configured with at least one
+ * domain on any batch). Unlike {@link resolveInterviewDomains}, which always
+ * falls back to `['general']`, this returns `false` when nothing is
+ * configured — used to gate nav-level visibility of the Interviews tab.
+ */
+export async function hasConfiguredInterviewDomains(
+  userId: number,
+): Promise<boolean> {
+  const rows = await db
+    .select({ meta: batches.meta })
+    .from(sectionUser)
+    .innerJoin(sections, eq(sectionUser.sectionId, sections.id))
+    .innerJoin(batches, eq(sections.batchId, batches.id))
+    .where(
+      and(
+        eq(sectionUser.userId, userId),
+        isNull(sectionUser.deletedAt),
+        isNull(sections.deletedAt),
+        eq(batches.active, 1),
+        batchScopeForPortal(),
+      ),
+    )
+
+  return rows.some((row) => parseInterviewDomainsFromMeta(row.meta).length > 0)
 }

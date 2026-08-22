@@ -109,9 +109,7 @@ describe('ProfileHeaderCard', () => {
     expect(first.getAttribute('href')).toBe('/course/900')
     expect(first.getAttribute('title')).toBe('SDE Batch 42')
     expect(
-      screen
-        .getByTestId('profile-student-code-link-DS_2')
-        .getAttribute('href'),
+      screen.getByTestId('profile-student-code-link-DS_2').getAttribute('href'),
     ).toBe('/course/901')
 
     // Comma-separated inside parentheses, as in the old header.
@@ -134,7 +132,9 @@ describe('ProfileHeaderCard', () => {
 
   it('records a student-code click with its batch id', () => {
     renderCard({
-      studentCodes: [{ code: 'SDE_1', batchId: 900, batchName: 'SDE Batch 42' }],
+      studentCodes: [
+        { code: 'SDE_1', batchId: 900, batchName: 'SDE Batch 42' },
+      ],
     })
 
     fireEvent.click(screen.getByTestId('profile-student-code-link-SDE_1'))

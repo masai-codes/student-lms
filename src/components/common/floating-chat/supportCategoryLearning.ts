@@ -6,14 +6,22 @@ import type {
 } from '@/server/learn/types'
 import type { AssignmentProgressStatus } from '@/server/learn/utils/calculateAssignmentProgressStatus'
 import { formatSocialPostTime } from '@/lib/socialRelativeTime'
-import { toSupportLectureDisplayType } from '@/lib/support/lectureDisplayType'
+import {
+  formatSupportLectureDisplayTypeLabel,
+  toSupportLectureDisplayType,
+} from '@/lib/support/lectureDisplayType'
 import type { Item } from './types'
+import {
+  IITJ_ASSIGNMENT_PRACTICE_ID,
+  normalizeFloatingChatCategoryId,
+} from './mockData'
 
 const LEARN_CATEGORY_IDS = new Set([
   'lecture',
   'assignment',
   'resource',
   'evaluation',
+  IITJ_ASSIGNMENT_PRACTICE_ID,
 ])
 
 export type SupportLearnFilterExtras = {
@@ -33,10 +41,10 @@ export function supportCategoryUsesLearnApi(categoryId: string): boolean {
 export function supportCategoryToLearningType(
   categoryId: string,
 ): LearningType | null {
-  if (categoryId === 'lecture') return 'lecture'
-  if (categoryId === 'assignment' || categoryId === 'evaluation')
-    return 'assignment'
-  if (categoryId === 'resource') return 'resource'
+  const id = normalizeFloatingChatCategoryId(categoryId)
+  if (id === 'lecture') return 'lecture'
+  if (id === 'assignment' || id === 'evaluation') return 'assignment'
+  if (id === 'resource') return 'resource'
   return null
 }
 
@@ -45,7 +53,8 @@ export function supportCategoryToLearnFilters(
   categoryId: string,
   extra?: SupportLearnFilterExtras,
 ): BatchLearningFiltersInput | undefined {
-  if (categoryId === 'assignment') {
+  const id = normalizeFloatingChatCategoryId(categoryId)
+  if (id === 'assignment') {
     const filters: BatchLearningFiltersInput = {
       types: ['assignment', 'practice'],
     }
@@ -61,7 +70,7 @@ export function supportCategoryToLearnFilters(
     return filters
   }
 
-  if (categoryId === 'evaluation') {
+  if (id === 'evaluation') {
     const filters: BatchLearningFiltersInput = { types: ['evaluation'] }
     if (extra?.evaluationProgress && extra.evaluationProgress !== 'any') {
       filters.assignmentProgressStatuses = [
@@ -74,7 +83,7 @@ export function supportCategoryToLearnFilters(
     return filters
   }
 
-  if (categoryId === 'lecture' && extra) {
+  if (id === 'lecture' && extra) {
     const filters: BatchLearningFiltersInput = {}
     if (extra.lectureType && extra.lectureType !== 'any') {
       filters.types = [extra.lectureType]
@@ -92,7 +101,20 @@ export function supportCategoryToLearnFilters(
 export {
   formatSupportLectureDisplayTypeLabel as formatSupportLectureTypeLabel,
   supportLectureDisplayTypeChipClassName as supportLectureTypeChipClassName,
+  toSupportLectureDisplayType,
 } from '@/lib/support/lectureDisplayType'
+
+/** Readable label for any lecture `type` value — known display types get their
+ * short label, anything else (e.g. a raw DB value with no dedicated chip
+ * style) just gets capitalized rather than hidden. */
+export function formatLectureTypeOptionLabel(rawType: string): string {
+  const known = formatSupportLectureDisplayTypeLabel(
+    toSupportLectureDisplayType(rawType),
+  )
+  if (known) return known
+  const trimmed = rawType.trim()
+  return trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : rawType
+}
 
 /** Priority chip styles — mandatory is higher contrast than optional. */
 export function supportAssignmentPriorityChipClassName(
@@ -126,6 +148,7 @@ export function mapLearningItemToSupportItem(item: LearningItem): Item {
         ? categoryMeta || 'Uncategorized'
         : moduleMeta,
     moduleName: isAssignmentLike && moduleMeta ? moduleMeta : undefined,
+    sectionName: item.sectionName?.trim() || undefined,
     date: formatSupportItemScheduleDate(item.scheduleDate),
     type: isLecture ? toSupportLectureDisplayType(item.type) : undefined,
     startTime: item.scheduleDate ?? undefined,

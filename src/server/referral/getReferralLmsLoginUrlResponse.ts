@@ -9,7 +9,7 @@ export type ReferralLmsLoginUrlSuccessBody = {
   url: string
 }
 
-export type ReferralLmsLoginUrlErrorBody = {
+type ReferralLmsLoginUrlErrorBody = {
   success: false
   error: string
   message?: string

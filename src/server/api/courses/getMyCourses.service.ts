@@ -66,7 +66,9 @@ interface BatchRow {
   settings: unknown
 }
 
-async function loadBatches(batchIds: Array<number>): Promise<Map<number, BatchRow>> {
+async function loadBatches(
+  batchIds: Array<number>,
+): Promise<Map<number, BatchRow>> {
   if (batchIds.length === 0) return new Map()
 
   const rows = await db
@@ -96,7 +98,10 @@ function toActiveItem(row: BatchRow): MyCourseListItem {
   }
 }
 
-function toPausedItem(row: BatchRow, pausedOn: string | null): PausedCourseListItem {
+function toPausedItem(
+  row: BatchRow,
+  pausedOn: string | null,
+): PausedCourseListItem {
   const meta = asRecord(row.meta)
   const settings = asRecord(row.settings)
 
@@ -131,7 +136,9 @@ function toCancelledItem(
  * a program the student can act on. Stable, so newest-enrolment-first order holds
  * within each group.
  */
-function detailsFirst<T extends { showBatchDetails: boolean }>(items: Array<T>): Array<T> {
+function detailsFirst<T extends { showBatchDetails: boolean }>(
+  items: Array<T>,
+): Array<T> {
   return [
     ...items.filter((item) => item.showBatchDetails),
     ...items.filter((item) => !item.showBatchDetails),
@@ -168,14 +175,18 @@ async function getEverEnrolledBatchIds(userId: number): Promise<Set<number>> {
  * lists stay disjoint and each program appears exactly once.
  */
 export async function getMyCourses(userId: number): Promise<MyCoursesData> {
-  const [activeBatchIds, restrictions, everEnrolledBatchIds] = await Promise.all([
-    getBatchIdsForEnrolledUser(userId),
-    getUserBatchRestrictions(userId),
-    getEverEnrolledBatchIds(userId),
-  ])
+  const [activeBatchIds, restrictions, everEnrolledBatchIds] =
+    await Promise.all([
+      getBatchIdsForEnrolledUser(userId),
+      getUserBatchRestrictions(userId),
+      getEverEnrolledBatchIds(userId),
+    ])
 
   const cancelledEntries = [...restrictions]
-    .filter(([batchId, flags]) => flags.enrolmentCancelled && everEnrolledBatchIds.has(batchId))
+    .filter(
+      ([batchId, flags]) =>
+        flags.enrolmentCancelled && everEnrolledBatchIds.has(batchId),
+    )
     .map(([batchId, flags]) => ({
       batchId,
       cancelledOn: flags.enrolmentCancelledDate,
@@ -192,7 +203,8 @@ export async function getMyCourses(userId: number): Promise<MyCoursesData> {
     .map((batchId) => byId.get(batchId))
     .filter((row): row is BatchRow => row !== undefined)
 
-  const isPaused = (batchId: number) => restrictions.get(batchId)?.paused === true
+  const isPaused = (batchId: number) =>
+    restrictions.get(batchId)?.paused === true
 
   const active = detailsFirst(
     enrolledRows.filter((row) => !isPaused(row.id)).map(toActiveItem),
@@ -201,7 +213,9 @@ export async function getMyCourses(userId: number): Promise<MyCoursesData> {
   const paused = detailsFirst(
     enrolledRows
       .filter((row) => isPaused(row.id))
-      .map((row) => toPausedItem(row, restrictions.get(row.id)?.pausedDate ?? null)),
+      .map((row) =>
+        toPausedItem(row, restrictions.get(row.id)?.pausedDate ?? null),
+      ),
   )
 
   const cancelled = cancelledEntries

@@ -22,34 +22,52 @@ export function InterviewTimeline({
   followUpQuestion?: string | null
 }) {
   return (
-    <div className="flex flex-col items-center gap-6 text-center">
-      <InterviewProgressBar
-        questionNumber={questionNumber}
-        totalQuestions={totalQuestions}
-      />
-      <p className="text-sm font-medium text-foreground-muted">
-        {topicLabel} · Question {questionNumber} of {totalQuestions}
-      </p>
-
+    <div className="flex w-full max-w-2xl items-stretch gap-5">
+      {/* The speaker rail — a quiet, structural echo of how a real interview
+          transcript marks whose turn it is. It's brand-colored while the
+          interviewer holds the floor and hands off to a neutral tone once
+          the candidate is answering (see the matching "You" label in
+          AnswerRecorder). */}
       <div
-        data-testid="interview-question"
-        className="flex max-w-2xl flex-col items-center gap-4"
+        aria-hidden
+        className="hidden shrink-0 flex-col items-center gap-2 pt-1.5 sm:flex"
       >
-        <span className="flex size-11 items-center justify-center rounded-xl bg-brand text-sm font-semibold text-brand-foreground">
-          Q{questionNumber}
-        </span>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          {question}
-        </h1>
+        <span className="size-2 rounded-full bg-brand" />
+        <span className="w-px flex-1 bg-border" />
+      </div>
 
-        {followUpQuestion ? (
-          <p
-            data-testid="interview-follow-up"
-            className="text-base text-foreground-muted"
-          >
-            {followUpQuestion}
-          </p>
-        ) : null}
+      <div className="flex flex-1 flex-col items-start gap-5 text-left">
+        <span className="type-b3-md text-foreground-subtle uppercase tracking-wider">
+          Interviewer
+        </span>
+
+        <InterviewProgressBar
+          questionNumber={questionNumber}
+          totalQuestions={totalQuestions}
+        />
+        <p className="type-b2-regular -mt-2 text-foreground-muted">
+          {topicLabel} · Question {questionNumber} of {totalQuestions}
+        </p>
+
+        <div
+          key={questionNumber}
+          data-testid="interview-question"
+          className="animate-in fade-in slide-in-from-bottom-1 flex flex-col items-start gap-3 duration-300"
+        >
+          <span className="type-b3-md w-fit rounded-md bg-brand-subtle px-2 py-0.5 text-brand-subtle-foreground">
+            Q{questionNumber}
+          </span>
+          <h1 className="type-h3 text-foreground sm:text-3xl">{question}</h1>
+
+          {followUpQuestion ? (
+            <p
+              data-testid="interview-follow-up"
+              className="type-b1-regular text-foreground-muted"
+            >
+              {followUpQuestion}
+            </p>
+          ) : null}
+        </div>
       </div>
     </div>
   )

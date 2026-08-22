@@ -3,7 +3,7 @@
  * given start/end timestamps (`HH:MM:SS`). `assessmentTemplate` is the id of the
  * assessment template to render.
  */
-export type InLecturePopupQuiz = {
+type InLecturePopupQuiz = {
   timeStamp: { start: string; end: string }
   assessmentTemplate: string
 }

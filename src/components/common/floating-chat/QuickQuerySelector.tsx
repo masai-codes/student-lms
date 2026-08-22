@@ -1,6 +1,6 @@
 import { CaretRight, Question } from '@phosphor-icons/react'
 
-export interface QuickQueryOption {
+interface QuickQueryOption {
   value: string
   label: string
 }

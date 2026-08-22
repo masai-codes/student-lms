@@ -25,7 +25,11 @@ const row = (over: Partial<CalendarEntityRow> = {}): CalendarEntityRow => ({
 describe('buildCalendarEvent', () => {
   it('drops rows without a schedule', () => {
     expect(
-      buildCalendarEvent({ row: row({ schedule: null }), type: 'lecture', nowMs: NOW_MS }),
+      buildCalendarEvent({
+        row: row({ schedule: null }),
+        type: 'lecture',
+        nowMs: NOW_MS,
+      }),
     ).toBeNull()
   })
 
@@ -56,7 +60,11 @@ describe('buildCalendarEvent', () => {
   })
 
   it('stamps schedule/concludes as explicit IST and keeps concludes as the end', () => {
-    const event = buildCalendarEvent({ row: row(), type: 'lecture', nowMs: NOW_MS })
+    const event = buildCalendarEvent({
+      row: row(),
+      type: 'lecture',
+      nowMs: NOW_MS,
+    })
     expect(event?.schedule).toBe('2026-08-14T10:00:00+05:30')
     expect(event?.concludes).toBe('2026-08-14T12:00:00+05:30')
     expect(event?.effectiveEnd).toBe('2026-08-14T12:00:00+05:30')
@@ -66,15 +74,18 @@ describe('buildCalendarEvent', () => {
     ['lecture', '2026-08-14T11:00:00+05:30'],
     ['assignment', '2026-08-15T10:00:00+05:30'],
     ['quiz', '2026-08-14T12:00:00+05:30'],
-  ] as const)('falls back to the %s duration when concludes is null', (type, end) => {
-    const event = buildCalendarEvent({
-      row: row({ concludes: null }),
-      type,
-      nowMs: NOW_MS,
-    })
-    expect(event?.concludes).toBeNull()
-    expect(event?.effectiveEnd).toBe(end)
-  })
+  ] as const)(
+    'falls back to the %s duration when concludes is null',
+    (type, end) => {
+      const event = buildCalendarEvent({
+        row: row({ concludes: null }),
+        type,
+        nowMs: NOW_MS,
+      })
+      expect(event?.concludes).toBeNull()
+      expect(event?.effectiveEnd).toBe(end)
+    },
+  )
 
   it('applies the fallback when concludes is not after schedule', () => {
     const event = buildCalendarEvent({
@@ -87,29 +98,40 @@ describe('buildCalendarEvent', () => {
 
   it('links lectures and assignments to their detail pages, quizzes to none', () => {
     expect(
-      buildCalendarEvent({ row: row(), type: 'lecture', nowMs: NOW_MS })?.detailPath,
+      buildCalendarEvent({ row: row(), type: 'lecture', nowMs: NOW_MS })
+        ?.detailPath,
     ).toBe('/lectures/7')
     expect(
-      buildCalendarEvent({ row: row(), type: 'assignment', nowMs: NOW_MS })?.detailPath,
+      buildCalendarEvent({ row: row(), type: 'assignment', nowMs: NOW_MS })
+        ?.detailPath,
     ).toBe('/assignments/7')
     expect(
-      buildCalendarEvent({ row: row(), type: 'quiz', nowMs: NOW_MS })?.detailPath,
+      buildCalendarEvent({ row: row(), type: 'quiz', nowMs: NOW_MS })
+        ?.detailPath,
     ).toBeNull()
   })
 
   it('surfaces an active join CTA for a live lecture in its window', () => {
-    const event = buildCalendarEvent({ row: row(), type: 'lecture', nowMs: NOW_MS })
+    const event = buildCalendarEvent({
+      row: row(),
+      type: 'lecture',
+      nowMs: NOW_MS,
+    })
     expect(event?.joinLive?.state).toBe('active')
     expect(event?.joinLive?.joinZoomLink).toBe('https://zoom.us/j/1')
   })
 
   it('hides joinLive for non-live lectures and non-lectures', () => {
     expect(
-      buildCalendarEvent({ row: row({ type: 'recorded' }), type: 'lecture', nowMs: NOW_MS })
-        ?.joinLive,
+      buildCalendarEvent({
+        row: row({ type: 'recorded' }),
+        type: 'lecture',
+        nowMs: NOW_MS,
+      })?.joinLive,
     ).toBeNull()
     expect(
-      buildCalendarEvent({ row: row(), type: 'assignment', nowMs: NOW_MS })?.joinLive,
+      buildCalendarEvent({ row: row(), type: 'assignment', nowMs: NOW_MS })
+        ?.joinLive,
     ).toBeNull()
     expect(
       buildCalendarEvent({ row: row(), type: 'quiz', nowMs: NOW_MS })?.hostName,
@@ -118,8 +140,11 @@ describe('buildCalendarEvent', () => {
 
   it('maps optional flag', () => {
     expect(
-      buildCalendarEvent({ row: row({ optional: 1 }), type: 'quiz', nowMs: NOW_MS })
-        ?.optional,
+      buildCalendarEvent({
+        row: row({ optional: 1 }),
+        type: 'quiz',
+        nowMs: NOW_MS,
+      })?.optional,
     ).toBe(true)
   })
 })

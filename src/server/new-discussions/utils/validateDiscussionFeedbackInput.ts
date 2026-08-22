@@ -3,7 +3,7 @@ export type DiscussionFeedbackInput = {
   comment: string | null
 }
 
-export const DISCUSSION_FEEDBACK_COMMENT_MAX = 1000
+const DISCUSSION_FEEDBACK_COMMENT_MAX = 1000
 
 /** Validate a 1–5 integer rating with an optional trimmed comment. */
 export function parseDiscussionFeedbackInput(raw: {

@@ -6,6 +6,7 @@
  *   2. {@link getSupportGate}         — is ticket creation blocked, and why?
  *   3. {@link getCoordinators}        — IA / EC / PC for 1:1 help.
  *   4. {@link getBatchContact}        — batch support line + phone.
+ *   5. {@link getUserClient}          — 'masai' | 'ihub' | 'iitj', for client-specific copy.
  *
  * These are intentionally small and independent so the overview orchestrator can
  * fan them out in parallel.
@@ -53,6 +54,16 @@ export async function getUserSupportBatches(
     }))
 }
 
+/** The student's client/portal (`users.client`) — drives client-specific copy. */
+export async function getUserClient(userId: number): Promise<string> {
+  const rows = await db
+    .select({ client: users.client })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
+  return rows[0]?.client ?? 'masai'
+}
+
 /** True if a configured agreement sub-key (heading + pdfUrl, not hidden) exists. */
 function hasConfiguredAgreement(agreements: Record<string, any>): boolean {
   return Object.entries(agreements).some(([key, val]) => {
@@ -95,7 +106,7 @@ async function isLegalAgreementBlocking(userId: number): Promise<boolean> {
     )
 
   const enabled = rows.filter((r) => {
-    const s = (r.settings as Record<string, any> | null) ?? {}
+    const s = r.settings ?? {}
     const agreements = (s.agreements ?? {}) as Record<string, any>
     return (
       agreements.shouldModalBeVisible === true &&
@@ -110,9 +121,8 @@ async function isLegalAgreementBlocking(userId: number): Promise<boolean> {
     .where(eq(profiles.userId, userId))
     .limit(1)
 
-  const legalData = ((profileRows.length > 0
-    ? profileRows[0].legalData
-    : null) ?? {}) as Record<string, any>
+  const legalData =
+    (profileRows.length > 0 ? profileRows[0].legalData : null) ?? {}
   const agreementsBySection = (legalData.agreements ?? {}) as Record<
     string,
     any
@@ -239,7 +249,7 @@ export async function getOneOnOneGroups(
   // Keep only pp-enabled sections (show_pp + ppLink).
   const enabled = myRows
     .map((r) => {
-      const s = (r.settings as Record<string, any> | null) ?? {}
+      const s = r.settings ?? {}
       const ppLink = typeof s.ppLink === 'string' ? s.ppLink.trim() : ''
       return { ...r, showPp: Boolean(s.show_pp), ppLink }
     })

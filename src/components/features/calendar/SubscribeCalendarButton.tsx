@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { CalendarPlus, CaretRight,
+import {
+  CalendarPlus,
+  CaretRight,
   AppleLogo,
   GoogleLogo,
   LinkSimple,
-  MicrosoftOutlookLogo } from '@phosphor-icons/react'
+  MicrosoftOutlookLogo,
+} from '@phosphor-icons/react'
 import type { Icon } from '@phosphor-icons/react'
 import { pushCalendarEvent } from './calendarAnalytics'
 import {
@@ -93,7 +96,11 @@ export function SubscribeCalendarButton() {
       }
       return
     }
-    window.open(buildProviderUrl(provider, url), '_blank', 'noopener,noreferrer')
+    window.open(
+      buildProviderUrl(provider, url),
+      '_blank',
+      'noopener,noreferrer',
+    )
   }
 
   return (

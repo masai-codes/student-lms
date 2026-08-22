@@ -205,7 +205,7 @@ const TAB_SNAPSHOT_FILTER_KEYS = [
   'attendanceStatus',
 ] as const
 
-export function learnSearchFromModalFilters(
+function learnSearchFromModalFilters(
   tab: LearnTab,
   filters: LearnModalFiltersState,
   options: { page?: number; search?: string },
@@ -267,7 +267,7 @@ const LEARN_FILTER_SEARCH_KEYS = [
   'assignmentProgress',
 ] as const
 
-export function stripLearnFilterSearchKeys(
+function stripLearnFilterSearchKeys(
   search: Record<string, unknown>,
 ): Record<string, unknown> {
   const next = { ...search }

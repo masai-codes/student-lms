@@ -8,7 +8,11 @@ import {
 import type { Icon } from '@phosphor-icons/react'
 
 export type MasaiverseV2Tab =
-  'home' | 'clubs' | 'events' | 'discussions' | 'leaderboard'
+  | 'home'
+  | 'clubs'
+  | 'events'
+  | 'discussions'
+  | 'leaderboard'
 
 export type MasaiverseV2NavPath =
   | '/masaiverse/home'

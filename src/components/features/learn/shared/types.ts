@@ -42,19 +42,12 @@ export interface LearnContentItem {
   /** `assignments.settings.weightagePercentage`; rendered as a chip beside the tags. */
   assignmentWeightage?: number | null
   /**
-   * Section label for the item, set only by the `/learn` listing feed. Rendered as
-   * a chip after the tags on portals in `SECTION_ON_LEARN_CARD_PORTALS` (IIT
-   * Jodhpur today). Absent on the dashboard and associated-content cards.
+   * Section label for the item, set by the `/learn` listing feed and the
+   * dashboard schedule/pending feeds. Rendered as a chip after the tags on
+   * portals in `SECTION_ON_LEARN_CARD_PORTALS` (IIT Jodhpur today). Absent on
+   * associated-content cards.
    */
   sectionName?: string | null
-}
-
-export interface LearnFilterValues {
-  moduleFilterValues: Array<string>
-  categoryFilterValues: Array<string>
-  typeFilterValues: Array<string>
-  priorityFilterValues: Array<LearnPriority>
-  instructorFilterValues: Array<string>
 }
 
 /**
@@ -87,9 +80,9 @@ export function learnScheduleHorizonToDays(
   return undefined
 }
 
-export type LearnSchedulePhase = 'all' | 'upcoming' | 'past'
-export type LearnAttendanceFilter = 'present' | 'absent'
-export type LearnAssignmentProgressFilter = 'all' | AssignmentProgressStatus
+type LearnSchedulePhase = 'all' | 'upcoming' | 'past'
+type LearnAttendanceFilter = 'present' | 'absent'
+type LearnAssignmentProgressFilter = 'all' | AssignmentProgressStatus
 
 export interface LearnModalFiltersState {
   modules: Array<string>

@@ -85,15 +85,21 @@ export async function* createInterviewSessionStream(
   userId: number,
   topicId: string,
   language: AiTutorChatLanguage,
+  requestedSubtopics?: Array<string>,
 ): AsyncGenerator<CreateInterviewSessionStreamEvent> {
   await assertUnderDailySessionLimit(userId)
 
-  const selection = await resolveInterviewTopicSelection(userId, topicId)
+  const selection = await resolveInterviewTopicSelection(
+    userId,
+    topicId,
+    requestedSubtopics,
+  )
 
   const questions = await generateAllInterviewQuestions({
     topicLabel: selection.topicLabel,
     domain: selection.domain,
     rubricFocus: selection.rubricFocus,
+    subtopics: selection.subtopics,
     numQuestions: INTERVIEW_TOTAL_QUESTIONS,
   })
 
@@ -163,12 +169,14 @@ export async function createInterviewSession(
   userId: number,
   topicId: string,
   language: AiTutorChatLanguage,
+  requestedSubtopics?: Array<string>,
 ): Promise<CreateInterviewSessionResult> {
   let result: CreateInterviewSessionResult | null = null
   for await (const event of createInterviewSessionStream(
     userId,
     topicId,
     language,
+    requestedSubtopics,
   )) {
     if (event.type === 'done') result = event.result
   }

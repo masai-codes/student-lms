@@ -157,9 +157,9 @@ describe('StudentKitTab', () => {
     )
     await waitFor(() =>
       expect(
-        screen.getByTestId('profile-kit-copy-tracking-id').getAttribute(
-          'aria-label',
-        ),
+        screen
+          .getByTestId('profile-kit-copy-tracking-id')
+          .getAttribute('aria-label'),
       ).toBe('Tracking ID copied'),
     )
     expect(hoisted.pushGtmEvent).toHaveBeenCalledWith(

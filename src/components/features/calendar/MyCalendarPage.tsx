@@ -14,13 +14,25 @@ import { CalendarEventChip } from './CalendarEventChip'
 import { CalendarToolbar } from './CalendarToolbar'
 import { EventDetailsModal } from './EventDetailsModal'
 import { SubscribeCalendarButton } from './SubscribeCalendarButton'
-import { CalendarEmptyState, CalendarErrorState, CalendarSkeleton } from './CalendarStates'
+import {
+  CalendarEmptyState,
+  CalendarErrorState,
+  CalendarSkeleton,
+} from './CalendarStates'
 import { calendarLocalizer } from './calendarLocalizer'
 import { calendarEntityEvent, pushCalendarEvent } from './calendarAnalytics'
 import { DEFAULT_CALENDAR_VIEW } from '@/lib/calendar/calendarSearch'
-import { anchorDay, rangeTitle, shiftAnchor, visibleRange } from '@/lib/calendar/calendarRange'
+import {
+  anchorDay,
+  rangeTitle,
+  shiftAnchor,
+  visibleRange,
+} from '@/lib/calendar/calendarRange'
 import { mapCalendarEvents } from '@/lib/calendar/calendarEventMapping'
-import { calendarBatchesQuery, calendarEventsQuery } from '@/query/calendar/calendarQueries'
+import {
+  calendarBatchesQuery,
+  calendarEventsQuery,
+} from '@/query/calendar/calendarQueries'
 import { useIsMobileViewport } from '@/hooks/useIsMobileViewport'
 
 interface MyCalendarPageProps {
@@ -31,7 +43,9 @@ interface MyCalendarPageProps {
 export function MyCalendarPage(props: MyCalendarPageProps) {
   const { search, onSearchChange } = props
   const isMobile = useIsMobileViewport()
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEventDto | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEventDto | null>(
+    null,
+  )
 
   const requestedView = search.view ?? DEFAULT_CALENDAR_VIEW
   // Month is desktop-only (parity with the old LMS); fall back to week.
@@ -41,7 +55,10 @@ export function MyCalendarPage(props: MyCalendarPageProps) {
     ? ['week', 'day']
     : ['month', 'week', 'day']
 
-  const range = useMemo(() => visibleRange(view, search.date), [view, search.date])
+  const range = useMemo(
+    () => visibleRange(view, search.date),
+    [view, search.date],
+  )
 
   const eventsQuery = useQuery({
     ...calendarEventsQuery({ ...range, batchId: search.batchId }),
@@ -64,12 +81,18 @@ export function MyCalendarPage(props: MyCalendarPageProps) {
 
   const handleNavigate = (action: 'today' | 'prev' | 'next') => {
     if (action === 'today') return patchSearch({ date: undefined })
-    patchSearch({ date: shiftAnchor(view, search.date, action === 'next' ? 1 : -1) })
+    patchSearch({
+      date: shiftAnchor(view, search.date, action === 'next' ? 1 : -1),
+    })
   }
 
   const handleSelectEvent = (event: MyCalendarEvent) => {
     pushCalendarEvent(
-      calendarEntityEvent(event.resource.type, 'event_click', event.resource.id),
+      calendarEntityEvent(
+        event.resource.type,
+        'event_click',
+        event.resource.id,
+      ),
       { title: event.resource.title, view },
     )
     setSelectedEvent(event.resource)
@@ -102,7 +125,9 @@ export function MyCalendarPage(props: MyCalendarPageProps) {
         <CalendarErrorState onRetry={() => void eventsQuery.refetch()} />
       ) : (
         <div className="relative">
-          {events.length === 0 && !eventsQuery.isFetching ? <CalendarEmptyState /> : null}
+          {events.length === 0 && !eventsQuery.isFetching ? (
+            <CalendarEmptyState />
+          ) : null}
           <div
             data-testid="my-calendar-grid"
             className={`my-calendar animate-dash-rise h-[70vh] min-h-[540px] transition-opacity duration-200 ${
@@ -115,8 +140,12 @@ export function MyCalendarPage(props: MyCalendarPageProps) {
               date={anchorDay(search.date).toDate()}
               view={view}
               views={availableViews}
-              onNavigate={(date) => patchSearch({ date: dayjs(date).format('YYYY-MM-DD') })}
-              onView={(nextView) => patchSearch({ view: nextView as CalendarView })}
+              onNavigate={(date) =>
+                patchSearch({ date: dayjs(date).format('YYYY-MM-DD') })
+              }
+              onView={(nextView) =>
+                patchSearch({ view: nextView as CalendarView })
+              }
               // One combined patch — RBC otherwise fires onNavigate + onView
               // back-to-back and the second would clobber the first (both
               // build from the same pre-click search).
@@ -140,7 +169,10 @@ export function MyCalendarPage(props: MyCalendarPageProps) {
         </div>
       )}
 
-      <EventDetailsModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+      <EventDetailsModal
+        event={selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+      />
     </section>
   )
 }

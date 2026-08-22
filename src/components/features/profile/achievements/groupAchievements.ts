@@ -3,7 +3,7 @@ import type { AchievementItem } from '@/server/api/profile/profile.types'
 export const NO_COURSE_LABEL = 'Other'
 export const NO_MODULE_LABEL = 'General'
 
-export interface AchievementModuleGroup {
+interface AchievementModuleGroup {
   name: string
   count: number
   items: Array<AchievementItem>

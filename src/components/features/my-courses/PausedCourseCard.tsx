@@ -83,12 +83,15 @@ export function PausedCourseCard({ course }: Props) {
   }
 
   function handleClick() {
-    pushMyCoursesEvent(myCoursesEntityEvent('paused_card_click', course.batchId), {
-      batchId: course.batchId,
-      courseTitle: course.courseTitle,
-      instituteName: course.instituteName,
-      pausedOn: course.pausedOn,
-    })
+    pushMyCoursesEvent(
+      myCoursesEntityEvent('paused_card_click', course.batchId),
+      {
+        batchId: course.batchId,
+        courseTitle: course.courseTitle,
+        instituteName: course.instituteName,
+        pausedOn: course.pausedOn,
+      },
+    )
   }
 
   return (

@@ -2,3 +2,5 @@
 *.test.ts
 *.test.tsx
 drizzle/*.sql
+docs/**/*.md
+src/routeTree.gen.ts

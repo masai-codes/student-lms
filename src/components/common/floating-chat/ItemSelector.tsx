@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 import { MagnifyingGlass, CaretRight, CaretLeft } from '@phosphor-icons/react'
 import type { Category, Item } from './types'
 import {
+  formatLectureTypeOptionLabel,
   formatSupportLectureTypeLabel,
   supportAssignmentPriorityChipClassName,
   supportLectureTypeChipClassName,
@@ -23,6 +24,11 @@ interface ItemSelectorPagination {
   onPageChange: (page: number) => void
 }
 
+interface ItemSelectorSection {
+  sectionId: number
+  name: string
+}
+
 interface ItemSelectorProps {
   categoryObj: Category
   items: Item[]
@@ -34,8 +40,15 @@ interface ItemSelectorProps {
   isError?: boolean
   onRetry?: () => void
   pagination?: ItemSelectorPagination
+  /** Section (aka "Course") filter — opt-in per batch (`batches.meta.showSectionDropdown`). */
+  showSectionDropdown?: boolean
+  sections?: Array<ItemSelectorSection>
+  /** `null` when "All Courses" is active. */
+  selectedSectionId?: number | null
+  onSectionChange?: (sectionId: number | null) => void
   lectureTypeFilter?: string
   onLectureTypeChange?: (value: string) => void
+  lectureTypeOptions?: Array<string>
   attendanceStatusFilter?: string
   onAttendanceStatusChange?: (value: string) => void
   assignmentPriorityFilter?: string
@@ -64,8 +77,13 @@ export function ItemSelector({
   isError = false,
   onRetry,
   pagination,
+  showSectionDropdown = false,
+  sections = [],
+  selectedSectionId = null,
+  onSectionChange,
   lectureTypeFilter,
   onLectureTypeChange,
+  lectureTypeOptions = [],
   attendanceStatusFilter,
   onAttendanceStatusChange,
   assignmentPriorityFilter,
@@ -85,6 +103,13 @@ export function ItemSelector({
   const listRef = useRef<HTMLDivElement>(null)
   const showPagination =
     pagination != null && (pagination.hasPreviousPage || pagination.hasNextPage)
+  // Falls back to "All Courses" for a stale/unknown section id (e.g. right
+  // after a batch switch, before the caller clears it).
+  const sectionValue =
+    selectedSectionId != null &&
+    sections.some((section) => section.sectionId === selectedSectionId)
+      ? selectedSectionId.toString()
+      : 'any'
 
   useEffect(() => {
     if (pagination == null) return
@@ -107,6 +132,33 @@ export function ItemSelector({
         />
       </div>
 
+      {showSectionDropdown && onSectionChange && (
+        <div className="shrink-0 mb-1">
+          <Select
+            value={sectionValue}
+            onValueChange={(value) =>
+              onSectionChange(value === 'any' ? null : Number(value))
+            }
+            disabled={sections.length === 0}
+          >
+            <SelectTrigger className="h-[34px] w-full text-[13px] bg-[#f1f1f7] dark:bg-muted border-transparent hover:bg-[#e3e3fb] dark:hover:bg-brand/15 transition-colors rounded-[10px]">
+              <SelectValue placeholder="Course" />
+            </SelectTrigger>
+            <SelectContent className="z-[300]">
+              <SelectItem value="any">All Courses</SelectItem>
+              {sections.map((section) => (
+                <SelectItem
+                  key={section.sectionId}
+                  value={section.sectionId.toString()}
+                >
+                  {section.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {categoryObj.id === 'lecture' &&
         onLectureTypeChange &&
         onAttendanceStatusChange && (
@@ -120,9 +172,11 @@ export function ItemSelector({
               </SelectTrigger>
               <SelectContent className="z-[300]">
                 <SelectItem value="any">All types</SelectItem>
-                <SelectItem value="live">Live</SelectItem>
-                <SelectItem value="scrum">Scrum</SelectItem>
-                <SelectItem value="video">Video</SelectItem>
+                {lectureTypeOptions.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {formatLectureTypeOptionLabel(type)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -307,6 +361,7 @@ export function ItemSelector({
                 (categoryObj.id === 'assignment' ||
                   categoryObj.id === 'evaluation') &&
                 item.moduleName
+              const showSectionPill = showSectionDropdown && item.sectionName
 
               return (
                 <button
@@ -359,6 +414,11 @@ export function ItemSelector({
                       {showModulePill ? (
                         <span className="text-[11px] font-bold text-[#62647d] dark:text-foreground-muted bg-[#f1f1f7] dark:bg-muted px-2 py-[2.5px] rounded-full group-hover:bg-surface transition-colors truncate max-w-[140px]">
                           {item.moduleName}
+                        </span>
+                      ) : null}
+                      {showSectionPill ? (
+                        <span className="text-[11px] font-bold text-[#62647d] dark:text-foreground-muted bg-[#f1f1f7] dark:bg-muted px-2 py-[2.5px] rounded-full group-hover:bg-surface transition-colors truncate max-w-[140px]">
+                          {item.sectionName}
                         </span>
                       ) : null}
                       <span className="text-[11.5px] text-[#9496ab] dark:text-foreground-subtle truncate">

@@ -144,9 +144,9 @@ describe('computeCourseProgress', () => {
       computeCourseProgress([{ date: 'not-a-date', label: 'X' }], end),
     ).toBe(0)
     // Single milestone / zero-length span — no meaningful percentage.
-    expect(computeCourseProgress([{ date: '2026-01-01', label: 'X' }], end)).toBe(
-      0,
-    )
+    expect(
+      computeCourseProgress([{ date: '2026-01-01', label: 'X' }], end),
+    ).toBe(0)
   })
 
   it('ignores unparseable dates alongside valid ones', () => {

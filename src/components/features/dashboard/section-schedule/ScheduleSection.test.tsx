@@ -41,6 +41,7 @@ const item = (
     assignmentScore: null,
   },
   courseName: 'Full Stack Section A',
+  sectionName: null,
   enableZoomWebView: false,
   ...over,
 })

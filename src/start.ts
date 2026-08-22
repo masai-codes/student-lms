@@ -35,11 +35,7 @@ const PREFLIGHT_MAX_AGE = '86400'
  * cookie is scoped wide enough to be sent — `getCookieDomain` derives the cookie
  * domain from the request's own apex.
  */
-const ALLOWED_DOMAINS = [
-  'masaischool.com',
-  'ihubiitrcourses.org',
-  'iasam.dev',
-]
+const ALLOWED_DOMAINS = ['masaischool.com', 'ihubiitrcourses.org', 'iasam.dev']
 
 /** Whether `hostname` is one of the allowed apex domains or a subdomain of one. */
 function isAllowedHostname(hostname: string): boolean {

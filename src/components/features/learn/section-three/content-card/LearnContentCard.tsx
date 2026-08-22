@@ -62,16 +62,28 @@ function LearnAssignmentWeightageChip({
 }
 
 /**
+ * Whether the section chip has anything to render: a non-blank label on a portal
+ * in `SECTION_ON_LEARN_CARD_PORTALS`. The dashboard tag row uses this to decide
+ * whether to render at all for an item with no tags.
+ */
+function hasSectionChip(
+  sectionName: string | null | undefined,
+): sectionName is string {
+  return Boolean(sectionName?.trim()) && showsSectionOnLearnCard()
+}
+
+/**
  * The item's section label, shown after the tags so IIT Jodhpur students can tell
- * apart listings they hold in more than one section. Only the `/learn` feed sets
- * `sectionName`, and only `SECTION_ON_LEARN_CARD_PORTALS` renders it.
+ * apart listings they hold in more than one section. Set by the `/learn` feed and
+ * the dashboard schedule/pending feeds; only `SECTION_ON_LEARN_CARD_PORTALS`
+ * renders it.
  */
 function LearnSectionChip({
   sectionName,
 }: {
   sectionName: string | null | undefined
 }) {
-  if (!sectionName?.trim() || !showsSectionOnLearnCard()) {
+  if (!hasSectionChip(sectionName)) {
     return null
   }
 
@@ -82,7 +94,7 @@ function LearnSectionChip({
       size="regular"
       label={sectionName}
       tabIndex={-1}
-      className="pointer-events-none max-w-[24ch] truncate"
+      className="pointer-events-none"
       {...learnContentTagChipPalette}
     />
   )
@@ -203,10 +215,12 @@ export function LearnContentCard({
                     </>
                   ) : null}
                 </div>
-                {item.tags.length > 0 || item.assignmentWeightage != null ? (
+                {item.tags.length > 0 ||
+                item.assignmentWeightage != null ||
+                hasSectionChip(item.sectionName) ? (
                   <div
                     data-testid="learn-card-dashboard-tags"
-                    className="flex flex-wrap items-center gap-2"
+                    className="flex min-w-0 flex-wrap items-center gap-2"
                   >
                     {item.tags.map((tag, index) => (
                       <MasaiChips
@@ -214,12 +228,12 @@ export function LearnContentCard({
                         type="default"
                         size="regular"
                         label={tag}
-                        title={tag}
                         tabIndex={-1}
-                        className="max-w-[24ch] cursor-default transition-colors duration-200"
+                        className="cursor-default transition-colors duration-200"
                         {...resolveTagChipPalette(tag)}
                       />
                     ))}
+                    <LearnSectionChip sectionName={item.sectionName} />
                     {item.type === 'assignment' ? (
                       <LearnAssignmentWeightageChip
                         weightage={item.assignmentWeightage}
@@ -250,16 +264,15 @@ export function LearnContentCard({
                       ist={item.dateTooltip}
                     />
                   </p>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
                     {item.tags.map((tag, index) => (
                       <MasaiChips
                         key={`${tag}-${index}`}
                         type="default"
                         size="regular"
                         label={tag}
-                        title={tag}
                         tabIndex={-1}
-                        className="max-w-[24ch] cursor-default transition-colors duration-200"
+                        className="cursor-default transition-colors duration-200"
                         {...resolveTagChipPalette(tag)}
                       />
                     ))}

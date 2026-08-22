@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { anchorDay, rangeTitle, shiftAnchor, visibleRange } from './calendarRange'
+import {
+  anchorDay,
+  rangeTitle,
+  shiftAnchor,
+  visibleRange,
+} from './calendarRange'
 
 // 2026-08-14 is a Friday; locale week starts Sunday (dayjs default).
 const ANCHOR = '2026-08-14'

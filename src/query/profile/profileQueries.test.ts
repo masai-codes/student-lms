@@ -46,7 +46,10 @@ describe('PROFILE_QUERY_KEYS', () => {
 
 describe('always-on queries', () => {
   it('the overview and achievements queries carry no enabled gate', () => {
-    for (const options of [profileOverviewQuery(), profileAchievementsQuery()]) {
+    for (const options of [
+      profileOverviewQuery(),
+      profileAchievementsQuery(),
+    ]) {
       expect(options.queryFn).toBeTypeOf('function')
       expect(options.staleTime).toBeGreaterThan(0)
       expect('enabled' in options).toBe(false)

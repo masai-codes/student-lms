@@ -122,7 +122,8 @@ export async function buildProfilePageWorld(
 
     // Two modules per program, so the module pills/dropdown have something to switch.
     for (const moduleName of ['foundations', 'advanced']) {
-      const isUndertakingSection = isFirstProgram && moduleName === 'foundations'
+      const isUndertakingSection =
+        isFirstProgram && moduleName === 'foundations'
 
       const section = await createSection({
         batchId: batch.id,
@@ -187,8 +188,9 @@ export async function buildProfilePageWorld(
         id: `${flowId}-session-${index + 1}`,
         userId: student.id,
         userAgent: device.userAgent,
-        lastActivity:
-          Math.floor(offsetFromNow({ daysAgo: index }).getTime() / 1000),
+        lastActivity: Math.floor(
+          offsetFromNow({ daysAgo: index }).getTime() / 1000,
+        ),
       }),
     )
   }

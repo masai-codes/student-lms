@@ -17,7 +17,7 @@ function normalizeCount(result: unknown): number {
     result &&
     typeof result === 'object' &&
     'rows' in result &&
-    Array.isArray((result as { rows: unknown }).rows)
+    Array.isArray(result.rows)
   ) {
     rows = (result as { rows: Array<Record<string, unknown>> }).rows
   }
