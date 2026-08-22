@@ -1,5 +1,17 @@
+import type { LectureAiChatSuggestion } from '@/server/api/ai-tutor/types/chatSuggestions'
+
 /** Max user message length accepted by the streaming chat endpoint. */
 export const AI_TUTOR_CHAT_MAX_MESSAGE_LENGTH = 4_000
+
+/** Suggestions shown for every lecture, alongside lecture-specific FAQs, in the chat empty state. */
+export const AI_TUTOR_FIXED_CHAT_SUGGESTIONS: Array<LectureAiChatSuggestion> = [
+  { icon: 'summary', question: 'Summarize the key points of this lecture' },
+  {
+    icon: 'explain',
+    question: 'What are the core concepts I should understand?',
+  },
+  { icon: 'quiz', question: 'Quiz me on this lecture' },
+]
 
 /** Max feedback text length persisted on `ai_chat_practice_questions.feedback`. */
 export const AI_TUTOR_FEEDBACK_MAX_LENGTH = 191

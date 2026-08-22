@@ -11,7 +11,7 @@ type ChatStreamEvent =
   | { type: 'practiceQuestions'; payload: PracticeQuestionsPayload }
   | { type: 'done'; chatId: number }
 
-export type LectureAiChatPlatform = 'web-desktop' | 'web-mobile'
+export type LectureAiChatPlatform = 'web-new-desktop' | 'web-new-mobile'
 
 export type StreamLectureAiChatRequest = {
   lectureId: number

@@ -43,7 +43,7 @@ function createWrapper() {
 
 function renderChat(
   lectureId = 1,
-  platform: 'web-desktop' | 'web-mobile' = 'web-desktop',
+  platform: 'web-new-desktop' | 'web-new-mobile' = 'web-new-desktop',
   onFirstReplyInNewThreadCompleted?: (chatId: number) => void,
 ) {
   return renderHook(
@@ -89,7 +89,7 @@ describe('useLectureAiChat', () => {
     expect(lastRequest).toEqual({
       lectureId: 42,
       chat: 'hello',
-      platform: 'web-desktop',
+      platform: 'web-new-desktop',
       language: 'English',
       supportedUIElements: ['quiz'],
     })
@@ -111,7 +111,7 @@ describe('useLectureAiChat', () => {
   })
 
   it('passes web-mobile platform when provided', () => {
-    const { result } = renderChat(1, 'web-mobile')
+    const { result } = renderChat(1, 'web-new-mobile')
 
     act(() => {
       result.current.sendMessage('hello')
@@ -120,7 +120,7 @@ describe('useLectureAiChat', () => {
     expect(lastRequest).toEqual({
       lectureId: 1,
       chat: 'hello',
-      platform: 'web-mobile',
+      platform: 'web-new-mobile',
       language: 'English',
       supportedUIElements: ['quiz'],
     })
@@ -171,7 +171,7 @@ describe('useLectureAiChat', () => {
     expect(lastRequest).toEqual({
       lectureId: 1,
       chat: 'second',
-      platform: 'web-desktop',
+      platform: 'web-new-desktop',
       language: 'English',
       supportedUIElements: ['quiz'],
       chatId: 99,
@@ -252,7 +252,7 @@ describe('useLectureAiChat', () => {
     expect(lastRequest).toEqual({
       lectureId: 1,
       chat: 'follow up',
-      platform: 'web-desktop',
+      platform: 'web-new-desktop',
       language: 'English',
       supportedUIElements: ['quiz'],
       chatId: 5,
@@ -261,7 +261,7 @@ describe('useLectureAiChat', () => {
 
   it('fires onFirstReplyInNewThreadCompleted once the first message of a new thread completes', () => {
     const onFirstReply = vi.fn()
-    const { result } = renderChat(1, 'web-desktop', onFirstReply)
+    const { result } = renderChat(1, 'web-new-desktop', onFirstReply)
 
     act(() => result.current.sendMessage('hello'))
     act(() => lastHandlers!.onComplete(7))
@@ -272,7 +272,7 @@ describe('useLectureAiChat', () => {
 
   it('does not fire onFirstReplyInNewThreadCompleted for follow-up messages in the same thread', () => {
     const onFirstReply = vi.fn()
-    const { result } = renderChat(1, 'web-desktop', onFirstReply)
+    const { result } = renderChat(1, 'web-new-desktop', onFirstReply)
 
     act(() => result.current.sendMessage('first'))
     act(() => lastHandlers!.onComplete(7))
@@ -288,7 +288,7 @@ describe('useLectureAiChat', () => {
       chat: [{ role: 'user', content: 'earlier question' }],
     })
     const onFirstReply = vi.fn()
-    const { result } = renderChat(1, 'web-desktop', onFirstReply)
+    const { result } = renderChat(1, 'web-new-desktop', onFirstReply)
 
     await act(async () => {
       await result.current.selectConversation(5)
@@ -301,7 +301,7 @@ describe('useLectureAiChat', () => {
 
   it('re-arms first-reply eligibility after startNewChat', () => {
     const onFirstReply = vi.fn()
-    const { result } = renderChat(1, 'web-desktop', onFirstReply)
+    const { result } = renderChat(1, 'web-new-desktop', onFirstReply)
 
     act(() => result.current.sendMessage('first'))
     act(() => lastHandlers!.onComplete(7))

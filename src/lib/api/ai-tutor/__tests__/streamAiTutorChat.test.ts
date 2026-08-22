@@ -88,7 +88,7 @@ describe('streamLectureAiChat', () => {
     ])
 
     const result = await runStream(
-      { lectureId: 1, chat: 'hi', platform: 'web-desktop' },
+      { lectureId: 1, chat: 'hi', platform: 'web-new-desktop' },
       response,
     )
 
@@ -108,7 +108,7 @@ describe('streamLectureAiChat', () => {
     )
 
     const result = await runStream(
-      { lectureId: 1, chat: 'hi', platform: 'web-desktop' },
+      { lectureId: 1, chat: 'hi', platform: 'web-new-desktop' },
       response,
     )
 
@@ -124,7 +124,7 @@ describe('streamLectureAiChat', () => {
 
     await new Promise<void>((resolve) => {
       streamLectureAiChat(
-        { lectureId: 2, chat: 'q', platform: 'web-mobile', chatId: 9 },
+        { lectureId: 2, chat: 'q', platform: 'web-new-mobile', chatId: 9 },
         {
           onChunk: () => {},
           onComplete: () => resolve(),
@@ -137,7 +137,7 @@ describe('streamLectureAiChat', () => {
     expect(JSON.parse(requestInit.body as string)).toEqual({
       lectureId: 2,
       chat: 'q',
-      platform: 'web-mobile',
+      platform: 'web-new-mobile',
       chatId: 9,
     })
     expect(requestInit.credentials).toBe('same-origin')

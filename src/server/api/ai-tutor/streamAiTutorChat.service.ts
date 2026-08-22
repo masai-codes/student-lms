@@ -56,6 +56,7 @@ export async function prepareLectureChatContext(
     userId: input.userId,
     lectureId: input.lectureId,
     chatId: input.chatId,
+    platform: input.platform,
   })
 
   const materials = await getLectureChatMaterials(input.lectureId)

@@ -15,10 +15,7 @@ describe('parsePlatform', () => {
     expect(parsePlatform('')).toBe('app')
   })
 
-  it('accepts ios, android, web, web-mobile, web-desktop, and app case-insensitively', () => {
-    expect(parsePlatform('ios')).toBe('ios')
-    expect(parsePlatform('IOS')).toBe('ios')
-    expect(parsePlatform('android')).toBe('android')
+  it('accepts web, web-mobile, web-desktop, web-new, web-new-desktop, web-new-mobile, and app case-insensitively', () => {
     expect(parsePlatform('web')).toBe('web')
     expect(parsePlatform('web-mobile')).toBe('web-mobile')
     expect(parsePlatform('WEB-MOBILE')).toBe('web-mobile')
@@ -26,10 +23,20 @@ describe('parsePlatform', () => {
     expect(parsePlatform('WEB-DESKTOP')).toBe('web-desktop')
     expect(parsePlatform('app')).toBe('app')
     expect(parsePlatform('APP')).toBe('app')
-    expect(parsePlatform('web-desktop')).toBe('web-desktop')
-    expect(parsePlatform('WEB-DESKTOP')).toBe('web-desktop')
-    expect(parsePlatform('web-mobile')).toBe('web-mobile')
-    expect(parsePlatform('WEB-MOBILE')).toBe('web-mobile')
+    expect(parsePlatform('web-new')).toBe('web-new')
+    expect(parsePlatform('web-new-desktop')).toBe('web-new-desktop')
+    expect(parsePlatform('WEB-NEW-DESKTOP')).toBe('web-new-desktop')
+    expect(parsePlatform('web-new-mobile')).toBe('web-new-mobile')
+    expect(parsePlatform('WEB-NEW-MOBILE')).toBe('web-new-mobile')
+  })
+
+  it('normalizes bare ios/android into the app- namespace', () => {
+    expect(parsePlatform('ios')).toBe('app-ios')
+    expect(parsePlatform('IOS')).toBe('app-ios')
+    expect(parsePlatform('android')).toBe('app-android')
+    expect(parsePlatform('ANDROID')).toBe('app-android')
+    expect(parsePlatform('app-ios')).toBe('app-ios')
+    expect(parsePlatform('app-android')).toBe('app-android')
   })
 
   it('rejects unknown platform values', () => {
@@ -54,16 +61,16 @@ describe('parseRatingForPlatform', () => {
     expect(parseRatingForPlatform(5, 'web-mobile')).toBe(5)
   })
 
-  it('accepts 1 through 5 for ios and android', () => {
-    expect(parseRatingForPlatform(1, 'ios')).toBe(1)
-    expect(parseRatingForPlatform(5, 'android')).toBe(5)
+  it('accepts 1 through 5 for app-ios and app-android', () => {
+    expect(parseRatingForPlatform(1, 'app-ios')).toBe(1)
+    expect(parseRatingForPlatform(5, 'app-android')).toBe(5)
   })
 
   it('rejects out-of-range mobile ratings', () => {
-    expect(() => parseRatingForPlatform(0, 'ios')).toThrowError(
+    expect(() => parseRatingForPlatform(0, 'app-ios')).toThrowError(
       expect.objectContaining({ code: 'AI_TUTOR_RATING_INVALID' }),
     )
-    expect(() => parseRatingForPlatform(6, 'android')).toThrowError(
+    expect(() => parseRatingForPlatform(6, 'app-android')).toThrowError(
       expect.objectContaining({ code: 'AI_TUTOR_RATING_INVALID' }),
     )
   })

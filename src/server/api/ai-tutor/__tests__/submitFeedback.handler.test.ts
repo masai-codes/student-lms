@@ -131,6 +131,7 @@ describe('handleSubmitFeedback', () => {
       chatId: 45,
       rating: 1,
       feedback: 'app-Helpful',
+      platform: 'app',
     })
     await expect(res.json()).resolves.toEqual({
       chatId: 45,
@@ -139,14 +140,14 @@ describe('handleSubmitFeedback', () => {
     })
   })
 
-  it('passes through mobile ratings and prefixes feedback with platform', async () => {
+  it('passes through mobile ratings and prefixes feedback with the normalized platform', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
       chatId: 45,
       rating: 4,
-      feedback: 'ios-Helpful',
+      feedback: 'app-ios-Helpful',
     })
 
     const res = await handleSubmitFeedback(
@@ -165,18 +166,19 @@ describe('handleSubmitFeedback', () => {
       lectureId: 123,
       chatId: 45,
       rating: 4,
-      feedback: 'ios-Helpful',
+      feedback: 'app-ios-Helpful',
+      platform: 'app-ios',
     })
   })
 
-  it('stores only the platform when feedback text is blank', async () => {
+  it('stores only the normalized platform when feedback text is blank', async () => {
     const { handleSubmitFeedback } =
       await import('../handlers/submitFeedback.handler')
     vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
     hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
       chatId: 45,
       rating: 1,
-      feedback: 'android',
+      feedback: 'app-android',
     })
 
     const res = await handleSubmitFeedback(
@@ -194,7 +196,40 @@ describe('handleSubmitFeedback', () => {
       lectureId: 123,
       chatId: 45,
       rating: 1,
-      feedback: 'android',
+      feedback: 'app-android',
+      platform: 'app-android',
     })
   })
+
+  it.each(['web', 'web-mobile', 'web-desktop', 'app', 'web-new'])(
+    'stays backward compatible with an old client still sending platform "%s" unchanged',
+    async (legacyPlatform) => {
+      const { handleSubmitFeedback } =
+        await import('../handlers/submitFeedback.handler')
+      vi.mocked(requireSessionUserId).mockResolvedValueOnce(7)
+      hoisted.submitAiTutorFeedback.mockResolvedValueOnce({
+        chatId: 45,
+        rating: 5,
+        feedback: `${legacyPlatform}-Great`,
+      })
+
+      const res = await handleSubmitFeedback(
+        postRequest({
+          lectureId: 123,
+          chatId: 45,
+          rating: 5,
+          feedback: 'Great',
+          platform: legacyPlatform,
+        }),
+      )
+
+      expect(res.status).toBe(200)
+      expect(hoisted.submitAiTutorFeedback).toHaveBeenCalledWith(
+        expect.objectContaining({
+          platform: legacyPlatform,
+          feedback: `${legacyPlatform}-Great`,
+        }),
+      )
+    },
+  )
 })

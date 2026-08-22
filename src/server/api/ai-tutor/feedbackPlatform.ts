@@ -3,23 +3,42 @@ import { ApiError } from '@/server/api/http/apiError'
 export type AiTutorFeedbackPlatform =
   | 'ios'
   | 'android'
+  | 'app-ios'
+  | 'app-android'
   | 'web'
   | 'web-mobile'
   | 'web-desktop'
   | 'app'
   | 'web-new'
+  | 'web-new-desktop'
+  | 'web-new-mobile'
 
 const PLATFORMS: ReadonlyArray<AiTutorFeedbackPlatform> = [
   'ios',
   'android',
+  'app-ios',
+  'app-android',
   'web',
   'web-mobile',
   'web-desktop',
   'app',
-  'web-desktop',
-  'web-mobile',
   'web-new',
+  'web-new-desktop',
+  'web-new-mobile',
 ]
+
+/**
+ * Legacy platform values that get normalized on the way in: the native app
+ * historically sent bare `ios`/`android`, but analytics wants them grouped
+ * under the `app-` namespace alongside `app`. Accepted as input, never
+ * returned from `parsePlatform`.
+ */
+const PLATFORM_ALIASES: Partial<
+  Record<AiTutorFeedbackPlatform, AiTutorFeedbackPlatform>
+> = {
+  ios: 'app-ios',
+  android: 'app-android',
+}
 
 function isWebLikePlatform(platform: AiTutorFeedbackPlatform): boolean {
   return (
@@ -48,7 +67,7 @@ export function parsePlatform(value: unknown): AiTutorFeedbackPlatform {
   if (!PLATFORMS.includes(normalized)) {
     throw new ApiError(400, 'AI_TUTOR_PLATFORM_INVALID')
   }
-  return normalized
+  return PLATFORM_ALIASES[normalized] ?? normalized
 }
 
 export function parseRatingForPlatform(

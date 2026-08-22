@@ -162,6 +162,7 @@ import { Route as ApiCourseBatchIdCertificatesRouteImport } from './routes/api/c
 import { Route as ApiCourseBatchIdAttendanceRouteImport } from './routes/api/course/$batchId/attendance'
 import { Route as ApiCourseBatchIdAgreementsRouteImport } from './routes/api/course/$batchId/agreements'
 import { Route as ApiCalendarFeedTokenRouteImport } from './routes/api/calendar/feed.$token'
+import { Route as ApiCacheLectureAiChatSuggestionsLectureIdRouteImport } from './routes/api/cache/lecture-ai-chat-suggestions/$lectureId'
 import { Route as ApiAnnouncementIdMarkUnreadRouteImport } from './routes/api/announcement/$id/mark-unread'
 import { Route as ApiAnnouncementIdMarkReadRouteImport } from './routes/api/announcement/$id/mark-read'
 import { Route as ApiAnnouncementIdBookmarkRouteImport } from './routes/api/announcement/$id/bookmark'
@@ -223,7 +224,6 @@ import { Route as ApiInterviewsSessionsSessionIdTurnsRouteImport } from './route
 import { Route as ApiInterviewsSessionsSessionIdSttTokenRouteImport } from './routes/api/interviews/sessions/$sessionId/stt-token'
 import { Route as ApiInterviewsSessionsSessionIdAbandonRouteImport } from './routes/api/interviews/sessions/$sessionId/abandon'
 import { Route as ApiAiTutorLecturesLectureIdIngestRouteImport } from './routes/api/ai-tutor/lectures/$lectureId/ingest'
-import { Route as ApiAiTutorLecturesLectureIdFaqsRouteImport } from './routes/api/ai-tutor/lectures/$lectureId/faqs'
 import { Route as ApiAiTutorChatPracticeQuestionsAnswersRouteImport } from './routes/api/ai-tutor/chat/practice-questions/answers'
 import { Route as ApiAiTutorChatFeedbackMigrateRatingsRouteImport } from './routes/api/ai-tutor/chat/feedback/migrate-ratings'
 import { Route as ApiAiTutorChatConversationsChatIdRouteImport } from './routes/api/ai-tutor/chat/conversations/$chatId'
@@ -1091,6 +1091,12 @@ const ApiCalendarFeedTokenRoute = ApiCalendarFeedTokenRouteImport.update({
   path: '/api/calendar/feed/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCacheLectureAiChatSuggestionsLectureIdRoute =
+  ApiCacheLectureAiChatSuggestionsLectureIdRouteImport.update({
+    id: '/api/cache/lecture-ai-chat-suggestions/$lectureId',
+    path: '/api/cache/lecture-ai-chat-suggestions/$lectureId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAnnouncementIdMarkUnreadRoute =
   ApiAnnouncementIdMarkUnreadRouteImport.update({
     id: '/api/announcement/$id/mark-unread',
@@ -1452,12 +1458,6 @@ const ApiAiTutorLecturesLectureIdIngestRoute =
     path: '/api/ai-tutor/lectures/$lectureId/ingest',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiAiTutorLecturesLectureIdFaqsRoute =
-  ApiAiTutorLecturesLectureIdFaqsRouteImport.update({
-    id: '/api/ai-tutor/lectures/$lectureId/faqs',
-    path: '/api/ai-tutor/lectures/$lectureId/faqs',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiAiTutorChatPracticeQuestionsAnswersRoute =
   ApiAiTutorChatPracticeQuestionsAnswersRouteImport.update({
     id: '/api/ai-tutor/chat/practice-questions/answers',
@@ -1643,6 +1643,7 @@ export interface FileRoutesByFullPath {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/cache/lecture-ai-chat-suggestions/$lectureId': typeof ApiCacheLectureAiChatSuggestionsLectureIdRoute
   '/api/calendar/feed/$token': typeof ApiCalendarFeedTokenRoute
   '/api/course/$batchId/agreements': typeof ApiCourseBatchIdAgreementsRoute
   '/api/course/$batchId/attendance': typeof ApiCourseBatchIdAttendanceRoute
@@ -1733,7 +1734,6 @@ export interface FileRoutesByFullPath {
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
   '/api/ai-tutor/chat/practice-questions/answers': typeof ApiAiTutorChatPracticeQuestionsAnswersRoute
-  '/api/ai-tutor/lectures/$lectureId/faqs': typeof ApiAiTutorLecturesLectureIdFaqsRoute
   '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/interviews/sessions/$sessionId/abandon': typeof ApiInterviewsSessionsSessionIdAbandonRoute
   '/api/interviews/sessions/$sessionId/stt-token': typeof ApiInterviewsSessionsSessionIdSttTokenRoute
@@ -1872,6 +1872,7 @@ export interface FileRoutesByTo {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/cache/lecture-ai-chat-suggestions/$lectureId': typeof ApiCacheLectureAiChatSuggestionsLectureIdRoute
   '/api/calendar/feed/$token': typeof ApiCalendarFeedTokenRoute
   '/api/course/$batchId/agreements': typeof ApiCourseBatchIdAgreementsRoute
   '/api/course/$batchId/attendance': typeof ApiCourseBatchIdAttendanceRoute
@@ -1962,7 +1963,6 @@ export interface FileRoutesByTo {
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
   '/api/ai-tutor/chat/practice-questions/answers': typeof ApiAiTutorChatPracticeQuestionsAnswersRoute
-  '/api/ai-tutor/lectures/$lectureId/faqs': typeof ApiAiTutorLecturesLectureIdFaqsRoute
   '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/interviews/sessions/$sessionId/abandon': typeof ApiInterviewsSessionsSessionIdAbandonRoute
   '/api/interviews/sessions/$sessionId/stt-token': typeof ApiInterviewsSessionsSessionIdSttTokenRoute
@@ -2104,6 +2104,7 @@ export interface FileRoutesById {
   '/api/announcement/$id/bookmark': typeof ApiAnnouncementIdBookmarkRoute
   '/api/announcement/$id/mark-read': typeof ApiAnnouncementIdMarkReadRoute
   '/api/announcement/$id/mark-unread': typeof ApiAnnouncementIdMarkUnreadRoute
+  '/api/cache/lecture-ai-chat-suggestions/$lectureId': typeof ApiCacheLectureAiChatSuggestionsLectureIdRoute
   '/api/calendar/feed/$token': typeof ApiCalendarFeedTokenRoute
   '/api/course/$batchId/agreements': typeof ApiCourseBatchIdAgreementsRoute
   '/api/course/$batchId/attendance': typeof ApiCourseBatchIdAttendanceRoute
@@ -2194,7 +2195,6 @@ export interface FileRoutesById {
   '/api/ai-tutor/chat/conversations/$chatId': typeof ApiAiTutorChatConversationsChatIdRoute
   '/api/ai-tutor/chat/feedback/migrate-ratings': typeof ApiAiTutorChatFeedbackMigrateRatingsRoute
   '/api/ai-tutor/chat/practice-questions/answers': typeof ApiAiTutorChatPracticeQuestionsAnswersRoute
-  '/api/ai-tutor/lectures/$lectureId/faqs': typeof ApiAiTutorLecturesLectureIdFaqsRoute
   '/api/ai-tutor/lectures/$lectureId/ingest': typeof ApiAiTutorLecturesLectureIdIngestRoute
   '/api/interviews/sessions/$sessionId/abandon': typeof ApiInterviewsSessionsSessionIdAbandonRoute
   '/api/interviews/sessions/$sessionId/stt-token': typeof ApiInterviewsSessionsSessionIdSttTokenRoute
@@ -2336,6 +2336,7 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/cache/lecture-ai-chat-suggestions/$lectureId'
     | '/api/calendar/feed/$token'
     | '/api/course/$batchId/agreements'
     | '/api/course/$batchId/attendance'
@@ -2426,7 +2427,6 @@ export interface FileRouteTypes {
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
     | '/api/ai-tutor/chat/practice-questions/answers'
-    | '/api/ai-tutor/lectures/$lectureId/faqs'
     | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/interviews/sessions/$sessionId/abandon'
     | '/api/interviews/sessions/$sessionId/stt-token'
@@ -2565,6 +2565,7 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/cache/lecture-ai-chat-suggestions/$lectureId'
     | '/api/calendar/feed/$token'
     | '/api/course/$batchId/agreements'
     | '/api/course/$batchId/attendance'
@@ -2655,7 +2656,6 @@ export interface FileRouteTypes {
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
     | '/api/ai-tutor/chat/practice-questions/answers'
-    | '/api/ai-tutor/lectures/$lectureId/faqs'
     | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/interviews/sessions/$sessionId/abandon'
     | '/api/interviews/sessions/$sessionId/stt-token'
@@ -2796,6 +2796,7 @@ export interface FileRouteTypes {
     | '/api/announcement/$id/bookmark'
     | '/api/announcement/$id/mark-read'
     | '/api/announcement/$id/mark-unread'
+    | '/api/cache/lecture-ai-chat-suggestions/$lectureId'
     | '/api/calendar/feed/$token'
     | '/api/course/$batchId/agreements'
     | '/api/course/$batchId/attendance'
@@ -2886,7 +2887,6 @@ export interface FileRouteTypes {
     | '/api/ai-tutor/chat/conversations/$chatId'
     | '/api/ai-tutor/chat/feedback/migrate-ratings'
     | '/api/ai-tutor/chat/practice-questions/answers'
-    | '/api/ai-tutor/lectures/$lectureId/faqs'
     | '/api/ai-tutor/lectures/$lectureId/ingest'
     | '/api/interviews/sessions/$sessionId/abandon'
     | '/api/interviews/sessions/$sessionId/stt-token'
@@ -3005,6 +3005,7 @@ export interface RootRouteChildren {
   ApiAnnouncementIdBookmarkRoute: typeof ApiAnnouncementIdBookmarkRoute
   ApiAnnouncementIdMarkReadRoute: typeof ApiAnnouncementIdMarkReadRoute
   ApiAnnouncementIdMarkUnreadRoute: typeof ApiAnnouncementIdMarkUnreadRoute
+  ApiCacheLectureAiChatSuggestionsLectureIdRoute: typeof ApiCacheLectureAiChatSuggestionsLectureIdRoute
   ApiCalendarFeedTokenRoute: typeof ApiCalendarFeedTokenRoute
   ApiCourseBatchIdAgreementsRoute: typeof ApiCourseBatchIdAgreementsRoute
   ApiCourseBatchIdAttendanceRoute: typeof ApiCourseBatchIdAttendanceRoute
@@ -3069,7 +3070,6 @@ export interface RootRouteChildren {
   ApiWhatsNewIdIndexRoute: typeof ApiWhatsNewIdIndexRoute
   ApiAiTutorChatConversationsChatIdRoute: typeof ApiAiTutorChatConversationsChatIdRoute
   ApiAiTutorChatPracticeQuestionsAnswersRoute: typeof ApiAiTutorChatPracticeQuestionsAnswersRoute
-  ApiAiTutorLecturesLectureIdFaqsRoute: typeof ApiAiTutorLecturesLectureIdFaqsRoute
   ApiAiTutorLecturesLectureIdIngestRoute: typeof ApiAiTutorLecturesLectureIdIngestRoute
   ApiInterviewsSessionsSessionIdAbandonRoute: typeof ApiInterviewsSessionsSessionIdAbandonRoute
   ApiInterviewsSessionsSessionIdSttTokenRoute: typeof ApiInterviewsSessionsSessionIdSttTokenRoute
@@ -4161,6 +4161,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCalendarFeedTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cache/lecture-ai-chat-suggestions/$lectureId': {
+      id: '/api/cache/lecture-ai-chat-suggestions/$lectureId'
+      path: '/api/cache/lecture-ai-chat-suggestions/$lectureId'
+      fullPath: '/api/cache/lecture-ai-chat-suggestions/$lectureId'
+      preLoaderRoute: typeof ApiCacheLectureAiChatSuggestionsLectureIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/announcement/$id/mark-unread': {
       id: '/api/announcement/$id/mark-unread'
       path: '/api/announcement/$id/mark-unread'
@@ -4586,13 +4593,6 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-tutor/lectures/$lectureId/ingest'
       fullPath: '/api/ai-tutor/lectures/$lectureId/ingest'
       preLoaderRoute: typeof ApiAiTutorLecturesLectureIdIngestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/ai-tutor/lectures/$lectureId/faqs': {
-      id: '/api/ai-tutor/lectures/$lectureId/faqs'
-      path: '/api/ai-tutor/lectures/$lectureId/faqs'
-      fullPath: '/api/ai-tutor/lectures/$lectureId/faqs'
-      preLoaderRoute: typeof ApiAiTutorLecturesLectureIdFaqsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai-tutor/chat/practice-questions/answers': {
@@ -5147,6 +5147,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAnnouncementIdBookmarkRoute: ApiAnnouncementIdBookmarkRoute,
   ApiAnnouncementIdMarkReadRoute: ApiAnnouncementIdMarkReadRoute,
   ApiAnnouncementIdMarkUnreadRoute: ApiAnnouncementIdMarkUnreadRoute,
+  ApiCacheLectureAiChatSuggestionsLectureIdRoute:
+    ApiCacheLectureAiChatSuggestionsLectureIdRoute,
   ApiCalendarFeedTokenRoute: ApiCalendarFeedTokenRoute,
   ApiCourseBatchIdAgreementsRoute: ApiCourseBatchIdAgreementsRoute,
   ApiCourseBatchIdAttendanceRoute: ApiCourseBatchIdAttendanceRoute,
@@ -5221,7 +5223,6 @@ const rootRouteChildren: RootRouteChildren = {
     ApiAiTutorChatConversationsChatIdRoute,
   ApiAiTutorChatPracticeQuestionsAnswersRoute:
     ApiAiTutorChatPracticeQuestionsAnswersRoute,
-  ApiAiTutorLecturesLectureIdFaqsRoute: ApiAiTutorLecturesLectureIdFaqsRoute,
   ApiAiTutorLecturesLectureIdIngestRoute:
     ApiAiTutorLecturesLectureIdIngestRoute,
   ApiInterviewsSessionsSessionIdAbandonRoute:

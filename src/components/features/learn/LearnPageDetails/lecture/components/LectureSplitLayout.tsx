@@ -58,17 +58,19 @@ export function LectureSplitLayout({
   const feedback = useLectureAiChatFeedback(lectureId)
   const chat = useLectureAiChat(
     lectureId,
-    'web-desktop',
+    'web-new-desktop',
     feedback.notifyFirstReplyCompleted,
   )
 
   // Chat is "active" — and the feedback prompt withheld — while a reply is
   // in flight/streaming or the learner is typing in the composer, across
   // whichever surface (rail, in-video fullscreen, mobile drawer) is mounted.
-  const isChatActive = chat.isSending || chat.input.length > 0
+  // Scrolling the message list is reported separately by each surface (see
+  // `onScrollActivityChange` on `LectureAiChatPanel`).
+  const isComposing = chat.isSending || chat.input.length > 0
   useEffect(() => {
-    feedback.reportActivity(isChatActive)
-  }, [feedback, isChatActive])
+    feedback.reportActivity('compose', isComposing)
+  }, [feedback, isComposing])
 
   return (
     <LectureSplitChatProvider value={{ ...splitChat, chat, feedback }}>

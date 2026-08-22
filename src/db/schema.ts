@@ -49,9 +49,13 @@ export const aiChatPracticeQuestions = mysqlTable(
     feedback: varchar({ length: 191 }),
     feedbackTime: timestamp('feedback_time', { mode: 'string' }),
     rating: int(),
+    startedFrom: varchar('started_from', { length: 50 }),
+    ratedFrom: varchar('rated_from', { length: 50 }),
   },
   (table) => [
     index('ai_chat_practice_questions_created_at_idx').on(table.createdAt),
+    index('ai_chat_practice_questions_started_from_idx').on(table.startedFrom),
+    index('ai_chat_practice_questions_rated_from_idx').on(table.ratedFrom),
     primaryKey({ columns: [table.id], name: 'ai_chat_practice_questions_id' }),
   ],
 )

@@ -45,3 +45,7 @@ see the coding guidelines' "Automation Test Hooks"). agenthand/Puppeteer target
 rows expose `[data-testid="lecture-list-item"]` (also `assignment-list-item` /
 `resource-list-item`, each with `data-content-id`), under container
 `[data-testid="learn-content-list"]`.
+
+# Guideline for changes
+
+Whenever you make a change, run `npm run typecheck` first and then run `npm run test`

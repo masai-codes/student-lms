@@ -157,6 +157,9 @@ export function LectureAiChatMobileDock({
               containScroll
               languageMenuContainer={drawerContentEl}
               onLanguageMenuOpenChange={handleLanguageMenuOpenChange}
+              onScrollActivityChange={(isScrolling) =>
+                feedback.reportActivity('scroll', isScrolling)
+              }
             />
           </Drawer.Content>
         </Drawer.Portal>

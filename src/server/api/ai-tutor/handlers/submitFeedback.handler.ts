@@ -27,6 +27,7 @@ function parseFeedbackBody(body: SubmitFeedbackBody | null): {
   chatId: number
   rating: number
   feedback: string
+  platform: ReturnType<typeof parsePlatform>
 } {
   const lectureId = parsePositiveInt(body?.lectureId)
   if (!lectureId) {
@@ -43,7 +44,7 @@ function parseFeedbackBody(body: SubmitFeedbackBody | null): {
   const userFeedback = typeof body?.feedback === 'string' ? body.feedback : null
   const feedback = encodeFeedbackWithPlatform(platform, userFeedback)
 
-  return { lectureId, chatId, rating, feedback }
+  return { lectureId, chatId, rating, feedback, platform }
 }
 
 export async function handleSubmitFeedback(
@@ -62,6 +63,7 @@ export async function handleSubmitFeedback(
       chatId: parsed.chatId,
       rating: parsed.rating,
       feedback: parsed.feedback,
+      platform: parsed.platform,
     })
 
     return jsonOk(data)

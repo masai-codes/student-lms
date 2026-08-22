@@ -38,7 +38,7 @@ describe('useLectureAiChatFeedback', () => {
     const { result } = renderHook(() => useLectureAiChatFeedback(1))
 
     act(() => result.current.notifyFirstReplyCompleted(42))
-    act(() => result.current.reportActivity(true))
+    act(() => result.current.reportActivity('compose', true))
     act(() => vi.advanceTimersByTime(15_000))
 
     expect(result.current.isVisible).toBe(false)
@@ -49,13 +49,43 @@ describe('useLectureAiChatFeedback', () => {
 
     act(() => result.current.notifyFirstReplyCompleted(42))
     act(() => vi.advanceTimersByTime(10_000))
-    act(() => result.current.reportActivity(true))
-    act(() => result.current.reportActivity(false))
+    act(() => result.current.reportActivity('compose', true))
+    act(() => result.current.reportActivity('compose', false))
     act(() => vi.advanceTimersByTime(10_000))
 
     expect(result.current.isVisible).toBe(false)
 
     act(() => vi.advanceTimersByTime(5_000))
+
+    expect(result.current.isVisible).toBe(true)
+  })
+
+  it('does not show the modal while the learner is scrolling the message list', () => {
+    const { result } = renderHook(() => useLectureAiChatFeedback(1))
+
+    act(() => result.current.notifyFirstReplyCompleted(42))
+    act(() => result.current.reportActivity('scroll', true))
+    act(() => vi.advanceTimersByTime(15_000))
+
+    expect(result.current.isVisible).toBe(false)
+  })
+
+  it('treats compose and scroll as independent sources — one going idle does not hide the other', () => {
+    const { result } = renderHook(() => useLectureAiChatFeedback(1))
+
+    act(() => result.current.notifyFirstReplyCompleted(42))
+    // Learner is typing AND scrolling at once.
+    act(() => result.current.reportActivity('compose', true))
+    act(() => result.current.reportActivity('scroll', true))
+    // Scrolling settles, but they're still typing — must stay suppressed.
+    act(() => result.current.reportActivity('scroll', false))
+    act(() => vi.advanceTimersByTime(15_000))
+
+    expect(result.current.isVisible).toBe(false)
+
+    // Typing stops too — now the full inactivity window applies.
+    act(() => result.current.reportActivity('compose', false))
+    act(() => vi.advanceTimersByTime(15_000))
 
     expect(result.current.isVisible).toBe(true)
   })
