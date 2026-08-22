@@ -13,6 +13,9 @@ export type FoundBatchUser = {
   batchId: number
   meta: string | null
   history: Record<string, unknown> | null
+  /** Cancel state, so undo-cancel can no-op on an already-live row. */
+  status: string | null
+  deletedAt: string | null
 }
 
 export type FindBatchUserParams = {
@@ -63,6 +66,8 @@ export async function findBatchUserByEnrolmentId(
       batchId: batchUser.batchId,
       meta: batchUser.meta,
       history: batchUser.history,
+      status: batchUser.status,
+      deletedAt: batchUser.deletedAt,
     })
     .from(batchUser)
     .innerJoin(users, eq(users.id, batchUser.userId))

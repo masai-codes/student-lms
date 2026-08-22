@@ -99,6 +99,7 @@ import { Route as protectedLayoutBookmarksIndexRouteImport } from './routes/(pro
 import { Route as protectedLayoutAnnouncementsIndexRouteImport } from './routes/(protected)/_layout/announcements/index'
 import { Route as authV2LoginIndexRouteImport } from './routes/(auth)/v2/login/index'
 import { Route as authResetPasswordTokenIndexRouteImport } from './routes/(auth)/reset-password.$token/index'
+import { Route as ApiWebhooksAdmissionsUndoCancelEnrolmentRouteImport } from './routes/api/webhooks/admissions/undo-cancel-enrolment'
 import { Route as ApiWebhooksAdmissionsEventsRouteImport } from './routes/api/webhooks/admissions/events'
 import { Route as ApiWebhooksAdmissionsCreateEnrolmentRouteImport } from './routes/api/webhooks/admissions/create-enrolment'
 import { Route as ApiWebhooksAdmissionsCancelEnrolmentRouteImport } from './routes/api/webhooks/admissions/cancel-enrolment'
@@ -723,6 +724,12 @@ const authResetPasswordTokenIndexRoute =
   authResetPasswordTokenIndexRouteImport.update({
     id: '/(auth)/reset-password/$token/',
     path: '/reset-password/$token/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWebhooksAdmissionsUndoCancelEnrolmentRoute =
+  ApiWebhooksAdmissionsUndoCancelEnrolmentRouteImport.update({
+    id: '/api/webhooks/admissions/undo-cancel-enrolment',
+    path: '/api/webhooks/admissions/undo-cancel-enrolment',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiWebhooksAdmissionsEventsRoute =
@@ -1698,6 +1705,7 @@ export interface FileRoutesByFullPath {
   '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
   '/api/webhooks/admissions/events': typeof ApiWebhooksAdmissionsEventsRoute
+  '/api/webhooks/admissions/undo-cancel-enrolment': typeof ApiWebhooksAdmissionsUndoCancelEnrolmentRoute
   '/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/v2/login/': typeof authV2LoginIndexRoute
   '/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -1926,6 +1934,7 @@ export interface FileRoutesByTo {
   '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
   '/api/webhooks/admissions/events': typeof ApiWebhooksAdmissionsEventsRoute
+  '/api/webhooks/admissions/undo-cancel-enrolment': typeof ApiWebhooksAdmissionsUndoCancelEnrolmentRoute
   '/reset-password/$token': typeof authResetPasswordTokenIndexRoute
   '/v2/login': typeof authV2LoginIndexRoute
   '/announcements': typeof protectedLayoutAnnouncementsIndexRoute
@@ -2157,6 +2166,7 @@ export interface FileRoutesById {
   '/api/webhooks/admissions/cancel-enrolment': typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   '/api/webhooks/admissions/create-enrolment': typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
   '/api/webhooks/admissions/events': typeof ApiWebhooksAdmissionsEventsRoute
+  '/api/webhooks/admissions/undo-cancel-enrolment': typeof ApiWebhooksAdmissionsUndoCancelEnrolmentRoute
   '/(auth)/reset-password/$token/': typeof authResetPasswordTokenIndexRoute
   '/(auth)/v2/login/': typeof authV2LoginIndexRoute
   '/(protected)/_layout/announcements/': typeof protectedLayoutAnnouncementsIndexRoute
@@ -2388,6 +2398,7 @@ export interface FileRouteTypes {
     | '/api/webhooks/admissions/cancel-enrolment'
     | '/api/webhooks/admissions/create-enrolment'
     | '/api/webhooks/admissions/events'
+    | '/api/webhooks/admissions/undo-cancel-enrolment'
     | '/reset-password/$token/'
     | '/v2/login/'
     | '/announcements/'
@@ -2616,6 +2627,7 @@ export interface FileRouteTypes {
     | '/api/webhooks/admissions/cancel-enrolment'
     | '/api/webhooks/admissions/create-enrolment'
     | '/api/webhooks/admissions/events'
+    | '/api/webhooks/admissions/undo-cancel-enrolment'
     | '/reset-password/$token'
     | '/v2/login'
     | '/announcements'
@@ -2846,6 +2858,7 @@ export interface FileRouteTypes {
     | '/api/webhooks/admissions/cancel-enrolment'
     | '/api/webhooks/admissions/create-enrolment'
     | '/api/webhooks/admissions/events'
+    | '/api/webhooks/admissions/undo-cancel-enrolment'
     | '/(auth)/reset-password/$token/'
     | '/(auth)/v2/login/'
     | '/(protected)/_layout/announcements/'
@@ -3044,6 +3057,7 @@ export interface RootRouteChildren {
   ApiWebhooksAdmissionsCancelEnrolmentRoute: typeof ApiWebhooksAdmissionsCancelEnrolmentRoute
   ApiWebhooksAdmissionsCreateEnrolmentRoute: typeof ApiWebhooksAdmissionsCreateEnrolmentRoute
   ApiWebhooksAdmissionsEventsRoute: typeof ApiWebhooksAdmissionsEventsRoute
+  ApiWebhooksAdmissionsUndoCancelEnrolmentRoute: typeof ApiWebhooksAdmissionsUndoCancelEnrolmentRoute
   authResetPasswordTokenIndexRoute: typeof authResetPasswordTokenIndexRoute
   authV2LoginIndexRoute: typeof authV2LoginIndexRoute
   ApiAnnouncementIdIndexRoute: typeof ApiAnnouncementIdIndexRoute
@@ -3704,6 +3718,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password/$token'
       fullPath: '/reset-password/$token/'
       preLoaderRoute: typeof authResetPasswordTokenIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/admissions/undo-cancel-enrolment': {
+      id: '/api/webhooks/admissions/undo-cancel-enrolment'
+      path: '/api/webhooks/admissions/undo-cancel-enrolment'
+      fullPath: '/api/webhooks/admissions/undo-cancel-enrolment'
+      preLoaderRoute: typeof ApiWebhooksAdmissionsUndoCancelEnrolmentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/webhooks/admissions/events': {
@@ -5185,6 +5206,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiWebhooksAdmissionsCreateEnrolmentRoute:
     ApiWebhooksAdmissionsCreateEnrolmentRoute,
   ApiWebhooksAdmissionsEventsRoute: ApiWebhooksAdmissionsEventsRoute,
+  ApiWebhooksAdmissionsUndoCancelEnrolmentRoute:
+    ApiWebhooksAdmissionsUndoCancelEnrolmentRoute,
   authResetPasswordTokenIndexRoute: authResetPasswordTokenIndexRoute,
   authV2LoginIndexRoute: authV2LoginIndexRoute,
   ApiAnnouncementIdIndexRoute: ApiAnnouncementIdIndexRoute,

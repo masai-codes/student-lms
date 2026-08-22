@@ -99,13 +99,52 @@ enrolment is then only matched when the student's `users.client` equals it, so a
 mismatch is a 404 `ENROLMENT_NOT_FOUND` instead of cancelling another portal's
 enrolment that happens to share the id. Omitted or `null` = match any client.
 
+Optionally send `batch_id` too: only `batch_user` rows in that batch can then
+match. Use it when one `enrolment_id` maps to several rows (re-enrolment,
+transfer) and you need a specific batch cancelled — without it the newest row by
+`created_at` wins. A batch that has no row for this enrolment is likewise a 404
+`ENROLMENT_NOT_FOUND`. Omitted or `null` = match any batch.
+
 ```bash
 curl -X POST 'BASE_URL/api/webhooks/admissions/cancel-enrolment' \
   -H 'Content-Type: application/json' \
   -H 'x-api-key: YOUR_ADMISSIONS_API_KEY' \
   -d '{
     "enrolment_id": 314294967295,
-    "client": "iitj"
+    "client": "iitj",
+    "batch_id": 4821
+  }'
+```
+
+---
+
+## 2b. Undo cancel enrolment
+
+`POST /api/webhooks/admissions/undo-cancel-enrolment`
+
+Reverses a cancel: clears the batch_user's soft-delete, puts it back to
+`active`, drops the `batchEnrolmentCancelled` restriction flags, and revives the
+section_users that cancel soft-deleted. Returns
+`{ batchUserId, userId, batchId, revivedSectionUserIds, alreadyActive }`.
+
+Body is **identical to cancel-enrolment** — `enrolment_id` plus the same optional
+`client` / `batch_id` scopes, resolved by the same lookup, so undo addresses the
+exact row a cancel with the same payload would have.
+
+Only section_users whose last `meta.history` entry is `cancelled` are revived: a
+section_user has no status column, so this is what separates rows a cancel
+removed from rows an admin or a transfer removed. Replaying the webhook is a
+no-op — an already-live batch_user returns `alreadyActive: true` and writes
+nothing.
+
+```bash
+curl -X POST 'BASE_URL/api/webhooks/admissions/undo-cancel-enrolment' \
+  -H 'Content-Type: application/json' \
+  -H 'x-api-key: YOUR_ADMISSIONS_API_KEY' \
+  -d '{
+    "enrolment_id": 314294967295,
+    "client": "iitj",
+    "batch_id": 4821
   }'
 ```
 

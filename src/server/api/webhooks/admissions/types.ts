@@ -66,6 +66,7 @@ export type AdmissionEvent =
 export const ADMISSION_PAYLOAD_TYPE = {
   ENROLMENT: 'enrolment',
   CANCEL: 'cancel',
+  UNDO_CANCEL: 'undo_cancel',
   FULL_PAYMENT_RECEIVED: 'full_payment_received',
   BATCH_TRANSFER_CONSIDERED: 'batch_transfer_considered',
   BATCH_TRANSFER_REJECTED: 'batch_transfer_rejected',
@@ -100,6 +101,18 @@ export type CancelEnrolmentResult = {
   userId: number
   batchId: number
   cancelledSectionUserIds: number[]
+}
+
+export type UndoCancelEnrolmentResult = {
+  batchUserId: number
+  userId: number
+  batchId: number
+  revivedSectionUserIds: number[]
+  /**
+   * `true` when the batch_user was already live — the webhook was a replay or
+   * the enrolment was never cancelled, so nothing was changed.
+   */
+  alreadyActive: boolean
 }
 
 export type { CreateEnrolmentInput }
