@@ -79,6 +79,13 @@ describe('findBatchUserByEnrolmentId', () => {
     ).rejects.toMatchObject({ code: 'ENROLMENT_NOT_FOUND' })
   })
 
+  it('throws ENROLMENT_NOT_FOUND when the batch filter excludes every row', async () => {
+    // The batch predicate is applied in SQL, so a mismatch surfaces as no rows.
+    await expect(
+      findBatchUserByEnrolmentId(tx([]), { enrolmentId: 999, batchId: 42 }),
+    ).rejects.toMatchObject({ code: 'ENROLMENT_NOT_FOUND' })
+  })
+
   it('throws ENROLMENT_NOT_FOUND when the client filter excludes every row', async () => {
     // The client predicate is applied in SQL, so a mismatch surfaces as no rows.
     await expect(
@@ -104,5 +111,21 @@ describe('findBatchUserByEnrolmentId', () => {
     expect(chunks(withClient.where)).toBeGreaterThan(
       chunks(withoutClient.where),
     )
+  })
+
+  it('builds a wider where clause when a batchId is given', async () => {
+    const withBatch: Captured = {}
+    const withoutBatch: Captured = {}
+    await findBatchUserByEnrolmentId(tx([row(1)], withBatch), {
+      enrolmentId: 999,
+      batchId: 10,
+    })
+    await findBatchUserByEnrolmentId(tx([row(1)], withoutBatch), {
+      enrolmentId: 999,
+    })
+
+    const chunks = (condition: unknown) =>
+      (condition as { queryChunks: unknown[] }).queryChunks.length
+    expect(chunks(withBatch.where)).toBeGreaterThan(chunks(withoutBatch.where))
   })
 })

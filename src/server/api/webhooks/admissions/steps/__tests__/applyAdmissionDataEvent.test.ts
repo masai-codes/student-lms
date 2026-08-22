@@ -12,6 +12,8 @@ const BATCH_USER = {
   batchId: 10,
   meta: null,
   history: null,
+  status: 'active',
+  deletedAt: null,
 }
 
 const updateAdmissionDataForBatch = vi.hoisted(() => vi.fn())

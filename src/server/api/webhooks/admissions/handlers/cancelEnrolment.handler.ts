@@ -12,7 +12,8 @@ const FN = 'handleCancelEnrolment'
  *
  * Inbound webhook the admissions platform calls to cancel an enrolment.
  * Authorized with the shared `ADMISSIONS_API_KEY` secret in the `x-api-key`
- * header. Body: `{ enrolment_id }`. Returns
+ * header. Body: `{ enrolment_id, client?, batch_id? }` — `client` and `batch_id`
+ * only narrow which `batch_user` the enrolment resolves to. Returns
  * `{ batchUserId, userId, batchId, cancelledSectionUserIds }`.
  */
 export async function handleCancelEnrolment(

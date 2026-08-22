@@ -56,4 +56,31 @@ describe('cancelEnrolmentSchema', () => {
         .success,
     ).toBe(false)
   })
+
+  it('accepts a positive integer batch_id', () => {
+    const parsed = cancelEnrolmentSchema.safeParse({
+      enrolment_id: 123,
+      batch_id: 10,
+    })
+    expect(parsed.success && parsed.data.batch_id).toBe(10)
+  })
+
+  it('accepts a null batch_id as "not sent"', () => {
+    const parsed = cancelEnrolmentSchema.safeParse({
+      enrolment_id: 123,
+      batch_id: null,
+    })
+    expect(parsed.success && parsed.data.batch_id).toBe(null)
+  })
+
+  it('rejects a non-positive or non-integer batch_id', () => {
+    expect(
+      cancelEnrolmentSchema.safeParse({ enrolment_id: 123, batch_id: 0 })
+        .success,
+    ).toBe(false)
+    expect(
+      cancelEnrolmentSchema.safeParse({ enrolment_id: 123, batch_id: 1.5 })
+        .success,
+    ).toBe(false)
+  })
 })

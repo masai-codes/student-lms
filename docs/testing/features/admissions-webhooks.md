@@ -2,16 +2,16 @@
 
 ## Scope
 
-- Routes: `src/routes/api/webhooks/admissions/{create-enrolment,cancel-enrolment,events}.ts`
+- Routes: `src/routes/api/webhooks/admissions/{create-enrolment,cancel-enrolment,undo-cancel-enrolment,events}.ts`
 - Handlers: `src/server/api/webhooks/admissions/handlers/**`
-- Services: `createEnrolment.service.ts`, `cancelEnrolment.service.ts`, `events.service.ts`
+- Services: `createEnrolment.service.ts`, `cancelEnrolment.service.ts`, `undoCancelEnrolment.service.ts`, `events.service.ts`
 - Per-event appliers: `steps/applyTransferEvent.ts`, `steps/applyAdmissionDataEvent.ts`
 - Portal meta defaults: `steps/applyPortalNewLmsDefaults.ts` (+ meta keys in `src/server/api/profile/newLmsPreference.service.ts`)
 - Cache invalidation: `src/server/batches/portalEnrollmentCache.ts`
 
 ## Behavior
 
-- `create-enrolment` / `cancel-enrolment` require `x-api-key` (`ADMISSIONS_API_KEY`); `events` is currently unauthenticated by design.
+- `create-enrolment` / `cancel-enrolment` / `undo-cancel-enrolment` require `x-api-key` (`ADMISSIONS_API_KEY`); `events` is currently unauthenticated by design.
 - `events` dispatches on the envelope `type`: `lms.batch.paid`, `lms.batch.transfer.{considered,rejected,completed}`, `lms.invoice.generated`, `lms.fee.deadline.updated`, `lms.batch.pause`, `lms.batch.unpause`. Every event locates the `batch_user` by `data.enrolment_id` (404 `ENROLMENT_NOT_FOUND`) and appends the whole envelope to the audit trail.
 - **Redis invalidation:** after (and only after) the transaction commits, each service calls
   `invalidatePortalEnrollmentCache(userId)`, deleting `enrolledBatchIds:{userId}:{portal}`,
@@ -52,6 +52,10 @@
 | ADM-014 | `create-enrolment` for masai / iHub                                      | `applyPortalNewLmsDefaults` receives the resolved client and no-ops — it never even reads the user row                                  |
 | ADM-015 | iitj user whose meta already has one of the two flags                    | Only the absent key is filled; an explicit existing value (e.g. a support override) is preserved                                        |
 | ADM-016 | iitj user whose meta already has both flags                              | No `UPDATE` issued at all                                                                                                               |
+| ADM-017 | `cancel-enrolment` with `batch_id`                                       | Forwarded to the lookup as an extra filter; only a `batch_user` in that batch can match, a mismatch is 404 `ENROLMENT_NOT_FOUND`        |
+| ADM-018 | `undo-cancel-enrolment` success                                          | batch_user revived (deleted_at cleared, status active, cancel meta keys dropped) + its cancelled section_users revived; cache cleared   |
+| ADM-019 | `undo-cancel-enrolment` on an already-live row                           | `alreadyActive: true`, no revive written                                                                                                |
+| ADM-020 | `undo-cancel-enrolment` section selection                                | Only section_users whose last `meta.history` entry is `cancelled` are revived; other deletions left alone                               |
 
 ## Commands
 
