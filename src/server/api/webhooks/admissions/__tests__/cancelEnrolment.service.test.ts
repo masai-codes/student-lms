@@ -51,6 +51,7 @@ describe('cancelEnrolmentFromAdmissions', () => {
     expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(FAKE_TX, {
       enrolmentId: 123,
       client: undefined,
+      batchId: undefined,
     })
     expect(cancelBatchUser).toHaveBeenCalledWith(
       FAKE_TX,
@@ -73,7 +74,25 @@ describe('cancelEnrolmentFromAdmissions', () => {
     expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(FAKE_TX, {
       enrolmentId: 123,
       client: 'ihub',
+      batchId: undefined,
     })
+  })
+
+  it('forwards the payload batch_id to the lookup as an extra filter', async () => {
+    await cancelEnrolmentFromAdmissions({ enrolment_id: 123, batch_id: 10 })
+    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(FAKE_TX, {
+      enrolmentId: 123,
+      client: undefined,
+      batchId: 10,
+    })
+  })
+
+  it('treats a null batch_id as "not specified"', async () => {
+    await cancelEnrolmentFromAdmissions({ enrolment_id: 123, batch_id: null })
+    expect(findBatchUserByEnrolmentId).toHaveBeenCalledWith(
+      FAKE_TX,
+      expect.objectContaining({ batchId: undefined }),
+    )
   })
 
   it('clears the cached enrolment sets for the student', async () => {
